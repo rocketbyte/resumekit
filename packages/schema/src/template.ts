@@ -144,6 +144,156 @@ export const ResumeEditsSchema = z
 export type ResumeEdits = z.infer<typeof ResumeEditsSchema>;
 
 /**
+ * Typefaces the document may use.
+ *
+ * A curated set, and the curation is the point: every entry is a **system stack**
+ * that needs no download, is metrically common, and extracts cleanly in a
+ * screening system. That is what lets a template keep advertising ATS safety
+ * while the candidate chooses — a free font field could not.
+ *
+ * Data here rather than in the toolbar because two surfaces read it: the editor
+ * today and the PDF renderer next. A font list maintained inside a React
+ * component is a list the server renderer silently disagrees with.
+ */
+export const DOCUMENT_FONTS = {
+  helvetica: {
+    name: 'Helvetica',
+    stack: "'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif",
+  },
+  arial: {
+    name: 'Arial',
+    stack: "Arial, 'Helvetica Neue', Helvetica, 'Liberation Sans', sans-serif",
+  },
+  calibri: {
+    name: 'Calibri',
+    stack: "Calibri, Candara, Segoe, 'Segoe UI', Optima, Arial, sans-serif",
+  },
+  georgia: {
+    name: 'Georgia',
+    stack: "Georgia, Cambria, 'Times New Roman', Times, serif",
+  },
+  garamond: {
+    name: 'Garamond',
+    stack:
+      "Garamond, Baskerville, 'Baskerville Old Face', 'Times New Roman', serif",
+  },
+  times: {
+    name: 'Times',
+    stack: "'Times New Roman', Times, Georgia, serif",
+  },
+} as const;
+
+export type DocumentFontId = keyof typeof DOCUMENT_FONTS;
+export const DocumentFontIdSchema = z.enum(
+  Object.keys(DOCUMENT_FONTS) as [DocumentFontId, ...DocumentFontId[]],
+);
+
+/**
+ * Inks a document (or one line of it) may be set in.
+ *
+ * Document colours, deliberately dark and low-chroma: a resume is read on paper
+ * and in an ATS, and a palette is what keeps "readable when printed in
+ * greyscale" true without asking the candidate to know that.
+ */
+export const INK_COLORS = {
+  ink: { name: 'Ink', hex: '#111111' },
+  slate: { name: 'Slate', hex: '#33414f' },
+  navy: { name: 'Navy', hex: '#1c3a63' },
+  maroon: { name: 'Maroon', hex: '#6b2434' },
+  forest: { name: 'Forest', hex: '#1f4433' },
+  grey: { name: 'Grey', hex: '#5a5a5a' },
+} as const;
+
+export type InkId = keyof typeof INK_COLORS;
+export const InkIdSchema = z.enum(
+  Object.keys(INK_COLORS) as [InkId, ...InkId[]],
+);
+
+/**
+ * The document size scale — a MULTIPLIER on the template's own type scale, not a
+ * point size.
+ *
+ * The template's sizes are a set of relationships (name over heading over body);
+ * a multiplier preserves them, whereas a point size would let a candidate set
+ * body text larger than the headings above it. Bounded because the useful range
+ * is "fit it on one page" / "fill the page", and everything past that is a worse
+ * resume.
+ */
+export const SCALE_MIN = 0.85;
+export const SCALE_MAX = 1.2;
+export const SCALE_STEP = 0.05;
+export const SCALE_DEFAULT = 1;
+
+/** Round to the nearest representable scale, clamped to the bounds. */
+export function normalizeScale(value: number): number {
+  const stepped = Math.round(value / SCALE_STEP) * SCALE_STEP;
+  const clamped = Math.min(SCALE_MAX, Math.max(SCALE_MIN, stepped));
+  // Steps of 0.05 are not exact in binary; two decimals is the domain's precision.
+  return Number(clamped.toFixed(2));
+}
+
+/**
+ * How the whole document is set. Absent means the template's own defaults — a
+ * resume nobody has styled renders exactly as the template defines it.
+ */
+export const DocumentStyleSchema = z.object({
+  font: DocumentFontIdSchema,
+  ink: InkIdSchema,
+  scale: z
+    .number()
+    .min(SCALE_MIN)
+    .max(SCALE_MAX)
+    .describe('Multiplier on the template type scale.'),
+});
+export type DocumentStyle = z.infer<typeof DocumentStyleSchema>;
+
+/** How one line is set, over and above the document's own style. */
+export const FieldAlignSchema = z.enum(['left', 'center', 'right']);
+export type FieldAlign = z.infer<typeof FieldAlignSchema>;
+
+export const FieldFormatSchema = z.object({
+  path: ResumeFieldPathSchema,
+  bold: z.boolean().optional(),
+  align: FieldAlignSchema.optional(),
+  ink: InkIdSchema.optional(),
+});
+export type FieldFormat = z.infer<typeof FieldFormatSchema>;
+
+/** A format carrying no flags says nothing; it is dropped rather than stored. */
+export function formatIsEmpty(format: FieldFormat): boolean {
+  return (
+    format.bold === undefined &&
+    format.align === undefined &&
+    format.ink === undefined
+  );
+}
+
+/**
+ * Per-field formatting.
+ *
+ * A **list** for the same reason `edits` is one: `RunStore.update` writes through
+ * Firestore's `set(…, { merge: true })`, which deep-merges maps, so formatting a
+ * candidate cleared would survive its own clearing.
+ */
+export const ResumeFormatsSchema = z
+  .array(FieldFormatSchema)
+  .refine((f) => new Set(f.map((x) => x.path)).size === f.length, {
+    message: 'Each resume field path may be formatted at most once.',
+  })
+  .refine((f) => f.every((x) => !formatIsEmpty(x)), {
+    message: 'A format with no emphasis, alignment or ink is not stored.',
+  });
+export type ResumeFormats = z.infer<typeof ResumeFormatsSchema>;
+
+/** The format for one path, or undefined when the field carries none. */
+export function formatFor(
+  formats: ResumeFormats | undefined,
+  path: string,
+): FieldFormat | undefined {
+  return formats?.find((f) => f.path === path);
+}
+
+/**
  * How a run's resume is presented: which template, and the candidate's own
  * corrections on top of what the writer produced.
  *
@@ -158,6 +308,10 @@ export type ResumeEdits = z.infer<typeof ResumeEditsSchema>;
 export const ResumePresentationSchema = z.object({
   template_id: TemplateIdSchema,
   edits: ResumeEditsSchema.default([]),
+  /** Absent means the template's own typography (`resume-document-formatting`). */
+  style: DocumentStyleSchema.optional(),
+  /** Absent means no line carries formatting of its own. */
+  formats: ResumeFormatsSchema.optional(),
   updated_at: z.string(),
 });
 export type ResumePresentation = z.infer<typeof ResumePresentationSchema>;
@@ -166,6 +320,8 @@ export type ResumePresentation = z.infer<typeof ResumePresentationSchema>;
 export const PutPresentationRequestSchema = z.object({
   template_id: TemplateIdSchema,
   edits: ResumeEditsSchema.default([]),
+  style: DocumentStyleSchema.optional(),
+  formats: ResumeFormatsSchema.optional(),
 });
 export type PutPresentationRequest = z.infer<
   typeof PutPresentationRequestSchema

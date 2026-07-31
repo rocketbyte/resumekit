@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { TEMPLATES, type TemplateId } from '@cvgs/core';
 import { REGISTERED_NODES, TEMPLATE_RENDERERS } from '../registry.js';
-import { FORBIDDEN_NODE_PROPS } from './locked.js';
+import { BOUNDED_NODE_PROPS, FORBIDDEN_NODE_PROPS } from './locked.js';
 
 /**
  * The lock.
@@ -70,10 +70,14 @@ describe('every registered node refuses movement', () => {
 });
 
 describe('the design is not addressable', () => {
-  it('exposes no presentational prop on any node', () => {
+  it('exposes no ARBITRARY presentational prop on any node', () => {
     /*
      * A node's prop surface is easy to widen and hard to notice widening, so
      * this reads the declared prop interfaces rather than trusting types.
+     *
+     * Bounded formatting (`bold`, `align`, `ink`) is allowed — see `locked.ts`.
+     * What is forbidden is anything through which a caller could express
+     * arbitrary presentation.
      */
     for (const path of templateSources) {
       const source = readFileSync(path, 'utf8');
@@ -81,12 +85,37 @@ describe('the design is not addressable', () => {
         source.match(/interface \w+Props \{[\s\S]*?\n\}/g) ?? [];
       for (const block of interfaces) {
         for (const forbidden of FORBIDDEN_NODE_PROPS) {
-          expect(block, `${path} declares a "${forbidden}" prop`).not.toMatch(
-            new RegExp(`^\\s*${forbidden}\\??:`, 'm'),
+          const match = block.match(
+            new RegExp(`^\\s*${forbidden}\\??:\\s*(.+?);`, 'm'),
           );
+          if (!match) continue;
+
+          /*
+           * `style?: DocumentStyle` is the document's own catalog-bounded style
+           * — a typeface id, an ink id and a scale — not a CSS style object. It
+           * is the one way presentation legitimately enters: once, at the
+           * template root, with every value vetted by the domain. A `style`
+           * typed as anything else would be arbitrary, and still fails here.
+           */
+          expect(
+            match[1].trim(),
+            `${path} declares "${forbidden}" as something unbounded`,
+          ).toBe('DocumentStyle');
         }
       }
     }
+  });
+
+  it('types every formatting prop to the catalog, never to a raw string', () => {
+    // `FieldFormatting` is the single declaration the three nodes extend, so
+    // this is where a free-string `align` or `ink` would have to appear.
+    const source = readFileSync(join(NODE_DIR, 'formatting.ts'), 'utf8');
+    for (const [prop, type] of Object.entries(BOUNDED_NODE_PROPS)) {
+      expect(source, `${prop} is not bounded`).toMatch(
+        new RegExp(`${prop}\\?:\\s*${type}\\b`),
+      );
+    }
+    expect(source).not.toMatch(/(align|ink)\?:\s*string/);
   });
 
   it('declares no canvas, so there is no drop target anywhere', () => {

@@ -6,6 +6,8 @@ import {
 } from '@cvgs/core';
 import { TEMPLATE_RENDERERS } from './registry.js';
 import { presentedResume } from './serialize.js';
+import { PagedSheet } from './PagedSheet.js';
+import { DocumentPresentationProvider } from './presentation-context.js';
 import './designer.css';
 
 export interface TemplateDocumentProps {
@@ -35,9 +37,19 @@ export function TemplateDocument({
   return (
     <div className="tpl-editor tpl-editor--static">
       <Editor resolver={resolver} enabled={false}>
-        <Frame>
-          <Element is={Document} resume={presented} />
-        </Frame>
+        {/* Same paged canvas and the same presentation path as the designer,
+            so a saved resume shows the same pages in the same places as the
+            editor that produced it. */}
+        <DocumentPresentationProvider
+          style={presentation?.style}
+          formats={presentation?.formats}
+        >
+          <PagedSheet measureKey={JSON.stringify(presentation?.style)}>
+            <Frame>
+              <Element is={Document} resume={presented} />
+            </Frame>
+          </PagedSheet>
+        </DocumentPresentationProvider>
       </Editor>
     </div>
   );

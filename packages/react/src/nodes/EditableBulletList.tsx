@@ -1,5 +1,7 @@
 import { useNode } from '@craftjs/core';
 import { LOCKED_RULES } from './locked.js';
+import { formatClass, formatInk, inkAttr } from './formatting.js';
+import { useFieldFormat } from '../presentation-context.js';
 
 export interface EditableBulletListProps {
   /** Where this list lives in the `ResumeObject` — e.g. `experience.0.bullets`. */
@@ -24,6 +26,7 @@ const LAST_BULLET_REASON =
  * document. See `design.md`, decision 4.
  */
 export function EditableBulletList({ path, items }: EditableBulletListProps) {
+  const format = useFieldFormat(path);
   const {
     connectors: { connect },
     selected,
@@ -55,7 +58,9 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
       ref={(ref) => {
         if (ref) connect(ref);
       }}
-      className="tpl-bullets"
+      className={formatClass(format, 'tpl-bullets')}
+      style={formatInk(format)}
+      data-ink={inkAttr(format)}
       data-path={path}
       data-editing={selected || undefined}
     >

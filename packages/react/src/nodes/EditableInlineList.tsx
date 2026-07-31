@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNode } from '@craftjs/core';
 import { LOCKED_RULES } from './locked.js';
+import { formatClass, formatInk, inkAttr } from './formatting.js';
+import { useFieldFormat } from '../presentation-context.js';
 
 export interface EditableInlineListProps {
   /** Where this list lives in the `ResumeObject` — e.g. `skills.0.items`. */
@@ -28,6 +30,7 @@ function split(text: string): string[] {
  * from the array instead would delete the comma the moment it was typed.
  */
 export function EditableInlineList({ path, items }: EditableInlineListProps) {
+  const format = useFieldFormat(path);
   const {
     connectors: { connect },
     selected,
@@ -56,7 +59,12 @@ export function EditableInlineList({ path, items }: EditableInlineListProps) {
       ref={(ref) => {
         if (ref) connect(ref);
       }}
-      className={selected ? 'tpl-text tpl-grow' : 'tpl-text'}
+      className={formatClass(
+        format,
+        selected ? 'tpl-text tpl-grow' : 'tpl-text',
+      )}
+      style={formatInk(format)}
+      data-ink={inkAttr(format)}
       data-path={path}
       data-value={selected ? text : undefined}
     >

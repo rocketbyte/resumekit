@@ -1,0 +1,76 @@
+/*
+ * The paged canvas: inert sheets behind a single continuous flow.
+ *
+ * Lives beside `PagedSheet` and is imported by it, so the component is
+ * self-sufficient — a surface that renders a paged document cannot forget to
+ * bring its own page styling.
+ */
+
+/* ── Paged canvas ───────────────────────────────────────────────────────── */
+
+.tpl-pages {
+  position: relative;
+  width: 8.5in;
+  margin: 0 auto;
+}
+
+/* Inert decoration behind the flow. No content lives here, so no content can be
+   lost to a repagination. */
+.tpl-pages__sheets {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tpl-sheet {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: var(--page-h);
+  background: #ffffff;
+  box-shadow: var(--elevation-2, 0 2px 12px rgb(0 0 0 / 18%));
+}
+
+.tpl-sheet__number {
+  position: absolute;
+  right: 0;
+  bottom: calc(var(--page-gap) * -1);
+  padding-top: 4px;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-subtle);
+}
+
+.tpl-pages__flow {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+ * The document stops painting its own paper.
+ *
+ * The flow is continuous, so a white background on the template root would run
+ * straight through the gaps and hide the very page boundaries this component
+ * exists to show. The sheets behind it ARE the paper; the document only needs to
+ * keep its margins, which is what positions text inside them.
+ */
+.tpl-pages__flow .tpl-harvard {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* On paper the sheets and their numbers are the browser's job, not ours. */
+@media print {
+  .fmt {
+    display: none !important;
+  }
+
+  .tpl-pages__sheets {
+    display: none !important;
+  }
+
+  .tpl-pages {
+    width: auto;
+    margin: 0;
+  }
+}

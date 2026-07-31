@@ -28,6 +28,9 @@
   color: inherit;
   letter-spacing: inherit;
   line-height: inherit;
+  /* Not inherited by form controls in the UA stylesheet, so an aligned field
+     would align its static text and not the field that replaces it. */
+  text-align: inherit;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -61,6 +64,7 @@
   font: inherit;
   letter-spacing: inherit;
   line-height: inherit;
+  text-align: inherit;
 }
 
 .tpl-grow > .tpl-input,

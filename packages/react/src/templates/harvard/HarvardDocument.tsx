@@ -1,5 +1,12 @@
+import type { CSSProperties } from 'react';
 import { Element, useNode } from '@craftjs/core';
-import type { ResumeObject } from '@cvgs/core';
+import {
+  DOCUMENT_FONTS,
+  INK_COLORS,
+  type DocumentStyle,
+  type ResumeObject,
+} from '@cvgs/core';
+import { useDocumentStyle } from '../../presentation-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { EditableInlineList } from '../../nodes/EditableInlineList.js';
@@ -22,10 +29,32 @@ import './harvard.css';
  *
  * A section the resume has no data for is omitted, never rendered empty.
  */
-export function HarvardDocument({ resume }: { resume: ResumeObject }) {
+export interface HarvardDocumentProps {
+  resume: ResumeObject;
+}
+
+/**
+ * The document style reaches the page as three custom properties on ONE element
+ * — the template root — which every rule in `harvard.css` already reads. So the
+ * stylesheet stays the only definition of how a Harvard resume looks, and no node
+ * has to be handed a style to make a typeface change.
+ */
+function documentStyle(style: DocumentStyle | undefined): CSSProperties {
+  if (!style) return {};
+  return {
+    '--h-font': DOCUMENT_FONTS[style.font].stack,
+    '--h-ink': INK_COLORS[style.ink].hex,
+    '--h-scale': String(style.scale),
+  } as CSSProperties;
+}
+
+export function HarvardDocument({ resume }: HarvardDocumentProps) {
   const {
     connectors: { connect },
   } = useNode();
+  // Live, for the reason `presentation-context.tsx` explains: a node prop would
+  // be frozen at mount and no style change would ever appear.
+  const style = useDocumentStyle();
 
   const contact = [
     resume.contact.location && { path: 'contact.location' },
@@ -39,9 +68,10 @@ export function HarvardDocument({ resume }: { resume: ResumeObject }) {
         if (ref) connect(ref);
       }}
       className="tpl-harvard"
+      style={documentStyle(style)}
       aria-label="Resume document"
     >
-      <header className="tpl-harvard__head">
+      <header className="tpl-harvard__head" data-block>
         <h1 className="tpl-harvard__name">
           <Element
             id="name"
@@ -96,8 +126,14 @@ export function HarvardDocument({ resume }: { resume: ResumeObject }) {
 
       {resume.summary && (
         <section className="tpl-harvard__section">
-          <h2 className="tpl-harvard__section-title">Professional Summary</h2>
-          <p className="tpl-harvard__summary">
+          <h2
+            className="tpl-harvard__section-title"
+            data-block
+            data-keep-with-next
+          >
+            Professional Summary
+          </h2>
+          <p className="tpl-harvard__summary" data-block>
             <Element
               id="summary"
               is={EditableText}
@@ -111,9 +147,15 @@ export function HarvardDocument({ resume }: { resume: ResumeObject }) {
 
       {resume.experience.length > 0 && (
         <section className="tpl-harvard__section">
-          <h2 className="tpl-harvard__section-title">Experience</h2>
+          <h2
+            className="tpl-harvard__section-title"
+            data-block
+            data-keep-with-next
+          >
+            Experience
+          </h2>
           {resume.experience.map((role, i) => (
-            <article key={i} className="tpl-harvard__entry">
+            <article key={i} className="tpl-harvard__entry" data-block>
               <div className="tpl-harvard__entry-head">
                 <span className="tpl-harvard__org">
                   <Element
@@ -161,9 +203,15 @@ export function HarvardDocument({ resume }: { resume: ResumeObject }) {
 
       {resume.education.length > 0 && (
         <section className="tpl-harvard__section">
-          <h2 className="tpl-harvard__section-title">Education</h2>
+          <h2
+            className="tpl-harvard__section-title"
+            data-block
+            data-keep-with-next
+          >
+            Education
+          </h2>
           {resume.education.map((school, i) => (
-            <article key={i} className="tpl-harvard__entry">
+            <article key={i} className="tpl-harvard__entry" data-block>
               <div className="tpl-harvard__entry-head">
                 <span className="tpl-harvard__org">
                   <Element
@@ -188,8 +236,14 @@ export function HarvardDocument({ resume }: { resume: ResumeObject }) {
 
       {resume.skills.length > 0 && (
         <section className="tpl-harvard__section">
-          <h2 className="tpl-harvard__section-title">Technical Skills</h2>
-          <ul className="tpl-harvard__skills">
+          <h2
+            className="tpl-harvard__section-title"
+            data-block
+            data-keep-with-next
+          >
+            Technical Skills
+          </h2>
+          <ul className="tpl-harvard__skills" data-block>
             {resume.skills.map((group, i) => (
               <li key={i} className="tpl-harvard__skill-group">
                 <span className="tpl-harvard__skill-label">
@@ -215,8 +269,14 @@ export function HarvardDocument({ resume }: { resume: ResumeObject }) {
 
       {resume.certifications.length > 0 && (
         <section className="tpl-harvard__section">
-          <h2 className="tpl-harvard__section-title">Certifications</h2>
-          <p className="tpl-harvard__inline-list">
+          <h2
+            className="tpl-harvard__section-title"
+            data-block
+            data-keep-with-next
+          >
+            Certifications
+          </h2>
+          <p className="tpl-harvard__inline-list" data-block>
             <Element
               id="certifications"
               is={EditableInlineList}

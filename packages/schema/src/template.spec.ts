@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_TEMPLATE_ID,
+  DOCUMENT_FONTS,
+  DocumentStyleSchema,
+  INK_COLORS,
+  ResumeFormatsSchema,
+  ResumePresentationSchema,
+  SCALE_DEFAULT,
+  SCALE_MAX,
+  SCALE_MIN,
+  formatFor,
+  formatIsEmpty,
+  normalizeScale,
   PutPresentationRequestSchema,
   TEMPLATES,
   TemplateIdSchema,
@@ -291,5 +302,126 @@ describe('PutPresentationRequestSchema', () => {
     });
     expect(Object.keys(parsed).sort()).toEqual(['edits', 'template_id']);
     expect(JSON.stringify(parsed)).not.toMatch(/resolvedName|ROOT|linkedNodes/);
+  });
+});
+
+describe('document formatting catalogs', () => {
+  const fontIds = Object.keys(
+    DOCUMENT_FONTS,
+  ) as (keyof typeof DOCUMENT_FONTS)[];
+  const inkIds = Object.keys(INK_COLORS) as (keyof typeof INK_COLORS)[];
+
+  it.each(fontIds)('%s names a system stack that needs no download', (id) => {
+    const font = DOCUMENT_FONTS[id];
+    expect(font.name.trim().length).toBeGreaterThan(0);
+    // A url() would mean a webfont: a download that can fail, arrive late and
+    // shift a measured page break — and a glyph set an ATS may not have.
+    expect(font.stack).not.toMatch(/url\(|@font-face|https?:/);
+    // Every stack ends in a generic family, so there is always a fallback.
+    expect(font.stack).toMatch(/(sans-serif|serif|monospace)$/);
+  });
+
+  it.each(inkIds)('%s is a dark, document-appropriate ink', (id) => {
+    const { hex } = INK_COLORS[id];
+    expect(hex).toMatch(/^#[0-9a-f]{6}$/);
+    // Readable on white, and still readable printed in greyscale.
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    expect(luminance).toBeLessThan(0.55);
+  });
+
+  it('offers a scale range that is bounded and centred on the template', () => {
+    expect(SCALE_MIN).toBeLessThan(SCALE_DEFAULT);
+    expect(SCALE_MAX).toBeGreaterThan(SCALE_DEFAULT);
+  });
+
+  it('normalizes a scale onto the step, within the bounds', () => {
+    expect(normalizeScale(1.02)).toBe(1);
+    expect(normalizeScale(5)).toBe(SCALE_MAX);
+    expect(normalizeScale(0)).toBe(SCALE_MIN);
+    expect(normalizeScale(1.07)).toBe(1.05);
+  });
+
+  it('refuses a style outside the catalog or the bounds', () => {
+    const ok = { font: 'georgia', ink: 'navy', scale: 1 };
+    expect(DocumentStyleSchema.safeParse(ok).success).toBe(true);
+    expect(
+      DocumentStyleSchema.safeParse({ ...ok, font: 'comic-sans' }).success,
+    ).toBe(false);
+    expect(
+      DocumentStyleSchema.safeParse({ ...ok, ink: 'hotpink' }).success,
+    ).toBe(false);
+    expect(DocumentStyleSchema.safeParse({ ...ok, scale: 3 }).success).toBe(
+      false,
+    );
+    expect(DocumentStyleSchema.safeParse({ ...ok, scale: 0.2 }).success).toBe(
+      false,
+    );
+  });
+});
+
+describe('per-field formatting', () => {
+  it('refuses the same field formatted twice', () => {
+    expect(
+      ResumeFormatsSchema.safeParse([
+        { path: 'summary', bold: true },
+        { path: 'summary', align: 'center' },
+      ]).success,
+    ).toBe(false);
+  });
+
+  it('refuses a record that carries no formatting at all', () => {
+    // Clearing formatting removes the entry; an empty record would be a stored
+    // statement that says nothing.
+    expect(formatIsEmpty({ path: 'summary' })).toBe(true);
+    expect(ResumeFormatsSchema.safeParse([{ path: 'summary' }]).success).toBe(
+      false,
+    );
+  });
+
+  it('finds the format for a path, and nothing for an unformatted one', () => {
+    const formats = [
+      { path: 'name', bold: true, align: 'center' as const },
+      { path: 'summary', ink: 'slate' as const },
+    ];
+    expect(formatFor(formats, 'name')?.align).toBe('center');
+    expect(formatFor(formats, 'headline')).toBeUndefined();
+    expect(formatFor(undefined, 'name')).toBeUndefined();
+  });
+
+  it('addresses fields by the same paths the text edits use', () => {
+    expect(
+      ResumeFormatsSchema.safeParse([
+        { path: 'experience.0.bullets', bold: true },
+      ]).success,
+    ).toBe(true);
+    expect(
+      ResumeFormatsSchema.safeParse([
+        { path: 'experience..bullets', bold: true },
+      ]).success,
+    ).toBe(false);
+  });
+});
+
+describe('a presentation stored before formatting existed', () => {
+  it('still parses, and carries neither style nor formats', () => {
+    const legacy = ResumePresentationSchema.parse({
+      template_id: DEFAULT_TEMPLATE_ID,
+      edits: [{ path: 'summary', value: 'Written in #29.' }],
+      updated_at: '2026-07-31T00:00:00Z',
+    });
+    expect(legacy.style).toBeUndefined();
+    expect(legacy.formats).toBeUndefined();
+  });
+
+  it('accepts a request that carries formatting', () => {
+    const parsed = PutPresentationRequestSchema.parse({
+      template_id: DEFAULT_TEMPLATE_ID,
+      style: { font: 'garamond', ink: 'ink', scale: 0.95 },
+      formats: [{ path: 'name', align: 'center' }],
+    });
+    expect(parsed.style?.font).toBe('garamond');
+    expect(parsed.formats).toHaveLength(1);
+    expect(parsed.edits).toEqual([]);
   });
 });

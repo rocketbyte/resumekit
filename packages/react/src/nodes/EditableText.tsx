@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useNode } from '@craftjs/core';
 import { LOCKED_RULES } from './locked.js';
+import { formatClass, formatInk, inkAttr } from './formatting.js';
+import { useFieldFormat } from '../presentation-context.js';
 
 export interface EditableTextProps {
   /** Where this text lives in the `ResumeObject` — e.g. `experience.0.title`. */
@@ -33,6 +35,9 @@ export function EditableText({
   placeholder,
   multiline,
 }: EditableTextProps) {
+  // Read live, so a formatting change shows the instant it is made — Craft's
+  // node props are the text, and only the text.
+  const format = useFieldFormat(path);
   const {
     connectors: { connect },
     selected,
@@ -58,7 +63,9 @@ export function EditableText({
         ref={(ref) => {
           if (ref) connect(ref);
         }}
-        className="tpl-text"
+        className={formatClass(format, 'tpl-text')}
+        style={formatInk(format)}
+        data-ink={inkAttr(format)}
         data-empty={value.length === 0 || undefined}
         data-path={path}
       >
@@ -72,7 +79,12 @@ export function EditableText({
       ref={(ref) => {
         if (ref) connect(ref);
       }}
-      className={multiline ? 'tpl-text tpl-grow' : 'tpl-text'}
+      className={formatClass(
+        format,
+        multiline ? 'tpl-text tpl-grow' : 'tpl-text',
+      )}
+      style={formatInk(format)}
+      data-ink={inkAttr(format)}
       data-path={path}
       // The grow mirror renders this text invisibly behind the textarea, so the
       // box is always exactly as tall as the content it holds.

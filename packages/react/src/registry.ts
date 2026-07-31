@@ -17,8 +17,17 @@ import './nodes/template-node.css';
  * `@cvgs/core` name exactly the same templates, so a catalog entry with no
  * renderer, or a renderer no catalog knows about, fails the suite.
  */
+/**
+ * What every template's document component accepts: the resume, and nothing
+ * else. Presentation arrives by context, because Craft node props are frozen at
+ * mount — see `presentation-context.tsx`.
+ */
+export interface TemplateDocumentProps {
+  resume: ResumeObject;
+}
+
 export interface TemplateRenderer {
-  Document: ComponentType<{ resume: ResumeObject }>;
+  Document: ComponentType<TemplateDocumentProps>;
   resolver: Resolver;
 }
 
