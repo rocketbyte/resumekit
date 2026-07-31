@@ -1,0 +1,207 @@
+/*
+ * The Harvard template — the single place its design is decided.
+ *
+ * Two rules govern this file:
+ *
+ * 1. **No node can reach it.** Editable nodes carry a domain path and content,
+ *    never a style. Every measurement below is the template's, and the only way
+ *    to change how a Harvard resume looks is to change this file.
+ *
+ * 2. **Paper is not a theme.** Every colour here is a literal, not a design
+ *    token. The app's surfaces are light-default and dark-capable; this is not a
+ *    surface of the app, it is the artifact the app makes, and it will be
+ *    printed on white paper and read in an ATS that has no theme.
+ *
+ * Geometry is US Letter at real size: 8.5in × 11in with 0.5in margins, so what
+ * is on screen is what comes out of the printer.
+ */
+
+.tpl-harvard {
+  --h-ink: #111111;
+  --h-rule: #111111;
+  --h-paper: #ffffff;
+  --h-body: 9.6pt;
+  --h-lead: 1.3;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  min-height: 11in;
+  padding: 0.5in 0.55in;
+  margin: 0 auto;
+  background: var(--h-paper);
+  color: var(--h-ink);
+  /* A system sans stack: what the reference document uses, and what an ATS
+     parses without substituting a font it does not have. */
+  font-family:
+    'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
+  font-size: var(--h-body);
+  line-height: var(--h-lead);
+  text-align: left;
+}
+
+.tpl-harvard *,
+.tpl-harvard *::before,
+.tpl-harvard *::after {
+  box-sizing: inherit;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-harvard__head {
+  text-align: center;
+  margin-bottom: 12pt;
+}
+
+.tpl-harvard__name {
+  margin: 0;
+  font-size: 17pt;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.tpl-harvard__headline {
+  margin: 2pt 0 0;
+  font-size: 10.5pt;
+  font-weight: 400;
+}
+
+.tpl-harvard__contact {
+  margin: 4pt 0 0;
+  font-size: 9pt;
+}
+
+/* The separator is drawn, not typed, so a missing detail cannot leave a stray
+   bar behind it. */
+.tpl-harvard__contact-item + .tpl-harvard__contact-item::before {
+  content: '|';
+  margin: 0 6pt;
+  color: var(--h-ink);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-harvard__section {
+  margin-top: 10pt;
+}
+
+.tpl-harvard__section-title {
+  margin: 0 0 4pt;
+  padding-bottom: 1.5pt;
+  border-bottom: 0.75pt solid var(--h-rule);
+  font-size: 11pt;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.tpl-harvard__summary {
+  margin: 0;
+  text-align: justify;
+}
+
+/* ── Experience & education entries ─────────────────────────────────────── */
+
+.tpl-harvard__entry {
+  margin-top: 7pt;
+  /* Never strand an entry's heading at the foot of a page. */
+  break-inside: avoid;
+}
+
+.tpl-harvard__entry:first-of-type {
+  margin-top: 4pt;
+}
+
+.tpl-harvard__entry-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12pt;
+  break-after: avoid;
+}
+
+.tpl-harvard__org {
+  font-weight: 700;
+}
+
+.tpl-harvard__role,
+.tpl-harvard__where,
+.tpl-harvard__dates {
+  font-weight: 400;
+}
+
+.tpl-harvard__where,
+.tpl-harvard__dates {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── Bullets ────────────────────────────────────────────────────────────── */
+
+.tpl-harvard .tpl-bullets {
+  margin: 3pt 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-harvard .tpl-bullet {
+  /* Hanging indent: a wrapped line aligns with the text above it, not with the
+     marker. Grid does it exactly, where `padding-left` only does it roughly. */
+  display: grid;
+  grid-template-columns: 10pt 1fr;
+  margin-top: 1.5pt;
+}
+
+.tpl-harvard .tpl-bullet::before {
+  content: '•';
+  line-height: inherit;
+}
+
+/* ── Skills ─────────────────────────────────────────────────────────────── */
+
+.tpl-harvard__skills {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-harvard__skill-group {
+  margin-top: 1.5pt;
+  /* Same hanging indent as a bullet, so a long list wraps under its items
+     rather than under its category label. */
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 4pt;
+}
+
+.tpl-harvard__skill-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ── Certifications & languages ─────────────────────────────────────────── */
+
+.tpl-harvard__inline-list {
+  margin: 0;
+}
+
+/* ── Print ──────────────────────────────────────────────────────────────── */
+
+@page {
+  size: letter;
+  /* The document carries its own margins, so the page adds none — otherwise the
+     0.5in below would compound with the browser's default half-inch. */
+  margin: 0;
+}
+
+@media print {
+  .tpl-harvard {
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

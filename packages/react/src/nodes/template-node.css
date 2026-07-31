@@ -1,0 +1,147 @@
+/*
+ * Editing affordances, shared by every template.
+ *
+ * The one rule this file exists to keep: an editable field occupies the SAME BOX
+ * whether it is being edited or not. Everything here is either zeroing a
+ * browser default (border, padding, background, font) or positioning a control
+ * outside the document's flow. Nothing here decides how the document looks —
+ * that is the template's stylesheet, and only the template's.
+ */
+
+.tpl-text {
+  /* Inherit everything. The template decided the typography; a field renders in
+     it, it does not have opinions of its own. */
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  white-space: pre-wrap;
+}
+
+.tpl-text[data-empty] {
+  color: #9a9a9a;
+  font-style: italic;
+}
+
+.tpl-input {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  resize: none;
+  overflow: hidden;
+  /* A textarea's default box is content-box with a 2px inset. Both would shift
+     the text by a hair the moment the field appears. */
+  box-sizing: border-box;
+  vertical-align: baseline;
+}
+
+/*
+ * The auto-growing field.
+ *
+ * The mirror renders the same string invisibly in the same grid cell, so the
+ * box is exactly as tall as its content — with no measurement, no `scrollHeight`
+ * read, and no frame where the height is wrong. A wrapping bullet stays wrapped
+ * while it is edited, which an <input> could never do.
+ */
+.tpl-grow {
+  display: grid;
+}
+
+.tpl-grow::after {
+  content: attr(data-value) ' ';
+  white-space: pre-wrap;
+  visibility: hidden;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+
+.tpl-grow > .tpl-input,
+.tpl-grow::after {
+  grid-area: 1 / 1 / 2 / 2;
+}
+
+/* Selection: a hairline the document's own metrics do not feel. */
+.tpl-editor .tpl-text:hover {
+  box-shadow: 0 0 0 1px rgba(60, 110, 220, 0.25);
+  border-radius: 2px;
+  cursor: text;
+}
+
+.tpl-editor .tpl-input:focus-visible {
+  box-shadow: 0 0 0 1px rgba(60, 110, 220, 0.55);
+  border-radius: 2px;
+}
+
+.tpl-bullets[data-editing] {
+  box-shadow: 0 0 0 1px rgba(60, 110, 220, 0.2);
+  border-radius: 2px;
+}
+
+/*
+ * Bullet controls live in the page's right margin — the one region the document
+ * does not use — so they take up no flow space at all and the line they belong
+ * to does not move when they appear.
+ */
+.tpl-bullet {
+  position: relative;
+}
+
+.tpl-bullet__tools {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  display: flex;
+  gap: 2px;
+  margin-left: 6px;
+}
+
+.tpl-tool {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  font:
+    600 12px/1 system-ui,
+    sans-serif;
+  color: #3f5b96;
+  background: #eef2fb;
+  border: 1px solid #c9d5ee;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.tpl-tool:hover:not(:disabled) {
+  background: #dfe7f9;
+}
+
+.tpl-tool:disabled {
+  color: #a8a8a8;
+  background: #f2f2f2;
+  border-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+/*
+ * On paper the document is the only thing on the page. `onbeforeprint` also
+ * clears the selection so no field is mounted when this applies — these rules
+ * are the belt to that braces.
+ */
+@media print {
+  .tpl-bullet__tools,
+  .tpl-tool {
+    display: none !important;
+  }
+
+  .tpl-text,
+  .tpl-input,
+  .tpl-bullets {
+    box-shadow: none !important;
+  }
+}

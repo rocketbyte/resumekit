@@ -1,0 +1,295 @@
+import { describe, expect, it } from 'vitest';
+import {
+  DEFAULT_TEMPLATE_ID,
+  PutPresentationRequestSchema,
+  TEMPLATES,
+  TemplateIdSchema,
+  applyPresentation,
+  isResumeFieldPath,
+  orderedTemplates,
+  presentationEdits,
+  readAtPath,
+  templateDetails,
+  type EditValue,
+  type TemplateId,
+} from './template.js';
+import type { ResumeObject } from './resume.js';
+
+const templateIds = Object.keys(TEMPLATES) as TemplateId[];
+
+function resume(): ResumeObject {
+  return {
+    name: 'Starlin Gil Cruz',
+    contact: { email: 'me@example.com', location: 'Santo Domingo, DO' },
+    links: [{ label: 'GitHub', url: 'github.com/example' }],
+    headline: 'Senior Software Engineer',
+    summary: 'Ten years building backend platforms.',
+    skills: [{ category: 'Backend', items: ['Node.js', 'TypeScript'] }],
+    experience: [
+      {
+        company: 'Doral Health & Wellness',
+        title: 'Senior Software Engineer',
+        start: '2024-02',
+        end: 'Present',
+        bullets: ['Designed NestJS microservices.', 'Improved API security.'],
+        tech: ['NestJS'],
+      },
+    ],
+    education: [{ school: 'UTESA', degree: 'BSc', field: 'Software' }],
+    certifications: [],
+  };
+}
+
+describe('template catalog', () => {
+  it.each(templateIds)('%s is a complete entry', (id) => {
+    const t = templateDetails(id);
+    expect(t.name.trim().length).toBeGreaterThan(0);
+    expect(t.description.trim().length).toBeGreaterThan(0);
+    expect(['letter', 'a4']).toContain(t.page);
+    expect(t.ats.length).toBeGreaterThan(0);
+  });
+
+  it('refuses an identifier that is not in the catalog', () => {
+    expect(TemplateIdSchema.safeParse('not-a-template').success).toBe(false);
+  });
+
+  it.each(templateIds)('%s is addressable by the derived schema', (id) => {
+    expect(TemplateIdSchema.parse(id)).toBe(id);
+  });
+
+  it('names a default that exists', () => {
+    expect(templateIds).toContain(DEFAULT_TEMPLATE_ID);
+  });
+
+  it('orders every catalog entry exactly once', () => {
+    expect(orderedTemplates().map((t) => t.id)).toEqual(templateIds);
+  });
+});
+
+describe('resume field paths', () => {
+  it.each([
+    'name',
+    'summary',
+    'contact.email',
+    'experience.0.bullets',
+    'skills.12.items',
+    'certifications',
+  ])('accepts %s', (path) => {
+    expect(isResumeFieldPath(path)).toBe(true);
+  });
+
+  it.each([
+    '',
+    '.',
+    'summary.',
+    'Summary',
+    'experience..bullets',
+    'experience.0.bullets;drop',
+    '__proto__',
+    'contact.__proto__.x',
+    'constructor.prototype',
+  ])('rejects %s', (path) => {
+    expect(isResumeFieldPath(path)).toBe(false);
+  });
+});
+
+describe('applyPresentation', () => {
+  it('replaces a scalar field', () => {
+    const out = applyPresentation(resume(), [
+      { path: 'headline', value: 'Backend Engineer' },
+    ]);
+    expect(out.headline).toBe('Backend Engineer');
+  });
+
+  it('replaces a list whole rather than merging it', () => {
+    const out = applyPresentation(resume(), [
+      { path: 'experience.0.bullets', value: ['Only this one.'] },
+    ]);
+    expect(out.experience[0].bullets).toEqual(['Only this one.']);
+  });
+
+  it('lengthens a list the candidate added to', () => {
+    const out = applyPresentation(resume(), [
+      { path: 'experience.0.bullets', value: ['a', 'b', 'c'] },
+    ]);
+    expect(out.experience[0].bullets).toHaveLength(3);
+  });
+
+  it('writes an optional field the writer omitted', () => {
+    const base = resume();
+    delete base.contact.phone;
+    const out = applyPresentation(base, [
+      { path: 'contact.phone', value: '+1 555 0100' },
+    ]);
+    expect(out.contact.phone).toBe('+1 555 0100');
+  });
+
+  it('never mutates the resume it was given', () => {
+    const base = resume();
+    const before = structuredClone(base);
+    applyPresentation(base, [
+      { path: 'experience.0.bullets', value: ['changed'] },
+    ]);
+    expect(base).toEqual(before);
+  });
+
+  it('is a no-op for an empty overlay', () => {
+    const base = resume();
+    expect(applyPresentation(base, [])).toEqual(base);
+  });
+
+  it('skips an unresolvable path and applies the rest', () => {
+    const out = applyPresentation(resume(), [
+      { path: 'experience.9.bullets', value: ['nowhere'] },
+      { path: 'nonexistent.0.field', value: 'nowhere' },
+      { path: 'summary', value: 'Applied anyway.' },
+    ]);
+    expect(out.summary).toBe('Applied anyway.');
+    expect(out.experience).toHaveLength(1);
+  });
+
+  it('drops an unknown leaf key rather than storing it', () => {
+    const out = applyPresentation(resume(), [
+      { path: 'contact.telex', value: 'not a field' },
+    ]) as ResumeObject & { contact: { telex?: string } };
+    expect(out.contact.telex).toBeUndefined();
+  });
+
+  it('rejects a prototype-reaching path without touching the prototype', () => {
+    applyPresentation(resume(), [
+      // The schema-level guard also rejects this; the assertion below is that
+      // nothing escaped before validation ran.
+      { path: '__proto__.polluted', value: 'yes' },
+    ]);
+    expect(({} as Record<string, unknown>)['polluted']).toBeUndefined();
+  });
+
+  it('refuses an edit that breaks the resume schema', () => {
+    expect(() =>
+      applyPresentation(resume(), [{ path: 'name', value: '' }]),
+    ).toThrow();
+    expect(() =>
+      applyPresentation(resume(), [
+        { path: 'experience.0.company', value: '' },
+      ]),
+    ).toThrow();
+  });
+
+  it('refuses a list value where the schema wants a string', () => {
+    expect(() =>
+      applyPresentation(resume(), [{ path: 'summary', value: ['a', 'b'] }]),
+    ).toThrow();
+  });
+});
+
+describe('presentationEdits', () => {
+  it('keeps nothing when nothing changed', () => {
+    const base = resume();
+    const values: Record<string, EditValue> = {
+      summary: base.summary,
+      'experience.0.bullets': [...base.experience[0].bullets],
+      'contact.email': base.contact.email as string,
+    };
+    expect(presentationEdits(base, values)).toEqual([]);
+  });
+
+  it('keeps only the paths that differ', () => {
+    const base = resume();
+    const edits = presentationEdits(base, {
+      summary: base.summary,
+      headline: 'Backend Engineer',
+      'experience.0.bullets': ['Designed NestJS microservices.'],
+    });
+    expect(edits.map((e) => e.path)).toEqual([
+      'experience.0.bullets',
+      'headline',
+    ]);
+  });
+
+  it('treats a reordered list as a change', () => {
+    const base = resume();
+    const reversed = [...base.experience[0].bullets].reverse();
+    expect(
+      presentationEdits(base, { 'experience.0.bullets': reversed }),
+    ).toEqual([{ path: 'experience.0.bullets', value: reversed }]);
+  });
+
+  it('records a value for a field the writer left absent', () => {
+    const base = resume();
+    delete base.contact.phone;
+    expect(presentationEdits(base, { 'contact.phone': '555' })).toEqual([
+      { path: 'contact.phone', value: '555' },
+    ]);
+  });
+
+  it('ignores a malformed path instead of storing it', () => {
+    // Built by parsing rather than as a literal: `{ __proto__: … }` in source is
+    // a prototype assignment, so the literal would never carry the own property
+    // this is meant to reject.
+    const hostile = JSON.parse('{"__proto__":"x","summary.":"y"}') as Record<
+      string,
+      EditValue
+    >;
+    expect(presentationEdits(resume(), hostile)).toEqual([]);
+  });
+
+  it('round-trips: applying the derived overlay reproduces the values', () => {
+    const base = resume();
+    const values: Record<string, EditValue> = {
+      headline: 'Staff Engineer',
+      'experience.0.bullets': ['One.', 'Two.', 'Three.'],
+      'skills.0.items': ['Go', 'Rust'],
+    };
+    const applied = applyPresentation(base, presentationEdits(base, values));
+    for (const [path, value] of Object.entries(values)) {
+      expect(readAtPath(applied, path)).toEqual(value);
+    }
+  });
+});
+
+describe('PutPresentationRequestSchema', () => {
+  it('defaults an omitted overlay to empty', () => {
+    expect(
+      PutPresentationRequestSchema.parse({ template_id: DEFAULT_TEMPLATE_ID }),
+    ).toEqual({ template_id: DEFAULT_TEMPLATE_ID, edits: [] });
+  });
+
+  it('rejects an unknown template', () => {
+    expect(
+      PutPresentationRequestSchema.safeParse({ template_id: 'moderne' })
+        .success,
+    ).toBe(false);
+  });
+
+  it('rejects the same field edited twice', () => {
+    expect(
+      PutPresentationRequestSchema.safeParse({
+        template_id: DEFAULT_TEMPLATE_ID,
+        edits: [
+          { path: 'summary', value: 'a' },
+          { path: 'summary', value: 'b' },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects a malformed field path', () => {
+    expect(
+      PutPresentationRequestSchema.safeParse({
+        template_id: DEFAULT_TEMPLATE_ID,
+        edits: [{ path: 'experience..bullets', value: ['x'] }],
+      }).success,
+    ).toBe(false);
+  });
+
+  it('carries no component name, node id, or editor key', () => {
+    // The stored shape is domain paths and values. If this ever parses an
+    // editor tree, the persistence decision in design.md has been reversed.
+    const parsed = PutPresentationRequestSchema.parse({
+      template_id: DEFAULT_TEMPLATE_ID,
+      edits: [{ path: 'summary', value: 'x' }],
+    });
+    expect(Object.keys(parsed).sort()).toEqual(['edits', 'template_id']);
+    expect(JSON.stringify(parsed)).not.toMatch(/resolvedName|ROOT|linkedNodes/);
+  });
+});
