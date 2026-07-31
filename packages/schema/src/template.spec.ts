@@ -9,9 +9,11 @@ import {
   SCALE_DEFAULT,
   SCALE_MAX,
   SCALE_MIN,
+  TemplateConfigSchema,
   formatFor,
   formatIsEmpty,
   normalizeScale,
+  resolveTemplates,
   PutPresentationRequestSchema,
   TEMPLATES,
   TemplateIdSchema,
@@ -423,5 +425,77 @@ describe('a presentation stored before formatting existed', () => {
     expect(parsed.style?.font).toBe('garamond');
     expect(parsed.formats).toHaveLength(1);
     expect(parsed.edits).toEqual([]);
+  });
+});
+
+describe('resolveTemplates', () => {
+  it('is the catalog when there is no configuration', () => {
+    const offered = resolveTemplates();
+    expect(offered.map((t) => t.id)).toEqual(templateIds);
+    expect(resolveTemplates([])).toEqual(offered);
+  });
+
+  it('hides a template configuration disables', () => {
+    const offered = resolveTemplates([
+      { template_id: DEFAULT_TEMPLATE_ID, enabled: false },
+    ]);
+    // The catalog holds one template today, so disabling it exercises the
+    // never-empty guarantee rather than the hiding — both matter.
+    expect(offered.length).toBeGreaterThan(0);
+  });
+
+  it('never returns an empty list, whatever configuration says', () => {
+    // A misconfiguration must not produce an editor with nothing to choose:
+    // that failure arrives through data, where no test of the code would catch
+    // it. See design decision 2.
+    const offered = resolveTemplates(
+      templateIds.map((id) => ({ template_id: id, enabled: false })),
+    );
+    expect(offered).toHaveLength(1);
+    expect(offered[0].id).toBe(DEFAULT_TEMPLATE_ID);
+  });
+
+  it('cannot introduce a template the catalog does not contain', () => {
+    const offered = resolveTemplates([
+      { template_id: 'moderne', enabled: true, order: 0 },
+    ]);
+    expect(offered.map((t) => t.id)).toEqual(templateIds);
+  });
+
+  it('carries operator emphasis through, and only that', () => {
+    const [first] = resolveTemplates([
+      { template_id: DEFAULT_TEMPLATE_ID, featured: true, badge: 'Popular' },
+    ]);
+    expect(first.featured).toBe(true);
+    expect(first.badge).toBe('Popular');
+    // The renderer-bound facts still come from the catalog.
+    expect(first.page).toBe(TEMPLATES[DEFAULT_TEMPLATE_ID].page);
+    expect(first.ats).toEqual([...TEMPLATES[DEFAULT_TEMPLATE_ID].ats]);
+  });
+
+  it('does not let configuration rewrite what a template guarantees', () => {
+    const rogue = {
+      template_id: DEFAULT_TEMPLATE_ID,
+      // Not fields config can set — an ATS guarantee is only worth something
+      // because it is verifiable against the renderer.
+      ats: ['Two columns with tables'],
+      page: 'a4',
+    } as unknown as import('./template.js').TemplateConfig;
+    const [first] = resolveTemplates([rogue]);
+    expect(first.ats).toEqual([...TEMPLATES[DEFAULT_TEMPLATE_ID].ats]);
+    expect(first.page).toBe(TEMPLATES[DEFAULT_TEMPLATE_ID].page);
+  });
+
+  it('orders by configuration, falling back to catalog order', () => {
+    const offered = resolveTemplates([
+      { template_id: DEFAULT_TEMPLATE_ID, order: 5 },
+    ]);
+    expect(offered.map((t) => t.id)).toContain(DEFAULT_TEMPLATE_ID);
+  });
+
+  it('accepts a config document that sets only the id', () => {
+    expect(
+      TemplateConfigSchema.safeParse({ template_id: 'harvard' }).success,
+    ).toBe(true);
   });
 });

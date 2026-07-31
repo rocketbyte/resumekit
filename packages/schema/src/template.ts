@@ -68,6 +68,96 @@ export function orderedTemplates(): {
 }
 
 /**
+ * Operator configuration for one template.
+ *
+ * Deliberately NOT the whole catalog. Two kinds of fact get called "template
+ * metadata" and they have opposite requirements:
+ *
+ *   - **Renderer-bound facts** — id, page size, ATS guarantees — describe what
+ *     the code DOES. `harvard` is single-column at US Letter because
+ *     `HarvardDocument` and `harvard.css` say so. In a database the two can
+ *     disagree, and the product's central claim becomes a string somebody typed.
+ *     They stay in {@link TEMPLATES}, where a test can hold them to it.
+ *   - **Operator decisions** — offered or not, in what order, emphasised,
+ *     badged — describe what the business wants this week and change without
+ *     any code changing. Needing a deploy for those is the actual complaint.
+ *
+ * This is the second kind. Every field but the id is optional, so a document
+ * that sets only `enabled` is valid configuration.
+ */
+export const TemplateConfigSchema = z.object({
+  template_id: z.string(),
+  enabled: z.boolean().optional(),
+  order: z.number().optional(),
+  featured: z.boolean().optional(),
+  badge: z.string().max(24).optional(),
+});
+export type TemplateConfig = z.infer<typeof TemplateConfigSchema>;
+
+/** A template as offered to a candidate: catalog facts plus operator emphasis. */
+export const OfferedTemplateSchema = z.object({
+  id: TemplateIdSchema,
+  name: z.string(),
+  description: z.string(),
+  page: z.string(),
+  ats: z.array(z.string()),
+  featured: z.boolean().optional(),
+  badge: z.string().optional(),
+});
+export type OfferedTemplate = z.infer<typeof OfferedTemplateSchema>;
+
+function isTemplateId(id: string): id is TemplateId {
+  return Object.prototype.hasOwnProperty.call(TEMPLATES, id);
+}
+
+/**
+ * The templates a candidate is offered: the catalog, layered with operator
+ * configuration. Pure — no I/O, no model call.
+ *
+ * Configuration can hide a template, order it, and emphasise it. It can NEVER
+ * introduce one: an id the catalog does not contain is ignored, because a
+ * template without a renderer is a row that draws nothing.
+ *
+ * The result is never empty. If configuration would leave nothing offered — a
+ * bad seed, a typo, a half-finished migration — the default is offered anyway.
+ * An editor with no template to choose is not a degraded screen but a broken
+ * one, and that failure would arrive through data, where no test would catch it.
+ */
+export function resolveTemplates(
+  configs?: readonly TemplateConfig[],
+): OfferedTemplate[] {
+  const byId = new Map(
+    (configs ?? [])
+      .filter((c) => isTemplateId(c.template_id))
+      .map((c) => [c.template_id as TemplateId, c]),
+  );
+
+  const offered = (Object.keys(TEMPLATES) as TemplateId[])
+    .filter((id) => byId.get(id)?.enabled !== false)
+    .map((id, index) => ({
+      id,
+      ...TEMPLATES[id],
+      ats: [...TEMPLATES[id].ats],
+      // Catalog order is the tiebreak, so an unordered template keeps its place
+      // rather than jumping to the front on a zero default.
+      _order: byId.get(id)?.order ?? index,
+      featured: byId.get(id)?.featured,
+      badge: byId.get(id)?.badge,
+    }))
+    .sort((a, b) => a._order - b._order)
+    .map(({ _order: _drop, ...rest }) => rest);
+
+  if (offered.length > 0) return offered;
+  return [
+    {
+      id: DEFAULT_TEMPLATE_ID,
+      ...TEMPLATES[DEFAULT_TEMPLATE_ID],
+      ats: [...TEMPLATES[DEFAULT_TEMPLATE_ID].ats],
+    },
+  ];
+}
+
+/**
  * Segments that would climb out of the object being edited. Checked by name
  * rather than relying on the final schema parse, because assignment to
  * `__proto__` mutates a shared prototype *before* anything gets validated.
