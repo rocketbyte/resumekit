@@ -320,6 +320,78 @@ export const InkIdSchema = z.enum(
 );
 
 /**
+ * How open the document's vertical rhythm is — a MULTIPLIER on the template's
+ * own spacing, for the same reason `scale` multiplies its type scale rather than
+ * setting a point size.
+ *
+ * A template's spacing is a set of relationships: the gap under a section
+ * heading is smaller than the gap between two sections, and that is a
+ * typographic decision the template made. A multiplier preserves those
+ * relationships; a set of measurements would let a candidate put more air
+ * between a heading and its own body than between two sections.
+ *
+ * Named rather than continuous because the useful positions are three —
+ * "tighter", "as designed", "more open" — and three named values are three test
+ * cases in the guarantee suite.
+ */
+export const DENSITIES = {
+  tight: { name: 'Tight', factor: 0.85 },
+  normal: { name: 'Normal', factor: 1 },
+  roomy: { name: 'Roomy', factor: 1.15 },
+} as const;
+
+export type DensityId = keyof typeof DENSITIES;
+export const DensityIdSchema = z.enum(
+  Object.keys(DENSITIES) as [DensityId, ...DensityId[]],
+);
+
+/** What a document is spaced at before anybody chooses. */
+export const DENSITY_DEFAULT: DensityId = 'normal';
+
+/**
+ * Extra space above one section, or one field.
+ *
+ * The `steps` are counted in the template's OWN spacing unit, not in any
+ * absolute measure — `md` is two of whatever a section gap is in that template,
+ * so Harvard's `md` and Executive's `md` are both "noticeably more air" in their
+ * respective rhythms rather than the same number of millimetres in both.
+ *
+ * This is the control a candidate actually reaches for when a section feels
+ * cramped. Without it the only way to change that gap is the type scale, which
+ * makes every word smaller to fix a margin.
+ */
+export const SECTION_SPACES = {
+  none: { name: 'None', steps: 0 },
+  sm: { name: 'Small', steps: 1 },
+  md: { name: 'Medium', steps: 2 },
+  lg: { name: 'Large', steps: 3 },
+} as const;
+
+export type SectionSpaceId = keyof typeof SECTION_SPACES;
+export const SectionSpaceIdSchema = z.enum(
+  Object.keys(SECTION_SPACES) as [SectionSpaceId, ...SectionSpaceId[]],
+);
+
+/**
+ * The sections spacing can be keyed by.
+ *
+ * A fixed enum of the sections a `ResumeObject` already has — deliberately NOT a
+ * composition model. "Space above Experience" is answerable today, and making it
+ * wait for sections to become addable, removable and orderable would hold a small
+ * control hostage to a much larger change.
+ */
+export const RESUME_SECTIONS = [
+  'summary',
+  'skills',
+  'experience',
+  'education',
+  'certifications',
+] as const;
+
+export type ResumeSectionId = (typeof RESUME_SECTIONS)[number];
+export const ResumeSectionIdSchema = z.enum(RESUME_SECTIONS);
+
+/**
  * The document size scale — a MULTIPLIER on the template's own type scale, not a
  * point size.
  *
@@ -354,6 +426,20 @@ export const DocumentStyleSchema = z.object({
     .min(SCALE_MIN)
     .max(SCALE_MAX)
     .describe('Multiplier on the template type scale.'),
+  /*
+   * The colour a template rules its headings, hairlines and header band with.
+   *
+   * Typed `InkIdSchema` on purpose: an accent IS a document colour, and the
+   * product already has one vetted palette for those — low-chroma and dark
+   * enough to survive greyscale printing. A second palette would be a second
+   * answer to the same question and a second thing to keep honest.
+   *
+   * Optional, because absent means the template's own accent, which is what
+   * every stored document has.
+   */
+  accent: InkIdSchema.optional(),
+  /** Absent means the template's own rhythm — see {@link DENSITIES}. */
+  density: DensityIdSchema.optional(),
 });
 export type DocumentStyle = z.infer<typeof DocumentStyleSchema>;
 
@@ -366,6 +452,8 @@ export const FieldFormatSchema = z.object({
   bold: z.boolean().optional(),
   align: FieldAlignSchema.optional(),
   ink: InkIdSchema.optional(),
+  /** Extra space above this field — the one place a section rule cannot reach. */
+  space: SectionSpaceIdSchema.optional(),
 });
 export type FieldFormat = z.infer<typeof FieldFormatSchema>;
 
@@ -374,7 +462,10 @@ export function formatIsEmpty(format: FieldFormat): boolean {
   return (
     format.bold === undefined &&
     format.align === undefined &&
-    format.ink === undefined
+    format.ink === undefined &&
+    // `none` is the absence of space, not a spacing — storing it would leave a
+    // record of a control being returned to where it started.
+    (format.space === undefined || format.space === 'none')
   );
 }
 
@@ -404,6 +495,120 @@ export function formatFor(
 }
 
 /**
+ * Named presets over the document style.
+ *
+ * A theme is a STARTING POINT, not a mode: applying one writes concrete values
+ * and nothing records that a theme was used. Storing a theme id instead would
+ * make a saved document's appearance depend on a definition that can change
+ * after it was saved — the same class of defect as an unversioned renderer,
+ * reintroduced for no benefit. Concrete values keep rendering a pure function of
+ * stored data, which is what a server-side render requires.
+ *
+ * The cost is that the editor cannot say "you are on Classic" afterwards. That
+ * is a label, and it is not worth a second source of truth about how a document
+ * looks.
+ */
+export const THEMES = {
+  classic: {
+    name: 'Classic',
+    style: {
+      font: 'times',
+      ink: 'ink',
+      accent: 'ink',
+      density: 'normal',
+    },
+  },
+  modern: {
+    name: 'Modern',
+    style: {
+      font: 'helvetica',
+      ink: 'slate',
+      accent: 'navy',
+      density: 'roomy',
+    },
+  },
+  compact: {
+    name: 'Compact',
+    style: {
+      font: 'arial',
+      ink: 'ink',
+      accent: 'grey',
+      density: 'tight',
+    },
+  },
+  academic: {
+    name: 'Academic',
+    style: {
+      font: 'georgia',
+      ink: 'ink',
+      accent: 'maroon',
+      density: 'normal',
+    },
+  },
+} as const satisfies Record<
+  string,
+  {
+    name: string;
+    style: {
+      font: DocumentFontId;
+      ink: InkId;
+      accent: InkId;
+      density: DensityId;
+    };
+  }
+>;
+
+export type ThemeId = keyof typeof THEMES;
+
+/**
+ * Apply a theme, preserving what the theme does not speak to.
+ *
+ * The size scale survives: it is how a candidate fits their resume on one page,
+ * which is a decision about THEIR document rather than about its styling, and
+ * silently resetting it would undo work a theme has no opinion about.
+ */
+export function applyTheme(style: DocumentStyle, id: ThemeId): DocumentStyle {
+  return { ...style, ...THEMES[id].style };
+}
+
+/** Extra space above one named section. */
+export const SectionSpacingSchema = z.object({
+  section: ResumeSectionIdSchema,
+  space: SectionSpaceIdSchema,
+});
+export type SectionSpacing = z.infer<typeof SectionSpacingSchema>;
+
+/**
+ * Space above the document's sections.
+ *
+ * A **list**, for exactly the reason `edits` and `formats` are lists:
+ * `RunStore.update` writes through Firestore's `set(…, { merge: true })`, which
+ * deep-merges maps — so a spacing the candidate cleared would survive its own
+ * clearing if this were keyed.
+ *
+ * `none` is refused rather than stored for the same reason `formatIsEmpty`
+ * drops an empty format: returning a control to where it started should leave no
+ * trace, so an untouched document stores nothing.
+ */
+export const ResumeSectionSpacingSchema = z
+  .array(SectionSpacingSchema)
+  .refine((s) => new Set(s.map((x) => x.section)).size === s.length, {
+    message: 'Each section may be spaced at most once.',
+  })
+  .refine((s) => s.every((x) => x.space !== 'none'), {
+    message: 'A section spaced by nothing is not stored.',
+  });
+export type ResumeSectionSpacing = z.infer<typeof ResumeSectionSpacingSchema>;
+
+/** The spacing for one section, or undefined when it carries none. */
+export function spacingFor(
+  spacing: ResumeSectionSpacing | undefined,
+  section: string,
+): SectionSpacing | undefined {
+  return spacing?.find((s) => s.section === section);
+}
+
+/**
  * How a run's resume is presented: which template, and the candidate's own
  * corrections on top of what the writer produced.
  *
@@ -422,6 +627,8 @@ export const ResumePresentationSchema = z.object({
   style: DocumentStyleSchema.optional(),
   /** Absent means no line carries formatting of its own. */
   formats: ResumeFormatsSchema.optional(),
+  /** Absent means every section sits where the template puts it. */
+  section_spacing: ResumeSectionSpacingSchema.optional(),
   updated_at: z.string(),
 });
 export type ResumePresentation = z.infer<typeof ResumePresentationSchema>;
@@ -432,6 +639,7 @@ export const PutPresentationRequestSchema = z.object({
   edits: ResumeEditsSchema.default([]),
   style: DocumentStyleSchema.optional(),
   formats: ResumeFormatsSchema.optional(),
+  section_spacing: ResumeSectionSpacingSchema.optional(),
 });
 export type PutPresentationRequest = z.infer<
   typeof PutPresentationRequestSchema

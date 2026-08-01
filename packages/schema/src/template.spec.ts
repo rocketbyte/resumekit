@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_TEMPLATE_ID,
+  DENSITIES,
+  DENSITY_DEFAULT,
   DOCUMENT_FONTS,
   DocumentStyleSchema,
   INK_COLORS,
+  ResumeSectionSpacingSchema,
+  THEMES,
+  applyTheme,
+  spacingFor,
   ResumeFormatsSchema,
   ResumePresentationSchema,
   SCALE_DEFAULT,
@@ -497,5 +503,142 @@ describe('resolveTemplates', () => {
     expect(
       TemplateConfigSchema.safeParse({ template_id: 'harvard' }).success,
     ).toBe(true);
+  });
+});
+
+describe('document styling — bounded spacing, accent and themes', () => {
+  const base = {
+    font: 'helvetica',
+    ink: 'ink',
+    scale: SCALE_DEFAULT,
+  } as const;
+
+  it('renders as the template defines it when nothing is styled', () => {
+    // The whole migration story rests on this: every field added here is
+    // optional, so a presentation stored before them stays valid and unchanged.
+    const parsed = DocumentStyleSchema.parse(base);
+    expect(parsed.accent).toBeUndefined();
+    expect(parsed.density).toBeUndefined();
+  });
+
+  it('accepts an accent from the document ink palette', () => {
+    for (const ink of Object.keys(INK_COLORS)) {
+      expect(
+        DocumentStyleSchema.safeParse({ ...base, accent: ink }).success,
+      ).toBe(true);
+    }
+  });
+
+  it('refuses an accent that is not a vetted document colour', () => {
+    // The point of the palette: a colour nobody checked for greyscale print
+    // cannot reach the document.
+    expect(
+      DocumentStyleSchema.safeParse({ ...base, accent: '#ff00ff' }).success,
+    ).toBe(false);
+  });
+
+  it('refuses a density that is not in the catalog', () => {
+    expect(
+      DocumentStyleSchema.safeParse({ ...base, density: 1.4 }).success,
+    ).toBe(false);
+    expect(
+      DocumentStyleSchema.safeParse({ ...base, density: 'airy' }).success,
+    ).toBe(false);
+  });
+
+  it('keeps normal density at exactly the template’s own rhythm', () => {
+    // Not cosmetic: this is what makes the default a no-op and the diff to
+    // every stored resume zero pixels.
+    expect(DENSITIES[DENSITY_DEFAULT].factor).toBe(1);
+  });
+
+  it('spaces a section at most once', () => {
+    expect(
+      ResumeSectionSpacingSchema.safeParse([
+        { section: 'experience', space: 'md' },
+        { section: 'experience', space: 'lg' },
+      ]).success,
+    ).toBe(false);
+  });
+
+  it('does not store a section spaced by nothing', () => {
+    // Returning a control to where it started should leave no trace.
+    expect(
+      ResumeSectionSpacingSchema.safeParse([
+        { section: 'skills', space: 'none' },
+      ]).success,
+    ).toBe(false);
+  });
+
+  it('refuses spacing for a section the resume does not have', () => {
+    expect(
+      ResumeSectionSpacingSchema.safeParse([
+        { section: 'projects', space: 'md' },
+      ]).success,
+    ).toBe(false);
+  });
+
+  it('finds the spacing for a section, and nothing for an unspaced one', () => {
+    const spacing = ResumeSectionSpacingSchema.parse([
+      { section: 'experience', space: 'lg' },
+    ]);
+    expect(spacingFor(spacing, 'experience')?.space).toBe('lg');
+    expect(spacingFor(spacing, 'education')).toBeUndefined();
+    expect(spacingFor(undefined, 'experience')).toBeUndefined();
+  });
+
+  it('treats a field spaced by nothing as carrying no formatting', () => {
+    expect(formatIsEmpty({ path: 'summary', space: 'none' })).toBe(true);
+    expect(formatIsEmpty({ path: 'summary', space: 'md' })).toBe(false);
+  });
+
+  it('carries section spacing through the presentation and the request', () => {
+    const spacing = [{ section: 'skills', space: 'sm' }];
+    expect(
+      ResumePresentationSchema.safeParse({
+        template_id: DEFAULT_TEMPLATE_ID,
+        edits: [],
+        section_spacing: spacing,
+        updated_at: new Date().toISOString(),
+      }).success,
+    ).toBe(true);
+    expect(
+      PutPresentationRequestSchema.safeParse({
+        template_id: DEFAULT_TEMPLATE_ID,
+        section_spacing: spacing,
+      }).success,
+    ).toBe(true);
+  });
+
+  it('applies a theme as concrete values, never as an identifier', () => {
+    const styled = applyTheme(base, 'modern');
+    expect(DocumentStyleSchema.safeParse(styled).success).toBe(true);
+    expect(styled.font).toBe(THEMES.modern.style.font);
+    expect(styled.accent).toBe(THEMES.modern.style.accent);
+    expect(styled.density).toBe(THEMES.modern.style.density);
+    // A stored document must never depend on a definition that can change
+    // under it, so nothing records which theme produced these values.
+    expect(Object.keys(styled)).not.toContain('theme');
+  });
+
+  it('leaves the size scale alone when a theme is applied', () => {
+    // Scale is how a candidate fits their resume on one page — a decision about
+    // their document, not about its styling. A theme has no opinion on it.
+    const fitted = { ...base, scale: SCALE_MIN };
+    expect(applyTheme(fitted, 'compact').scale).toBe(SCALE_MIN);
+  });
+
+  it('draws every theme from the catalogs the controls offer', () => {
+    // A theme is a preset over the same bounded sets, so it cannot be the one
+    // way to reach a value the guarantee suite never enumerates.
+    for (const theme of Object.values(THEMES)) {
+      expect(DOCUMENT_FONTS[theme.style.font]).toBeDefined();
+      expect(INK_COLORS[theme.style.ink]).toBeDefined();
+      expect(INK_COLORS[theme.style.accent]).toBeDefined();
+      expect(DENSITIES[theme.style.density]).toBeDefined();
+      expect(
+        DocumentStyleSchema.safeParse({ ...base, ...theme.style }).success,
+      ).toBe(true);
+    }
   });
 });
