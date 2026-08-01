@@ -5,6 +5,7 @@ import { EditableText } from './nodes/EditableText.js';
 import { EditableBulletList } from './nodes/EditableBulletList.js';
 import { EditableInlineList } from './nodes/EditableInlineList.js';
 import { HarvardDocument } from './templates/harvard/HarvardDocument.js';
+import { ExecutiveDocument } from './templates/executive/ExecutiveDocument.js';
 import './nodes/template-node.css';
 
 /**
@@ -29,6 +30,8 @@ export interface TemplateDocumentProps {
 export interface TemplateRenderer {
   Document: ComponentType<TemplateDocumentProps>;
   resolver: Resolver;
+  /** Decoration for every sheet — a frame drawn per page, not per document. */
+  sheetClassName?: string;
 }
 
 /** The nodes every template edits with. Shared, because the overlay is shared. */
@@ -42,6 +45,12 @@ export const TEMPLATE_RENDERERS: Record<TemplateId, TemplateRenderer> = {
   harvard: {
     Document: HarvardDocument,
     resolver: { ...EDITABLE_NODES, HarvardDocument },
+  },
+  executive: {
+    Document: ExecutiveDocument,
+    resolver: { ...EDITABLE_NODES, ExecutiveDocument },
+    // The navy frame belongs to every page, so it is drawn on the sheets.
+    sheetClassName: 'tpl-sheet--exec',
   },
 };
 

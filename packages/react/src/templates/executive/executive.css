@@ -1,0 +1,283 @@
+/*
+ * The Executive template — the single place its design is decided.
+ *
+ * Same three rules as Harvard: no node can reach this file, paper is not a
+ * theme, and every size is one multiplier off `--e-scale` so the type
+ * relationships are the design and scaling cannot break them.
+ *
+ * What differs is the frame. This page is bordered in navy on EVERY page, which
+ * a border on the document could not do — the document is one continuous flow
+ * across sheets. The frame is drawn on the sheets instead (`.tpl-sheet--exec`),
+ * which stay inert decoration; see `PagedSheet`.
+ */
+
+.tpl-exec {
+  --e-scale: 1;
+  --e-ink: #1f2937;
+  --e-font: 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
+
+  --e-navy: #26314a;
+  --e-rule: #c9cdd6;
+  --e-muted: #5b6373;
+  --e-body: calc(9.4pt * var(--e-scale));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  margin: 0 auto;
+  color: var(--e-ink);
+  font-family: var(--e-font);
+  font-size: var(--e-body);
+  line-height: 1.4;
+}
+
+.tpl-exec *,
+.tpl-exec *::before,
+.tpl-exec *::after {
+  box-sizing: inherit;
+}
+
+.tpl-exec [data-ink] {
+  color: var(--f-ink);
+}
+
+.tpl-exec .is-bold {
+  font-weight: 700;
+}
+
+.tpl-exec .tpl-text.is-left,
+.tpl-exec .tpl-text.is-center,
+.tpl-exec .tpl-text.is-right {
+  display: block;
+}
+
+.tpl-exec .tpl-text.is-left.tpl-grow,
+.tpl-exec .tpl-text.is-center.tpl-grow,
+.tpl-exec .tpl-text.is-right.tpl-grow {
+  display: grid;
+}
+
+.tpl-exec .is-left {
+  text-align: left;
+}
+
+.tpl-exec .is-center {
+  text-align: center;
+}
+
+.tpl-exec .is-right {
+  text-align: right;
+}
+
+/* ── Header band ────────────────────────────────────────────────────────── */
+
+.tpl-exec__band {
+  display: flex;
+  align-items: center;
+  gap: calc(16pt * var(--e-scale));
+  padding: calc(20pt * var(--e-scale)) calc(30pt * var(--e-scale));
+  color: #ffffff;
+  background: var(--e-navy);
+  /*
+   * White on navy is unreadable if the browser declines to print backgrounds —
+   * the name simply disappears. Forced, and stated in the template's ATS notes
+   * rather than left for a candidate to discover on paper.
+   */
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-exec__monogram {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: calc(46pt * var(--e-scale));
+  height: calc(46pt * var(--e-scale));
+  font-size: calc(20pt * var(--e-scale));
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1.5pt solid #ffffff;
+}
+
+.tpl-exec__identity {
+  min-width: 0;
+}
+
+.tpl-exec__name {
+  margin: 0;
+  font-size: calc(26pt * var(--e-scale));
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.tpl-exec__where {
+  margin: calc(5pt * var(--e-scale)) 0 0;
+  font-size: calc(8.5pt * var(--e-scale));
+  color: #d7dbe4;
+}
+
+.tpl-exec__contact {
+  margin: calc(2pt * var(--e-scale)) 0 0;
+  font-size: calc(8.5pt * var(--e-scale));
+  color: #d7dbe4;
+}
+
+/* Drawn, not typed, so a missing detail leaves no stray separator. */
+.tpl-exec__contact-item + .tpl-exec__contact-item::before {
+  content: '/';
+  margin: 0 calc(6pt * var(--e-scale));
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+.tpl-exec__body {
+  padding: calc(16pt * var(--e-scale)) calc(30pt * var(--e-scale))
+    calc(24pt * var(--e-scale));
+}
+
+.tpl-exec__section {
+  padding-bottom: calc(10pt * var(--e-scale));
+  margin-bottom: calc(10pt * var(--e-scale));
+  border-bottom: 0.6pt solid var(--e-rule);
+}
+
+.tpl-exec__section:last-child {
+  border-bottom: 0;
+}
+
+.tpl-exec__heading {
+  margin: 0 0 calc(7pt * var(--e-scale));
+  font-size: calc(8.5pt * var(--e-scale));
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--e-navy);
+}
+
+.tpl-exec__prose {
+  margin: 0;
+}
+
+.tpl-exec__school {
+  margin: calc(1pt * var(--e-scale)) 0 0;
+  color: var(--e-muted);
+}
+
+/* ── Two-column skills ──────────────────────────────────────────────────── */
+
+/*
+ * VISUAL columns over the lists, not structural ones: `columns` reflows a single
+ * document-ordered list into two tracks, so the DOM — and the text a parser
+ * extracts — stays linear. A grid of cells would not, which is the thing that
+ * makes multi-column résumés an ATS risk.
+ */
+.tpl-exec__columns {
+  columns: 2;
+  column-gap: calc(28pt * var(--e-scale));
+}
+
+.tpl-exec__columns .tpl-bullets {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-exec__entry {
+  margin-top: calc(8pt * var(--e-scale));
+  break-inside: avoid;
+}
+
+.tpl-exec__entry:first-of-type {
+  margin-top: 0;
+}
+
+.tpl-exec__entry-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(12pt * var(--e-scale));
+  align-items: baseline;
+  break-after: avoid;
+}
+
+.tpl-exec__sep {
+  margin: 0 calc(5pt * var(--e-scale));
+  color: var(--e-muted);
+}
+
+.tpl-exec__dates {
+  font-size: calc(8.5pt * var(--e-scale));
+  font-style: italic;
+  color: var(--e-muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── Bullets ────────────────────────────────────────────────────────────── */
+
+.tpl-exec .tpl-bullets {
+  margin: calc(4pt * var(--e-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-exec .tpl-bullet {
+  /* Hanging indent, as in Harvard: a wrapped line aligns with the text above
+     it, not under the marker. */
+  display: grid;
+  grid-template-columns: calc(14pt * var(--e-scale)) 1fr;
+  margin-top: calc(2pt * var(--e-scale));
+  /* Never split a bullet across the two columns. */
+  break-inside: avoid;
+}
+
+.tpl-exec .tpl-bullet::before {
+  content: '•';
+  color: var(--e-muted);
+  line-height: inherit;
+}
+
+.tpl-exec__links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-exec__link {
+  display: grid;
+  grid-template-columns: calc(14pt * var(--e-scale)) 1fr;
+  margin-top: calc(2pt * var(--e-scale));
+}
+
+.tpl-exec__link::before {
+  content: '•';
+  color: var(--e-muted);
+}
+
+/* ── The per-sheet frame ────────────────────────────────────────────────── */
+
+/*
+ * Drawn on the SHEETS, not the document. The document is a continuous flow, so
+ * a border on it would draw once around the whole column and align with no page.
+ */
+.tpl-sheet--exec {
+  border: 7px solid #26314a;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+@page {
+  size: letter;
+  margin: 0;
+}
+
+@media print {
+  .tpl-exec {
+    width: auto;
+    margin: 0;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

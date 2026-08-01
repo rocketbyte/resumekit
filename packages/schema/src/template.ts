@@ -35,6 +35,26 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  executive: {
+    name: 'Executive',
+    description:
+      'A coloured header band with a monogram, small-capital section ' +
+      'headings, and a two-column skills list.',
+    page: 'letter',
+    /*
+     * Deliberately NOT Harvard's list. This template's skills run in two
+     * columns, so it must not claim a single one — the honest guarantee is that
+     * the columns are visual: CSS columns over ONE list, leaving the text a
+     * parser extracts in document order.
+     */
+    ats: [
+      'Skills in visual columns over a single list — extracted text stays linear',
+      'No tables, images, or icon fonts carrying meaning',
+      'Real selectable text, standard system typefaces',
+      'Header colour is forced to print, so white-on-navy never vanishes',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
 } as const;
 
 export type TemplateId = keyof typeof TEMPLATES;

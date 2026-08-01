@@ -31,7 +31,7 @@ export function TemplateDocument({
   presentation,
 }: TemplateDocumentProps) {
   const templateId = presentation?.template_id ?? DEFAULT_TEMPLATE_ID;
-  const { Document, resolver } = TEMPLATE_RENDERERS[templateId];
+  const { Document, resolver, sheetClassName } = TEMPLATE_RENDERERS[templateId];
   const presented = presentedResume(resume, presentation?.edits ?? []);
 
   return (
@@ -44,7 +44,10 @@ export function TemplateDocument({
           style={presentation?.style}
           formats={presentation?.formats}
         >
-          <PagedSheet measureKey={JSON.stringify(presentation?.style)}>
+          <PagedSheet
+            measureKey={JSON.stringify(presentation?.style)}
+            sheetClassName={sheetClassName}
+          >
             <Frame>
               <Element is={Document} resume={presented} />
             </Frame>

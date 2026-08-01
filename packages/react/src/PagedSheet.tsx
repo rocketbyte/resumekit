@@ -15,6 +15,10 @@ const PAGE_HEIGHT = 11 * 96;
 const PAGE_MARGIN = 0.5 * 96;
 /** The gap drawn between sheets on screen. Presentation only — never printed. */
 const SHEET_GAP = 28;
+/** How many times a single pagination will re-measure before giving up. */
+const MAX_PASSES = 4;
+/** How many times one pass corrects a push against where it actually landed. */
+const MAX_CORRECTIONS = 3;
 
 /**
  * A repaginate handle, published to whatever can see the content change.
@@ -35,6 +39,16 @@ export function useRepaginate(): () => void {
 export interface PagedSheetProps {
   /** Re-measure whenever this changes — a style change resizes everything. */
   measureKey: string;
+  /**
+   * Decoration a template puts on every SHEET — a frame, a border.
+   *
+   * It cannot live on the document: the document is one continuous flow across
+   * sheets, so a border on it would draw once, around the whole column, aligned
+   * with no page. Sheets stay what they are — inert, hidden from assistive
+   * technology, holding nothing but a page number — so decorating them moves no
+   * content and changes no measurement.
+   */
+  sheetClassName?: string;
   children: ReactNode;
 }
 
@@ -57,7 +71,11 @@ export interface PagedSheetProps {
  * It also degrades honestly — before the first measurement, or if measurement
  * fails, the reader sees a continuous document rather than a broken one.
  */
-export function PagedSheet({ measureKey, children }: PagedSheetProps) {
+export function PagedSheet({
+  measureKey,
+  sheetClassName,
+  children,
+}: PagedSheetProps) {
   const flow = useRef<HTMLDivElement>(null);
   const [pages, setPages] = useState(1);
   /*
@@ -75,11 +93,16 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
    */
   const running = useRef(false);
 
-  const measure = useCallback((root: HTMLDivElement) => {
+  /**
+   * One measuring pass. Returns a signature of the pushes it applied, so the
+   * caller can tell whether anything moved.
+   */
+  const measure = useCallback((root: HTMLDivElement): string => {
     const blocks = Array.from(
       root.querySelectorAll<HTMLElement>('[data-block]'),
     );
-    if (blocks.length === 0) return;
+    // Nothing to measure is a stable state, not a failure.
+    if (blocks.length === 0) return '';
 
     /*
      * Sheet geometry, in flow coordinates — the one model everything below
@@ -111,9 +134,6 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
         block,
         top: rect.top - origin,
         height: rect.height,
-        // A push REPLACES this margin rather than adding to it, so it has to be
-        // carried or every pushed block lands its own margin too high.
-        ownMargin: parseFloat(getComputedStyle(block).marginTop) || 0,
         keepWithNext: block.hasAttribute('data-keep-with-next'),
       };
     });
@@ -121,6 +141,8 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
     let sheet = 0;
     let shift = 0;
     const pushes = new Map<HTMLElement, number>();
+    /** Where each pushed block is SUPPOSED to start, in flow coordinates. */
+    const targets = new Map<HTMLElement, number>();
 
     for (const [index, m] of measured.entries()) {
       const top = m.top + shift;
@@ -142,12 +164,49 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
       if (top + m.height + withNext > textBottom(sheet)) {
         sheet += 1;
         const push = textTop(sheet) - top;
-        pushes.set(m.block, push + m.ownMargin);
+        pushes.set(m.block, push);
+        targets.set(m.block, textTop(sheet));
         shift += push;
       }
     }
 
-    for (const [block, margin] of pushes) block.style.marginTop = `${margin}px`;
+    for (const [block, offset] of pushes) {
+      block.style.marginTop = `${offset}px`;
+    }
+
+    /*
+     * Apply, then VERIFY — do not trust the prediction.
+     *
+     * The arithmetic above assumes a block moves by exactly what it is given.
+     * Real layout disagrees: a pushed block is often the first child of its
+     * section, so its margin COLLAPSES with the section's and part of the offset
+     * is swallowed; and a multi-column block settles to a different height once
+     * laid out. Predicting either is how a section heading ended up floating in
+     * the gap between two pages.
+     *
+     * Measuring the residual absorbs both without modelling them — which is also
+     * why the offset is a MARGIN. A margin moves the block's box, so the
+     * correction can see whether it worked; padding moves only the content
+     * inside the box, leaving the measured position unchanged and the loop
+     * correcting forever.
+     *
+     * So the residual is measured and corrected. Passes over a settled layout
+     * read a residual of zero and change nothing.
+     */
+    for (let correction = 0; correction < MAX_CORRECTIONS; correction++) {
+      const after = root.getBoundingClientRect().top;
+      let worst = 0;
+      for (const [block, target] of targets) {
+        const actual = block.getBoundingClientRect().top - after;
+        const residual = target - actual;
+        if (Math.abs(residual) < 0.5) continue;
+        worst = Math.max(worst, Math.abs(residual));
+        const next = Math.max(0, (pushes.get(block) ?? 0) + residual);
+        pushes.set(block, next);
+        block.style.marginTop = `${next}px`;
+      }
+      if (worst === 0) break;
+    }
 
     // The last block decides the count: whichever sheet its bottom lands on.
     const last = measured[measured.length - 1];
@@ -156,6 +215,8 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
     // Only when it actually changed: this runs on every content change, and a
     // needless state write would re-render the whole document.
     setPages((current) => (current === count ? current : count));
+
+    return [...pushes.values()].map((v) => Math.round(v)).join(',');
   }, []);
 
   /*
@@ -182,7 +243,27 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
       if (!root || running.current) return;
       running.current = true;
       try {
-        measure(root);
+        /*
+         * Measure until it stops changing.
+         *
+         * One pass is not enough: measuring reads the layout, and the layout can
+         * still be settling — a multi-column block reflows to a different height
+         * once its content is laid out, which moves every block after it and
+         * leaves the pushes computed against numbers that no longer hold. That
+         * is how a section heading ended up floating in the gap BETWEEN two
+         * pages: pushed by the right amount for a layout that then shrank.
+         *
+         * Each pass clears its own margins and re-reads, so a pass over a stable
+         * layout is a no-op that returns the same signature and ends the loop.
+         * Bounded, because "keep going until it settles" must terminate even if
+         * a pathological layout oscillates.
+         */
+        let previous = '';
+        for (let pass = 0; pass < MAX_PASSES; pass++) {
+          const applied = measure(root);
+          if (applied === previous) break;
+          previous = applied;
+        }
       } finally {
         running.current = false;
       }
@@ -245,7 +326,9 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
           {Array.from({ length: pages }, (_, i) => (
             <div
               key={i}
-              className="tpl-sheet"
+              className={
+                sheetClassName ? `tpl-sheet ${sheetClassName}` : 'tpl-sheet'
+              }
               style={{ top: `${i * (PAGE_HEIGHT + SHEET_GAP)}px` }}
             >
               <span className="tpl-sheet__number">
