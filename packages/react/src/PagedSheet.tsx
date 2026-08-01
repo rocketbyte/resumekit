@@ -39,16 +39,6 @@ export function useRepaginate(): () => void {
 export interface PagedSheetProps {
   /** Re-measure whenever this changes — a style change resizes everything. */
   measureKey: string;
-  /**
-   * Decoration a template puts on every SHEET — a frame, a border.
-   *
-   * It cannot live on the document: the document is one continuous flow across
-   * sheets, so a border on it would draw once, around the whole column, aligned
-   * with no page. Sheets stay what they are — inert, hidden from assistive
-   * technology, holding nothing but a page number — so decorating them moves no
-   * content and changes no measurement.
-   */
-  sheetClassName?: string;
   children: ReactNode;
 }
 
@@ -71,11 +61,7 @@ export interface PagedSheetProps {
  * It also degrades honestly — before the first measurement, or if measurement
  * fails, the reader sees a continuous document rather than a broken one.
  */
-export function PagedSheet({
-  measureKey,
-  sheetClassName,
-  children,
-}: PagedSheetProps) {
+export function PagedSheet({ measureKey, children }: PagedSheetProps) {
   const flow = useRef<HTMLDivElement>(null);
   const [pages, setPages] = useState(1);
   /*
@@ -326,9 +312,7 @@ export function PagedSheet({
           {Array.from({ length: pages }, (_, i) => (
             <div
               key={i}
-              className={
-                sheetClassName ? `tpl-sheet ${sheetClassName}` : 'tpl-sheet'
-              }
+              className="tpl-sheet"
               style={{ top: `${i * (PAGE_HEIGHT + SHEET_GAP)}px` }}
             >
               <span className="tpl-sheet__number">

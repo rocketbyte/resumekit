@@ -180,9 +180,13 @@ describe('the Executive catalog entry', () => {
     expect(claims).toMatch(/linear/);
   });
 
-  it('decorates every sheet rather than the document', () => {
-    // A border on the document would draw once around a continuous flow and
-    // align with no page.
-    expect(TEMPLATE_RENDERERS.executive.sheetClassName).toBeTruthy();
+  it('leaves the page white — the navy belongs to the header', () => {
+    // The band is the only coloured thing; the sheet behind it is paper.
+    const { container } = renderExec(resume());
+    const band = container.querySelector('.tpl-exec__band');
+    expect(band).toBeTruthy();
+    expect(container.querySelector('.tpl-exec')?.className).not.toMatch(
+      /border|frame/,
+    );
   });
 });

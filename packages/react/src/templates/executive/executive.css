@@ -5,10 +5,8 @@
  * theme, and every size is one multiplier off `--e-scale` so the type
  * relationships are the design and scaling cannot break them.
  *
- * What differs is the frame. This page is bordered in navy on EVERY page, which
- * a border on the document could not do — the document is one continuous flow
- * across sheets. The frame is drawn on the sheets instead (`.tpl-sheet--exec`),
- * which stay inert decoration; see `PagedSheet`.
+ * The navy is the HEADER's, and only the header's: the page itself is white,
+ * like the paper it prints on.
  */
 
 .tpl-exec {
@@ -254,18 +252,6 @@
 .tpl-exec__link::before {
   content: '•';
   color: var(--e-muted);
-}
-
-/* ── The per-sheet frame ────────────────────────────────────────────────── */
-
-/*
- * Drawn on the SHEETS, not the document. The document is a continuous flow, so
- * a border on it would draw once around the whole column and align with no page.
- */
-.tpl-sheet--exec {
-  border: 7px solid #26314a;
-  print-color-adjust: exact;
-  -webkit-print-color-adjust: exact;
 }
 
 @page {
