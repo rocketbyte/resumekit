@@ -304,6 +304,15 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
           {
             '--page-h': `${PAGE_HEIGHT}px`,
             '--page-gap': `${SHEET_GAP}px`,
+            /*
+             * The sheets are absolutely positioned decoration, so they add
+             * nothing to this element's height — it would otherwise collapse to
+             * the TEXT, and a short document would render as a sliver of paper
+             * cut off mid-page. Reserving the sheets' full extent here keeps a
+             * page looking like a page when it is nearly empty, which is exactly
+             * the state a record starts in.
+             */
+            '--pages': pages,
           } as React.CSSProperties
         }
       >

@@ -12,6 +12,12 @@
   position: relative;
   width: 8.5in;
   margin: 0 auto;
+  /* Hold the paper open to every sheet the paginator drew. Absolutely
+     positioned sheets contribute no height, so without this a one-line record
+     is a clipped strip rather than a page. */
+  min-height: calc(
+    var(--pages, 1) * (var(--page-h) + var(--page-gap)) - var(--page-gap)
+  );
 }
 
 /* Inert decoration behind the flow. No content lives here, so no content can be
