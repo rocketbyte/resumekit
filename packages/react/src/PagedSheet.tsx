@@ -8,13 +8,14 @@ import {
   useState,
 } from 'react';
 import type { ReactNode } from 'react';
+import {
+  PAGE_HEIGHT,
+  SHEET_GAP,
+  planPagination,
+  type MeasuredBlock,
+} from './pagination.js';
 import './paged.css';
 
-/** Letter at 96dpi, and the document's own vertical margin, both in CSS pixels. */
-const PAGE_HEIGHT = 11 * 96;
-const PAGE_MARGIN = 0.5 * 96;
-/** The gap drawn between sheets on screen. Presentation only — never printed. */
-const SHEET_GAP = 28;
 /** How many times a single pagination will re-measure before giving up. */
 const MAX_PASSES = 4;
 /** How many times one pass corrects a push against where it actually landed. */
@@ -84,22 +85,30 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
    * caller can tell whether anything moved.
    */
   const measure = useCallback((root: HTMLDivElement): string => {
+    /*
+     * The blocks, with a splittable one replaced by the items inside it.
+     *
+     * A block is what moves whole onto the next sheet, and for almost everything
+     * a résumé holds that is right — an experience entry belongs with its own
+     * bullets. A **keyword rail** is the exception: fifty-odd skills are one list
+     * because they are one field, and treating them as one block makes a thing
+     * taller than the paper, which no amount of pushing can place. Such a
+     * container marks itself `data-split` and its list items become the blocks,
+     * so the rail breaks between two skills like a list rather than being moved
+     * around like a paragraph.
+     *
+     * Document order is preserved, because `flatMap` preserves it.
+     */
     const blocks = Array.from(
       root.querySelectorAll<HTMLElement>('[data-block]'),
+    ).flatMap((block) =>
+      block.hasAttribute('data-split')
+        ? Array.from(block.querySelectorAll<HTMLElement>('li'))
+        : [block],
     );
     // Nothing to measure is a stable state, not a failure.
     if (blocks.length === 0) return '';
 
-    /*
-     * Sheet geometry, in flow coordinates — the one model everything below
-     * reads, rather than arithmetic accumulated as the loop goes. Sheet `k`
-     * occupies `[pitch*k, pitch*k + PAGE_HEIGHT)`, and its TEXT area is that
-     * inset by the document's margin at each end.
-     */
-    const pitch = PAGE_HEIGHT + SHEET_GAP;
-    const textTop = (k: number) => pitch * k + PAGE_MARGIN;
-    const textBottom = (k: number) => pitch * k + PAGE_HEIGHT - PAGE_MARGIN;
-    const usable = PAGE_HEIGHT - PAGE_MARGIN * 2;
     const origin = root.getBoundingClientRect().top;
 
     /*
@@ -107,57 +116,44 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
      *
      * Measuring a block, pushing it, then measuring the next forces the browser
      * to lay the document out again once PER BLOCK, on every keystroke. Instead
-     * the natural layout is read in a single pass and every push is derived
-     * arithmetically from it: pushing a block down by `p` shifts everything after
-     * it by exactly `p`, so a running offset is all the later blocks need. One
-     * reflow, not one per block.
+     * the natural layout is read in a single pass and handed whole to
+     * `planPagination`, which decides every push arithmetically. One reflow, not
+     * one per block.
      */
     for (const block of blocks) block.style.marginTop = '';
 
-    const measured = blocks.map((block) => {
+    const measured: MeasuredBlock<Element>[] = blocks.map((block) => {
       const rect = block.getBoundingClientRect();
       return {
-        block,
+        /*
+         * Which COLUMN this block flows down. A template that lays regions side
+         * by side marks each one `[data-flow]`; everything else answers `root`,
+         * so a single-column document is one flow.
+         *
+         * Read from the block's PARENT, so a block that is itself a flow root
+         * belongs to the flow around it rather than to itself.
+         */
+        flow: block.parentElement?.closest<Element>('[data-flow]') ?? root,
         top: rect.top - origin,
         height: rect.height,
         keepWithNext: block.hasAttribute('data-keep-with-next'),
       };
     });
 
-    let sheet = 0;
-    let shift = 0;
+    const plan = planPagination(measured);
+
+    /*
+     * Back onto the elements the plan indexed. The model deals in positions, so
+     * it never sees a node and cannot move one by mistake.
+     */
     const pushes = new Map<HTMLElement, number>();
-    /** Where each pushed block is SUPPOSED to start, in flow coordinates. */
     const targets = new Map<HTMLElement, number>();
-
-    for (const [index, m] of measured.entries()) {
-      const top = m.top + shift;
-
-      // A block taller than a whole sheet cannot be rescued by pushing it; let
-      // it run, and count the sheets it spans.
-      if (m.height > usable) {
-        sheet = Math.max(sheet, Math.floor((top + m.height) / pitch));
-        continue;
-      }
-
-      /*
-       * A section heading must not be the last thing on a sheet. It is measured
-       * together with whatever follows it — the same intent as the stylesheet's
-       * `break-after: avoid`, which the printer applies to this very document.
-       */
-      const withNext = m.keepWithNext ? (measured[index + 1]?.height ?? 0) : 0;
-
-      if (top + m.height + withNext > textBottom(sheet)) {
-        sheet += 1;
-        const push = textTop(sheet) - top;
-        pushes.set(m.block, push);
-        targets.set(m.block, textTop(sheet));
-        shift += push;
-      }
+    for (const [index, offset] of plan.pushes) {
+      pushes.set(blocks[index], offset);
+      blocks[index].style.marginTop = `${offset}px`;
     }
-
-    for (const [block, offset] of pushes) {
-      block.style.marginTop = `${offset}px`;
+    for (const [index, target] of plan.targets) {
+      targets.set(blocks[index], target);
     }
 
     /*
@@ -194,13 +190,9 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
       if (worst === 0) break;
     }
 
-    // The last block decides the count: whichever sheet its bottom lands on.
-    const last = measured[measured.length - 1];
-    const bottom = last ? last.top + shift + last.height : 0;
-    const count = Math.max(sheet + 1, Math.ceil(bottom / pitch) || 1);
     // Only when it actually changed: this runs on every content change, and a
     // needless state write would re-render the whole document.
-    setPages((current) => (current === count ? current : count));
+    setPages((current) => (current === plan.pages ? current : plan.pages));
 
     return [...pushes.values()].map((v) => Math.round(v)).join(',');
   }, []);
@@ -300,6 +292,13 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
     <RepaginateContext.Provider value={paginate}>
       <div
         className="tpl-pages"
+        /*
+         * There is a gap to hide only once there are two sheets. The stylesheet
+         * masks the flow off at every boundary, and a mask costs a composited
+         * layer on the element the candidate types into — so a one-page résumé
+         * does not carry one.
+         */
+        data-multipage={pages > 1 ? '' : undefined}
         style={
           {
             '--page-h': `${PAGE_HEIGHT}px`,

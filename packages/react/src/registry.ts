@@ -6,6 +6,7 @@ import { EditableBulletList } from './nodes/EditableBulletList.js';
 import { EditableInlineList } from './nodes/EditableInlineList.js';
 import { HarvardDocument } from './templates/harvard/HarvardDocument.js';
 import { ExecutiveDocument } from './templates/executive/ExecutiveDocument.js';
+import { MeridianDocument } from './templates/meridian/MeridianDocument.js';
 import './nodes/template-node.css';
 
 /**
@@ -47,6 +48,10 @@ export const TEMPLATE_RENDERERS: Record<TemplateId, TemplateRenderer> = {
   executive: {
     Document: ExecutiveDocument,
     resolver: { ...EDITABLE_NODES, ExecutiveDocument },
+  },
+  meridian: {
+    Document: MeridianDocument,
+    resolver: { ...EDITABLE_NODES, MeridianDocument },
   },
 };
 

@@ -53,6 +53,35 @@
 }
 
 /*
+   * Nothing is drawn in the gutter, because the gutter is not part of any page.
+   *
+   * The flow is continuous over the gaps between sheets, so anything spanning a
+   * boundary paints across one: a two-column template's dividing rule stitches
+   * the sheets together, and a list too long to move whole spills its items into
+   * the space between them. Neither is a pagination error — the content is on
+   * the sheets the printer will put it on — but both show the reader a page edge
+   * that is not there.
+   *
+   * A mask rather than a strip painted over the top, because the canvas behind
+   * this is a different colour in the editor and in the saved-résumé view, and a
+   * cover that has to match a background is a cover that is wrong somewhere. The
+ * gradient repeats on the same two custom properties the sheets are positioned
+ * with, so the holes cannot drift from the gaps.
+ *
+ * Only on a document that HAS a gap. A mask promotes the whole flow to its own
+ * composited layer, and the flow is what the candidate types into — so a
+ * one-page résumé, which is most of them and the one the product tells people to
+ * aim for, pays nothing for a boundary it does not have.
+ */
+.tpl-pages[data-multipage] .tpl-pages__flow {
+  mask-image: repeating-linear-gradient(
+    to bottom,
+    #000 0 var(--page-h),
+    transparent var(--page-h) calc(var(--page-h) + var(--page-gap))
+  );
+}
+
+/*
  * The document stops painting its own paper.
  *
  * The flow is continuous, so a white background on the template root would run
@@ -78,5 +107,10 @@
   .tpl-pages {
     width: auto;
     margin: 0;
+  }
+
+  /* On paper there is no gap to hide, and a mask here would cut the document. */
+  .tpl-pages[data-multipage] .tpl-pages__flow {
+    mask-image: none;
   }
 }

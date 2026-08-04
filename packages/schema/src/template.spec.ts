@@ -83,6 +83,29 @@ describe('template catalog', () => {
   it('orders every catalog entry exactly once', () => {
     expect(orderedTemplates().map((t) => t.id)).toEqual(templateIds);
   });
+
+  it('gives every template its own guarantees', () => {
+    // A guarantee describes what a renderer does. Two templates sharing one
+    // list means at least one of them is being described by the other's code.
+    const claims = templateIds.map((id) => TEMPLATES[id].ats.join('|'));
+    expect(new Set(claims).size).toBe(claims.length);
+  });
+
+  it('makes Meridian disclose two columns and a reading order', () => {
+    const claims = TEMPLATES.meridian.ats.join(' ').toLowerCase();
+    expect(claims).toMatch(/two columns/);
+    expect(claims).toMatch(/first/);
+  });
+
+  it('does not let Meridian borrow Executive’s linear-text claim', () => {
+    // Executive's columns are CSS columns over one list, so its extracted text
+    // really is linear. Meridian's are grid tracks holding different sections,
+    // where that property does not hold — so the phrasing may not carry over.
+    expect(TEMPLATES.executive.ats.join(' ').toLowerCase()).toMatch(/linear/);
+    expect(TEMPLATES.meridian.ats.join(' ').toLowerCase()).not.toMatch(
+      /linear/,
+    );
+  });
 });
 
 describe('resume field paths', () => {

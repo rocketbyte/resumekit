@@ -55,6 +55,33 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  meridian: {
+    name: 'Meridian',
+    description:
+      'A charcoal crown band with a rule-flanked monogram over a terracotta ' +
+      'contact rule, and a body split by a full-height hairline into a main ' +
+      'column and a keyword sidebar. Its headings are set in the template’s ' +
+      'own serif; the typeface you choose sets everything else.',
+    page: 'letter',
+    /*
+     * A DISCLOSURE, not a reassurance — and the difference is the whole reason
+     * this list is separate from Executive's.
+     *
+     * Executive can say its extracted text stays linear because its columns are
+     * CSS `columns` over ONE list: the DOM order and the read order are the same
+     * order. These columns are grid tracks holding different sections, so that
+     * property does not hold and borrowing the phrasing would put the product's
+     * central claim behind a sentence somebody typed. What IS true is the
+     * reading order, and `meridian.spec.tsx` holds the renderer to it.
+     */
+    ats: [
+      'Two columns — the résumé is written first, so extracted text reads it through before the sidebar',
+      'No tables, images, or icon fonts carrying meaning',
+      'Real selectable text, standard system typefaces',
+      'Both bands are forced to print, so white-on-charcoal never vanishes',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
 } as const;
 
 export type TemplateId = keyof typeof TEMPLATES;
