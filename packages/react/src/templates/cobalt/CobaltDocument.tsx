@@ -133,9 +133,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
       resume.contact.location && ('contact.location' as const),
     ] as const
   ).filter(Boolean) as (
-    | 'contact.email'
-    | 'contact.phone'
-    | 'contact.location'
+    'contact.email' | 'contact.phone' | 'contact.location'
   )[];
 
   return (
