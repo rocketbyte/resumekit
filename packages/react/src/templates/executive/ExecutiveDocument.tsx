@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Element, useNode } from '@craftjs/core';
 import {
+  DENSITIES,
   DOCUMENT_FONTS,
   INK_COLORS,
   type DocumentStyle,
@@ -53,6 +54,15 @@ function documentStyle(style: DocumentStyle | undefined): CSSProperties {
     '--e-font': DOCUMENT_FONTS[style.font].stack,
     '--e-ink': INK_COLORS[style.ink].hex,
     '--e-scale': String(style.scale),
+    /*
+     * Absent means the template's own — `document-styling` (#36) requires a
+     * document that sets neither to render exactly as the template defines it,
+     * so these are written only when the candidate has chosen.
+     */
+    ...(style.accent ? { '--e-accent': INK_COLORS[style.accent].hex } : {}),
+    ...(style.density
+      ? { '--e-density': String(DENSITIES[style.density].factor) }
+      : {}),
   } as CSSProperties;
 }
 

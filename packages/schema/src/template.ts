@@ -20,6 +20,14 @@ import { ResumeObjectSchema, type ResumeObject } from './resume.js';
  * rules. It is not marketing copy: every line must be true of the rendered
  * document, because it is the reason a candidate can trust this output in a
  * screening system.
+ *
+ * `columns` states the same fact as a NUMBER, because the chooser draws a badge
+ * from it and a badge cannot be produced by reading English. The `ats` lines are
+ * sentences written for a candidate, and matching `/two columns/i` against one
+ * would make the badge silently wrong the first time somebody reworded it — in
+ * the one property a screening system reads differently. Structured here, and
+ * `template.spec.ts` asserts the two AGREE rather than deriving one from the
+ * other. See `editor-tabbed-rail` (#48), design decision 3.
  */
 export const TEMPLATES = {
   harvard: {
@@ -28,6 +36,7 @@ export const TEMPLATES = {
       'The classic single-column résumé: centred name block, rule-underlined ' +
       'section headings, and two-column experience entries.',
     page: 'letter',
+    columns: 1,
     ats: [
       'Single column — no sidebar, no text boxes',
       'No tables, images, or icon fonts carrying meaning',
@@ -41,6 +50,13 @@ export const TEMPLATES = {
       'A coloured header band with a monogram, small-capital section ' +
       'headings, and a two-column skills list.',
     page: 'letter',
+    /*
+     * ONE, and the description's "two-column skills list" is not a
+     * contradiction: those are CSS `columns` over a single list, so the body is
+     * one column and the extracted text is linear. This is the number a
+     * screening system cares about, which is why it is not read off the prose.
+     */
+    columns: 1,
     /*
      * Deliberately NOT Harvard's list. This template's skills run in two
      * columns, so it must not claim a single one — the honest guarantee is that
@@ -63,6 +79,7 @@ export const TEMPLATES = {
       'column and a keyword sidebar. Its headings are set in the template’s ' +
       'own serif; the typeface you choose sets everything else.',
     page: 'letter',
+    columns: 2,
     /*
      * A DISCLOSURE, not a reassurance — and the difference is the whole reason
      * this list is separate from Executive's.
@@ -90,6 +107,7 @@ export const TEMPLATES = {
       'keyword rail on the left. Its headings are set in the template’s own ' +
       'serif; the typeface you choose sets everything else.',
     page: 'letter',
+    columns: 2,
     /*
      * Two guarantees here are this template's alone.
      *
@@ -180,6 +198,8 @@ export const OfferedTemplateSchema = z.object({
   name: z.string(),
   description: z.string(),
   page: z.string(),
+  /** How many columns the body is. Drawn as the chooser's badge. */
+  columns: z.number(),
   ats: z.array(z.string()),
   featured: z.boolean().optional(),
   badge: z.string().optional(),
@@ -571,6 +591,7 @@ export function formatFor(
 export const THEMES = {
   classic: {
     name: 'Classic',
+    description: 'Serif and restrained',
     style: {
       font: 'times',
       ink: 'ink',
@@ -580,6 +601,7 @@ export const THEMES = {
   },
   modern: {
     name: 'Modern',
+    description: 'Open and current',
     style: {
       font: 'helvetica',
       ink: 'slate',
@@ -589,6 +611,7 @@ export const THEMES = {
   },
   compact: {
     name: 'Compact',
+    description: 'Tight, fits more',
     style: {
       font: 'arial',
       ink: 'ink',
@@ -598,6 +621,7 @@ export const THEMES = {
   },
   academic: {
     name: 'Academic',
+    description: 'Formal and sober',
     style: {
       font: 'georgia',
       ink: 'ink',
@@ -609,6 +633,8 @@ export const THEMES = {
   string,
   {
     name: string;
+    /** One line telling a candidate what it looks like, not what it sets. */
+    description: string;
     style: {
       font: DocumentFontId;
       ink: InkId;

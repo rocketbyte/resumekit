@@ -15,7 +15,10 @@
   --e-font: 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
 
   --e-navy: #26314a;
-  --e-rule: #c9cdd6;
+  /* See Harvard: absent means what the template already chose. */
+  --e-accent: #c9cdd6;
+  --e-density: 1;
+  --e-rule: var(--e-accent);
   --e-muted: #5b6373;
   --e-body: calc(9.4pt * var(--e-scale));
 
@@ -184,7 +187,7 @@
 /* ── Entries ────────────────────────────────────────────────────────────── */
 
 .tpl-exec__entry {
-  margin-top: calc(8pt * var(--e-scale));
+  margin-top: calc(8pt * var(--e-scale) * var(--e-density));
   break-inside: avoid;
 }
 

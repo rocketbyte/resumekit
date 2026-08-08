@@ -84,6 +84,29 @@ describe('template catalog', () => {
     expect(orderedTemplates().map((t) => t.id)).toEqual(templateIds);
   });
 
+  it('states a column count that agrees with what the guarantees say', () => {
+    /*
+     * AGREES WITH, not derived from. The badge in the chooser is drawn from the
+     * number, and the number exists precisely so nobody has to match a regex
+     * against a sentence written for a candidate — but the two must not be
+     * allowed to drift, so the test that keeps them together is here.
+     */
+    for (const id of templateIds) {
+      const t = TEMPLATES[id];
+      expect([1, 2], id).toContain(t.columns);
+      const saysTwo = /^two columns/i.test(t.ats[0]);
+      expect(t.columns === 2, `${id}: "${t.ats[0]}"`).toBe(saysTwo);
+    }
+  });
+
+  it('counts Executive as one column, whatever its skills list looks like', () => {
+    // Its skills run in CSS `columns` over ONE list, so the body is a single
+    // column and the extracted text is linear. The badge must say what a
+    // screener sees, not what the eye sees.
+    expect(TEMPLATES.executive.columns).toBe(1);
+    expect(TEMPLATES.executive.description).toMatch(/two-column skills/);
+  });
+
   it('gives every template its own guarantees', () => {
     // A guarantee describes what a renderer does. Two templates sharing one
     // list means at least one of them is being described by the other's code.
@@ -538,6 +561,7 @@ describe('resolveTemplates', () => {
     expect(first.badge).toBe('Popular');
     // The renderer-bound facts still come from the catalog.
     expect(first.page).toBe(TEMPLATES[DEFAULT_TEMPLATE_ID].page);
+    expect(first.columns).toBe(TEMPLATES[DEFAULT_TEMPLATE_ID].columns);
     expect(first.ats).toEqual([...TEMPLATES[DEFAULT_TEMPLATE_ID].ats]);
   });
 
@@ -552,6 +576,7 @@ describe('resolveTemplates', () => {
     const [first] = resolveTemplates([rogue]);
     expect(first.ats).toEqual([...TEMPLATES[DEFAULT_TEMPLATE_ID].ats]);
     expect(first.page).toBe(TEMPLATES[DEFAULT_TEMPLATE_ID].page);
+    expect(first.columns).toBe(TEMPLATES[DEFAULT_TEMPLATE_ID].columns);
   });
 
   it('orders by configuration, falling back to catalog order', () => {
