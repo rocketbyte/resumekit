@@ -106,6 +106,45 @@ describe('template catalog', () => {
       /linear/,
     );
   });
+
+  it('makes Cobalt name the sections its extracted text reaches first', () => {
+    /*
+     * Not `/first/` — Meridian's phrasing, and it works there because its main
+     * column is also its left one. This template's rail is on the left, so
+     * "main first" and "left first" point in opposite directions and the
+     * useful thing to state is the ORDER, in section names a candidate
+     * recognises.
+     */
+    const claims = TEMPLATES.cobalt.ats.join(' ').toLowerCase();
+    expect(claims).toMatch(/two columns/);
+    expect(claims).not.toMatch(/linear/);
+    expect(claims).not.toMatch(/single column/);
+
+    const order = ['summary', 'skills', 'education', 'work history'];
+    const at = order.map((section) => claims.indexOf(section));
+    expect(at.every((i) => i >= 0)).toBe(true);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+  });
+
+  it('lets only the templates that force a print colour claim one', () => {
+    // The claim is checkable and it is not shared: a template that paints a
+    // band must say so, and one that paints none may say THAT — but neither
+    // may borrow the other's sentence.
+    expect(TEMPLATES.cobalt.ats.join(' ').toLowerCase()).toMatch(
+      /background graphics off/,
+    );
+    expect(TEMPLATES.cobalt.ats.join(' ').toLowerCase()).not.toMatch(
+      /forced to print/,
+    );
+    for (const id of ['executive', 'meridian'] as const) {
+      expect(TEMPLATES[id].ats.join(' ').toLowerCase()).toMatch(
+        /forced to print/,
+      );
+      expect(TEMPLATES[id].ats.join(' ').toLowerCase()).not.toMatch(
+        /background graphics off/,
+      );
+    }
+  });
 });
 
 describe('resume field paths', () => {

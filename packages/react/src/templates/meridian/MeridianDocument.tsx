@@ -5,12 +5,12 @@ import {
   INK_COLORS,
   type DocumentStyle,
   type ResumeObject,
-  type SkillGroup,
 } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { LOCKED_RULES } from '../../nodes/locked.js';
 import { useDocumentStyle } from '../../presentation-context.js';
+import { isLanguages } from '../skills.js';
 import './meridian.css';
 
 /**
@@ -38,11 +38,6 @@ import './meridian.css';
  * here: entry locations are omitted, and Languages is read from the skills group
  * that names them. See #32's `design.md`, decision 1.
  */
-
-/** Which skills group, if any, is the languages one. */
-function isLanguages(group: SkillGroup): boolean {
-  return /^\s*languages?\b/i.test(group.category);
-}
 
 /**
  * The monogram, derived from the name rather than stored.

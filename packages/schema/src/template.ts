@@ -82,6 +82,39 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  cobalt: {
+    name: 'Cobalt',
+    description:
+      'A cobalt hexagonal crest beside the name in serif, section headings ' +
+      'underlined across their own column, and a body of two columns with the ' +
+      'keyword rail on the left. Its headings are set in the template’s own ' +
+      'serif; the typeface you choose sets everything else.',
+    page: 'letter',
+    /*
+     * Two guarantees here are this template's alone.
+     *
+     * The FIRST names sections rather than a column. "The main column is read
+     * first" is what Meridian can say, because its main column is also its left
+     * one; this template's rail is on the left, so the honest statement is the
+     * order a parser actually gets — and a column name tells a candidate
+     * nothing about their own résumé anyway.
+     *
+     * The FOURTH is the one no other template in this catalog can make. Both
+     * Executive and Meridian force a background colour to print, which is a
+     * promise about a browser setting: when it is declined, reversed type on an
+     * unpainted band does not degrade, it disappears. This template draws no
+     * band at all — every mark it makes is a glyph, a border, or a stroked
+     * outline — so the claim is about paper rather than about a hint, and
+     * `cobalt.spec.tsx` holds the stylesheet to it.
+     */
+    ats: [
+      'Two columns, written in the order they are read — extracted text runs summary, skills and education, then the work history',
+      'No tables, images, or icon fonts carrying meaning',
+      'Real selectable text, standard system typefaces',
+      'No printed band — every mark is foreground ink, so it prints complete with background graphics off',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
 } as const;
 
 export type TemplateId = keyof typeof TEMPLATES;
