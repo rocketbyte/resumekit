@@ -343,12 +343,12 @@ describe('the Cobalt document', () => {
  * Read from disk rather than imported, because the assertion is about what the
  * FILE says: a bundler hands back a URL for a stylesheet, and `?raw` would need
  * Vite's ambient client types this project does not pull in. Resolved from the
- * working directory, which is the app root under `vitest` and the repo root
+ * working directory, which is the library root under `vitest` and the repo root
  * under `nx`.
  */
 function cobaltStylesheet(): string {
-  const rel = 'src/features/template/templates/cobalt/cobalt.css';
-  for (const candidate of [rel, `apps/web/${rel}`]) {
+  const rel = 'src/templates/cobalt/cobalt.css';
+  for (const candidate of [rel, `libs/resume-templates/${rel}`]) {
     const path = resolve(process.cwd(), candidate);
     if (existsSync(path)) return readFileSync(path, 'utf8');
   }

@@ -18,8 +18,10 @@ interface CraftConfig {
 }
 
 // Vitest serves modules from the project root, so `import.meta.url` is not a
-// filesystem path here — resolve from the project's own root instead.
-const FEATURE_DIR = join(process.cwd(), 'src', 'features', 'template');
+// filesystem path here — resolve from the project's own root instead. That root
+// is this library now, so the document lives at `src/` rather than inside an
+// app's feature folder.
+const FEATURE_DIR = join(process.cwd(), 'src');
 const NODE_DIR = join(FEATURE_DIR, 'nodes');
 const TEMPLATE_DIR = join(FEATURE_DIR, 'templates');
 

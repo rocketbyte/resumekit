@@ -1,0 +1,14 @@
+/*
+ * The document's frame: how big the page is, and what survives printing.
+ *
+ * Ships with `TemplateDocument`, so every surface that mounts a résumé — the
+ * editor, the preview, the server-side renderer — gets the page geometry
+ * without having to know which stylesheets to import. The editor's own chrome
+ * is deliberately not here: this is the document, not the workbench.
+ */
+@import './paged.css';
+@import './nodes/template-node.css';
+@import './templates/harvard/harvard.css';
+@import './templates/executive/executive.css';
+@import './templates/meridian/meridian.css';
+@import './templates/cobalt/cobalt.css';

@@ -5,10 +5,10 @@ import {
   type ResumeObject,
 } from '@cvgs/core';
 import { TEMPLATE_RENDERERS } from './registry.js';
-import { presentedResume } from './serialize.js';
+import { presentedResume } from './presented.js';
 import { PagedSheet } from './PagedSheet.js';
 import { DocumentPresentationProvider } from './presentation-context.js';
-import './designer.css';
+import './document.css';
 
 export interface TemplateDocumentProps {
   /** The writer's resume object. */
