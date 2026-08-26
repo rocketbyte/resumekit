@@ -1,0 +1,207 @@
+/*
+ * The typefaces the product supplies.
+ *
+ * `DOCUMENT_FONTS` used to name six *system stacks*, which meant the document
+ * was drawn in whatever the reader's machine happened to substitute: a résumé
+ * set in "Calibri" reached macOS with no Calibri, no Candara, no Segoe and no
+ * Optima installed, fell through the whole stack, and was drawn in Arial. Two
+ * candidates never saw the same document, and a server could not have matched
+ * either of them.
+ *
+ * So the product ships the faces it offers. Each file below is bundled here,
+ * served to the browser from here, and installed into the render container from
+ * here — one set of bytes, so the screen and the PDF resolve the same face.
+ *
+ * Every family is *metrically compatible* with the typeface it stands in for
+ * wherever such a face exists, so a document keeps the line breaks the named
+ * typeface would have produced. See `licenses/` for provenance and terms, and
+ * `README.md` for the measured shift each entry causes.
+ *
+ * These declarations are the supplied face only. The catalog's original stack
+ * stays behind it in `DOCUMENT_FONTS`, so a file that fails to load degrades to
+ * the previous behaviour rather than to nothing.
+ *
+ * No `unicode-range`: these are body faces, so the download happens on any
+ * document regardless, and a character outside the subset already falls through
+ * to the next family in the stack by the browser's own per-glyph fallback.
+ */
+
+/* --- helvetica → TeX Gyre Heros (GUST Font License / LPPL 1.3c) --- */
+@font-face {
+  font-family: 'TeX Gyre Heros';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./heros-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'TeX Gyre Heros';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./heros-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'TeX Gyre Heros';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./heros-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'TeX Gyre Heros';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./heros-700i.woff2') format('woff2');
+}
+
+/* --- arial → Arimo (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Arimo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./arimo-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Arimo';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./arimo-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Arimo';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./arimo-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Arimo';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./arimo-700i.woff2') format('woff2');
+}
+
+/* --- calibri → Carlito (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Carlito';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./carlito-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Carlito';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./carlito-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Carlito';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./carlito-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Carlito';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./carlito-700i.woff2') format('woff2');
+}
+
+/* --- georgia → Gelasio (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Gelasio';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./gelasio-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Gelasio';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./gelasio-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Gelasio';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./gelasio-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Gelasio';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./gelasio-700i.woff2') format('woff2');
+}
+
+/* --- garamond → EB Garamond (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./ebgaramond-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./ebgaramond-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./ebgaramond-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./ebgaramond-700i.woff2') format('woff2');
+}
+
+/* --- times → Tinos (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Tinos';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./tinos-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Tinos';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./tinos-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Tinos';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./tinos-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Tinos';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./tinos-700i.woff2') format('woff2');
+}

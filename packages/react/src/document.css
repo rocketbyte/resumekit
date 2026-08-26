@@ -6,6 +6,7 @@
  * without having to know which stylesheets to import. The editor's own chrome
  * is deliberately not here: this is the document, not the workbench.
  */
+@import './fonts/fonts.css';
 @import './paged.css';
 @import './nodes/template-node.css';
 @import './templates/harvard/harvard.css';

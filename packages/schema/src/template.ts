@@ -496,40 +496,61 @@ export type ResumeEdits = z.infer<typeof ResumeEditsSchema>;
 /**
  * Typefaces the document may use.
  *
- * A curated set, and the curation is the point: every entry is a **system stack**
- * that needs no download, is metrically common, and extracts cleanly in a
- * screening system. That is what lets a template keep advertising ATS safety
- * while the candidate chooses — a free font field could not.
+ * A curated set, and the curation is the point: every entry is metrically
+ * common and extracts cleanly in a screening system. That is what lets a
+ * template keep advertising ATS safety while the candidate chooses — a free
+ * font field could not.
+ *
+ * Each entry has two parts. `supplied` is the face the **product ships**, in
+ * `libs/resume-templates/src/fonts`, and it leads `stack` so it is what the
+ * document is actually drawn in; every supplied face is metrically compatible
+ * with the typeface the entry names, wherever such a face exists. `stack` keeps
+ * the system families behind it as the declared fallback, so a font file that
+ * fails to load degrades to the previous behaviour rather than to nothing.
+ *
+ * Supplying the faces is what makes the document the same everywhere. A résumé
+ * set in "Calibri" used to reach a Mac with no Calibri, Candara, Segoe or Optima
+ * installed, fall through the whole stack, and be drawn in Arial — so no two
+ * readers saw the same document and no server could match either of them.
  *
  * Data here rather than in the toolbar because two surfaces read it: the editor
- * today and the PDF renderer next. A font list maintained inside a React
- * component is a list the server renderer silently disagrees with.
+ * and the PDF renderer. A font list maintained inside a React component is a
+ * list the server renderer silently disagrees with.
  */
 export const DOCUMENT_FONTS = {
   helvetica: {
     name: 'Helvetica',
-    stack: "'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif",
+    supplied: 'TeX Gyre Heros',
+    stack:
+      "'TeX Gyre Heros', 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif",
   },
   arial: {
     name: 'Arial',
-    stack: "Arial, 'Helvetica Neue', Helvetica, 'Liberation Sans', sans-serif",
+    supplied: 'Arimo',
+    stack:
+      "Arimo, Arial, 'Helvetica Neue', Helvetica, 'Liberation Sans', sans-serif",
   },
   calibri: {
     name: 'Calibri',
-    stack: "Calibri, Candara, Segoe, 'Segoe UI', Optima, Arial, sans-serif",
+    supplied: 'Carlito',
+    stack:
+      "Carlito, Calibri, Candara, Segoe, 'Segoe UI', Optima, Arial, sans-serif",
   },
   georgia: {
     name: 'Georgia',
-    stack: "Georgia, Cambria, 'Times New Roman', Times, serif",
+    supplied: 'Gelasio',
+    stack: "Gelasio, Georgia, Cambria, 'Times New Roman', Times, serif",
   },
   garamond: {
     name: 'Garamond',
+    supplied: 'EB Garamond',
     stack:
-      "Garamond, Baskerville, 'Baskerville Old Face', 'Times New Roman', serif",
+      "'EB Garamond', Garamond, Baskerville, 'Baskerville Old Face', 'Times New Roman', serif",
   },
   times: {
     name: 'Times',
-    stack: "'Times New Roman', Times, Georgia, serif",
+    supplied: 'Tinos',
+    stack: "Tinos, 'Times New Roman', Times, Georgia, serif",
   },
 } as const;
 

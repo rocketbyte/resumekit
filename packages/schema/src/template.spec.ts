@@ -420,14 +420,24 @@ describe('document formatting catalogs', () => {
   ) as (keyof typeof DOCUMENT_FONTS)[];
   const inkIds = Object.keys(INK_COLORS) as (keyof typeof INK_COLORS)[];
 
-  it.each(fontIds)('%s names a system stack that needs no download', (id) => {
+  it.each(fontIds)('%s is led by the face the product supplies', (id) => {
     const font = DOCUMENT_FONTS[id];
     expect(font.name.trim().length).toBeGreaterThan(0);
-    // A url() would mean a webfont: a download that can fail, arrive late and
-    // shift a measured page break — and a glyph set an ATS may not have.
+    expect(font.supplied.trim().length).toBeGreaterThan(0);
+    // The supplied face leads, so it is what the document is drawn in — on a
+    // reader's machine and on the server, which is the whole point of shipping
+    // it. `resume-templates` proves a file exists for every one of these.
+    const [first] = font.stack.split(',');
+    expect(first.replace(/['"]/g, '').trim()).toBe(font.supplied);
+    // The stack is a plain font-family list. A url() here would mean the
+    // catalog were declaring its own webfont, competing with the @font-face
+    // rules that actually load these files.
     expect(font.stack).not.toMatch(/url\(|@font-face|https?:/);
     // Every stack ends in a generic family, so there is always a fallback.
     expect(font.stack).toMatch(/(sans-serif|serif|monospace)$/);
+    // The system families stay behind the supplied face: if the file fails to
+    // load the document degrades to what it used to be, not to nothing.
+    expect(font.stack.split(',').length).toBeGreaterThan(2);
   });
 
   it.each(inkIds)('%s is a dark, document-appropriate ink', (id) => {
