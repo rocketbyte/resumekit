@@ -1,5 +1,13 @@
 import { z } from 'zod';
-import { ResumeObjectSchema, type ResumeObject } from './resume.js';
+import {
+  ContentAuthorSchema,
+  LinkTargetSchema,
+  CustomEntrySchema,
+  EducationSchema,
+  ExperienceSchema,
+  ResumeObjectSchema,
+  type ResumeObject,
+} from './resume.js';
 
 /**
  * Resume templates — the renderers that turn a {@link ResumeObject} into a
@@ -306,11 +314,127 @@ export const EditValueSchema = z.union([z.string(), z.array(z.string())]);
 export type EditValue = z.infer<typeof EditValueSchema>;
 
 /** One replaced field: where, and what it now says. */
-export const ResumeEditSchema = z.object({
+export const SetEditSchema = z.object({
+  kind: z.literal('set'),
   path: ResumeFieldPathSchema,
   value: EditValueSchema,
 });
+export type SetEdit = z.infer<typeof SetEditSchema>;
+
+/**
+ * A section that takes appended entries.
+ *
+ * An allowlist rather than any array path: appending is only meaningful for the
+ * listed sections a template draws as repeated entries, and naming them keeps
+ * `experience.0.bullets` — which has its own add/remove control — out of a
+ * second, structural route to the same thing.
+ */
+export const APPENDABLE_SECTIONS = ['experience', 'education'] as const;
+export type AppendableSection = (typeof APPENDABLE_SECTIONS)[number];
+export const AppendableSectionSchema = z.enum(APPENDABLE_SECTIONS);
+
+/**
+ * An entry the candidate added to a listed section.
+ *
+ * `ref` is minted when the entry is created and is how a later `drop` names it.
+ * NOT an index: an index is a claim about the base the overlay was written
+ * against, and the base changes every time the writer runs again.
+ *
+ * `entry` is validated against the section's own schema at apply time, so an
+ * appended role is the same shape as a written one and is edited through the
+ * same locked nodes.
+ */
+export const AppendEditSchema = z.object({
+  kind: z.literal('append'),
+  ref: z.string().min(1),
+  section: AppendableSectionSchema,
+  entry: z.unknown(),
+  author: ContentAuthorSchema,
+});
+export type AppendEdit = z.infer<typeof AppendEditSchema>;
+
+/**
+ * Removal of an addition THIS overlay made.
+ *
+ * There is deliberately no way to express the removal of writer-produced
+ * content. The match score, the requirement audit and `still_missing[]` are all
+ * derived against what the writer produced; a document that can silently lose a
+ * grounded role is one those derivations no longer describe. Correcting such a
+ * role is the `set` path, which already exists.
+ */
+export const DropEditSchema = z.object({
+  kind: z.literal('drop'),
+  ref: z.string().min(1),
+});
+export type DropEdit = z.infer<typeof DropEditSchema>;
+
+/** A section the schema has no concept of, declared by the candidate. */
+export const SectionEditSchema = z.object({
+  kind: z.literal('section'),
+  ref: z.string().min(1),
+  heading: z.string().min(1),
+  entries: z.array(CustomEntrySchema).default([]),
+  author: ContentAuthorSchema,
+});
+export type SectionEdit = z.infer<typeof SectionEditSchema>;
+
+/**
+ * The schema an appended entry is validated against, per section.
+ *
+ * An appended role is the SAME shape as a written one — that is what lets it be
+ * edited through the same locked nodes and rendered by the same template code.
+ * A candidate fills fields; they never compose a layout.
+ */
+const APPEND_SCHEMAS: Record<
+  AppendableSection,
+  typeof ExperienceSchema | typeof EducationSchema
+> = {
+  experience: ExperienceSchema,
+  education: EducationSchema,
+};
+
+/**
+ * One operation in the overlay.
+ *
+ * `kind` is INJECTED as `'set'` when absent, which is what makes this change
+ * additive rather than a migration: every overlay stored before structural
+ * operations existed is a list of bare `{path, value}` objects, and each one
+ * parses here as the replacement it has always been, with exactly its previous
+ * meaning.
+ */
+export const ResumeEditSchema = z.preprocess(
+  (raw) =>
+    raw && typeof raw === 'object' && !('kind' in raw)
+      ? { ...(raw as Record<string, unknown>), kind: 'set' }
+      : raw,
+  z.discriminatedUnion('kind', [
+    SetEditSchema,
+    AppendEditSchema,
+    DropEditSchema,
+    SectionEditSchema,
+  ]),
+);
 export type ResumeEdit = z.infer<typeof ResumeEditSchema>;
+
+/**
+ * Narrowing helpers, so callers never re-derive the discriminant by hand.
+ *
+ * `isSetEdit` treats a MISSING `kind` as a replacement, and that is not
+ * belt-and-braces: the schema injects the default only for values that pass
+ * through it, and an overlay read straight out of storage and handed to
+ * `applyPresentation` never does. Without this, every edit written before
+ * structural operations existed would be silently skipped — the whole document
+ * reverting to the writer's wording with nothing reported. Backward
+ * compatibility has to hold at runtime, not only at the parse boundary.
+ */
+export const isSetEdit = (edit: ResumeEdit): edit is SetEdit =>
+  (edit as { kind?: unknown }).kind === undefined || edit.kind === 'set';
+export const isAppendEdit = (edit: ResumeEdit): edit is AppendEdit =>
+  edit.kind === 'append';
+export const isDropEdit = (edit: ResumeEdit): edit is DropEdit =>
+  edit.kind === 'drop';
+export const isSectionEdit = (edit: ResumeEdit): edit is SectionEdit =>
+  edit.kind === 'section';
 
 /**
  * The overlay: only what actually changed.
@@ -328,9 +452,45 @@ export type ResumeEdit = z.infer<typeof ResumeEditSchema>;
  */
 export const ResumeEditsSchema = z
   .array(ResumeEditSchema)
-  .refine((edits) => new Set(edits.map((e) => e.path)).size === edits.length, {
-    message: 'Each resume field path may be edited at most once.',
-  });
+  .refine(
+    (edits) => {
+      const paths = edits.filter(isSetEdit).map((e) => e.path);
+      return new Set(paths).size === paths.length;
+    },
+    { message: 'Each resume field path may be edited at most once.' },
+  )
+  /*
+   * Additions are identified by `ref`, so two additions sharing one is the same
+   * ambiguity a duplicated path is — and it would make a `drop` name two things.
+   */
+  .refine(
+    (edits) => {
+      const refs = edits
+        .filter((e) => isAppendEdit(e) || isSectionEdit(e))
+        .map((e) => (e as AppendEdit | SectionEdit).ref);
+      return new Set(refs).size === refs.length;
+    },
+    { message: 'Each added entry may be declared at most once.' },
+  )
+  /*
+   * A `drop` may only name an addition this same overlay made. This is where
+   * "the candidate may not remove what the writer produced" is actually
+   * enforced — the operation is simply not expressible against anything else.
+   */
+  .refine(
+    (edits) => {
+      const added = new Set(
+        edits
+          .filter((e) => isAppendEdit(e) || isSectionEdit(e))
+          .map((e) => (e as AppendEdit | SectionEdit).ref),
+      );
+      return edits.filter(isDropEdit).every((drop) => added.has(drop.ref));
+    },
+    {
+      message:
+        'A removal may only name an entry the same overlay added; writer-produced content cannot be removed.',
+    },
+  );
 export type ResumeEdits = z.infer<typeof ResumeEditsSchema>;
 
 /**
@@ -534,6 +694,20 @@ export const FieldFormatSchema = z.object({
   ink: InkIdSchema.optional(),
   /** Extra space above this field — the one place a section rule cannot reach. */
   space: SectionSpaceIdSchema.optional(),
+  /*
+   * Where this field points, if anywhere.
+   *
+   * CONTENT carried on the per-path record, not formatting — the distinction
+   * that matters is `BOUNDED_NODE_PROPS`, which admits `href` as a validated
+   * domain type rather than as a free string. It rides here because this is
+   * already the per-path channel that travels the save path and is addressed by
+   * the same paths the edits use; a second parallel map keyed the same way
+   * would be a second thing to keep in step.
+   *
+   * Validated by `LinkTargetSchema`, so a `javascript:` target cannot reach a
+   * stored document, let alone an exported one.
+   */
+  href: LinkTargetSchema.optional(),
 });
 export type FieldFormat = z.infer<typeof FieldFormatSchema>;
 
@@ -543,6 +717,7 @@ export function formatIsEmpty(format: FieldFormat): boolean {
     format.bold === undefined &&
     format.align === undefined &&
     format.ink === undefined &&
+    format.href === undefined &&
     // `none` is the absence of space, not a spacing — storing it would leave a
     // record of a control being returned to where it started.
     (format.space === undefined || format.space === 'none')
@@ -783,7 +958,59 @@ export function applyPresentation(
 ): ResumeObject {
   const draft = structuredClone(resume) as unknown as Container;
 
-  for (const { path, value } of edits) {
+  /*
+   * Structural operations run FIRST, and replacements second.
+   *
+   * The order is load-bearing: an appended entry becomes an ordinary member of
+   * its section, so a `set` naming `experience.4.title` can address it. Running
+   * replacements first would make an edit to an added entry depend on whether
+   * the entry happened to exist yet, which is exactly the ordering ambiguity
+   * the unique-path rule exists to avoid.
+   */
+  const dropped = new Set(edits.filter(isDropEdit).map((e) => e.ref));
+
+  for (const edit of edits) {
+    if (isAppendEdit(edit)) {
+      if (dropped.has(edit.ref)) continue;
+      const target = (draft as Record<string, unknown>)[edit.section];
+      if (!Array.isArray(target)) continue;
+      /*
+       * Parsed against the section's own schema. An entry that does not fit is
+       * skipped rather than thrown, for the same reason a stale path is: a
+       * stored overlay outlives the code that wrote it, and a résumé that will
+       * not open is a worse failure than an addition that does not show.
+       */
+      const schema = APPEND_SCHEMAS[edit.section];
+      const parsed = schema.safeParse(edit.entry);
+      if (!parsed.success) continue;
+      /*
+       * No `ref` is written into the résumé. The entry keeps its section's own
+       * shape, so `ResumeObject` stays exactly what a template already renders
+       * and the writer's entry schemas gain nothing. Which entries a candidate
+       * added is DERIVED instead — appends land after the base entries in
+       * overlay order, so the boundary is `base[section].length`. See
+       * `appendedRefs` below.
+       */
+      target.push(parsed.data);
+      continue;
+    }
+
+    if (isSectionEdit(edit)) {
+      if (dropped.has(edit.ref)) continue;
+      const sections = (draft as Record<string, unknown>)['custom_sections'];
+      if (!Array.isArray(sections)) continue;
+      sections.push({
+        id: edit.ref,
+        heading: edit.heading,
+        entries: edit.entries,
+        author: edit.author,
+      });
+    }
+  }
+
+  for (const edit of edits) {
+    if (!isSetEdit(edit)) continue;
+    const { path, value } = edit;
     if (!isResumeFieldPath(path)) continue;
     const segments = path.split('.');
     const leaf = segments.pop() as string;
@@ -830,12 +1057,101 @@ function sameValue(a: unknown, b: EditValue): boolean {
 export function presentationEdits(
   base: ResumeObject,
   values: Record<string, EditValue>,
+  /*
+   * The structural operations the document already carries, passed through
+   * untouched.
+   *
+   * They are not derivable from `values`: an append is a decision the candidate
+   * made, not a difference between two texts, and diffing cannot recover it.
+   * Defaulted so every existing caller keeps its current behaviour.
+   */
+  structural: ResumeEdits = [],
 ): ResumeEdits {
-  return Object.entries(values)
+  const sets = Object.entries(values)
     .filter(
       ([path, value]) =>
-        isResumeFieldPath(path) && !sameValue(readAtPath(base, path), value),
+        isResumeFieldPath(path) &&
+        /*
+         * Only paths that ADDRESS the writer's résumé become replacements.
+         *
+         * Without this, the fields of an appended entry — which live at indices
+         * past the end of the base array — would each be emitted as a `set` on
+         * an out-of-range path. They would even apply, since appends run first,
+         * and then silently retarget the wrong entry the next time the writer
+         * produced a résumé of a different length. An addition's text belongs to
+         * the addition, addressed by `ref`; only the base's own fields are
+         * addressed by path.
+         */
+        addressesBase(base, path) &&
+        !sameValue(readAtPath(base, path), value),
     )
-    .map(([path, value]) => ({ path, value }))
+    .map(([path, value]) => ({ kind: 'set' as const, path, value }))
     .sort((a, b) => a.path.localeCompare(b.path));
+
+  /*
+   * Structural first, then replacements sorted by path — the same order
+   * `applyPresentation` resolves them in, so a saved overlay reads in the order
+   * it is applied and saving twice produces the same bytes.
+   */
+  return [...structural.filter((edit) => !isSetEdit(edit)), ...sets];
+}
+
+/**
+ * Whether a path addresses a location in the WRITER's résumé.
+ *
+ * Distinguishes an out-of-range array index (not addressable — that entry does
+ * not exist in the base) from an absent optional field (addressable — a résumé
+ * with no `headline` can still have one typed into it). `readAtPath` returns
+ * `undefined` for both, which is why this cannot be expressed as a null check.
+ */
+function addressesBase(base: ResumeObject, path: string): boolean {
+  let node: unknown = base;
+  for (const segment of path.split('.')) {
+    if (Array.isArray(node)) {
+      const index = Number(segment);
+      if (!Number.isInteger(index) || index < 0 || index >= node.length) {
+        return false;
+      }
+      node = node[index];
+    } else if (node !== null && typeof node === 'object') {
+      node = (node as Record<string, unknown>)[segment];
+    } else {
+      // A leaf was reached before the path was consumed.
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Which entries of a section the candidate added, by their index in the
+ * PRESENTED résumé, paired with the `ref` that names them.
+ *
+ * Derived rather than stored in the document: appends land after the base
+ * entries in overlay order, so the boundary is `base[section].length` and the
+ * order is the overlay's. That is what lets `ResumeObject` stay exactly the
+ * shape a template already renders, with no editor bookkeeping written into it.
+ *
+ * This is the one place the derivation lives — an editor that recomputed it
+ * would be a second definition of "which of these did I add", free to disagree.
+ */
+export function appendedEntryRefs(
+  base: ResumeObject,
+  edits: ResumeEdits,
+  section: AppendableSection,
+): Map<number, string> {
+  const dropped = new Set(edits.filter(isDropEdit).map((e) => e.ref));
+  const baseLength = (base[section] as unknown[]).length;
+  const refs = new Map<number, string>();
+
+  let index = baseLength;
+  for (const edit of edits) {
+    if (!isAppendEdit(edit) || edit.section !== section) continue;
+    if (dropped.has(edit.ref)) continue;
+    // Only entries the schema accepts are appended, so only those take a slot.
+    if (!APPEND_SCHEMAS[section].safeParse(edit.entry).success) continue;
+    refs.set(index, edit.ref);
+    index += 1;
+  }
+  return refs;
 }

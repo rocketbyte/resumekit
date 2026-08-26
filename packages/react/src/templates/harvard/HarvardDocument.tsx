@@ -11,6 +11,7 @@ import { useDocumentStyle } from '../../presentation-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
 import { LOCKED_RULES } from '../../nodes/locked.js';
 import './harvard.css';
 
@@ -127,6 +128,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
                   is={EditableText}
                   path={`links.${i}.label`}
                   value={link.label ?? link.url}
+                  href={link.url}
                 />
               </span>
             ))}
@@ -296,6 +298,16 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
           </p>
         </section>
       )}
+      {/*
+       * The candidate's own sections, after every section this template
+       * knows. Heading in the template's own style; entries in the shared
+       * neutral layout — see `CustomSections.tsx`.
+       */}
+      <CustomSections
+        sections={resume.custom_sections}
+        sectionClass="tpl-harvard__section"
+        headingClass="tpl-harvard__section-title"
+      />
     </article>
   );
 }

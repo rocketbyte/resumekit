@@ -30,6 +30,7 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
       location: 'Santo Domingo, Dominican Republic',
     },
     links: [{ label: 'LinkedIn', url: 'https://linkedin.com/in/example' }],
+    custom_sections: [],
     headline: 'Senior Software Engineer',
     summary: 'Ten years building backend platforms.',
     skills: [

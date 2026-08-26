@@ -9,6 +9,7 @@ import {
 } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
 import { LOCKED_RULES } from '../../nodes/locked.js';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { isLanguages } from '../skills.js';
@@ -396,6 +397,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                       is={EditableText}
                       path={`links.${i}.url`}
                       value={link.url}
+                      href={link.url}
                     />
                   </li>
                 ))}
@@ -404,6 +406,16 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
           )}
         </aside>
       </div>
+      {/*
+       * The candidate's own sections, after every section this template
+       * knows. Heading in the template's own style; entries in the shared
+       * neutral layout — see `CustomSections.tsx`.
+       */}
+      <CustomSections
+        sections={resume.custom_sections}
+        sectionClass="tpl-mer__section"
+        headingClass="tpl-mer__heading"
+      />
     </article>
   );
 }

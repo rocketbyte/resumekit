@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { useNode } from '@craftjs/core';
+import { useEditor, useNode } from '@craftjs/core';
+import { isSafeLinkTarget } from '@cvgs/core';
 import { LOCKED_RULES } from './locked.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
@@ -15,6 +16,17 @@ export interface EditableTextProps {
    * a paragraph and a job title is a line, and that is true in every template.
    */
   multiline?: boolean;
+  /**
+   * Where this text points, supplied by the DOCUMENT rather than by the
+   * candidate's formatting.
+   *
+   * The résumé already carries `links[]` — a label and a URL — and the templates
+   * rendered the label as dead text, so "GitHub" reached an employer as a word
+   * they had to retype. This is that URL. A target the candidate attaches to an
+   * arbitrary field still arrives through the per-path format; this one is the
+   * résumé's own data and needs no candidate action.
+   */
+  href?: string;
 }
 
 /**
@@ -34,10 +46,24 @@ export function EditableText({
   value,
   placeholder,
   multiline,
+  href,
 }: EditableTextProps) {
   // Read live, so a formatting change shows the instant it is made — Craft's
   // node props are the text, and only the text.
   const format = useFieldFormat(path);
+  /*
+   * Whether this tree is being EDITED or merely displayed.
+   *
+   * It decides what a click on a link means. In the editor a click must select
+   * the field — following the link would navigate away from the document the
+   * candidate is working on. In a read-only preview there is nothing to select,
+   * so the link behaves like a link. The anchor is in the DOM either way, which
+   * is what matters for the export: printing emits a Link annotation from the
+   * markup, not from the click handler.
+   */
+  const { editing } = useEditor((state) => ({
+    editing: state.options.enabled,
+  }));
   const {
     connectors: { connect },
     selected,
@@ -58,6 +84,14 @@ export function EditableText({
     }, 500);
 
   if (!selected) {
+    const text = value.length > 0 ? value : (placeholder ?? '');
+    /*
+     * The résumé's own link wins over a candidate-applied one: a `links[]` entry
+     * IS the address for that field, and a format that disagreed with it would
+     * be two answers to one question.
+     */
+    const raw = href ?? format?.href;
+    const target = raw && isSafeLinkTarget(raw) ? raw : undefined;
     return (
       <span
         ref={(ref) => {
@@ -69,7 +103,34 @@ export function EditableText({
         data-empty={value.length === 0 || undefined}
         data-path={path}
       >
-        {value.length > 0 ? value : (placeholder ?? '')}
+        {/*
+         * An ANCHOR when the field points somewhere.
+         *
+         * Rendered in the unselected state, which is the state that prints —
+         * the editor clears selection before `beforeprint` precisely so the
+         * document on paper is plain semantic markup. That is what makes the
+         * link followable in the exported PDF: browsers emit a Link annotation
+         * for an `<a href>` when printing, so the export path needs no PDF
+         * library and no second rendering.
+         *
+         * `rel` is set because the exported document is opened in readers this
+         * product does not control. The target is validated in `libs/core`, so
+         * a `javascript:` URL never reaches this element.
+         */}
+        {target ? (
+          <a
+            className="tpl-text__link"
+            href={target}
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (editing) e.preventDefault();
+            }}
+          >
+            {text}
+          </a>
+        ) : (
+          text
+        )}
       </span>
     );
   }

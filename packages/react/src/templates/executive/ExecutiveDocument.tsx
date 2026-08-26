@@ -10,6 +10,7 @@ import {
 } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
 import { LOCKED_RULES } from '../../nodes/locked.js';
 import { useDocumentStyle } from '../../presentation-context.js';
 import './executive.css';
@@ -371,6 +372,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
                     is={EditableText}
                     path={`links.${i}.url`}
                     value={link.url}
+                    href={link.url}
                   />
                 </li>
               ))}
@@ -378,6 +380,16 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           </section>
         )}
       </div>
+      {/*
+       * The candidate's own sections, after every section this template
+       * knows. Heading in the template's own style; entries in the shared
+       * neutral layout — see `CustomSections.tsx`.
+       */}
+      <CustomSections
+        sections={resume.custom_sections}
+        sectionClass="tpl-exec__section"
+        headingClass="tpl-exec__heading"
+      />
     </article>
   );
 }

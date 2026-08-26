@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  appendedEntryRefs,
+  ResumeEditsSchema,
   DEFAULT_TEMPLATE_ID,
   DENSITIES,
+  isSetEdit,
   DENSITY_DEFAULT,
   DOCUMENT_FONTS,
   DocumentStyleSchema,
@@ -32,7 +35,11 @@ import {
   type EditValue,
   type TemplateId,
 } from './template.js';
-import type { ResumeObject } from './resume.js';
+import {
+  isSafeLinkTarget,
+  ResumeObjectSchema,
+  type ResumeObject,
+} from './resume.js';
 
 const templateIds = Object.keys(TEMPLATES) as TemplateId[];
 
@@ -41,6 +48,7 @@ function resume(): ResumeObject {
     name: 'Starlin Gil Cruz',
     contact: { email: 'me@example.com', location: 'Santo Domingo, DO' },
     links: [{ label: 'GitHub', url: 'github.com/example' }],
+    custom_sections: [],
     headline: 'Senior Software Engineer',
     summary: 'Ten years building backend platforms.',
     skills: [{ category: 'Backend', items: ['Node.js', 'TypeScript'] }],
@@ -200,21 +208,21 @@ describe('resume field paths', () => {
 describe('applyPresentation', () => {
   it('replaces a scalar field', () => {
     const out = applyPresentation(resume(), [
-      { path: 'headline', value: 'Backend Engineer' },
+      { kind: 'set', path: 'headline', value: 'Backend Engineer' },
     ]);
     expect(out.headline).toBe('Backend Engineer');
   });
 
   it('replaces a list whole rather than merging it', () => {
     const out = applyPresentation(resume(), [
-      { path: 'experience.0.bullets', value: ['Only this one.'] },
+      { kind: 'set', path: 'experience.0.bullets', value: ['Only this one.'] },
     ]);
     expect(out.experience[0].bullets).toEqual(['Only this one.']);
   });
 
   it('lengthens a list the candidate added to', () => {
     const out = applyPresentation(resume(), [
-      { path: 'experience.0.bullets', value: ['a', 'b', 'c'] },
+      { kind: 'set', path: 'experience.0.bullets', value: ['a', 'b', 'c'] },
     ]);
     expect(out.experience[0].bullets).toHaveLength(3);
   });
@@ -223,7 +231,7 @@ describe('applyPresentation', () => {
     const base = resume();
     delete base.contact.phone;
     const out = applyPresentation(base, [
-      { path: 'contact.phone', value: '+1 555 0100' },
+      { kind: 'set', path: 'contact.phone', value: '+1 555 0100' },
     ]);
     expect(out.contact.phone).toBe('+1 555 0100');
   });
@@ -232,21 +240,27 @@ describe('applyPresentation', () => {
     const base = resume();
     const before = structuredClone(base);
     applyPresentation(base, [
-      { path: 'experience.0.bullets', value: ['changed'] },
+      { kind: 'set', path: 'experience.0.bullets', value: ['changed'] },
     ]);
     expect(base).toEqual(before);
   });
 
   it('is a no-op for an empty overlay', () => {
     const base = resume();
-    expect(applyPresentation(base, [])).toEqual(base);
+    /*
+     * Compared against the PARSED fixture: `applyPresentation` returns a parsed
+     * résumé, so it carries the schema's defaulted fields. Parsing both sides
+     * asserts what this test is about — that no overlay changed anything — and
+     * stops the next defaulted field breaking it again.
+     */
+    expect(applyPresentation(base, [])).toEqual(ResumeObjectSchema.parse(base));
   });
 
   it('skips an unresolvable path and applies the rest', () => {
     const out = applyPresentation(resume(), [
-      { path: 'experience.9.bullets', value: ['nowhere'] },
-      { path: 'nonexistent.0.field', value: 'nowhere' },
-      { path: 'summary', value: 'Applied anyway.' },
+      { kind: 'set', path: 'experience.9.bullets', value: ['nowhere'] },
+      { kind: 'set', path: 'nonexistent.0.field', value: 'nowhere' },
+      { kind: 'set', path: 'summary', value: 'Applied anyway.' },
     ]);
     expect(out.summary).toBe('Applied anyway.');
     expect(out.experience).toHaveLength(1);
@@ -254,7 +268,7 @@ describe('applyPresentation', () => {
 
   it('drops an unknown leaf key rather than storing it', () => {
     const out = applyPresentation(resume(), [
-      { path: 'contact.telex', value: 'not a field' },
+      { kind: 'set', path: 'contact.telex', value: 'not a field' },
     ]) as ResumeObject & { contact: { telex?: string } };
     expect(out.contact.telex).toBeUndefined();
   });
@@ -263,25 +277,27 @@ describe('applyPresentation', () => {
     applyPresentation(resume(), [
       // The schema-level guard also rejects this; the assertion below is that
       // nothing escaped before validation ran.
-      { path: '__proto__.polluted', value: 'yes' },
+      { kind: 'set', path: '__proto__.polluted', value: 'yes' },
     ]);
     expect(({} as Record<string, unknown>)['polluted']).toBeUndefined();
   });
 
   it('refuses an edit that breaks the resume schema', () => {
     expect(() =>
-      applyPresentation(resume(), [{ path: 'name', value: '' }]),
+      applyPresentation(resume(), [{ kind: 'set', path: 'name', value: '' }]),
     ).toThrow();
     expect(() =>
       applyPresentation(resume(), [
-        { path: 'experience.0.company', value: '' },
+        { kind: 'set', path: 'experience.0.company', value: '' },
       ]),
     ).toThrow();
   });
 
   it('refuses a list value where the schema wants a string', () => {
     expect(() =>
-      applyPresentation(resume(), [{ path: 'summary', value: ['a', 'b'] }]),
+      applyPresentation(resume(), [
+        { kind: 'set', path: 'summary', value: ['a', 'b'] },
+      ]),
     ).toThrow();
   });
 });
@@ -304,7 +320,7 @@ describe('presentationEdits', () => {
       headline: 'Backend Engineer',
       'experience.0.bullets': ['Designed NestJS microservices.'],
     });
-    expect(edits.map((e) => e.path)).toEqual([
+    expect(edits.filter(isSetEdit).map((e) => e.path)).toEqual([
       'experience.0.bullets',
       'headline',
     ]);
@@ -315,14 +331,14 @@ describe('presentationEdits', () => {
     const reversed = [...base.experience[0].bullets].reverse();
     expect(
       presentationEdits(base, { 'experience.0.bullets': reversed }),
-    ).toEqual([{ path: 'experience.0.bullets', value: reversed }]);
+    ).toEqual([{ kind: 'set', path: 'experience.0.bullets', value: reversed }]);
   });
 
   it('records a value for a field the writer left absent', () => {
     const base = resume();
     delete base.contact.phone;
     expect(presentationEdits(base, { 'contact.phone': '555' })).toEqual([
-      { path: 'contact.phone', value: '555' },
+      { kind: 'set', path: 'contact.phone', value: '555' },
     ]);
   });
 
@@ -370,8 +386,8 @@ describe('PutPresentationRequestSchema', () => {
       PutPresentationRequestSchema.safeParse({
         template_id: DEFAULT_TEMPLATE_ID,
         edits: [
-          { path: 'summary', value: 'a' },
-          { path: 'summary', value: 'b' },
+          { kind: 'set', path: 'summary', value: 'a' },
+          { kind: 'set', path: 'summary', value: 'b' },
         ],
       }).success,
     ).toBe(false);
@@ -381,7 +397,7 @@ describe('PutPresentationRequestSchema', () => {
     expect(
       PutPresentationRequestSchema.safeParse({
         template_id: DEFAULT_TEMPLATE_ID,
-        edits: [{ path: 'experience..bullets', value: ['x'] }],
+        edits: [{ kind: 'set', path: 'experience..bullets', value: ['x'] }],
       }).success,
     ).toBe(false);
   });
@@ -391,7 +407,7 @@ describe('PutPresentationRequestSchema', () => {
     // editor tree, the persistence decision in design.md has been reversed.
     const parsed = PutPresentationRequestSchema.parse({
       template_id: DEFAULT_TEMPLATE_ID,
-      edits: [{ path: 'summary', value: 'x' }],
+      edits: [{ kind: 'set', path: 'summary', value: 'x' }],
     });
     expect(Object.keys(parsed).sort()).toEqual(['edits', 'template_id']);
     expect(JSON.stringify(parsed)).not.toMatch(/resolvedName|ROOT|linkedNodes/);
@@ -500,7 +516,7 @@ describe('a presentation stored before formatting existed', () => {
   it('still parses, and carries neither style nor formats', () => {
     const legacy = ResumePresentationSchema.parse({
       template_id: DEFAULT_TEMPLATE_ID,
-      edits: [{ path: 'summary', value: 'Written in #29.' }],
+      edits: [{ kind: 'set', path: 'summary', value: 'Written in #29.' }],
       updated_at: '2026-07-31T00:00:00Z',
     });
     expect(legacy.style).toBeUndefined();
@@ -727,5 +743,138 @@ describe('document styling — bounded spacing, accent and themes', () => {
         DocumentStyleSchema.safeParse({ ...base, ...theme.style }).success,
       ).toBe(true);
     }
+  });
+});
+
+/**
+ * The structural half of the overlay.
+ *
+ * These are the guarantees `editor-structural-authoring` rests on: legacy
+ * overlays keep their meaning, an addition survives the base changing beneath
+ * it, and writer-produced content cannot be removed.
+ */
+describe('the overlay expresses structural additions', () => {
+  const appended = {
+    kind: 'append' as const,
+    ref: 'add-1',
+    section: 'experience' as const,
+    author: 'candidate' as const,
+    entry: {
+      company: 'Volunteer Corps',
+      title: 'Mentor',
+      start: '2023-01',
+      end: 'Present',
+      bullets: ['Mentored two juniors into their first roles.'],
+      tech: [],
+    },
+  };
+
+  it('parses an overlay written before kinds existed, unchanged', () => {
+    const legacy = [{ path: 'summary', value: 'Older overlay.' }];
+    const parsed = ResumeEditsSchema.parse(legacy);
+    expect(parsed).toEqual([
+      { kind: 'set', path: 'summary', value: 'Older overlay.' },
+    ]);
+    // And it still APPLIES — the runtime, not only the parse boundary.
+    expect(applyPresentation(resume(), legacy as never).summary).toBe(
+      'Older overlay.',
+    );
+  });
+
+  it('appends an entry after the writer’s own', () => {
+    const out = applyPresentation(resume(), [appended]);
+    expect(out.experience).toHaveLength(resume().experience.length + 1);
+    expect(out.experience.at(-1)?.company).toBe('Volunteer Corps');
+  });
+
+  it('identifies an addition by ref, not by index', () => {
+    const base = resume();
+    const refs = appendedEntryRefs(base, [appended], 'experience');
+    expect(refs.get(base.experience.length)).toBe('add-1');
+
+    // The writer runs again and produces one more role; the ref still finds it.
+    const longer = {
+      ...base,
+      experience: [...base.experience, ...base.experience],
+    };
+    const moved = appendedEntryRefs(longer, [appended], 'experience');
+    expect(moved.get(longer.experience.length)).toBe('add-1');
+  });
+
+  it('declares a custom section the writer has no way to produce', () => {
+    const out = applyPresentation(resume(), [
+      {
+        kind: 'section',
+        ref: 'sec-1',
+        heading: 'Volunteering',
+        author: 'candidate',
+        entries: [{ title: 'Code club', bullets: ['Taught weekly.'] }],
+      },
+    ]);
+    expect(out.custom_sections).toHaveLength(1);
+    expect(out.custom_sections[0].heading).toBe('Volunteering');
+    expect(out.custom_sections[0].author).toBe('candidate');
+  });
+
+  it('refuses a removal that names anything the overlay did not add', () => {
+    // This is where "the candidate may not delete a grounded role" is enforced:
+    // the operation is not expressible against writer-produced content at all.
+    expect(
+      ResumeEditsSchema.safeParse([{ kind: 'drop', ref: 'not-mine' }]).success,
+    ).toBe(false);
+  });
+
+  it('accepts a removal of its own addition', () => {
+    const overlay = [appended, { kind: 'drop' as const, ref: 'add-1' }];
+    expect(ResumeEditsSchema.safeParse(overlay).success).toBe(true);
+    // And the dropped entry never reaches the document.
+    expect(applyPresentation(resume(), overlay)).toEqual(
+      expect.objectContaining({
+        experience: expect.objectContaining({
+          length: resume().experience.length,
+        }),
+      }),
+    );
+  });
+
+  it('keeps an appended entry’s text out of the path-addressed edits', () => {
+    const base = resume();
+    // A field of the appended entry lives past the end of the base array.
+    const edits = presentationEdits(
+      base,
+      { [`experience.${base.experience.length}.title`]: 'Mentor' },
+      [appended],
+    );
+    // The append survives; no `set` was invented for an index the base lacks.
+    expect(edits.filter(isSetEdit)).toEqual([]);
+    expect(edits).toContainEqual(appended);
+  });
+});
+
+describe('a link target is validated in the domain', () => {
+  it.each([
+    'javascript:alert(1)',
+    'JaVaScript:alert(1)',
+    'java\nscript:alert(1)',
+    'data:text/html,<script>x</script>',
+    'github.com/example',
+    '',
+  ])('refuses %j', (value) => {
+    expect(isSafeLinkTarget(value)).toBe(false);
+  });
+
+  it.each(['https://github.com/example', 'http://example.com/a?b=1#c'])(
+    'accepts %j',
+    (value) => {
+      expect(isSafeLinkTarget(value)).toBe(true);
+    },
+  );
+
+  it('refuses a target the field format would carry', () => {
+    expect(
+      ResumeFormatsSchema.safeParse([
+        { path: 'summary', href: 'javascript:alert(1)' },
+      ]).success,
+    ).toBe(false);
   });
 });

@@ -153,3 +153,47 @@ describe('the design is not addressable', () => {
     }
   });
 });
+
+/**
+ * Structural authoring did not reopen the design surface.
+ *
+ * `editor-structural-authoring` adds three ways to put content in the document
+ * and no way to lay it out. These assert the second half — the part that would
+ * be easy to lose while adding the first.
+ */
+describe('authored content is as locked as written content', () => {
+  it('adds no canvas and no drag handle anywhere', () => {
+    const source = readFileSync(join(NODE_DIR, 'CustomSections.tsx'), 'utf8');
+    expect(source).not.toMatch(/<Element[^>]*\scanvas\b/);
+    expect(source).not.toMatch(/isCanvas\s*:\s*true/);
+    expect(source).not.toMatch(/connectors\s*:\s*\{[^}]*\bdrag\b/);
+    expect(source).not.toMatch(/\bdrag\s*\(/);
+  });
+
+  it('gives an authored NODE no presentational property', () => {
+    const source = readFileSync(join(NODE_DIR, 'CustomSections.tsx'), 'utf8');
+    /*
+     * Scoped to `<Element …>` — the props that reach a Craft node — not to the
+     * whole file. The plain host elements around them carry `className` like
+     * every template document does; that is the template's own markup, and it
+     * is not a surface a candidate can express anything through.
+     */
+    const elements = source.match(/<Element[\s\S]*?\/>/g) ?? [];
+    expect(elements.length).toBeGreaterThan(0);
+    for (const element of elements) {
+      for (const banned of FORBIDDEN_NODE_PROPS) {
+        expect(element, `${banned} reached an authored node`).not.toMatch(
+          new RegExp(`\\s${banned}=`),
+        );
+      }
+    }
+  });
+
+  it('renders authored fields through the same locked nodes', () => {
+    const source = readFileSync(join(NODE_DIR, 'CustomSections.tsx'), 'utf8');
+    // Not a bespoke editable: the same components the writer's fields use, so
+    // the lock assertions above cover them without naming them again.
+    expect(source).toMatch(/is=\{EditableText\}/);
+    expect(source).toMatch(/is=\{EditableBulletList\}/);
+  });
+});

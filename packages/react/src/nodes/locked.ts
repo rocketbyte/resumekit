@@ -62,4 +62,13 @@ export const BOUNDED_NODE_PROPS: Readonly<Record<string, string>> = {
   bold: 'boolean',
   align: 'FieldAlign',
   ink: 'InkId',
+  /*
+   * CONTENT, admitted under the same rule as the rest: a bounded value from the
+   * domain, never a free string. `LinkTargetSchema` parses the URL and accepts
+   * only `http`/`https`, so this cannot express "anything at all" — which is
+   * what `FORBIDDEN_NODE_PROPS` exists to keep out. A URL is not a style, a
+   * class, a colour or a dimension; it is a fact about where a word points, of
+   * the same kind as the `links` array the résumé schema already carries.
+   */
+  href: 'LinkTarget',
 };

@@ -149,3 +149,54 @@
     box-shadow: none !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Candidate-authored sections.
+ *
+ * The section wrapper and heading are the TEMPLATE's own classes — see
+ * `CustomSections.tsx` — so only the entry internals are styled here. Everything
+ * below inherits font, ink and scale from the template root, which is where the
+ * document's style already lives; nothing here states a typeface or a colour.
+ * ------------------------------------------------------------------------ */
+
+.tpl-custom__entry + .tpl-custom__entry {
+  margin-top: 0.5em;
+}
+
+/*
+ * Title and detail on one line, detail pushed to the trailing edge — the shape
+ * every template already uses for "what this was" and "when it was", so an
+ * authored entry reads as a sibling of the written ones rather than as a
+ * different kind of thing.
+ */
+.tpl-custom__entry-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+}
+
+.tpl-custom__title {
+  font-weight: 700;
+}
+
+.tpl-custom__detail {
+  /* `em`, so it tracks the document scale rather than fixing a size. */
+  font-size: 0.92em;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+/*
+ * A linked field.
+ *
+ * Inherits colour and weight from the text it replaces so a link cannot reflow
+ * or recolour the document — the anchor is about where the word points, not
+ * about how it looks. Underlined, because a link nobody can see is a link
+ * nobody clicks, and on paper it is the only cue there is.
+ */
+.tpl-text__link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}

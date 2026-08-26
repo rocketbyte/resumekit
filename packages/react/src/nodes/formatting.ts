@@ -13,7 +13,24 @@ export interface FieldFormatting {
   bold?: boolean;
   align?: FieldAlign;
   ink?: InkId;
+  /*
+   * Where the field points. Typed to the domain's validated target rather than
+   * to `string`, for the same reason `align` is typed to the catalog: a free
+   * string here would be a hole through which anything could be expressed —
+   * including a `javascript:` URL in a document that gets exported and
+   * reopened elsewhere.
+   */
+  href?: LinkTarget;
 }
+
+/**
+ * A validated `http`/`https` address.
+ *
+ * An alias, not a re-declaration: `isSafeLinkTarget` in `libs/core` is the only
+ * definition of what makes one valid, and this names the type those values
+ * carry so the node's prop surface can be checked against it.
+ */
+export type LinkTarget = string;
 
 /** Class names the template stylesheet gives meaning to. */
 export function formatClass(format: FieldFormatting, base: string): string {
