@@ -1065,7 +1065,10 @@ export function collectionOrder(
   section: AppendableSection,
 ): Slot[] {
   const hidden = new Set(
-    edits.filter(isHideEdit).filter((e) => e.section === section).map((e) => e.base),
+    edits
+      .filter(isHideEdit)
+      .filter((e) => e.section === section)
+      .map((e) => e.base),
   );
   const dropped = new Set(edits.filter(isDropEdit).map((e) => e.ref));
 
@@ -1083,7 +1086,10 @@ export function collectionOrder(
 
   // The last ordering wins: two orderings of one collection is not an
   // ambiguity to resolve, it is a stale one and a current one.
-  const reorder = edits.filter(isReorderEdit).filter((e) => e.section === section).at(-1);
+  const reorder = edits
+    .filter(isReorderEdit)
+    .filter((e) => e.section === section)
+    .at(-1);
   if (!reorder) return natural;
 
   const available = new Map(natural.map((slot) => [slotKey(slot), slot]));
@@ -1209,7 +1215,10 @@ export function applyPresentation(
     // Where each slot sits in the draft right now: base entries kept their
     // indices, and appends landed after them in overlay order.
     const refIndex = new Map(
-      [...appendedEntryRefs(resume, edits, section)].map(([i, ref]) => [ref, i]),
+      [...appendedEntryRefs(resume, edits, section)].map(([i, ref]) => [
+        ref,
+        i,
+      ]),
     );
     (draft as Record<string, unknown>)[section] = collectionOrder(
       resume,
@@ -1217,7 +1226,9 @@ export function applyPresentation(
       section,
     )
       .map((slot) =>
-        'base' in slot ? current[slot.base] : current[refIndex.get(slot.ref) ?? -1],
+        'base' in slot
+          ? current[slot.base]
+          : current[refIndex.get(slot.ref) ?? -1],
       )
       .filter((entry) => entry !== undefined);
   }
@@ -1331,9 +1342,16 @@ function foldAdditions(
     if (patch.length === 0) return edit;
 
     if (isSectionEdit(edit)) {
-      const draft = { heading: edit.heading, entries: structuredClone(edit.entries) };
+      const draft = {
+        heading: edit.heading,
+        entries: structuredClone(edit.entries),
+      };
       for (const [path, value] of patch) {
-        writeInto(draft as unknown as Record<string, unknown>, path.slice(prefix.length + 1).split('.'), value);
+        writeInto(
+          draft as unknown as Record<string, unknown>,
+          path.slice(prefix.length + 1).split('.'),
+          value,
+        );
       }
       return { ...edit, heading: draft.heading, entries: draft.entries };
     }
@@ -1341,7 +1359,11 @@ function foldAdditions(
     const entry = structuredClone(edit.entry);
     if (!isContainer(entry)) return edit;
     for (const [path, value] of patch) {
-      writeInto(entry as Record<string, unknown>, path.slice(prefix.length + 1).split('.'), value);
+      writeInto(
+        entry as Record<string, unknown>,
+        path.slice(prefix.length + 1).split('.'),
+        value,
+      );
     }
     return { ...edit, entry };
   });

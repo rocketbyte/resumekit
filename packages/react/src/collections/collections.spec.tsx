@@ -318,7 +318,9 @@ describe('a bullet', () => {
   async function drawBullets() {
     const result = await drawAuthored(resume(), []);
     await waitFor(() =>
-      expect(result.container.querySelector('.tpl-bullet__grip')).not.toBeNull(),
+      expect(
+        result.container.querySelector('.tpl-bullet__grip'),
+      ).not.toBeNull(),
     );
     return result;
   }

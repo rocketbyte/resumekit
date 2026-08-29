@@ -32,7 +32,8 @@ export type Arity = 'one' | 'many';
  * `inline` is a comma-run inside a line; `field` is a single value with no list
  * around it; `section` is a heading with entries under it.
  */
-export type CollectionShape = 'field' | 'entry' | 'bullet' | 'inline' | 'section';
+export type CollectionShape =
+  'field' | 'entry' | 'bullet' | 'inline' | 'section';
 
 export interface CollectionDef {
   /**
@@ -337,7 +338,9 @@ export function collectionPath(
       if (segment !== '*') return segment;
       const index = indices[used++];
       if (index === undefined) {
-        throw new Error(`${id} needs ${template.split('*').length - 1} indices`);
+        throw new Error(
+          `${id} needs ${template.split('*').length - 1} indices`,
+        );
       }
       return String(index);
     })
@@ -362,10 +365,12 @@ export function isUnfilled(value: unknown): boolean {
   if (typeof value === 'string') return value.trim().length === 0;
   if (Array.isArray(value)) return value.every(isUnfilled);
   if (value !== null && typeof value === 'object') {
-    return Object.entries(value as Record<string, unknown>)
-      // `id` and `author` are bookkeeping the candidate never types.
-      .filter(([key]) => key !== 'id' && key !== 'author')
-      .every(([, v]) => isUnfilled(v));
+    return (
+      Object.entries(value as Record<string, unknown>)
+        // `id` and `author` are bookkeeping the candidate never types.
+        .filter(([key]) => key !== 'id' && key !== 'author')
+        .every(([, v]) => isUnfilled(v))
+    );
   }
   // A number or a boolean is a value; nothing in a résumé is either today.
   return value === undefined || value === null;
