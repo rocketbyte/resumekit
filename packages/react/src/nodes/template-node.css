@@ -72,39 +72,182 @@
   grid-area: 1 / 1 / 2 / 2;
 }
 
-/* Selection: a hairline the document's own metrics do not feel. */
-.tpl-editor .tpl-text:hover {
-  box-shadow: 0 0 0 1px rgba(60, 110, 220, 0.25);
+/*
+ * Selection: a hairline the document's own metrics do not feel.
+ *
+ * Scoped away from `--static`, which is the READ-ONLY document — the saved
+ * résumé view and the export renderer both mount it. Without the exclusion a
+ * résumé nobody could edit still answered the pointer with a text cursor and an
+ * outline, promising an action that was not there.
+ */
+.tpl-editor:not(.tpl-editor--static) .tpl-text:hover {
+  box-shadow: 0 0 0 1px rgb(var(--tpl-accent) / 0.55);
   border-radius: 2px;
   cursor: text;
 }
 
-.tpl-editor .tpl-input:focus-visible {
-  box-shadow: 0 0 0 1px rgba(60, 110, 220, 0.55);
+.tpl-editor:not(.tpl-editor--static) .tpl-input:focus-visible {
+  box-shadow: 0 0 0 1px rgb(var(--tpl-accent-ink) / 0.7);
   border-radius: 2px;
 }
 
-.tpl-bullets[data-editing] {
-  box-shadow: 0 0 0 1px rgba(60, 110, 220, 0.2);
+.tpl-editor:not(.tpl-editor--static) .tpl-bullets[data-editing] {
+  box-shadow: 0 0 0 1px rgb(var(--tpl-accent) / 0.45);
   border-radius: 2px;
 }
 
 /*
- * Bullet controls live in the page's right margin — the one region the document
- * does not use — so they take up no flow space at all and the line they belong
- * to does not move when they appear.
+ * Inside the SELECTED entry, every field says it is a field.
+ *
+ * This is the other half of what selecting a region is for: the overlay says
+ * what can be done to the entry, and this says which parts of it can be typed
+ * into — so a candidate learns the answer by clicking once rather than by
+ * hunting with the pointer.
+ *
+ * An inset shadow rather than a border or an underline, because it draws inside
+ * the box the text already occupies. A `border-bottom` would add a pixel to
+ * every field in the entry and move the lines below it.
  */
+[data-selected] .tpl-text {
+  border-radius: 2px;
+  box-shadow: inset 0 -2px 0 0 rgb(var(--tpl-accent) / 0.5);
+  transition: box-shadow 140ms ease;
+}
+
+[data-selected] .tpl-text:hover {
+  box-shadow:
+    0 0 0 1px rgb(var(--tpl-accent) / 0.55),
+    inset 0 -2px 0 0 rgb(var(--tpl-accent) / 0.5);
+}
+
+/* An empty field is guidance, and guidance should look like an invitation. */
+[data-selected] .tpl-text[data-empty] {
+  background: rgb(var(--tpl-accent) / 0.09);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-selected] .tpl-text {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * The bullet row.
+ *
+ * Every template draws a bullet as a two-column grid — a marker gutter and the
+ * text — with the marker in `::before`. On hover the GUTTER is what the drag
+ * handle uses: the marker steps aside and the grip takes its place, so the row
+ * does not grow, nothing to the right of it moves, and the affordance appears
+ * exactly where the eye already is.
+ *
+ * `visibility`, not `display`: the marker keeps its box, so the text never
+ * shifts by the width of a bullet as the pointer crosses it.
+ * ------------------------------------------------------------------------ */
+
 .tpl-bullet {
   position: relative;
 }
 
+.tpl-editor:not(.tpl-editor--static) .tpl-bullet[data-authored]:hover::before,
+.tpl-editor:not(.tpl-editor--static)
+  .tpl-bullet[data-authored]:focus-within::before {
+  visibility: hidden;
+}
+
+.tpl-bullet__grip {
+  position: absolute;
+  top: 50%;
+  left: 0;
+
+  /*
+   * Centred on the bullet's whole height, not aligned to its first line.
+   *
+   * The marker it stands in for sits on the first baseline, which reads as
+   * top-aligned the moment a bullet wraps — and a handle for the whole row
+   * belongs against the whole row. `translateY` rather than `bottom: 0` so the
+   * box stays content-sized and cannot creep into the text column.
+   */
+  transform: translateY(-50%);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05em;
+  height: 1.05em;
+
+  /*
+   * Nudged into the page's left margin by the couple of pixels the glyph has
+   * outgrown its column by. Harvard's marker gutter is the narrowest of the four
+   * at 10pt, and the margin to the left of it is unused — so the handle grows
+   * outward rather than over the first word of the bullet.
+   */
+  margin-left: -2px;
+  padding: 0;
+  font:
+    600 15px/1 system-ui,
+    sans-serif;
+  color: rgb(var(--tpl-accent-ink) / 0.85);
+  cursor: grab;
+  background: none;
+  border: 0;
+  border-radius: 3px;
+
+  /*
+   * Hidden but present, so the button stays in the tab order — reaching a
+   * bullet's handle by keyboard is how it is reordered without a pointer, and
+   * `display: none` would take that away.
+   */
+  visibility: hidden;
+  touch-action: none;
+}
+
+.tpl-bullet__grip:active {
+  cursor: grabbing;
+}
+
+.tpl-bullet:hover > .tpl-bullet__grip,
+.tpl-bullet:focus-within > .tpl-bullet__grip {
+  visibility: visible;
+}
+
+.tpl-bullet__grip:hover {
+  background: rgb(var(--tpl-accent) / 0.18);
+}
+
+.tpl-bullet__grip:focus-visible {
+  visibility: visible;
+  outline: 2px solid rgb(var(--tpl-accent-ink) / 0.7);
+  outline-offset: 1px;
+}
+
+/*
+ * Add and remove live in the page's right margin — the one region the document
+ * does not use — so they take up no flow space at all and the line they belong
+ * to does not move when they appear.
+ *
+ * Revealed on HOVER rather than on selection. They used to appear only once the
+ * list had been clicked into, which meant a candidate had to already know a
+ * bullet could be added before they could find out.
+ */
 .tpl-bullet__tools {
   position: absolute;
-  top: 0;
+  top: 50%;
   left: 100%;
+
+  /* Centred on the whole bullet, matching the handle at the other end of the
+     row — both act on the bullet, so neither belongs to its first line. */
+  transform: translateY(-50%);
+
   display: flex;
   gap: 2px;
   margin-left: 6px;
+  visibility: hidden;
+}
+
+.tpl-bullet:hover > .tpl-bullet__tools,
+.tpl-bullet:focus-within > .tpl-bullet__tools,
+.tpl-bullet__tools:focus-within {
+  visibility: visible;
 }
 
 .tpl-tool {
@@ -114,15 +257,21 @@
   font:
     600 12px/1 system-ui,
     sans-serif;
-  color: #3f5b96;
-  background: #eef2fb;
-  border: 1px solid #c9d5ee;
+  color: rgb(var(--tpl-accent-ink));
+  background: rgb(var(--tpl-accent) / 0.12);
+  border: 1px solid rgb(var(--tpl-accent) / 0.45);
   border-radius: 3px;
   cursor: pointer;
 }
 
 .tpl-tool:hover:not(:disabled) {
-  background: #dfe7f9;
+  background: #rgb(var(--tpl-accent) / 0.22);
+}
+
+.tpl-tool[data-tone='danger']:hover:not(:disabled) {
+  color: #fff;
+  background: rgb(200 60 60 / 0.9);
+  border-color: rgb(200 60 60 / 0.9);
 }
 
 .tpl-tool:disabled {
@@ -139,13 +288,21 @@
  */
 @media print {
   .tpl-bullet__tools,
+  .tpl-bullet__grip,
   .tpl-tool {
     display: none !important;
   }
 
+  /* The marker steps aside only for a pointer; on paper it always stands. */
+  .tpl-bullet::before {
+    visibility: visible !important;
+  }
+
   .tpl-text,
   .tpl-input,
-  .tpl-bullets {
+  .tpl-bullets,
+  [data-selected] .tpl-text {
+    background: none !important;
     box-shadow: none !important;
   }
 }

@@ -46,6 +46,18 @@ export {
   useFieldFormat,
 } from './presentation-context.js';
 
+/**
+ * Authoring: what a candidate may do to a repeatable part of the document.
+ *
+ * The PROVIDER is exported and the operations are not. A surface that can edit
+ * mounts the provider; everything inside reads what it may do from there, and
+ * nothing outside this library can reach an add, a remove or a move. That is
+ * what keeps the read-only document, the saved-résumé view and the export
+ * renderer free of authoring by construction rather than by remembering.
+ */
+export { DocumentAuthoringProvider } from './collections/authoring-context.js';
+export type { AuthoringContextValue } from './collections/authoring-context.js';
+
 /** The editable nodes, and the rules that keep them locked. */
 export { EditableText } from './nodes/EditableText.js';
 export { EditableBulletList } from './nodes/EditableBulletList.js';

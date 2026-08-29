@@ -8,10 +8,17 @@ import {
   type ResumeObject,
 } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
-import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { EditableInlineList } from '../../nodes/EditableInlineList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
+import { Collection } from '../../collections/Collection.js';
+import {
+  HarvardCustomEntry,
+  HarvardEducationEntry,
+  HarvardExperienceEntry,
+  HarvardSkillGroup,
+} from './entries.js';
 import { LOCKED_RULES } from '../../nodes/locked.js';
 import './harvard.css';
 
@@ -66,6 +73,13 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
   // Live, for the reason `presentation-context.tsx` explains: a node prop would
   // be frozen at mount and no style change would ever appear.
   const style = useDocumentStyle();
+  /*
+   * A section with nothing in it is omitted from the DOCUMENT and offered in
+   * the EDITOR, because a candidate cannot add their first role to a section
+   * that is not drawn. The read-only page is unchanged: with no authoring
+   * context this is false and an empty section stays absent.
+   */
+  const authoring = useAuthoring() !== null;
 
   const contact = [
     resume.contact.location && { path: 'contact.location' },
@@ -157,7 +171,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         </section>
       )}
 
-      {resume.experience.length > 0 && (
+      {(resume.experience.length > 0 || authoring) && (
         <section className="tpl-harvard__section">
           <h2
             className="tpl-harvard__section-title"
@@ -166,54 +180,20 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
           >
             Experience
           </h2>
-          {resume.experience.map((role, i) => (
-            <article key={i} className="tpl-harvard__entry" data-block>
-              <div className="tpl-harvard__entry-head">
-                <span className="tpl-harvard__org">
-                  <Element
-                    id={`experience.${i}.company`}
-                    is={EditableText}
-                    path={`experience.${i}.company`}
-                    value={role.company}
-                  />
-                </span>
-                <span className="tpl-harvard__dates">
-                  <Element
-                    id={`experience.${i}.start`}
-                    is={EditableText}
-                    path={`experience.${i}.start`}
-                    value={role.start}
-                  />
-                  {' – '}
-                  <Element
-                    id={`experience.${i}.end`}
-                    is={EditableText}
-                    path={`experience.${i}.end`}
-                    value={role.end}
-                  />
-                </span>
-                <span className="tpl-harvard__role">
-                  <Element
-                    id={`experience.${i}.title`}
-                    is={EditableText}
-                    path={`experience.${i}.title`}
-                    value={role.title}
-                  />
-                </span>
-                <span className="tpl-harvard__where" />
-              </div>
-              <Element
-                id={`experience.${i}.bullets`}
-                is={EditableBulletList}
-                path={`experience.${i}.bullets`}
-                items={role.bullets}
+          <Collection section="experience" items={resume.experience}>
+            {({ item, path, chrome, itemProps }) => (
+              <HarvardExperienceEntry
+                item={item}
+                path={path}
+                chrome={chrome}
+                itemProps={itemProps}
               />
-            </article>
-          ))}
+            )}
+          </Collection>
         </section>
       )}
 
-      {resume.education.length > 0 && (
+      {(resume.education.length > 0 || authoring) && (
         <section className="tpl-harvard__section">
           <h2
             className="tpl-harvard__section-title"
@@ -222,31 +202,20 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
           >
             Education
           </h2>
-          {resume.education.map((school, i) => (
-            <article key={i} className="tpl-harvard__entry" data-block>
-              <div className="tpl-harvard__entry-head">
-                <span className="tpl-harvard__org">
-                  <Element
-                    id={`education.${i}.school`}
-                    is={EditableText}
-                    path={`education.${i}.school`}
-                    value={school.school}
-                  />
-                </span>
-                <span className="tpl-harvard__dates">
-                  {[school.start, school.end].filter(Boolean).join(' – ')}
-                </span>
-                <span className="tpl-harvard__role">
-                  {[school.degree, school.field].filter(Boolean).join(', ')}
-                </span>
-                <span className="tpl-harvard__where" />
-              </div>
-            </article>
-          ))}
+          <Collection section="education" items={resume.education}>
+            {({ item, path, chrome, itemProps }) => (
+              <HarvardEducationEntry
+                item={item}
+                path={path}
+                chrome={chrome}
+                itemProps={itemProps}
+              />
+            )}
+          </Collection>
         </section>
       )}
 
-      {resume.skills.length > 0 && (
+      {(resume.skills.length > 0 || authoring) && (
         <section className="tpl-harvard__section">
           <h2
             className="tpl-harvard__section-title"
@@ -256,25 +225,16 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
             Technical Skills
           </h2>
           <ul className="tpl-harvard__skills" data-block>
-            {resume.skills.map((group, i) => (
-              <li key={i} className="tpl-harvard__skill-group">
-                <span className="tpl-harvard__skill-label">
-                  <Element
-                    id={`skills.${i}.category`}
-                    is={EditableText}
-                    path={`skills.${i}.category`}
-                    value={group.category}
-                  />
-                  :
-                </span>
-                <Element
-                  id={`skills.${i}.items`}
-                  is={EditableInlineList}
-                  path={`skills.${i}.items`}
-                  items={group.items}
+            <Collection section="skills" items={resume.skills}>
+              {({ item, path, chrome, itemProps }) => (
+                <HarvardSkillGroup
+                  item={item}
+                  path={path}
+                  chrome={chrome}
+                  itemProps={itemProps}
                 />
-              </li>
-            ))}
+              )}
+            </Collection>
           </ul>
         </section>
       )}
@@ -307,6 +267,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         sections={resume.custom_sections}
         sectionClass="tpl-harvard__section"
         headingClass="tpl-harvard__section-title"
+        Entry={HarvardCustomEntry}
       />
     </article>
   );

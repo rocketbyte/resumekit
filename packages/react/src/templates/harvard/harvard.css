@@ -238,6 +238,21 @@
   column-gap: calc(4pt * var(--h-scale));
 }
 
+/*
+ * Skills groups are stacked rows, 1.5pt apart — where an experience entry has
+ * room around it, these have almost none. At the shared 4px outline offset each
+ * row's region outline reached over its neighbours and the gaps read as doubled
+ * dashed lines, which is what the editor looked like in practice.
+ *
+ * The offset belongs here rather than in `collections/collection.css` because it
+ * is a fact about THIS template's spacing: the same collection in a template
+ * that set its groups further apart would want the shared offset. The stylesheet
+ * that decided the spacing is the one that knows.
+ */
+.tpl-harvard__skill-group[data-entry] {
+  outline-offset: 0;
+}
+
 .tpl-harvard__skill-label {
   font-weight: 700;
   white-space: nowrap;

@@ -6,6 +6,30 @@
  * without having to know which stylesheets to import. The editor's own chrome
  * is deliberately not here: this is the document, not the workbench.
  */
+/*
+ * The editing palette, defined HERE because two stylesheets read it — the node
+ * affordances in `nodes/` and the region chrome in `collections/` — and this is
+ * the one file both are guaranteed to load beside. A `var()` that resolves to
+ * nothing does not fall back to a default; it drops the whole declaration, and
+ * the affordance simply would not draw.
+ *
+ * Two greens, because one cannot do both jobs. `--tpl-accent` is drawn at low
+ * alpha over white paper, so it has to stay legible when it is mostly
+ * transparent — a deep green would read as grey. `--tpl-accent-ink` is the solid
+ * fill the overlay bar uses, dark enough that white text on it clears the 4.5:1
+ * a small label needs.
+ *
+ * Stated here rather than taken from the design tokens on purpose: the résumé
+ * renders in paper colours in both app themes (#29), so an affordance drawn on
+ * it has to hold against white in both — a token that followed the theme would
+ * not.
+ */
+.tpl-editor {
+  --tpl-accent: 16 185 129;
+  --tpl-accent-ink: 4 120 87;
+  --tpl-danger: 200 60 60;
+}
+
 @import './fonts/fonts.css';
 @import './paged.css';
 @import './nodes/template-node.css';

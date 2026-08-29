@@ -1,0 +1,251 @@
+/* ---------------------------------------------------------------------------
+ * Making the document look editable.
+ *
+ * Two rules govern everything here, and they are why it looks the way it does
+ * rather than the way a page builder does.
+ *
+ * **Nothing here may move a line.** Every highlight is an `outline` and every
+ * control is absolutely positioned, because an outline takes no space and an
+ * absolutely positioned box takes none either. A border, a padding, or an
+ * in-flow toolbar would change where the page breaks the moment a candidate
+ * hovered something — and the page break is what the export renders against.
+ *
+ * **Nothing here is on paper.** The document is a document; the tools are not
+ * part of it. Everything below is switched off for print, and the editor clears
+ * its selection on `beforeprint` besides.
+ *
+ * The palette itself lives in `document.css`, which is the one stylesheet both
+ * this file and `nodes/template-node.css` are guaranteed to load beside.
+ * ------------------------------------------------------------------------ */
+
+/* ---------------------------------------------------------------------------
+ * Resting state: an entry is quietly outlined, so the document reads as
+ * editable before anybody clicks anything.
+ *
+ * Faint on purpose. The candidate is reading a résumé they are about to send an
+ * employer, and an editor that shouts over it is one they cannot judge the
+ * document in.
+ * ------------------------------------------------------------------------ */
+
+[data-entry] {
+  position: relative;
+  border-radius: 3px;
+  outline: 2px dashed rgb(var(--tpl-accent) / 0.38);
+  outline-offset: 4px;
+  transition:
+    outline-color 140ms ease,
+    background-color 140ms ease;
+}
+
+[data-entry]:hover {
+  cursor: default;
+  background-color: rgb(var(--tpl-accent) / 0.05);
+  outline-color: rgb(var(--tpl-accent) / 0.7);
+}
+
+/* Selected: solid, and the only entry on the page drawn this way. */
+[data-entry][data-selected] {
+  background-color: rgb(var(--tpl-accent) / 0.07);
+  outline: 2px solid rgb(var(--tpl-accent-ink) / 0.75);
+  outline-offset: 4px;
+}
+
+/* ---------------------------------------------------------------------------
+ * The overlay: what this region is, and everything that can be done to it.
+ *
+ * Anchored to the entry's top-left and lifted clear of it, so it reads as
+ * belonging to the entry without covering the first line of it.
+ * ------------------------------------------------------------------------ */
+
+.tpl-entry-overlay {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: -4px;
+  z-index: 3;
+
+  display: flex;
+  gap: 1px;
+  align-items: center;
+  padding: 3px;
+
+  font:
+    500 11px/1 system-ui,
+    -apple-system,
+    sans-serif;
+  color: #fff;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+
+  background: rgb(var(--tpl-accent-ink));
+  border-radius: 6px;
+  box-shadow:
+    0 4px 12px rgb(var(--tpl-accent-ink) / 0.3),
+    0 1px 2px rgb(0 0 0 / 0.15);
+
+  transform-origin: bottom left;
+  animation: tpl-overlay-in 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* The tail, so the bar points at the thing it acts on. */
+.tpl-entry-overlay::after {
+  position: absolute;
+  top: 100%;
+  left: 12px;
+  width: 0;
+  height: 0;
+  content: '';
+  border-top: 4px solid rgb(var(--tpl-accent-ink));
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+}
+
+@keyframes tpl-overlay-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.tpl-entry-overlay__grip {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 3px 6px;
+  cursor: grab;
+  border-radius: 4px;
+  touch-action: none;
+}
+
+.tpl-entry-overlay__grip:active {
+  cursor: grabbing;
+}
+
+.tpl-entry-overlay__grip:hover {
+  background: rgb(255 255 255 / 0.16);
+}
+
+/* No handle to offer — a collection of one cannot be reordered. */
+.tpl-entry-overlay__grip[data-static],
+.tpl-entry-overlay__grip[data-static]:hover {
+  cursor: default;
+  background: none;
+}
+
+.tpl-entry-overlay__label {
+  font-weight: 600;
+}
+
+.tpl-entry-overlay__divider {
+  width: 1px;
+  height: 14px;
+  margin: 0 2px;
+  background: rgb(255 255 255 / 0.25);
+}
+
+.tpl-entry-overlay__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  color: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  transition: background-color 100ms ease;
+}
+
+.tpl-entry-overlay__btn:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.18);
+}
+
+.tpl-entry-overlay__btn[data-tone='danger']:hover:not(:disabled) {
+  background: rgb(var(--tpl-danger) / 0.9);
+}
+
+/*
+ * Dimmed and still there, with its reason in the tooltip. A control that
+ * vanishes when it cannot be used teaches nothing; one that explains itself
+ * teaches the rule — the argument #29 made for the last bullet.
+ */
+.tpl-entry-overlay__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.tpl-entry-overlay__btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Adding to a collection that is empty.
+ *
+ * The one in-flow control in the whole feature, and it can be: a template omits
+ * a section it has no data for, so there is no line below it to push.
+ * ------------------------------------------------------------------------ */
+
+.tpl-collection__add {
+  margin: 4px 0;
+}
+
+.tpl-collection__add-btn {
+  padding: 3px 10px;
+  font:
+    500 11px/1.6 system-ui,
+    sans-serif;
+  color: rgb(var(--tpl-accent-ink));
+  cursor: pointer;
+  background: rgb(var(--tpl-accent) / 0.08);
+  border: 2px dashed rgb(var(--tpl-accent) / 0.55);
+  border-radius: 5px;
+  transition: background-color 120ms ease;
+}
+
+.tpl-collection__add-btn:hover {
+  background: rgb(var(--tpl-accent) / 0.12);
+}
+
+/* ---------------------------------------------------------------------------
+ * Motion is an enhancement, never the mechanism.
+ * ------------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .tpl-entry-overlay {
+    animation: none;
+  }
+
+  [data-entry],
+  .tpl-entry-overlay__btn,
+  .tpl-collection__add-btn {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * On paper the document is the only thing on the page. The editor also clears
+ * its selection on `beforeprint`; these rules are the belt to that braces, and
+ * they are asserted rather than assumed — see `collections.spec.tsx`.
+ * ------------------------------------------------------------------------ */
+
+@media print {
+  .tpl-entry-overlay,
+  .tpl-collection__add {
+    display: none !important;
+  }
+
+  [data-entry],
+  [data-entry][data-selected] {
+    background: none !important;
+    outline: none !important;
+  }
+}

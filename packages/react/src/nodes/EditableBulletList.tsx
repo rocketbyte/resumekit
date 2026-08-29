@@ -1,7 +1,15 @@
+import { Suspense, lazy, useMemo } from 'react';
 import { useNode } from '@craftjs/core';
 import { LOCKED_RULES } from './locked.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
+import {
+  movedTo,
+  useCollection,
+  type CollectionStore,
+} from '../collections/useCollection.js';
+import { useAuthoring } from '../collections/authoring-context.js';
+import type { AuthoredBulletsProps } from './AuthoredBullets.js';
 
 export interface EditableBulletListProps {
   /** Where this list lives in the `ResumeObject` — e.g. `experience.0.bullets`. */
@@ -9,24 +17,38 @@ export interface EditableBulletListProps {
   items: string[];
 }
 
-/** Removing the last bullet would collapse the entry it belongs to. */
-const LAST_BULLET_REASON =
-  'An experience entry needs at least one bullet — reword this one instead.';
-
 /**
- * The one list whose length the candidate controls.
+ * A list of bullets, and the same collection rules everything else obeys.
  *
- * A bullet rewords work the resume already claims, so retyping it is the
- * candidate speaking about their own experience. Adding a *job* is a new claim
- * about their history, which this product grounds through the interview rather
- * than through free typing — so there is no control for it here.
+ * A bullet rewords work the résumé already claims, so retyping it is the
+ * candidate speaking about their own experience.
  *
- * The add/remove controls sit in the page's right margin, absolutely positioned
- * out of the document's flow, so revealing them cannot move a single line of the
- * document. See `design.md`, decision 4.
+ * What is different here is only the STORE. A bullet is text, and text lives in
+ * the editor's own node props — so add, remove and move write there rather than
+ * into the presentation overlay, where an appended entry lives. Every rule
+ * around them (that a list has a minimum, what the refusal says when it is
+ * reached, what a move means) comes from `useCollection`, which is the same
+ * source `experience` and `education` read. Before `document-collections` (#57)
+ * those rules were written out again here, and the minimum was a constant this
+ * file owned.
+ *
+ * Its controls live in `AuthoredBullets`, reached through a dynamic import, so
+ * a document that is only being read carries neither them nor the drag library
+ * they use. What is left here is the list itself, which is the same list either
+ * way.
  */
+
+/*
+ * Loaded on demand — see `AuthoredBullets`. The read-only fallback below is
+ * rendered until it arrives, so the bullets are on screen before their controls
+ * rather than after them.
+ */
+const AuthoredBullets = lazy(() => import('./AuthoredBullets.js')) as (
+  props: AuthoredBulletsProps,
+) => React.ReactElement;
 export function EditableBulletList({ path, items }: EditableBulletListProps) {
   const format = useFieldFormat(path);
+  const authoring = useAuthoring();
   const {
     connectors: { connect },
     selected,
@@ -34,24 +56,43 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
   } = useNode((node) => ({ selected: node.events.selected }));
 
   /*
-   * `push` / `splice` inside `setProp` mutate an Immer draft, so the mutating
-   * call is the correct idiom here rather than a violation of one. Nothing
-   * outside `setProp` ever touches these props.
+   * `splice` inside `setProp` mutates an Immer draft, so the mutating call is
+   * the correct idiom here rather than a violation of one. Nothing outside
+   * `setProp` ever touches these props.
    */
-  const insertAfter = (index: number) =>
-    setProp((props: EditableBulletListProps) => {
-      props.items.splice(index + 1, 0, '');
-    });
+  const store = useMemo<CollectionStore<string>>(
+    () => ({
+      items,
+      insert: (index, item) =>
+        setProp((props: EditableBulletListProps) => {
+          props.items.splice(index, 0, item);
+        }),
+      removeAt: (index) =>
+        setProp((props: EditableBulletListProps) => {
+          props.items.splice(index, 1);
+        }),
+      reorder: (from, to) =>
+        setProp((props: EditableBulletListProps) => {
+          props.items = movedTo(props.items, from, to);
+        }),
+    }),
+    [items, setProp],
+  );
 
-  const remove = (index: number) =>
-    setProp((props: EditableBulletListProps) => {
-      if (props.items.length > 1) props.items.splice(index, 1);
-    });
+  const bullets = useCollection<string>('experience_bullets', store);
 
   const edit = (index: number, next: string) =>
     setProp((props: EditableBulletListProps) => {
       props.items[index] = next;
     }, 500);
+
+  const plain = items.map((item, index) => (
+    // Bullets have no identity of their own — they are strings the candidate
+    // reorders and deletes — so the index is the only honest key.
+    <li key={index} className="tpl-bullet">
+      <span className="tpl-text">{item}</span>
+    </li>
+  ));
 
   return (
     <ul
@@ -64,53 +105,24 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
       data-path={path}
       data-editing={selected || undefined}
     >
-      {items.map((item, index) => (
-        // Bullets have no identity of their own — they are strings the candidate
-        // reorders and deletes — so the index is the only honest key.
-        <li key={index} className="tpl-bullet">
-          {selected ? (
-            <span className="tpl-text tpl-grow" data-value={item}>
-              <textarea
-                className="tpl-input"
-                value={item}
-                rows={1}
-                aria-label={`${path}.${index}`}
-                onChange={(e) => edit(index, e.target.value)}
-              />
-            </span>
-          ) : (
-            <span className="tpl-text">{item}</span>
-          )}
-
-          {selected && (
-            <span className="tpl-bullet__tools" aria-hidden={false}>
-              <button
-                type="button"
-                className="tpl-tool"
-                title="Add a bullet below"
-                aria-label={`Add a bullet after ${index + 1}`}
-                onClick={() => insertAfter(index)}
-              >
-                +
-              </button>
-              <button
-                type="button"
-                className="tpl-tool"
-                disabled={items.length === 1}
-                // Disabled and explained rather than hidden: a rule the
-                // candidate cannot see is a rule they run into.
-                title={
-                  items.length === 1 ? LAST_BULLET_REASON : 'Remove this bullet'
-                }
-                aria-label={`Remove bullet ${index + 1}`}
-                onClick={() => remove(index)}
-              >
-                ×
-              </button>
-            </span>
-          )}
-        </li>
-      ))}
+      {/*
+        A plain list, and the only thing rendered when the document is being
+        read. It is also the fallback while the editing chunk loads, so the two
+        states differ by the controls and by nothing else.
+      */}
+      {authoring ? (
+        <Suspense fallback={plain}>
+          <AuthoredBullets
+            path={path}
+            items={items}
+            bullets={bullets}
+            editing={selected}
+            onEdit={edit}
+          />
+        </Suspense>
+      ) : (
+        plain
+      )}
     </ul>
   );
 }

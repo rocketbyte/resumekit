@@ -192,10 +192,63 @@ describe('authored content is as locked as written content', () => {
   });
 
   it('renders authored fields through the same locked nodes', () => {
-    const source = readFileSync(join(NODE_DIR, 'CustomSections.tsx'), 'utf8');
-    // Not a bespoke editable: the same components the writer's fields use, so
-    // the lock assertions above cover them without naming them again.
-    expect(source).toMatch(/is=\{EditableText\}/);
-    expect(source).toMatch(/is=\{EditableBulletList\}/);
+    /*
+     * The heading is still drawn by `CustomSections`; the ENTRIES moved into
+     * each template's own entry component when `document-collections` (#57)
+     * ended the shared neutral layout. So the assertion follows them: whichever
+     * template draws a candidate's section, it draws it through the same
+     * editable nodes the writer's fields use, which is what puts it under the
+     * lock assertions above without naming it again.
+     */
+    expect(readFileSync(join(NODE_DIR, 'CustomSections.tsx'), 'utf8')).toMatch(
+      /is=\{EditableText\}/,
+    );
+
+    const TEMPLATES = join(NODE_DIR, '..', 'templates');
+    for (const template of readdirSync(TEMPLATES, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)) {
+      const source = readFileSync(
+        join(TEMPLATES, template, 'entries.tsx'),
+        'utf8',
+      );
+      expect(source, `${template} draws a custom entry`).toMatch(
+        /CustomEntry\(/,
+      );
+      expect(source, `${template} uses the shared nodes`).toMatch(
+        /is=\{EditableText\}/,
+      );
+      expect(source, `${template} uses the shared bullet list`).toMatch(
+        /is=\{EditableBulletList\}/,
+      );
+    }
+  });
+
+  it('gives a template no way to change a collection', () => {
+    /*
+     * The boundary the whole layer rests on. A template supplies markup; the
+     * verbs live in `collections/` and are handed to nobody. Asserted rather
+     * than left to discipline, because it erodes the first time somebody needs
+     * a button "just here".
+     */
+    const TEMPLATES = join(NODE_DIR, '..', 'templates');
+    for (const template of readdirSync(TEMPLATES, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)) {
+      const dir = join(TEMPLATES, template);
+      for (const file of readdirSync(dir).filter((f) => f.endsWith('.tsx'))) {
+        if (file.endsWith('.spec.tsx')) continue;
+        const source = readFileSync(join(dir, file), 'utf8');
+        for (const verb of [
+          'useCollection',
+          'useSectionCollection',
+          'useCustomEntries',
+        ]) {
+          expect(source, `${template}/${file} reached a mutator`).not.toContain(
+            verb,
+          );
+        }
+      }
+    }
   });
 });

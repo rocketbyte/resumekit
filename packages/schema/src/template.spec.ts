@@ -286,11 +286,26 @@ describe('applyPresentation', () => {
     expect(() =>
       applyPresentation(resume(), [{ kind: 'set', path: 'name', value: '' }]),
     ).toThrow();
+  });
+
+  /*
+   * Changed by `document-collections` (#57), deliberately.
+   *
+   * A résumé is now parsed as a PRESENTED document rather than as the writer's
+   * output, and an entry field the candidate has emptied is the same state as
+   * one they have not filled in yet: unfilled. It shows its guidance, it stores
+   * nothing, and it is omitted from the export — which is a defined state, not
+   * a broken document. The writer's own contract is unmoved: `ResumeObjectSchema`
+   * still refuses it, and it is `TailoredResumeSchema` that embeds that.
+   */
+  it('treats an emptied entry field as unfilled, not as invalid', () => {
+    const out = applyPresentation(resume(), [
+      { kind: 'set', path: 'experience.0.company', value: '' },
+    ]);
+    expect(out.experience[0]?.company).toBe('');
     expect(() =>
-      applyPresentation(resume(), [
-        { kind: 'set', path: 'experience.0.company', value: '' },
-      ]),
-    ).toThrow();
+      ResumeObjectSchema.parse({ ...out, experience: resume().experience }),
+    ).not.toThrow();
   });
 
   it('refuses a list value where the schema wants a string', () => {

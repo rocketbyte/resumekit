@@ -10,6 +10,13 @@ import {
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
+import { Collection } from '../../collections/Collection.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
+import {
+  CobaltCustomEntry,
+  CobaltEducationEntry,
+  CobaltExperienceEntry,
+} from './entries.js';
 import { LOCKED_RULES } from '../../nodes/locked.js';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { isLanguages } from '../skills.js';
@@ -120,6 +127,13 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
     connectors: { connect },
   } = useNode();
   const style = useDocumentStyle();
+  /*
+   * A section with nothing in it is omitted from the DOCUMENT and offered in
+   * the EDITOR, because a candidate cannot add their first role to a section
+   * that is not drawn. The read-only page is unchanged: with no authoring
+   * context this is false and an empty section stays absent.
+   */
+  const authoring = useAuthoring() !== null;
 
   const languages = resume.skills.filter(isLanguages);
   const technical = resume.skills
@@ -243,56 +257,21 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
             </section>
           )}
 
-          {resume.education.length > 0 && (
+          {(resume.education.length > 0 || authoring) && (
             <section className="tpl-cob__section">
               <h2 className="tpl-cob__heading" data-block data-keep-with-next>
                 Education
               </h2>
-              {resume.education.map((school, i) => (
-                <article key={i} className="tpl-cob__entry" data-block>
-                  <p className="tpl-cob__entry-lead">
-                    <Element
-                      id={`education.${i}.degree`}
-                      is={EditableText}
-                      path={`education.${i}.degree`}
-                      value={school.degree ?? ''}
-                      placeholder="Degree"
-                    />
-                  </p>
-                  {/* The reference prints the school's city on its own line.
-                      `EducationSchema` has no such field, so the school stands
-                      alone rather than a place being invented for it. */}
-                  <p className="tpl-cob__entry-org">
-                    <Element
-                      id={`education.${i}.school`}
-                      is={EditableText}
-                      path={`education.${i}.school`}
-                      value={school.school}
-                    />
-                  </p>
-                  {(school.field || school.end) && (
-                    <p className="tpl-cob__entry-when">
-                      {school.field && (
-                        <Element
-                          id={`education.${i}.field`}
-                          is={EditableText}
-                          path={`education.${i}.field`}
-                          value={school.field}
-                        />
-                      )}
-                      {school.field && school.end && ', '}
-                      {school.end && (
-                        <Element
-                          id={`education.${i}.end`}
-                          is={EditableText}
-                          path={`education.${i}.end`}
-                          value={school.end}
-                        />
-                      )}
-                    </p>
-                  )}
-                </article>
-              ))}
+              <Collection section="education" items={resume.education}>
+                {({ item, path, chrome, itemProps }) => (
+                  <CobaltEducationEntry
+                    item={item}
+                    path={path}
+                    chrome={chrome}
+                    itemProps={itemProps}
+                  />
+                )}
+              </Collection>
             </section>
           )}
 
@@ -315,62 +294,21 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
 
         {/* ── The wide column ──────────────────────────────────────────── */}
         <div className="tpl-cob__main" data-flow>
-          {resume.experience.length > 0 && (
+          {(resume.experience.length > 0 || authoring) && (
             <section className="tpl-cob__section">
               <h2 className="tpl-cob__heading" data-block data-keep-with-next>
                 Experience
               </h2>
-              {resume.experience.map((role, i) => (
-                <article key={i} className="tpl-cob__entry" data-block>
-                  <p className="tpl-cob__entry-lead">
-                    <Element
-                      id={`experience.${i}.company`}
-                      is={EditableText}
-                      path={`experience.${i}.company`}
-                      value={role.company}
-                    />
-                  </p>
-                  {/*
-                   * The reference sets the role, a rule, the entry's location,
-                   * then the dates after a constant 25pt gap — measured across
-                   * every entry, and NOT flush to the right margin. The
-                   * location has no field, so what is left is the role and the
-                   * dates, still set apart by that gap and still one wrapping
-                   * run. See `design.md`, decision 6.
-                   */}
-                  <p className="tpl-cob__entry-meta">
-                    <em className="tpl-cob__role">
-                      <Element
-                        id={`experience.${i}.title`}
-                        is={EditableText}
-                        path={`experience.${i}.title`}
-                        value={role.title}
-                      />
-                    </em>
-                    <span className="tpl-cob__dates">
-                      <Element
-                        id={`experience.${i}.start`}
-                        is={EditableText}
-                        path={`experience.${i}.start`}
-                        value={role.start}
-                      />
-                      {' - '}
-                      <Element
-                        id={`experience.${i}.end`}
-                        is={EditableText}
-                        path={`experience.${i}.end`}
-                        value={role.end}
-                      />
-                    </span>
-                  </p>
-                  <Element
-                    id={`experience.${i}.bullets`}
-                    is={EditableBulletList}
-                    path={`experience.${i}.bullets`}
-                    items={role.bullets}
+              <Collection section="experience" items={resume.experience}>
+                {({ item, path, chrome, itemProps }) => (
+                  <CobaltExperienceEntry
+                    item={item}
+                    path={path}
+                    chrome={chrome}
+                    itemProps={itemProps}
                   />
-                </article>
-              ))}
+                )}
+              </Collection>
             </section>
           )}
 
@@ -457,6 +395,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
         sections={resume.custom_sections}
         sectionClass="tpl-cob__section"
         headingClass="tpl-cob__heading"
+        Entry={CobaltCustomEntry}
       />
     </article>
   );

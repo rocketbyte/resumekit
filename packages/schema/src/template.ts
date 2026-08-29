@@ -1,11 +1,15 @@
 import { z } from 'zod';
 import {
+  COLLECTIONS,
+  PresentedResumeSchema,
+  TOP_LEVEL_COLLECTIONS,
+  type CollectionId,
+  type PresentedResume,
+} from './collections.js';
+import {
   ContentAuthorSchema,
   LinkTargetSchema,
   CustomEntrySchema,
-  EducationSchema,
-  ExperienceSchema,
-  ResumeObjectSchema,
   type ResumeObject,
 } from './resume.js';
 
@@ -329,7 +333,27 @@ export type SetEdit = z.infer<typeof SetEditSchema>;
  * `experience.0.bullets` — which has its own add/remove control — out of a
  * second, structural route to the same thing.
  */
-export const APPENDABLE_SECTIONS = ['experience', 'education'] as const;
+export const APPENDABLE_SECTIONS = [
+  'experience',
+  'education',
+  'skills',
+  'certifications',
+  'links',
+] as const;
+
+/**
+ * The same set, derived from {@link COLLECTIONS}.
+ *
+ * `template.spec.ts` asserts the two agree, so a collection cannot be addable
+ * here and unknown there — the check `registry.spec.ts` already performs for
+ * templates and their renderers. A tuple is kept above because `z.enum` needs
+ * one; the derivation is what makes it a projection rather than a second list.
+ *
+ * `custom_sections` is excluded: a section carries a heading, so declaring one
+ * is a different act from appending an entry, and it has its own operation.
+ */
+export const APPENDABLE_FROM_COLLECTIONS: readonly CollectionId[] =
+  TOP_LEVEL_COLLECTIONS.filter((id) => id !== 'custom_sections');
 export type AppendableSection = (typeof APPENDABLE_SECTIONS)[number];
 export const AppendableSectionSchema = z.enum(APPENDABLE_SECTIONS);
 
@@ -385,13 +409,67 @@ export type SectionEdit = z.infer<typeof SectionEditSchema>;
  * edited through the same locked nodes and rendered by the same template code.
  * A candidate fills fields; they never compose a layout.
  */
-const APPEND_SCHEMAS: Record<
-  AppendableSection,
-  typeof ExperienceSchema | typeof EducationSchema
-> = {
-  experience: ExperienceSchema,
-  education: EducationSchema,
-};
+const APPEND_SCHEMAS = {
+  experience: COLLECTIONS.experience.item,
+  education: COLLECTIONS.education.item,
+  skills: COLLECTIONS.skills.item,
+  certifications: COLLECTIONS.certifications.item,
+  links: COLLECTIONS.links.item,
+} satisfies Record<AppendableSection, z.ZodTypeAny>;
+
+/**
+ * One position in a collection, named by WHAT it is rather than by where it sits.
+ *
+ * A base index names an entry the writer produced; a `ref` names an addition
+ * this overlay made. Naming an addition by its ref rather than by its index is
+ * what stops dropping one addition from silently re-pointing the slots after it,
+ * which a bare list of numbers would.
+ *
+ * When `document-composition` (#37) mints server-side entry ids, both arms
+ * collapse into `{ id }` and the resolution below loses its stale-index branch.
+ */
+export const SlotSchema = z.union([
+  z.object({ base: z.number().int().nonnegative() }),
+  z.object({ ref: z.string().min(1) }),
+]);
+export type Slot = z.infer<typeof SlotSchema>;
+
+/** Stable text for a slot, so two slots can be compared without a type test. */
+export const slotKey = (slot: Slot): string =>
+  'base' in slot ? `b${slot.base}` : `r${slot.ref}`;
+
+/**
+ * The order the candidate put a collection in.
+ *
+ * Stored as an ORDERING rather than applied by renumbering the overlay's paths.
+ * A renumbering is a claim about the base an overlay was written against, and
+ * that base changes every time the writer runs again; an ordering is a claim
+ * about nothing but itself. Applied last — see `applyPresentation` — so every
+ * replacement has already landed on the position it was written against.
+ */
+export const ReorderEditSchema = z.object({
+  kind: z.literal('reorder'),
+  section: AppendableSectionSchema,
+  order: z.array(SlotSchema),
+});
+export type ReorderEdit = z.infer<typeof ReorderEditSchema>;
+
+/**
+ * A writer-produced entry the candidate does not want on this document.
+ *
+ * HIDDEN, not deleted, and the distinction is not softness. `match_score`, the
+ * requirement audit and `still_missing[]` are all derived against what the
+ * writer produced; deleting a role would leave those figures describing a
+ * document that no longer exists. A hidden entry is absent from the render and
+ * from every export, restorable by the candidate, and still visible as a hidden
+ * entry to anything that reads the overlay.
+ */
+export const HideEditSchema = z.object({
+  kind: z.literal('hide'),
+  section: AppendableSectionSchema,
+  base: z.number().int().nonnegative(),
+});
+export type HideEdit = z.infer<typeof HideEditSchema>;
 
 /**
  * One operation in the overlay.
@@ -412,6 +490,8 @@ export const ResumeEditSchema = z.preprocess(
     AppendEditSchema,
     DropEditSchema,
     SectionEditSchema,
+    ReorderEditSchema,
+    HideEditSchema,
   ]),
 );
 export type ResumeEdit = z.infer<typeof ResumeEditSchema>;
@@ -435,6 +515,10 @@ export const isDropEdit = (edit: ResumeEdit): edit is DropEdit =>
   edit.kind === 'drop';
 export const isSectionEdit = (edit: ResumeEdit): edit is SectionEdit =>
   edit.kind === 'section';
+export const isReorderEdit = (edit: ResumeEdit): edit is ReorderEdit =>
+  edit.kind === 'reorder';
+export const isHideEdit = (edit: ResumeEdit): edit is HideEdit =>
+  edit.kind === 'hide';
 
 /**
  * The overlay: only what actually changed.
@@ -961,6 +1045,61 @@ export function readAtPath(resume: ResumeObject, path: string): unknown {
 }
 
 /**
+ * The order a collection is actually drawn in, as slots.
+ *
+ * THE single definition of "which entries exist here, and in what order" —
+ * `applyPresentation` builds the rendered array from it and the editor builds
+ * its field paths from it, so the document and the paths into it can never
+ * disagree. The same reasoning `appendedEntryRefs` records: a renderer that
+ * recomputed this would be a second definition, free to drift.
+ *
+ * Total by construction. A slot that does not resolve is dropped, an entry no
+ * slot names keeps its natural order after the ones that are named, and a
+ * duplicated slot keeps its first occurrence — so an ordering written against a
+ * résumé the writer has since replaced degrades to the writer's own order
+ * rather than to a document that will not open.
+ */
+export function collectionOrder(
+  base: ResumeObject,
+  edits: ResumeEdits,
+  section: AppendableSection,
+): Slot[] {
+  const hidden = new Set(
+    edits.filter(isHideEdit).filter((e) => e.section === section).map((e) => e.base),
+  );
+  const dropped = new Set(edits.filter(isDropEdit).map((e) => e.ref));
+
+  const natural: Slot[] = [];
+  const baseLength = (base[section] as unknown[] | undefined)?.length ?? 0;
+  for (let i = 0; i < baseLength; i += 1) {
+    if (!hidden.has(i)) natural.push({ base: i });
+  }
+  for (const edit of edits) {
+    if (!isAppendEdit(edit) || edit.section !== section) continue;
+    if (dropped.has(edit.ref)) continue;
+    if (!APPEND_SCHEMAS[section].safeParse(edit.entry).success) continue;
+    natural.push({ ref: edit.ref });
+  }
+
+  // The last ordering wins: two orderings of one collection is not an
+  // ambiguity to resolve, it is a stale one and a current one.
+  const reorder = edits.filter(isReorderEdit).filter((e) => e.section === section).at(-1);
+  if (!reorder) return natural;
+
+  const available = new Map(natural.map((slot) => [slotKey(slot), slot]));
+  const ordered: Slot[] = [];
+  for (const slot of reorder.order) {
+    const key = slotKey(slot);
+    const found = available.get(key);
+    if (!found) continue;
+    available.delete(key);
+    ordered.push(found);
+  }
+  ordered.push(...available.values());
+  return ordered;
+}
+
+/**
  * Apply a presentation's edits to the writer's resume and validate the result.
  *
  * Pure: no I/O, no model call, and the input is never mutated — the run's
@@ -976,7 +1115,7 @@ export function readAtPath(resume: ResumeObject, path: string): unknown {
 export function applyPresentation(
   resume: ResumeObject,
   edits: ResumeEdits,
-): ResumeObject {
+): PresentedResume {
   const draft = structuredClone(resume) as unknown as Container;
 
   /*
@@ -1051,7 +1190,47 @@ export function applyPresentation(
     }
   }
 
-  return ResumeObjectSchema.parse(draft);
+  /*
+   * Hides and orderings LAST, once every replacement has landed.
+   *
+   * This is what lets an ordering coexist with positional paths: at the moment
+   * a `set` is applied nothing has moved, so `experience.1.title` addresses the
+   * entry it addressed when it was written. Only then is the array permuted.
+   */
+  for (const section of APPENDABLE_SECTIONS) {
+    const touched = edits.some(
+      (edit) =>
+        (isReorderEdit(edit) || isHideEdit(edit)) && edit.section === section,
+    );
+    if (!touched) continue;
+    const current = (draft as Record<string, unknown>)[section];
+    if (!Array.isArray(current)) continue;
+
+    // Where each slot sits in the draft right now: base entries kept their
+    // indices, and appends landed after them in overlay order.
+    const refIndex = new Map(
+      [...appendedEntryRefs(resume, edits, section)].map(([i, ref]) => [ref, i]),
+    );
+    (draft as Record<string, unknown>)[section] = collectionOrder(
+      resume,
+      edits,
+      section,
+    )
+      .map((slot) =>
+        'base' in slot ? current[slot.base] : current[refIndex.get(slot.ref) ?? -1],
+      )
+      .filter((entry) => entry !== undefined);
+  }
+
+  /*
+   * Parsed as a PRESENTED résumé, not as the writer's.
+   *
+   * The difference is exactly one thing: an entry the candidate has added and
+   * not yet filled in has empty fields, and the writer's schema refuses those —
+   * correctly, for the writer. Refusing them here would mean an added entry
+   * could not appear on the page until it was already complete.
+   */
+  return PresentedResumeSchema.parse(draft) as PresentedResume;
 }
 
 function sameValue(a: unknown, b: EditValue): boolean {
@@ -1061,6 +1240,111 @@ function sameValue(a: unknown, b: EditValue): boolean {
     );
   }
   return a === b;
+}
+
+/**
+ * Where each addition currently sits on the page, as a path prefix.
+ *
+ * Read from `collectionOrder` — the SAME derivation the document was drawn from
+ * — rather than from `appendedEntryRefs`, which reports the position an addition
+ * occupies before any ordering is applied. The editor emits its paths from what
+ * it rendered, so a different derivation here would attach a candidate's typing
+ * to the wrong entry the moment they reordered the section.
+ *
+ * Used twice, which is the point: once to fold an addition's own text into it,
+ * and once to keep those same paths OUT of the replacements. A reordering can
+ * put an addition at index 0, where `addressesBase` is perfectly happy to also
+ * emit it as a `set` against the writer's first entry — and then the candidate's
+ * new job overwrites their oldest one.
+ */
+function additionSlots(
+  base: ResumeObject,
+  structural: ResumeEdits,
+): Map<string, string> {
+  const slots = new Map<string, string>();
+  for (const section of APPENDABLE_SECTIONS) {
+    collectionOrder(base, structural, section).forEach((slot, index) => {
+      if ('ref' in slot) slots.set(slot.ref, `${section}.${index}`);
+    });
+  }
+  const written = (base.custom_sections ?? []).length;
+  structural.filter(isSectionEdit).forEach((edit, i) => {
+    slots.set(edit.ref, `custom_sections.${written + i}`);
+  });
+  return slots;
+}
+
+/** Write `value` at `segments` inside `target`, creating nothing that is absent. */
+function writeInto(
+  target: Record<string, unknown>,
+  segments: string[],
+  value: EditValue,
+): void {
+  let node: unknown = target;
+  for (const segment of segments.slice(0, -1)) {
+    if (!isContainer(node)) return;
+    node = Array.isArray(node)
+      ? node[Number(segment)]
+      : (node as Record<string, unknown>)[segment];
+  }
+  if (!isContainer(node)) return;
+  const leaf = segments[segments.length - 1] as string;
+  if (Array.isArray(node)) {
+    const index = Number(leaf);
+    if (!Number.isInteger(index) || index < 0 || index >= node.length) return;
+    node[index] = value;
+  } else {
+    (node as Record<string, unknown>)[leaf] = value;
+  }
+}
+
+/**
+ * Fold the text a candidate typed into an entry THEY added back into that
+ * addition.
+ *
+ * This is the branch that was missing beside `addressesBase`. An appended entry
+ * lives at an index past the end of the writer's array, so every field of it
+ * fails that test and is refused as a replacement — correctly, because an
+ * out-of-range `set` would retarget the next time the writer produced a résumé
+ * of a different length. What was never written was where the value goes
+ * instead. It goes here: into the addition that owns it, addressed by `ref`,
+ * where no change to the base can move it.
+ *
+ * Without this, a candidate who adds a role and types into it saves the
+ * placeholder the entry was minted with, and exports it.
+ */
+function foldAdditions(
+  base: ResumeObject,
+  values: Record<string, EditValue>,
+  structural: ResumeEdits,
+): ResumeEdits {
+  const slotOf = additionSlots(base, structural);
+
+  return structural.map((edit) => {
+    if (!isAppendEdit(edit) && !isSectionEdit(edit)) return edit;
+    const prefix = slotOf.get(edit.ref);
+    if (prefix === undefined) return edit;
+
+    const patch = Object.entries(values).filter(([path]) =>
+      path.startsWith(`${prefix}.`),
+    );
+    if (patch.length === 0) return edit;
+
+    if (isSectionEdit(edit)) {
+      const draft = { heading: edit.heading, entries: structuredClone(edit.entries) };
+      for (const [path, value] of patch) {
+        writeInto(draft as unknown as Record<string, unknown>, path.slice(prefix.length + 1).split('.'), value);
+      }
+      return { ...edit, heading: draft.heading, entries: draft.entries };
+    }
+
+    const entry = structuredClone(edit.entry);
+    if (!isContainer(entry)) return edit;
+    for (const [path, value] of patch) {
+      writeInto(entry as Record<string, unknown>, path.slice(prefix.length + 1).split('.'), value);
+    }
+    return { ...edit, entry };
+  });
 }
 
 /**
@@ -1088,10 +1372,26 @@ export function presentationEdits(
    */
   structural: ResumeEdits = [],
 ): ResumeEdits {
+  /*
+   * The positions an addition occupies. Any value under one of these belongs to
+   * the addition and is folded into it below; emitting it as a replacement as
+   * well would write the candidate's new entry over whatever the writer's
+   * résumé happens to hold at the same index.
+   */
+  const claimed = [
+    ...additionSlots(
+      base,
+      structural.filter((edit) => !isSetEdit(edit)),
+    ).values(),
+  ];
+
   const sets = Object.entries(values)
     .filter(
       ([path, value]) =>
         isResumeFieldPath(path) &&
+        !claimed.some(
+          (prefix) => path === prefix || path.startsWith(`${prefix}.`),
+        ) &&
         /*
          * Only paths that ADDRESS the writer's résumé become replacements.
          *
@@ -1114,7 +1414,12 @@ export function presentationEdits(
    * `applyPresentation` resolves them in, so a saved overlay reads in the order
    * it is applied and saving twice produces the same bytes.
    */
-  return [...structural.filter((edit) => !isSetEdit(edit)), ...sets];
+  const additions = foldAdditions(
+    base,
+    values,
+    structural.filter((edit) => !isSetEdit(edit)),
+  );
+  return [...additions, ...sets];
 }
 
 /**
