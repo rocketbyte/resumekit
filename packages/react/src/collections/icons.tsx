@@ -1,7 +1,7 @@
 /**
  * The editing controls' glyphs, drawn rather than typed.
  *
- * `+`, `×`, `↑` and `↓` are typographic characters: they inherit a text font's
+ * `+`, `↑` and `↓` are typographic characters: they inherit a text font's
  * weight and terminals, so at 11px they come out thin, sharp, and slightly
  * different in every browser — and on a résumé they read as something somebody
  * left in the document. Two strokes with round caps are the same shape
@@ -23,9 +23,26 @@ function Glyph({ d }: { d: string }) {
 }
 
 export const PlusIcon = () => <Glyph d="M8 4v8M4 8h8" />;
-export const CloseIcon = () => <Glyph d="M5 5l6 6M11 5l-6 6" />;
 export const ArrowUpIcon = () => <Glyph d="M8 12V4M4.5 7.5L8 4l3.5 3.5" />;
 export const ArrowDownIcon = () => <Glyph d="M8 4v8M4.5 8.5L8 12l3.5-3.5" />;
+
+/**
+ * Removal, drawn as the bin rather than as a dismissal.
+ *
+ * An `×` is the glyph for closing something, not for discarding it, and sitting
+ * a few pixels from the `+` it reads as that plus's undo — the pair saying
+ * "added / not added" about a control that in fact throws away a line the
+ * candidate wrote. A bin names the destination, and names it before the button
+ * is aimed at: the red only arrives on hover, so until then the shape is the
+ * whole warning.
+ *
+ * Silhouette only — lid, handle, can — with no ribs inside the body. At 13px a
+ * pair of hairlines in there closes up into a smudge, and what survives the
+ * size is the outline.
+ */
+export const TrashIcon = () => (
+  <Glyph d="M3.25 4.5h9.5M6.25 4.5V3.25h3.5V4.5M4.75 4.5v7a1.25 1.25 0 0 0 1.25 1.25h4a1.25 1.25 0 0 0 1.25-1.25v-7" />
+);
 
 /**
  * The drag handle — dots, and the reason it is drawn is the reason it moved.

@@ -3,6 +3,7 @@ import { useNode } from '@craftjs/core';
 import { LOCKED_RULES } from './locked.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
+import { useAutosave } from '../autosave-context.js';
 
 export interface EditableInlineListProps {
   /** Where this list lives in the `ResumeObject` — e.g. `skills.0.items`. */
@@ -37,6 +38,9 @@ export function EditableInlineList({ path, items }: EditableInlineListProps) {
     actions: { setProp },
   } = useNode((node) => ({ selected: node.events.selected }));
 
+  /* Typing, so deferred — the same bargain `EditableText` makes. */
+  const { saveSoon } = useAutosave();
+
   const [buffer, setBuffer] = useState<string | null>(null);
   const field = useRef<HTMLTextAreaElement>(null);
 
@@ -52,6 +56,7 @@ export function EditableInlineList({ path, items }: EditableInlineListProps) {
     setProp((props: EditableInlineListProps) => {
       props.items = split(next);
     }, 500);
+    saveSoon();
   };
 
   return (

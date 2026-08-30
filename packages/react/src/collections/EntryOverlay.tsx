@@ -1,9 +1,9 @@
 import {
   ArrowDownIcon,
   ArrowUpIcon,
-  CloseIcon,
   GripIcon,
   PlusIcon,
+  TrashIcon,
 } from './icons.js';
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';
@@ -151,7 +151,7 @@ export function EntryOverlay<T>({
         }
         onClick={() => collection.remove(index)}
       >
-        <CloseIcon />
+        <TrashIcon />
       </button>
     </span>
   );

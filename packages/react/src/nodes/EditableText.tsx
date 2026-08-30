@@ -4,6 +4,7 @@ import { isSafeLinkTarget } from '@cvgs/core';
 import { LOCKED_RULES } from './locked.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
+import { useAutosave } from '../autosave-context.js';
 
 export interface EditableTextProps {
   /** Where this text lives in the `ResumeObject` — e.g. `experience.0.title`. */
@@ -70,6 +71,14 @@ export function EditableText({
     actions: { setProp },
   } = useNode((node) => ({ selected: node.events.selected }));
 
+  /*
+   * Typing, so the DEFERRED request: this fires per character, and a field that
+   * stored itself on every keystroke would send one write per letter of a job
+   * title. `saveSoon` coalesces the burst into the one write the candidate
+   * actually meant — the sentence they finished.
+   */
+  const { saveSoon } = useAutosave();
+
   const field = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
 
   // Selection is what reveals the field, so the click that selected it has to
@@ -78,10 +87,12 @@ export function EditableText({
     if (selected) field.current?.focus();
   }, [selected]);
 
-  const change = (next: string) =>
+  const change = (next: string) => {
     setProp((props: EditableTextProps) => {
       props.value = next;
     }, 500);
+    saveSoon();
+  };
 
   if (!selected) {
     const text = value.length > 0 ? value : (placeholder ?? '');

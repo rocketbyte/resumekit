@@ -71,6 +71,18 @@ export {
  * renderer free of authoring by construction rather than by remembering.
  */
 export { DocumentAuthoringProvider } from './collections/authoring-context.js';
+
+/**
+ * Autosave: the document tells the surface when it is worth storing.
+ *
+ * Exported the same way authoring is, and for the same reason. The PROVIDER
+ * crosses the boundary; the request functions do not. A surface that persists a
+ * résumé mounts this and supplies the one call it already had — everything
+ * inside asks through the context, and a surface that only draws a document
+ * mounts nothing and therefore writes nothing.
+ */
+export { DocumentAutosaveProvider } from './autosave-context.js';
+export type { AutosaveContextValue } from './autosave-context.js';
 export { preloadEditingLayer } from './collections/preload.js';
 export type { AuthoringContextValue } from './collections/authoring-context.js';
 

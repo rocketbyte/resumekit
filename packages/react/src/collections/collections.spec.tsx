@@ -18,6 +18,10 @@ import {
 import { TEMPLATE_RENDERERS } from '../registry.js';
 import { DocumentPresentationProvider } from '../presentation-context.js';
 import { DocumentAuthoringProvider } from './authoring-context.js';
+import {
+  DocumentAutosaveProvider,
+  type AutosaveContextValue,
+} from '../autosave-context.js';
 
 /**
  * The collection layer, asserted through a real document.
@@ -75,15 +79,31 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
   };
 }
 
+/**
+ * A surface that records what the document asked it to store.
+ *
+ * The order and the URGENCY are both the assertion: which of the two verbs a
+ * component reaches for is the whole of what it decides about saving.
+ */
+function recorder() {
+  const asked: ('now' | 'soon')[] = [];
+  const autosave: AutosaveContextValue = {
+    saveNow: () => asked.push('now'),
+    saveSoon: () => asked.push('soon'),
+  };
+  return { asked, autosave };
+}
+
 /** Render Harvard, optionally authorable, capturing what the overlay becomes. */
 function draw(
   base: ResumeObject,
   edits: ResumeEdits | null,
   onEditsChange: (next: ResumeEdits) => void = () => undefined,
+  autosave?: AutosaveContextValue,
 ) {
   const { Document, resolver } = TEMPLATE_RENDERERS.harvard;
   const presented = edits ? applyPresentation(base, edits) : base;
-  const document = (
+  const inner = (
     <DocumentPresentationProvider>
       <Editor resolver={resolver}>
         <Frame>
@@ -91,6 +111,13 @@ function draw(
         </Frame>
       </Editor>
     </DocumentPresentationProvider>
+  );
+  const document = autosave ? (
+    <DocumentAutosaveProvider value={autosave}>
+      {inner}
+    </DocumentAutosaveProvider>
+  ) : (
+    inner
   );
   return render(
     edits === null ? (
@@ -133,8 +160,9 @@ async function drawAuthored(
   edits: ResumeEdits,
   onEditsChange: (next: ResumeEdits) => void = () => undefined,
   select = 0,
+  autosave?: AutosaveContextValue,
 ) {
-  const result = draw(base, edits, onEditsChange);
+  const result = draw(base, edits, onEditsChange, autosave);
   /* The document root is an <article> too, so entries are found by the marker
      every authored item carries rather than by their tag. */
   await waitFor(() =>
@@ -730,5 +758,103 @@ describe('one edge on the page, and it is the outer one', () => {
     const outer = readFileSync(join(__dirname, 'collection.css'), 'utf8');
     // Nothing may switch the ring off for the state the candidate is in most.
     expect(outer).not.toMatch(/\[data-entry\][^{]*:focus-within[^{]*::after/);
+  });
+});
+
+/**
+ * How a document stores itself, now that nothing asks a candidate to.
+ *
+ * There is no save control anywhere in the product any more, so the question
+ * "was my work kept" is answered entirely by these calls. Which verb a
+ * component reaches for is its own decision and the only one it makes — the
+ * host owns what each verb costs — so that decision is what is asserted here,
+ * rather than any request reaching any server.
+ */
+describe('a collection stores itself', () => {
+  it('asks immediately when an entry is added', async () => {
+    const { asked, autosave } = recorder();
+    await drawAuthored(resume(), [], () => undefined, 0, autosave);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add a role after 1' }));
+    // `now`, not `soon`: an added role is finished the instant it exists, and
+    // waiting on it would only mean looking at an unsaved document.
+    expect(asked).toEqual(['now']);
+  });
+
+  it('asks immediately when an entry is removed', async () => {
+    const { asked, autosave } = recorder();
+    await drawAuthored(resume(), [], () => undefined, 0, autosave);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hide role 1' }));
+    expect(asked).toEqual(['now']);
+  });
+
+  it('asks immediately when an entry is moved', async () => {
+    const { asked, autosave } = recorder();
+    await drawAuthored(resume(), [], () => undefined, 0, autosave);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Move role 1 down' }));
+    expect(asked).toEqual(['now']);
+  });
+
+  it('asks for nothing when the rules refuse the removal', async () => {
+    /*
+     * A bullet list at its minimum. The refusal is stated on the control rather
+     * than hiding it — #29's rule — so the control is there to be pressed, and
+     * pressing it must store nothing: a document the candidate was told they
+     * could not change, written every time they press the control to find out
+     * why, is the worst of both.
+     */
+    const { asked, autosave } = recorder();
+    const { container } = await drawAuthored(
+      resume(),
+      [],
+      () => undefined,
+      0,
+      autosave,
+    );
+    await waitFor(() =>
+      expect(container.querySelector('.tpl-bullet__grip')).not.toBeNull(),
+    );
+    const role = within(container.querySelector('[data-entry]') as HTMLElement);
+
+    const remove = role.getByRole('button', { name: 'Remove bullet 1' });
+    expect(remove).toHaveProperty('disabled', true);
+    fireEvent.click(remove);
+    expect(asked).toEqual([]);
+  });
+
+  it('defers when a bullet is typed into', async () => {
+    const { asked, autosave } = recorder();
+    await drawAuthored(resume(), [], () => undefined, 0, autosave);
+
+    /*
+     * Select the LIST, not the entry — a bullet becomes a field only while its
+     * list is the thing being edited. Retried for the reason the editor's own
+     * suite retries: an inline `ref` callback re-attaches Craft's handlers on
+     * every render, and a synthetic event dispatched into that window is lost.
+     */
+    const field = await waitFor(() => {
+      fireEvent.mouseDown(screen.getByText('Shipped a thing.'));
+      return screen.getByLabelText(
+        'experience.0.bullets.0',
+      ) as HTMLTextAreaElement;
+    });
+
+    fireEvent.change(field, { target: { value: 'Shipped two things.' } });
+
+    // `soon`: there is more of this sentence coming, and one write per letter
+    // is not a save, it is a stutter.
+    expect(asked).toEqual(['soon']);
+  });
+
+  it('asks for nothing at all when the document is only being read', () => {
+    const { asked, autosave } = recorder();
+    draw(resume(), null, () => undefined, autosave);
+
+    // Nothing to press, so nothing to store. The provider is mounted here on
+    // purpose: the guarantee is about the document, not about the wiring.
+    expect(screen.queryByRole('toolbar')).toBeNull();
+    expect(asked).toEqual([]);
   });
 });

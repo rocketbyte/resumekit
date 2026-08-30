@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CloseIcon, GripIcon, PlusIcon } from '../collections/icons.js';
+import { GripIcon, PlusIcon, TrashIcon } from '../collections/icons.js';
 import type { CollectionHandle } from '../collections/useCollection.js';
 import { SortableItems, useDragHandle } from '../collections/SortableItems.js';
 
@@ -140,7 +140,7 @@ function Bullet({
           aria-label={`Remove bullet ${index + 1}`}
           onClick={() => bullets.remove(index)}
         >
-          <CloseIcon />
+          <TrashIcon />
         </button>
       </span>
     </li>

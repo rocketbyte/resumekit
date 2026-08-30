@@ -9,6 +9,7 @@ import {
   type CollectionStore,
 } from '../collections/useCollection.js';
 import { useAuthoring } from '../collections/authoring-context.js';
+import { useAutosave } from '../autosave-context.js';
 import type { AuthoredBulletsProps } from './AuthoredBullets.js';
 
 export interface EditableBulletListProps {
@@ -49,6 +50,13 @@ const AuthoredBullets = lazy(() => import('./AuthoredBullets.js')) as (
 export function EditableBulletList({ path, items }: EditableBulletListProps) {
   const format = useFieldFormat(path);
   const authoring = useAuthoring();
+  /*
+   * Only the TEXT is asked for here. Adding, removing and reordering a bullet
+   * are stored by `useCollection`, which is where all three actually happen —
+   * this component would be a second, drifting opinion about the same events.
+   * What it owns is the one thing `useCollection` cannot see: a keystroke.
+   */
+  const { saveSoon } = useAutosave();
   const {
     connectors: { connect },
     selected,
@@ -81,10 +89,12 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
 
   const bullets = useCollection<string>('experience_bullets', store);
 
-  const edit = (index: number, next: string) =>
+  const edit = (index: number, next: string) => {
     setProp((props: EditableBulletListProps) => {
       props.items[index] = next;
     }, 500);
+    saveSoon();
+  };
 
   const plain = items.map((item, index) => (
     // Bullets have no identity of their own — they are strings the candidate

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { COLLECTIONS, type CollectionId } from '@cvgs/core';
+import { useAutosave } from '../autosave-context.js';
 
 /**
  * Everything a collection can do, and every reason it cannot.
@@ -53,6 +54,13 @@ export function movedTo<T>(items: readonly T[], from: number, to: number): T[] {
  * the presentation overlay because adding one is a decision, not a difference
  * between two strings. Both are the same collection to a candidate, so both get
  * the same rules from here and differ only in the `store` they are given.
+ *
+ * It is also where every collection **stores itself**. Adding a bullet, removing
+ * a role and reordering a qualification all arrive here, and all three are the
+ * same kind of event: a discrete act with nothing still coming after it. So the
+ * save request is made once, in the one place all three pass through, rather
+ * than at each of the several call sites that could have forgotten it — and it
+ * is made AFTER the guards, so a removal the rules refused writes nothing.
  */
 export function useCollection<T>(
   id: CollectionId,
@@ -60,6 +68,7 @@ export function useCollection<T>(
 ): CollectionHandle<T> {
   const def = COLLECTIONS[id];
   const { items } = store;
+  const { saveNow } = useAutosave();
 
   return useMemo<CollectionHandle<T>>(
     () => ({
@@ -87,20 +96,23 @@ export function useCollection<T>(
         if (def.arity !== 'many') return;
         const at = afterIndex === undefined ? items.length : afterIndex + 1;
         store.insert(at, def.mint() as T);
+        saveNow();
       },
 
       remove: (index) => {
         if (def.arity !== 'many' || items.length <= def.min) return;
         if (store.removeReason?.(index) !== undefined) return;
         store.removeAt(index);
+        saveNow();
       },
 
       move: (from, to) => {
         if (!def.reorderable) return;
         if (from === to || from < 0 || from >= items.length) return;
         store.reorder(from, Math.max(0, Math.min(to, items.length - 1)));
+        saveNow();
       },
     }),
-    [id, def, items, store],
+    [id, def, items, store, saveNow],
   );
 }
