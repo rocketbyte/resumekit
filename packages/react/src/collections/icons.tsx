@@ -26,3 +26,41 @@ export const PlusIcon = () => <Glyph d="M8 4v8M4 8h8" />;
 export const CloseIcon = () => <Glyph d="M5 5l6 6M11 5l-6 6" />;
 export const ArrowUpIcon = () => <Glyph d="M8 12V4M4.5 7.5L8 4l3.5 3.5" />;
 export const ArrowDownIcon = () => <Glyph d="M8 4v8M4.5 8.5L8 12l3.5-3.5" />;
+
+/**
+ * The drag handle — dots, and the reason it is drawn is the reason it moved.
+ *
+ * It used to be `⠿` (U+283F), and a braille cell is the one character here that
+ * could not be centred by centring its box: the cell reserves room at the
+ * bottom for dots 7 and 8, and no system font ships it — it comes from whatever
+ * fallback the platform picks, with its own advance width and its own side
+ * bearings. The dots therefore sat high and left of the middle of a glyph that
+ * was itself sitting in the middle of the gutter, and the handle read as offset
+ * from the `•` it stands in for.
+ *
+ * Six dots on a symmetric grid have no such opinion: the drawing is centred on
+ * the viewBox, so the box's centre and the ink's centre are the same point, in
+ * every browser.
+ *
+ * Filled rather than stroked — dots are the shape, not an outline of it — so
+ * this one sets its own `fill` instead of taking the stroke the other glyphs do.
+ */
+export const GripIcon = () => (
+  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    {/*
+     * Spread nearly to the edges, and drawn at 1.75 rather than a hairline.
+     * The dots ARE the icon's size — a tight cluster in the middle of a 16-unit
+     * box renders as something much smaller than the box it was given, and the
+     * only way to read it as bigger is to make it wider, not to scale up the
+     * padding around it.
+     *
+     * Quarters, so every pair sums to the box exactly in binary and the
+     * symmetry the handle depends on survives being asserted.
+     */}
+    {[5.25, 10.75].map((cx) =>
+      [3.25, 8, 12.75].map((cy) => (
+        <circle key={`${cx}:${cy}`} cx={cx} cy={cy} r="1.75" />
+      )),
+    )}
+  </svg>
+);

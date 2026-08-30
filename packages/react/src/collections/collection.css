@@ -176,8 +176,10 @@
   background: rgb(var(--tpl-chrome-line) / 0.05);
 }
 
-.tpl-entry-overlay__grip > span[aria-hidden] {
-  color: color-mix(in oklab, var(--tpl-chrome-ink) 45%, transparent);
+.tpl-entry-overlay__grip svg {
+  width: 14px;
+  height: 14px;
+  fill: color-mix(in oklab, var(--tpl-chrome-ink) 45%, transparent);
 }
 
 /* No handle to offer — a collection of one cannot be reordered. */

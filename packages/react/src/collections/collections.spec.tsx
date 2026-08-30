@@ -464,9 +464,14 @@ describe('a bullet', () => {
       'utf8',
     );
     const grip = css.slice(css.indexOf('.tpl-bullet__grip {'));
-    expect(grip.slice(0, grip.indexOf('}'))).toMatch(
-      /width:\s*var\(--tpl-marker/,
-    );
+    /*
+     * Positioned FROM the marker column rather than stretched across it: the
+     * handle is larger than the tightest template's gutter, so it is centred on
+     * that column's midpoint and allowed to overhang. Reading the width is
+     * still the point — a template that added a bullet list without stating one
+     * would put the handle at a guessed offset.
+     */
+    expect(grip.slice(0, grip.indexOf('}'))).toMatch(/var\(--tpl-marker/);
 
     const dir = join(__dirname, '..', 'templates');
     for (const template of readdirSync(dir, { withFileTypes: true })
@@ -480,6 +485,89 @@ describe('a bullet', () => {
         `${template} states its marker column`,
       ).toMatch(/--tpl-marker:/);
     }
+  });
+
+  it('arrives softly, and not at all for a reader who asked for stillness', () => {
+    const css = readFileSync(
+      join(__dirname, '..', 'nodes', 'template-node.css'),
+      'utf8',
+    );
+
+    for (const rule of ['.tpl-bullet__grip {', '.tpl-bullet__tools {']) {
+      const block = css.slice(css.indexOf(rule));
+      const body = block.slice(0, block.indexOf('}'));
+      /*
+       * Both ends of the row on ONE duration token. They answer the same
+       * question inches apart, and a handle that faded in faster than the
+       * buttons beside it would read as two things reacting rather than as the
+       * row waking up.
+       */
+      expect(body, `${rule} eases its reveal`).toMatch(
+        /transition:[^;]*opacity var\(--tpl-reveal-ms\)/,
+      );
+      expect(body, `${rule} eases its arrival`).toMatch(
+        /transition:[^;]*transform var\(--tpl-reveal-ms\)/,
+      );
+    }
+
+    /* Declared once, where the rest of the document's design tokens live. */
+    expect(readFileSync(join(__dirname, '..', 'document.css'), 'utf8')).toMatch(
+      /--tpl-reveal-ms:/,
+    );
+
+    /*
+     * And the marker fades on the same token: it is being REPLACED by the
+     * handle, so cutting it instantly would leave the gutter empty for the
+     * length of the fade — which reads as a flicker, not as a swap.
+     */
+    const marker = css.slice(css.indexOf('.tpl-bullet[data-authored]::before'));
+    expect(marker.slice(0, marker.indexOf('}'))).toMatch(
+      /transition:\s*opacity var\(--tpl-reveal-ms\)/,
+    );
+
+    /*
+     * Motion is the part a reduced-motion reader opted out of — the controls
+     * themselves are not, since the handle is the only way to reorder a bullet
+     * without a pointer.
+     */
+    const start = css.lastIndexOf('@media (prefers-reduced-motion');
+    const reduced = css.slice(start, css.indexOf('@media print', start));
+    for (const selector of ['.tpl-bullet__grip', '.tpl-bullet__tools']) {
+      expect(reduced, `${selector} stops moving`).toContain(selector);
+    }
+    expect(reduced).toMatch(/transition:\s*none/);
+    expect(reduced, 'the controls are not withdrawn').not.toMatch(
+      /opacity:\s*0|display:\s*none/,
+    );
+  });
+
+  it('draws the handle rather than typing it, so centring it works', async () => {
+    const { container } = await drawBullets();
+    const grip = container.querySelector('.tpl-bullet__grip');
+
+    /*
+     * The handle was `⠿`, and a braille cell is the one glyph here that centring
+     * its box cannot centre: it comes from a platform fallback font, with its
+     * own advance and its own bearings, and its dots sit high and left inside
+     * them. Drawn on a symmetric viewBox, the box's centre and the ink's centre
+     * are the same point — which is the whole reason the rule below works.
+     */
+    expect(grip?.textContent).toBe('');
+    const dots = grip?.querySelectorAll('svg circle') ?? [];
+    expect(dots).toHaveLength(6);
+
+    const xs = [...dots].map((d) => Number(d.getAttribute('cx')));
+    const ys = [...dots].map((d) => Number(d.getAttribute('cy')));
+    /* Symmetric about the centre of the 16-unit viewBox, on both axes. */
+    expect(Math.min(...xs) + Math.max(...xs)).toBe(16);
+    expect(Math.min(...ys) + Math.max(...ys)).toBe(16);
+
+    const css = readFileSync(
+      join(__dirname, '..', 'nodes', 'template-node.css'),
+      'utf8',
+    );
+    const rule = css.slice(css.indexOf('.tpl-bullet__grip svg {'));
+    expect(rule.slice(0, rule.indexOf('}'))).toMatch(/fill:\s*currentcolor/);
   });
 
   it('refuses to remove the last one, and says why', async () => {

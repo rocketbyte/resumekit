@@ -156,45 +156,57 @@
  * And the marker only steps aside when something is taking its place. While the
  * field is being edited the handle is gone, so hiding the `•` as well would
  * leave the bullet with no mark at all.
+ *
+ * Faded rather than switched, and on the same curve as the handle: the two are
+ * one object changing form, so the `•` has to leave over the time the grip
+ * takes to arrive. Cutting it instantly left the gutter empty for the length of
+ * the fade, which read as the bullet flickering rather than as a swap.
  */
+.tpl-editor:not(.tpl-editor--static) .tpl-bullet[data-authored]::before {
+  transition: opacity var(--tpl-reveal-ms) ease;
+}
+
 .tpl-editor:not(.tpl-editor--static)
   .tpl-bullet[data-authored]:hover:not(:has(.tpl-input:focus))::before {
-  visibility: hidden;
+  opacity: 0;
 }
 
 .tpl-bullet__grip {
   position: absolute;
-  top: 50%;
-  left: 0;
 
   /*
-   * Centred on the bullet's whole height, not aligned to its first line.
+   * Pinned by its CENTRE, on both axes.
    *
-   * The marker it stands in for sits on the first baseline, which reads as
-   * top-aligned the moment a bullet wraps — and a handle for the whole row
-   * belongs against the whole row. `translateY` rather than `bottom: 0` so the
-   * box stays content-sized and cannot creep into the text column.
+   * Horizontally that centre is the middle of the marker column, whose width
+   * only the template knows — the shared stylesheet reads it, and the fallback
+   * covers a bullet list drawn outside the four, which is a case that exists
+   * only in a test today. Centring the handle's own box on that point rather
+   * than stretching the box across the column is what lets the handle be BIGGER
+   * than the gutter: it grows symmetrically, so the ink stays over the `•` it
+   * stands in for however large it gets, and the hover tint grows with it
+   * instead of clipping at a 10pt column's edge.
+   *
+   * Vertically it is the middle of the whole row, not the first baseline the
+   * marker sits on — which reads as top-aligned the moment a bullet wraps, and
+   * a handle for the whole row belongs against the whole row.
    */
-  transform: translateY(-50%);
+  top: 50%;
+  left: calc(var(--tpl-marker, 1em) / 2);
+  transform: translate(-50%, -50%) scale(0.72);
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 1.05em;
 
   /*
-   * Exactly over the marker column, and centred in it — so the handle stands
-   * where the bullet's own `•` stands rather than a few pixels off to its left.
-   *
-   * The width comes from the template, which is the only thing that knows how
-   * wide its gutter is; the fallback covers a bullet list drawn outside any of
-   * the four, which is a case that exists only in a test today.
+   * A square target, comfortably larger than the narrowest gutter (Harvard's
+   * 10pt ≈ 13px). It overhangs that column on both sides, which costs nothing:
+   * the handle is out of flow, so it displaces no text, and it is only ever
+   * visible while the pointer is on that row.
    */
-  width: var(--tpl-marker, 1em);
+  width: 16px;
+  height: 16px;
   padding: 0;
-  font:
-    600 15px/1 system-ui,
-    sans-serif;
   color: var(--tpl-accent-ink);
   cursor: grab;
   background: none;
@@ -210,9 +222,37 @@
    * an invisible control that still swallowed clicks would eat every click aimed
    * at the text underneath it.
    */
+  /*
+   * Hidden but reachable, and never abruptly.
+   *
+   * The scale is what makes the fade read as the handle ARRIVING in the gutter
+   * rather than as the row changing brightness — 4px of growth is enough to be
+   * felt and too little to be watched. It composes into the same `transform`
+   * that centres the box, because a second transform would replace the first
+   * and drop the handle a half-width off its column.
+   */
   opacity: 0;
+  transition:
+    opacity var(--tpl-reveal-ms) ease,
+    transform var(--tpl-reveal-ms) cubic-bezier(0.2, 0.9, 0.3, 1.2);
   pointer-events: none;
   touch-action: none;
+}
+
+.tpl-bullet__grip svg {
+  /*
+   * A fixed size rather than an `em`: the ink should read the same at every
+   * type scale rather than becoming six large dots on a large résumé and six
+   * invisible ones on a small one.
+   *
+   * `flex: none` because the box it sits in is narrower than it is on the
+   * tightest template, and a flex item's default is to shrink to fit — which
+   * would quietly hand back exactly the size being asked for here.
+   */
+  flex: none;
+  width: 14px;
+  height: 14px;
+  fill: currentcolor;
 }
 
 .tpl-bullet__grip:active {
@@ -238,10 +278,16 @@
  * straight into them because they were never taken out of the tab order.
  */
 .tpl-bullet:hover:not(:has(.tpl-input:focus)) > .tpl-bullet__grip,
+.tpl-bullet__grip:focus-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
 .tpl-bullet:hover:not(:has(.tpl-input:focus)) > .tpl-bullet__tools,
-.tpl-bullet__grip:focus-visible,
 .tpl-bullet__tools:focus-within {
   opacity: 1;
+  transform: translate(0, -50%);
   pointer-events: auto;
 }
 
@@ -276,7 +322,7 @@
 
   /* Centred on the whole bullet, matching the handle at the other end of the
      row — both act on the bullet, so neither belongs to its first line. */
-  transform: translateY(-50%);
+  transform: translate(4px, -50%);
 
   display: flex;
   gap: 2px;
@@ -296,7 +342,15 @@
     0 1px 2px rgb(var(--tpl-chrome-line) / 0.05),
     0 4px 12px rgb(var(--tpl-chrome-line) / 0.08);
 
+  /*
+   * Arrives from the edge it lives at, by 4px — the same distance the handle
+   * grows by, so the two ends of the row move by the same amount at the same
+   * time and neither leads the other.
+   */
   opacity: 0;
+  transition:
+    opacity var(--tpl-reveal-ms) ease,
+    transform var(--tpl-reveal-ms) cubic-bezier(0.2, 0.9, 0.3, 1.2);
   pointer-events: none;
 }
 
@@ -311,8 +365,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 16px;
+  height: 16px;
   padding: 0;
   color: color-mix(in oklab, var(--tpl-chrome-ink) 70%, transparent);
   cursor: pointer;
@@ -362,6 +416,25 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /*
+   * The controls still appear — they are the only way to reorder a bullet, and
+   * a preference about motion is not a preference about affordances. They just
+   * arrive at once, with the marker swapping out on the same frame.
+   */
+  .tpl-editor:not(.tpl-editor--static) .tpl-bullet[data-authored]::before,
+  .tpl-bullet__grip,
+  .tpl-bullet__tools {
+    transition: none;
+  }
+
+  .tpl-bullet__grip {
+    transform: translate(-50%, -50%);
+  }
+
+  .tpl-bullet__tools {
+    transform: translate(0, -50%);
+  }
+
   .tpl-tool {
     transition: none;
   }
@@ -386,6 +459,7 @@
 
   /* The marker steps aside only for a pointer; on paper it always stands. */
   .tpl-bullet::before {
+    opacity: 1 !important;
     visibility: visible !important;
   }
 

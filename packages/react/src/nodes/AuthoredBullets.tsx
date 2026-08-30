@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CloseIcon, PlusIcon } from '../collections/icons.js';
+import { CloseIcon, GripIcon, PlusIcon } from '../collections/icons.js';
 import type { CollectionHandle } from '../collections/useCollection.js';
 import { SortableItems, useDragHandle } from '../collections/SortableItems.js';
 
@@ -98,7 +98,7 @@ function Bullet({
         aria-label={`Move bullet ${index + 1}`}
         {...(sortable ? handleProps : {})}
       >
-        <span aria-hidden="true">⠿</span>
+        <GripIcon />
       </button>
 
       {editing ? (

@@ -1,4 +1,10 @@
-import { ArrowDownIcon, ArrowUpIcon, CloseIcon, PlusIcon } from './icons.js';
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CloseIcon,
+  GripIcon,
+  PlusIcon,
+} from './icons.js';
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';
 
@@ -72,7 +78,7 @@ export function EntryOverlay<T>({
           title={`Drag to move this ${noun}`}
           {...handleProps}
         >
-          <span aria-hidden="true">⠿</span>
+          <GripIcon />
           <span className="tpl-entry-overlay__label">{label}</span>
         </span>
       ) : (

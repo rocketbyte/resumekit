@@ -65,6 +65,22 @@
 
   --tpl-danger: var(--color-danger, #b3261e);
   --tpl-danger-tint: color-mix(in oklab, var(--tpl-danger) 12%, transparent);
+
+  /*
+   * How long an editing affordance takes to appear under the pointer.
+   *
+   * One number, because every control that appears on hover is answering the
+   * same question — "what can I do to this line?" — and they sit inches apart:
+   * a handle that arrived faster than the buttons at the other end of its own
+   * row would read as two separate things reacting rather than one row waking
+   * up.
+   *
+   * Short on purpose. This fires on every crossing of every bullet, so it has
+   * to be quick enough that a pointer sweeping down the page is not trailed by
+   * a dozen fades, and slow enough that the controls are seen arriving rather
+   * than found already there.
+   */
+  --tpl-reveal-ms: 140ms;
 }
 
 @import './fonts/fonts.css';
