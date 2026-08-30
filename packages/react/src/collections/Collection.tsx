@@ -41,6 +41,7 @@ export function Collection<T>({
     <CollectionItems
       collection={collection}
       noun={noun ?? COLLECTIONS[section].noun}
+      label={COLLECTIONS[section].label}
     >
       {children}
     </CollectionItems>

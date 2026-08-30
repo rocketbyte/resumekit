@@ -77,6 +77,7 @@ function AuthoredSection({
         collection={collection}
         basePath={`${base}.entries`}
         noun="entry"
+        label={section.heading || 'Section'}
       >
         {({ item, path, chrome, itemProps }) => (
           <Entry

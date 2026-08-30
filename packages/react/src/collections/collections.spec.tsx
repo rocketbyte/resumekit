@@ -150,8 +150,14 @@ describe('what a candidate may do to a collection', () => {
   it('names the region and offers its actions when it is selected', async () => {
     await drawAuthored(resume(), []);
     const bar = screen.getByRole('toolbar');
-    /* The label says WHAT was clicked, which is half of what the overlay is for. */
-    expect(bar.getAttribute('aria-label')).toBe('Role 1 — editing actions');
+    /*
+     * The label says WHERE and WHAT was clicked, which is half of what the
+     * overlay is for: a candidate with six sections and eleven bullets needs to
+     * know which document they are in before which item.
+     */
+    expect(bar.getAttribute('aria-label')).toBe(
+      'Experience · Role 1 — editing actions',
+    );
     expect(
       within(bar).getByRole('button', { name: 'Add a role after 1' }),
     ).toBeTruthy();
@@ -171,7 +177,7 @@ describe('what a candidate may do to a collection', () => {
     const bars = screen.getAllByRole('toolbar');
     expect(bars).toHaveLength(1);
     expect(bars[0]?.getAttribute('aria-label')).toBe(
-      'Qualification 1 — editing actions',
+      'Education · Qualification 1 — editing actions',
     );
   });
 
@@ -398,6 +404,21 @@ describe('a bullet', () => {
 });
 
 describe('the chrome is chrome', () => {
+  it('says which section it is acting in, not only which item', () => {
+    /*
+     * "Role 1" is ambiguous on a résumé with a Role 1 under Experience and a
+     * Qualification 1 under Education — and it is the same ambiguity a
+     * screen-reader user hits, which is why it is asserted on the label rather
+     * than on what is drawn.
+     */
+    const dir = join(__dirname, '..', '..', '..', 'core', 'src', 'lib');
+    const table = readFileSync(join(dir, 'collections.ts'), 'utf8');
+    for (const id of ['experience', 'education', 'skills']) {
+      const entry = table.slice(table.indexOf(`\n  ${id}: {`));
+      expect(entry.slice(0, entry.indexOf('},')), id).toMatch(/label: '/);
+    }
+  });
+
   it('is asserted absent from print', () => {
     const css = readFileSync(join(__dirname, 'collection.css'), 'utf8');
     const print = css.slice(css.indexOf('@media print'));
@@ -437,5 +458,94 @@ describe('the chrome is chrome', () => {
     const css = readFileSync(join(__dirname, 'collection.css'), 'utf8');
     const rule = css.slice(css.indexOf('[data-entry] {'));
     expect(rule.slice(0, rule.indexOf('}'))).toMatch(/position:\s*relative/);
+  });
+});
+
+describe('the editing palette follows the app', () => {
+  const stylesheets = [
+    join(__dirname, 'collection.css'),
+    join(__dirname, '..', 'nodes', 'template-node.css'),
+  ];
+
+  it('states no colour of its own', () => {
+    /*
+     * The check that keeps a rebrand to one file. Every accent in the editing
+     * chrome has to resolve from `--color-accent`, so a literal here is a value
+     * that would survive changing the brand — and be found months later, wrong.
+     *
+     * Neutrals are exempt: black at 5% is a shadow, not a colour, and a shadow
+     * that took the brand hue would tint the paper it falls on. The paper's own
+     * fixed inks are named in `document.css` — including the one colour that
+     * deliberately does not follow the theme.
+     */
+    for (const file of stylesheets) {
+      const source = readFileSync(file, 'utf8');
+      const literals = source
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('*'))
+        .filter((line) => /#[0-9a-f]{3,8}\b|oklch\(|\brgb\(\s*\d/i.test(line))
+        .filter((line) => !line.includes('--tpl-chrome-line'))
+        .filter((line) => !/#fff\b|#ffffff\b/i.test(line));
+      expect(literals, `${file} states a colour of its own`).toEqual([]);
+    }
+  });
+
+  it('derives every step from the one token', () => {
+    const source = readFileSync(join(__dirname, '..', 'document.css'), 'utf8');
+    // The brand comes in exactly once, with a fallback for surfaces that carry
+    // no token layer — the export renderer among them.
+    expect(source).toMatch(/--tpl-accent:\s*var\(--color-accent,/);
+    // And the alphas are mixed from it rather than restated.
+    expect(
+      source.match(/color-mix\(in oklab, var\(--tpl-accent\)/g)?.length,
+    ).toBeGreaterThan(4);
+  });
+});
+
+describe('one edge on the page, and it is the outer one', () => {
+  /*
+   * The screenshot that prompted this had four rectangles at once: the hovered
+   * field's ring, the bullet list's ring, a tinted band on every field in the
+   * entry, and the entry's own ring outside all of them. The line the caret was
+   * in was the hardest of the four to find.
+   *
+   * Asserted on the stylesheets rather than on a render, because what matters
+   * is that the rules do not EXIST — a rule that draws an inner edge under some
+   * state a test did not think to enter is the same defect.
+   */
+  const inner = readFileSync(
+    join(__dirname, '..', 'nodes', 'template-node.css'),
+    'utf8',
+  );
+
+  it('draws no ring around a field', () => {
+    /* A hover or focus treatment may fill and may bar; it may not box. */
+    const rules = inner.split('}').filter((r) => /\.tpl-text[:[]/.test(r));
+    expect(rules.length).toBeGreaterThan(0);
+    for (const rule of rules) {
+      const body = rule.slice(rule.indexOf('{'));
+      // An INSET shadow is the left accent bar and is allowed; an outset one is
+      // a ring around four sides and is not.
+      const shadows = (body.match(/box-shadow:[^;]*/g) ?? []).filter(
+        // `none` is the print reset taking a shadow away, not drawing one.
+        (shadow) => !/:\s*none/.test(shadow),
+      );
+      for (const shadow of shadows) {
+        expect(shadow, `a field is boxed by: ${shadow}`).toMatch(/inset/);
+      }
+      expect(body, `a field is bordered by: ${rule}`).not.toMatch(
+        /^\s*border:|border-width:/m,
+      );
+    }
+  });
+
+  it('draws no ring around the bullet list', () => {
+    expect(inner).not.toMatch(/\.tpl-bullets\[data-editing\]/);
+  });
+
+  it('keeps the region ring while a field inside it has focus', () => {
+    const outer = readFileSync(join(__dirname, 'collection.css'), 'utf8');
+    // Nothing may switch the ring off for the state the candidate is in most.
+    expect(outer).not.toMatch(/\[data-entry\][^{]*:focus-within[^{]*::after/);
   });
 });

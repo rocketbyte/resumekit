@@ -30,6 +30,7 @@ function AuthoredItem<T>({
   path,
   id,
   noun,
+  label,
   sortable,
   children,
 }: ItemProps<T> & { id: string; sortable: boolean }) {
@@ -52,6 +53,7 @@ function AuthoredItem<T>({
         collection={collection}
         index={index}
         noun={noun}
+        label={label}
         handleProps={sortable ? handleProps : undefined}
       />
     ) : null,
@@ -85,10 +87,14 @@ export default function AuthoredItems<T>({
   collection,
   basePath,
   noun,
+  label,
   ids,
   sortable,
   children,
-}: Pick<CollectionItemsProps<T>, 'collection' | 'basePath' | 'noun'> & {
+}: Pick<
+  CollectionItemsProps<T>,
+  'collection' | 'basePath' | 'noun' | 'label'
+> & {
   ids: readonly string[];
   sortable: boolean;
   children: CollectionItemsProps<T>['children'];
@@ -100,6 +106,7 @@ export default function AuthoredItems<T>({
       collection={collection}
       index={index}
       noun={noun}
+      label={label}
       sortable={sortable}
       path={
         collection.pathOf?.(index) ??

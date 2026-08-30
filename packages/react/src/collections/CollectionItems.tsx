@@ -68,6 +68,8 @@ export interface CollectionItemsProps<T> {
   /** The path prefix, when the collection does not supply one of its own. */
   basePath?: string;
   noun: string;
+  /** The section's own name, for the overlay's label. */
+  label: string;
   /** The template's entry component. MUST return a single element. */
   children: (props: EntryRenderProps<T>) => ReactElement | null;
 }
@@ -78,6 +80,7 @@ export interface ItemProps<T> {
   index: number;
   path: string;
   noun: string;
+  label: string;
   children: CollectionItemsProps<T>['children'];
 }
 
@@ -115,7 +118,10 @@ function ReadOnlyItem<T>({ collection, index, path, children }: ItemProps<T>) {
  * fetches either. Asserted in `collections.spec.tsx`.
  */
 const AuthoredItems = lazy(() => import('./AuthoredItems.js')) as <T>(
-  props: Pick<CollectionItemsProps<T>, 'collection' | 'basePath' | 'noun'> & {
+  props: Pick<
+    CollectionItemsProps<T>,
+    'collection' | 'basePath' | 'noun' | 'label'
+  > & {
     ids: readonly string[];
     sortable: boolean;
     children: CollectionItemsProps<T>['children'];
@@ -126,6 +132,7 @@ export function CollectionItems<T>({
   collection,
   basePath,
   noun,
+  label,
   children,
 }: CollectionItemsProps<T>) {
   const authoring = useAuthoring();
@@ -146,6 +153,7 @@ export function CollectionItems<T>({
       collection={collection}
       index={index}
       noun={noun}
+      label={label}
       path={
         collection.pathOf?.(index) ??
         `${basePath ?? ''}.${index}`.replace(/^\./, '')
@@ -175,6 +183,7 @@ export function CollectionItems<T>({
             collection={collection}
             basePath={basePath}
             noun={noun}
+            label={label}
             ids={ids}
             sortable={sortable}
           >

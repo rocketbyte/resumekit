@@ -26,11 +26,14 @@ export function EntryOverlay<T>({
   collection,
   index,
   noun,
+  label: section,
   handleProps,
 }: {
   collection: CollectionHandle<T> & { originOf?: (i: number) => ItemOrigin };
   index: number;
   noun: string;
+  /** Which section this is in, so the bar says where it is acting. */
+  label: string;
   /**
    * What makes this item draggable, when dragging is offered at all.
    *
@@ -44,8 +47,16 @@ export function EntryOverlay<T>({
   const refusal = collection.removeReason(index);
   const last = collection.items.length - 1;
 
-  /* Sentence case, because it is read as a name and not as a heading. */
-  const label = `${noun.charAt(0).toUpperCase()}${noun.slice(1)} ${index + 1}`;
+  /*
+   * "Experience · Role 2" — where, then which.
+   *
+   * Sentence case, because it is read as a name rather than as a heading; and
+   * the section first, because a candidate with six sections and eleven bullets
+   * needs to know which document they are in before which item.
+   */
+  const label = `${section} · ${noun.charAt(0).toUpperCase()}${noun.slice(1)} ${
+    index + 1
+  }`;
 
   return (
     <span

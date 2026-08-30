@@ -14,8 +14,15 @@
  * part of it. Everything below is switched off for print, and the editor clears
  * its selection on `beforeprint` besides.
  *
- * The palette itself lives in `document.css`, which is the one stylesheet both
- * this file and `nodes/template-node.css` are guaranteed to load beside.
+ * The palette lives in `document.css`, which is the one stylesheet both this
+ * file and `nodes/template-node.css` are guaranteed to load beside — and it is
+ * taken from the app's own `--color-accent`, so a rebrand moves the editor with
+ * everything else.
+ *
+ * ONE hue, and the distinction is carried by weight instead: the brand colour
+ * marks what belongs to the résumé — the region's ring, the row you are in —
+ * while the tools themselves sit in neutral white pills. A control that took
+ * the brand colour too would compete with the content it acts on.
  * ------------------------------------------------------------------------ */
 
 /* ---------------------------------------------------------------------------
@@ -29,7 +36,7 @@
 
 [data-entry] {
   position: relative;
-  border-radius: 6px;
+  border-radius: 10px;
   transition: background-color 160ms ease;
 }
 
@@ -51,43 +58,48 @@
 
   /* Wider than it is tall, so the ring clears the text's side bearings and does
      not crowd the line above and below it. */
-  inset: -5px -9px;
+  inset: -6px -10px;
 
-  border: 1.5px dashed rgb(var(--tpl-accent) / 0.34);
-  border-radius: 9px;
+  border: 1px dashed var(--tpl-line);
+  border-radius: 14px;
   pointer-events: none;
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease;
 }
 
-[data-entry]:hover {
-  cursor: default;
-  background-color: rgb(var(--tpl-accent) / 0.04);
-}
-
 [data-entry]:hover::after {
-  border-color: rgb(var(--tpl-accent) / 0.6);
+  border-color: var(--tpl-line-hover);
 }
 
 /*
- * Selected: the dashes close into a line and the ring gains a soft halo.
+ * Selected: the dashes close into a line and the region lifts off the page.
  *
- * A heavier, darker border would have said the same thing louder; the halo says
- * it by lifting the region off the page instead, which is legible next to
- * seven other entries without being the loudest thing on it.
+ * A heavier, darker border would have said the same thing louder; a hairline
+ * with a shadow under it says it by raising the region instead, which stays
+ * legible next to seven others without being the loudest thing on the page.
  */
-[data-entry][data-selected] {
-  background-color: rgb(var(--tpl-accent) / 0.055);
-}
-
 [data-entry][data-selected]::after {
   border-style: solid;
-  border-color: rgb(var(--tpl-accent) / 0.8);
+  border-color: var(--tpl-line-strong);
   box-shadow:
-    0 0 0 3px rgb(var(--tpl-accent) / 0.1),
-    0 2px 12px rgb(var(--tpl-accent-ink) / 0.12);
+    0 1px 2px var(--tpl-lift-soft),
+    0 8px 24px var(--tpl-lift);
 }
+
+/*
+ * The ring STAYS while the caret is inside it.
+ *
+ * An earlier version faded it out on `:focus-within`, on the argument that a
+ * box around the sentence you are reading is in the way. That was solving the
+ * wrong problem: what was in the way was the three rings NESTED inside it — the
+ * hovered field's, the bullet list's, and a tinted band on every field. Those
+ * are gone (see `nodes/template-node.css`), and with them gone the outermost
+ * ring is the only edge on the page and reads as what it is: where the editor
+ * is acting, still true while you type in it.
+ *
+ * So: one edge, and it is the outer one.
+ */
 
 /* ---------------------------------------------------------------------------
  * The overlay: what this region is, and everything that can be done to it.
@@ -98,44 +110,40 @@
 
 .tpl-entry-overlay {
   position: absolute;
-  bottom: calc(100% + 7px);
-  left: -4px;
+
+  /* Overlapping the ring's top edge, so the bar reads as the region's own
+     handle rather than as a tooltip floating above it. */
+  bottom: calc(100% + 1px);
+  left: -10px;
   z-index: 3;
 
   display: flex;
-  gap: 1px;
+  gap: 2px;
   align-items: center;
-  padding: 3px;
+  padding: 4px;
 
   font:
-    500 11px/1 system-ui,
+    500 11.5px/1 system-ui,
     -apple-system,
     sans-serif;
-  color: #fff;
+  color: var(--tpl-chrome-ink);
   letter-spacing: 0.01em;
   white-space: nowrap;
 
-  background: rgb(var(--tpl-accent-ink));
-  border-radius: 6px;
+  /*
+   * Neutral, not accented. A solid coloured bar competes with the document it
+   * sits on and reads as an alert; a white one with a hairline and a shadow
+   * reads as a tool resting on paper, which is what it is.
+   */
+  background: var(--tpl-chrome);
+  border: 1px solid rgb(var(--tpl-chrome-line) / 0.08);
+  border-radius: 10px;
   box-shadow:
-    0 4px 12px rgb(var(--tpl-accent-ink) / 0.3),
-    0 1px 2px rgb(0 0 0 / 0.15);
+    0 1px 2px rgb(var(--tpl-chrome-line) / 0.05),
+    0 6px 16px rgb(var(--tpl-chrome-line) / 0.09);
 
   transform-origin: bottom left;
   animation: tpl-overlay-in 160ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* The tail, so the bar points at the thing it acts on. */
-.tpl-entry-overlay::after {
-  position: absolute;
-  top: 100%;
-  left: 12px;
-  width: 0;
-  height: 0;
-  content: '';
-  border-top: 4px solid rgb(var(--tpl-accent-ink));
-  border-right: 4px solid transparent;
-  border-left: 4px solid transparent;
 }
 
 @keyframes tpl-overlay-in {
@@ -165,7 +173,11 @@
 }
 
 .tpl-entry-overlay__grip:hover {
-  background: rgb(255 255 255 / 0.16);
+  background: rgb(var(--tpl-chrome-line) / 0.05);
+}
+
+.tpl-entry-overlay__grip > span[aria-hidden] {
+  color: color-mix(in oklab, var(--tpl-chrome-ink) 45%, transparent);
 }
 
 /* No handle to offer — a collection of one cannot be reordered. */
@@ -176,14 +188,14 @@
 }
 
 .tpl-entry-overlay__label {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .tpl-entry-overlay__divider {
   width: 1px;
   height: 14px;
   margin: 0 2px;
-  background: rgb(255 255 255 / 0.25);
+  background: rgb(var(--tpl-chrome-line) / 0.1);
 }
 
 .tpl-entry-overlay__btn {
@@ -214,11 +226,12 @@
 }
 
 .tpl-entry-overlay__btn:hover:not(:disabled) {
-  background: rgb(255 255 255 / 0.18);
+  background: rgb(var(--tpl-chrome-line) / 0.06);
 }
 
 .tpl-entry-overlay__btn[data-tone='danger']:hover:not(:disabled) {
-  background: rgb(var(--tpl-danger) / 0.9);
+  color: #fff;
+  background: var(--tpl-danger);
 }
 
 /*
@@ -232,8 +245,8 @@
 }
 
 .tpl-entry-overlay__btn:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: -2px;
+  outline: 2px solid var(--tpl-line-strong);
+  outline-offset: -1px;
 }
 
 /* ---------------------------------------------------------------------------
@@ -252,16 +265,16 @@
   font:
     500 11px/1.6 system-ui,
     sans-serif;
-  color: rgb(var(--tpl-accent-ink));
+  color: var(--tpl-accent-ink);
   cursor: pointer;
-  background: rgb(var(--tpl-accent) / 0.08);
-  border: 2px dashed rgb(var(--tpl-accent) / 0.55);
+  background: var(--tpl-tint);
+  border: 2px dashed var(--tpl-line-hover);
   border-radius: 5px;
   transition: background-color 120ms ease;
 }
 
 .tpl-collection__add-btn:hover {
-  background: rgb(var(--tpl-accent) / 0.12);
+  background: var(--tpl-tint);
 }
 
 /* ---------------------------------------------------------------------------

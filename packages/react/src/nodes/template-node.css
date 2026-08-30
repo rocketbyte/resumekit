@@ -19,7 +19,7 @@
 }
 
 .tpl-text[data-empty] {
-  color: #9a9a9a;
+  color: var(--tpl-paper-muted);
   font-style: italic;
 }
 
@@ -73,36 +73,28 @@
 }
 
 /*
- * Selection: a hairline the document's own metrics do not feel.
+ * A field says it is a field with a FILL, never with an edge.
+ *
+ * Everything here used to draw a box: the hovered field got a two-pixel ring,
+ * the bullet list got a ring of its own around all eleven of them, and every
+ * field in the selected entry got a tinted band. Together that was a rectangle
+ * inside a rectangle inside a rectangle, and the one thing a candidate actually
+ * wanted to see — which line the caret is in — was the hardest of the three to
+ * pick out.
+ *
+ * So there is one edge on the page at a time: the region's ring, drawn by
+ * `collection.css`. Fields are distinguished by fill alone.
  *
  * Scoped away from `--static`, which is the READ-ONLY document — the saved
  * résumé view and the export renderer both mount it. Without the exclusion a
- * résumé nobody could edit still answered the pointer with a text cursor and an
- * outline, promising an action that was not there.
- */
-/*
- * A soft fill, not a second ring.
- *
- * A field sits INSIDE a region that already draws a ring around itself, and a
- * hard outline on hover put a rectangle inside a rectangle — two competing
- * boxes on one line. A tint says "this is the thing you would be typing into"
- * without drawing a second edge.
+ * résumé nobody could edit still answered the pointer with a text cursor,
+ * promising an action that was not there.
  */
 .tpl-editor:not(.tpl-editor--static) .tpl-text:hover {
-  background: rgb(var(--tpl-accent) / 0.13);
-  border-radius: 3px;
-  box-shadow: 0 0 0 2px rgb(var(--tpl-accent) / 0.13);
+  background: var(--tpl-wash);
+  /* Rounded on all four, because a hover has no bar to sit flush against. */
+  border-radius: 5px;
   cursor: text;
-}
-
-.tpl-editor:not(.tpl-editor--static) .tpl-input:focus-visible {
-  box-shadow: 0 0 0 1px rgb(var(--tpl-accent-ink) / 0.7);
-  border-radius: 2px;
-}
-
-.tpl-editor:not(.tpl-editor--static) .tpl-bullets[data-editing] {
-  box-shadow: 0 0 0 1px rgb(var(--tpl-accent) / 0.45);
-  border-radius: 2px;
 }
 
 /*
@@ -117,19 +109,24 @@
  * So the highlight follows focus. A bullet list is ONE editor node, so selecting
  * it turns every bullet into a field at once; `:focus-within` is what
  * distinguishes the one the caret is in from the ten that merely could be.
- * Hover, above, covers the pointer; between them every field still announces
- * itself, one at a time.
+ *
+ * A FILL, and nothing else. Two attempts at an accent bar down the left edge
+ * came off badly for the same reason: a field's box starts exactly where its
+ * text starts, so a bar inside it sits on the first letter, and there is no room
+ * to give it without either moving the text or reaching into the gutter the drag
+ * handle already uses. The fill alone says which line the caret is in, cannot
+ * collide with anything, and needs no exception in any of the four templates.
  */
 .tpl-editor:not(.tpl-editor--static) .tpl-text:focus-within {
-  background: rgb(var(--tpl-accent) / 0.13);
-  border-radius: 3px;
-  box-shadow: 0 0 0 2px rgb(var(--tpl-accent) / 0.13);
+  background: var(--tpl-tint);
+  border-radius: 5px;
   transition: background-color 140ms ease;
 }
 
 /* An empty field is guidance, and guidance should look like an invitation. */
 [data-selected] .tpl-text[data-empty] {
-  background: rgb(var(--tpl-accent) / 0.09);
+  background: var(--tpl-tint);
+  border-radius: 5px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -193,7 +190,7 @@
   font:
     600 15px/1 system-ui,
     sans-serif;
-  color: rgb(var(--tpl-accent-ink) / 0.85);
+  color: var(--tpl-accent-ink);
   cursor: grab;
   background: none;
   border: 0;
@@ -218,12 +215,12 @@
 }
 
 .tpl-bullet__grip:hover {
-  background: rgb(var(--tpl-accent) / 0.18);
+  background: var(--tpl-tint-hover);
 }
 
 .tpl-bullet__grip:focus-visible {
   visibility: visible;
-  outline: 2px solid rgb(var(--tpl-accent-ink) / 0.7);
+  outline: 2px solid var(--tpl-accent-ink);
   outline-offset: 1px;
 }
 
@@ -246,8 +243,24 @@
   transform: translateY(-50%);
 
   display: flex;
-  gap: 4px;
-  margin-left: 8px;
+  gap: 2px;
+  margin-left: 10px;
+  padding: 3px;
+
+  /*
+   * One pill holding both, rather than two loose circles.
+   *
+   * Neutral like the region's own bar above it, and for the same reason: these
+   * rest on a résumé, and a pair of coloured discs beside a line of it reads as
+   * something wrong with the line.
+   */
+  background: var(--tpl-chrome);
+  border: 1px solid rgb(var(--tpl-chrome-line) / 0.08);
+  border-radius: 9px;
+  box-shadow:
+    0 1px 2px rgb(var(--tpl-chrome-line) / 0.05),
+    0 4px 12px rgb(var(--tpl-chrome-line) / 0.08);
+
   visibility: hidden;
 }
 
@@ -258,25 +271,24 @@
 }
 
 /*
- * Round, soft, and a little larger than the glyphs they replaced.
+ * Quiet at rest, and coloured only by what they do.
  *
- * These sit on a résumé somebody is about to send an employer, so they have to
- * read as an offer rather than as an alert: a filled circle in the document's
- * own green, no border, and the red kept for the moment a pointer is actually
- * over the one that removes something.
+ * They sit on a résumé somebody is about to send an employer, so nothing here
+ * is coloured until a pointer is on it: adding takes the brand colour, removing
+ * turns red, and neither announces itself before it is aimed at.
  */
 .tpl-tool {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   padding: 0;
-  color: rgb(var(--tpl-accent-ink));
+  color: color-mix(in oklab, var(--tpl-chrome-ink) 70%, transparent);
   cursor: pointer;
-  background: rgb(var(--tpl-accent) / 0.16);
+  background: none;
   border: 0;
-  border-radius: 50%;
+  border-radius: 6px;
   transition:
     background-color 120ms ease,
     color 120ms ease,
@@ -284,24 +296,25 @@
 }
 
 .tpl-tool svg {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
+  fill: none;
   stroke: currentcolor;
   stroke-width: 1.75;
   stroke-linecap: round;
   stroke-linejoin: round;
-  fill: none;
 }
 
 .tpl-tool:hover:not(:disabled) {
-  background: rgb(var(--tpl-accent) / 0.3);
+  color: var(--tpl-accent-ink);
+  background: var(--tpl-tint-hover);
   /* A press-able amount, not a bounce. */
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
 .tpl-tool[data-tone='danger']:hover:not(:disabled) {
-  color: #fff;
-  background: rgb(var(--tpl-danger) / 0.85);
+  color: var(--tpl-danger);
+  background: var(--tpl-danger-tint);
 }
 
 .tpl-tool:active:not(:disabled) {
@@ -309,14 +322,13 @@
 }
 
 .tpl-tool:disabled {
-  color: rgb(var(--tpl-accent-ink) / 0.4);
+  color: color-mix(in oklab, var(--tpl-chrome-ink) 30%, transparent);
   cursor: not-allowed;
-  background: rgb(0 0 0 / 0.05);
 }
 
 .tpl-tool:focus-visible {
-  outline: 2px solid rgb(var(--tpl-accent-ink) / 0.7);
-  outline-offset: 2px;
+  outline: 2px solid var(--tpl-line-strong);
+  outline-offset: 1px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -348,10 +360,11 @@
   }
 
   .tpl-text,
+  .tpl-text:hover,
+  .tpl-text:focus-within,
   .tpl-input,
   .tpl-bullets,
-  .tpl-text:focus-within,
-  [data-selected] .tpl-text {
+  [data-selected] .tpl-text[data-empty] {
     background: none !important;
     box-shadow: none !important;
   }

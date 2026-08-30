@@ -66,6 +66,12 @@ export interface CollectionDef {
    * bullet-specific constant in a bullet-specific component.
    */
   readonly noun: string;
+  /**
+   * What the SECTION is called, for a control that has to say where it is
+   * acting — "Experience · Role 2" tells a candidate which of two roles and
+   * which of six sections in one line.
+   */
+  readonly label: string;
 }
 
 /**
@@ -187,6 +193,7 @@ export const COLLECTIONS = {
   summary: {
     path: 'summary',
     noun: 'summary',
+    label: 'Summary',
     arity: 'one',
     shape: 'field',
     reorderable: false,
@@ -197,6 +204,7 @@ export const COLLECTIONS = {
   links: {
     path: 'links',
     noun: 'link',
+    label: 'Links',
     arity: 'many',
     shape: 'inline',
     reorderable: true,
@@ -207,6 +215,7 @@ export const COLLECTIONS = {
   experience: {
     path: 'experience',
     noun: 'role',
+    label: 'Experience',
     arity: 'many',
     shape: 'entry',
     reorderable: true,
@@ -217,6 +226,7 @@ export const COLLECTIONS = {
   experience_bullets: {
     path: 'experience.*.bullets',
     noun: 'bullet',
+    label: 'Experience',
     arity: 'many',
     shape: 'bullet',
     reorderable: true,
@@ -229,6 +239,7 @@ export const COLLECTIONS = {
   education: {
     path: 'education',
     noun: 'qualification',
+    label: 'Education',
     arity: 'many',
     shape: 'entry',
     reorderable: true,
@@ -239,6 +250,7 @@ export const COLLECTIONS = {
   skills: {
     path: 'skills',
     noun: 'skills group',
+    label: 'Skills',
     arity: 'many',
     shape: 'entry',
     reorderable: true,
@@ -249,6 +261,7 @@ export const COLLECTIONS = {
   skill_items: {
     path: 'skills.*.items',
     noun: 'skill',
+    label: 'Skills',
     arity: 'many',
     shape: 'inline',
     reorderable: true,
@@ -259,6 +272,7 @@ export const COLLECTIONS = {
   certifications: {
     path: 'certifications',
     noun: 'certification',
+    label: 'Certifications',
     arity: 'many',
     shape: 'inline',
     reorderable: true,
@@ -269,6 +283,7 @@ export const COLLECTIONS = {
   custom_sections: {
     path: 'custom_sections',
     noun: 'section',
+    label: 'Sections',
     arity: 'many',
     shape: 'section',
     reorderable: true,
@@ -279,6 +294,7 @@ export const COLLECTIONS = {
   custom_entries: {
     path: 'custom_sections.*.entries',
     noun: 'entry',
+    label: 'Section',
     arity: 'many',
     shape: 'entry',
     reorderable: true,
@@ -289,6 +305,7 @@ export const COLLECTIONS = {
   custom_bullets: {
     path: 'custom_sections.*.entries.*.bullets',
     noun: 'bullet',
+    label: 'Section',
     arity: 'many',
     shape: 'bullet',
     reorderable: true,

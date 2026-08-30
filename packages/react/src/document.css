@@ -6,28 +6,65 @@
  * without having to know which stylesheets to import. The editor's own chrome
  * is deliberately not here: this is the document, not the workbench.
  */
-/*
- * The editing palette, defined HERE because two stylesheets read it — the node
- * affordances in `nodes/` and the region chrome in `collections/` — and this is
- * the one file both are guaranteed to load beside. A `var()` that resolves to
- * nothing does not fall back to a default; it drops the whole declaration, and
- * the affordance simply would not draw.
- *
- * Two greens, because one cannot do both jobs. `--tpl-accent` is drawn at low
- * alpha over white paper, so it has to stay legible when it is mostly
- * transparent — a deep green would read as grey. `--tpl-accent-ink` is the solid
- * fill the overlay bar uses, dark enough that white text on it clears the 4.5:1
- * a small label needs.
- *
- * Stated here rather than taken from the design tokens on purpose: the résumé
- * renders in paper colours in both app themes (#29), so an affordance drawn on
- * it has to hold against white in both — a token that followed the theme would
- * not.
- */
 .tpl-editor {
-  --tpl-accent: 16 185 129;
-  --tpl-accent-ink: 4 120 87;
-  --tpl-danger: 200 60 60;
+  /*
+   * The editing palette, taken from the APP's primary rather than stated here.
+   *
+   * `--color-accent` is the one place the brand is defined (`libs/ui-tokens`),
+   * so a rebrand moves the editor's affordances with everything else and no
+   * value in this library has to be found and changed to match. The literals are
+   * fallbacks, not defaults: this stylesheet is also loaded by surfaces that
+   * carry no token layer — the export renderer among them — and a `var()` that
+   * resolves to nothing does not fall back, it drops the whole declaration and
+   * the affordance simply does not draw.
+   *
+   * An earlier version hardcoded a green on the argument that the résumé renders
+   * in paper colours in both themes, so an affordance on it must hold against
+   * white in both. That argument was weaker than it read: the dark override is
+   * `--indigo-400`, which is a mid-tone violet and perfectly legible on white.
+   * What it correctly rules out is following a token that goes near-white in
+   * dark mode, which this one does not.
+   */
+  --tpl-accent: var(--color-accent, oklch(0.55 0.13 288));
+  --tpl-accent-ink: var(--color-accent-hover, oklch(0.46 0.14 288));
+
+  /*
+   * The alphas, mixed once.
+   *
+   * `--color-accent` is an `oklch()` colour, not the channel triplet that
+   * `rgb(… / a)` needs, so every translucent step is a `color-mix`. Naming them
+   * for the JOB rather than the percentage is what stops the next person
+   * inventing a sixth nearly-identical alpha: there is a line, a wash and a
+   * tint, and everything is one of them.
+   */
+  --tpl-line: color-mix(in oklab, var(--tpl-accent) 32%, transparent);
+  --tpl-line-hover: color-mix(in oklab, var(--tpl-accent) 58%, transparent);
+  --tpl-line-strong: color-mix(in oklab, var(--tpl-accent) 72%, transparent);
+  --tpl-wash: color-mix(in oklab, var(--tpl-accent) 5%, transparent);
+  --tpl-tint: color-mix(in oklab, var(--tpl-accent) 12%, transparent);
+  --tpl-tint-hover: color-mix(in oklab, var(--tpl-accent) 18%, transparent);
+  --tpl-lift: color-mix(in oklab, var(--tpl-accent-ink) 10%, transparent);
+  --tpl-lift-soft: color-mix(in oklab, var(--tpl-accent-ink) 6%, transparent);
+
+  /* Neutral chrome: the bars and pills the controls themselves live in. */
+  --tpl-chrome: var(--color-surface, #ffffff);
+  --tpl-chrome-ink: var(--color-text, #373742);
+  --tpl-chrome-line: 0 0 0;
+
+  /*
+   * Placeholder ink, and the one colour here that deliberately does NOT follow
+   * the theme.
+   *
+   * Guidance is drawn on the PAPER, which is white in both themes (#29). The
+   * app's muted-text token goes light in dark mode — correct on a dark surface,
+   * invisible on this one — so this stays fixed. Stated as a token anyway, so
+   * the exception is written down rather than left as a literal somebody later
+   * assumes was an oversight.
+   */
+  --tpl-paper-muted: #9a9a9a;
+
+  --tpl-danger: var(--color-danger, #b3261e);
+  --tpl-danger-tint: color-mix(in oklab, var(--tpl-danger) 12%, transparent);
 }
 
 @import './fonts/fonts.css';
