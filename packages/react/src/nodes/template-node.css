@@ -152,9 +152,13 @@
   position: relative;
 }
 
-.tpl-editor:not(.tpl-editor--static) .tpl-bullet[data-authored]:hover::before,
+/*
+ * And the marker only steps aside when something is taking its place. While the
+ * field is being edited the handle is gone, so hiding the `•` as well would
+ * leave the bullet with no mark at all.
+ */
 .tpl-editor:not(.tpl-editor--static)
-  .tpl-bullet[data-authored]:focus-within::before {
+  .tpl-bullet[data-authored]:hover:not(:has(.tpl-input:focus))::before {
   visibility: hidden;
 }
 
@@ -176,16 +180,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.05em;
   height: 1.05em;
 
   /*
-   * Nudged into the page's left margin by the couple of pixels the glyph has
-   * outgrown its column by. Harvard's marker gutter is the narrowest of the four
-   * at 10pt, and the margin to the left of it is unused — so the handle grows
-   * outward rather than over the first word of the bullet.
+   * Exactly over the marker column, and centred in it — so the handle stands
+   * where the bullet's own `•` stands rather than a few pixels off to its left.
+   *
+   * The width comes from the template, which is the only thing that knows how
+   * wide its gutter is; the fallback covers a bullet list drawn outside any of
+   * the four, which is a case that exists only in a test today.
    */
-  margin-left: -2px;
+  width: var(--tpl-marker, 1em);
   padding: 0;
   font:
     600 15px/1 system-ui,
@@ -197,11 +202,16 @@
   border-radius: 3px;
 
   /*
-   * Hidden but present, so the button stays in the tab order — reaching a
-   * bullet's handle by keyboard is how it is reordered without a pointer, and
-   * `display: none` would take that away.
+   * Hidden but reachable.
+   *
+   * `opacity` rather than `visibility`, because a `visibility: hidden` button is
+   * out of the tab order — and reaching a bullet's handle by keyboard is how it
+   * is reordered without a pointer. `pointer-events: none` is the other half:
+   * an invisible control that still swallowed clicks would eat every click aimed
+   * at the text underneath it.
    */
-  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
   touch-action: none;
 }
 
@@ -209,9 +219,30 @@
   cursor: grabbing;
 }
 
-.tpl-bullet:hover > .tpl-bullet__grip,
-.tpl-bullet:focus-within > .tpl-bullet__grip {
-  visibility: visible;
+/*
+ * Revealed by the POINTER, and by focus landing on the controls themselves —
+ * never while the field is being edited.
+ *
+ * Typing is the one moment a candidate is reading their own sentence closely,
+ * and a handle and two buttons appearing beside it are three things competing
+ * with the words. Hover alone was not enough to say that: clicking into a bullet
+ * leaves the pointer sitting on the row it just opened, so the controls stayed
+ * up for exactly the moment they were meant to leave.
+ *
+ * `:not(:has(.tpl-input:focus))` is the distinction the row itself cannot make.
+ * `:focus-within` is true both when the caret is in the text AND when focus is
+ * on one of these controls — and those are opposite cases: one must hide them,
+ * the other is the only reason a keyboard user can reach them at all.
+ *
+ * They come back the moment the pointer moves, and a keyboard user still tabs
+ * straight into them because they were never taken out of the tab order.
+ */
+.tpl-bullet:hover:not(:has(.tpl-input:focus)) > .tpl-bullet__grip,
+.tpl-bullet:hover:not(:has(.tpl-input:focus)) > .tpl-bullet__tools,
+.tpl-bullet__grip:focus-visible,
+.tpl-bullet__tools:focus-within {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .tpl-bullet__grip:hover {
@@ -219,24 +250,29 @@
 }
 
 .tpl-bullet__grip:focus-visible {
-  visibility: visible;
   outline: 2px solid var(--tpl-accent-ink);
   outline-offset: 1px;
 }
 
 /*
- * Add and remove live in the page's right margin — the one region the document
- * does not use — so they take up no flow space at all and the line they belong
- * to does not move when they appear.
+ * Add and remove float INSIDE the row, at its right end.
  *
- * Revealed on HOVER rather than on selection. They used to appear only once the
- * list had been clicked into, which meant a candidate had to already know a
- * bullet could be added before they could find out.
+ * They used to sit in the page's right margin, which was the tidier place for
+ * them and the wrong one: the margin is outside the sheet, so on a narrow canvas
+ * — or simply with the page scrolled — the pill was clipped by the edge of the
+ * viewport and the controls could not be reached at all. Anything a candidate
+ * has to be able to click has to be on the paper.
+ *
+ * Absolutely positioned, so it still takes no flow space and revealing it moves
+ * no line. It does overlay the end of the row while the pointer is on it, which
+ * is the trade: an opaque pill with a shadow reads as floating above the text
+ * rather than replacing it, and it is only ever there while that one row is
+ * hovered or focused.
  */
 .tpl-bullet__tools {
   position: absolute;
   top: 50%;
-  left: 100%;
+  right: 2px;
 
   /* Centred on the whole bullet, matching the handle at the other end of the
      row — both act on the bullet, so neither belongs to its first line. */
@@ -244,7 +280,6 @@
 
   display: flex;
   gap: 2px;
-  margin-left: 10px;
   padding: 3px;
 
   /*
@@ -261,13 +296,8 @@
     0 1px 2px rgb(var(--tpl-chrome-line) / 0.05),
     0 4px 12px rgb(var(--tpl-chrome-line) / 0.08);
 
-  visibility: hidden;
-}
-
-.tpl-bullet:hover > .tpl-bullet__tools,
-.tpl-bullet:focus-within > .tpl-bullet__tools,
-.tpl-bullet__tools:focus-within {
-  visibility: visible;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /*

@@ -381,10 +381,105 @@ describe('a bullet', () => {
       const block = css.slice(css.indexOf(rule));
       const body = block.slice(0, block.indexOf('}'));
       expect(body, rule).toMatch(/position:\s*absolute/);
-      expect(body, rule).toMatch(/visibility:\s*hidden/);
+
+      /*
+       * Hidden by OPACITY, not by `visibility`.
+       *
+       * A `visibility: hidden` control is out of the tab order, and these are
+       * the only way to reorder or remove a bullet without a pointer. Paired
+       * with `pointer-events: none` so an invisible control cannot swallow a
+       * click aimed at the text it floats over.
+       */
+      expect(body, `${rule} is hidden out of the tab order`).toMatch(
+        /opacity:\s*0/,
+      );
+      expect(body, `${rule} is invisible but still clickable`).toMatch(
+        /pointer-events:\s*none/,
+      );
+
+      /*
+       * And ON the paper, not beside it.
+       *
+       * `left: 100%` put the controls in the page's right margin, which is
+       * outside the sheet: on a narrow canvas the pill was clipped by the
+       * viewport and could not be clicked at all. Anything a candidate has to
+       * reach has to be within the page's own box.
+       */
+      /* Line-anchored: `margin-left: -2px` nudges within the box and is fine. */
+      expect(body, `${rule} is positioned outside the page`).not.toMatch(
+        /^\s*(left|right):\s*(100%|-)/m,
+      );
     }
     /* One bullet per role in the fixture, and both rows drawn the same way. */
     expect(container.querySelectorAll('.tpl-bullet')).toHaveLength(2);
+  });
+
+  it('gets out of the way while the sentence is being edited', () => {
+    /*
+     * Typing is the one moment a candidate is reading their own words closely,
+     * and a handle plus two buttons beside the line are three things competing
+     * with it. So the controls answer the POINTER, and focus only where focus
+     * has landed on a control itself — never where it has landed in the text.
+     */
+    const css = readFileSync(
+      join(__dirname, '..', 'nodes', 'template-node.css'),
+      'utf8',
+    );
+    const reveals = css
+      .split('}')
+      .filter((rule) => /opacity:\s*1/.test(rule.slice(rule.indexOf('{'))))
+      .map((rule) => rule.slice(0, rule.indexOf('{')));
+
+    expect(reveals.length).toBeGreaterThan(0);
+    for (const selector of reveals) {
+      /*
+       * Hover alone is not enough, and that is the whole point: clicking into a
+       * bullet leaves the pointer on the row it just opened, so a bare `:hover`
+       * kept the controls up for exactly the moment they were meant to leave.
+       * A hover reveal must therefore exclude the field having focus.
+       */
+      if (/:hover/.test(selector)) {
+        expect(
+          selector,
+          `a control is revealed by hovering while editing: ${selector.trim()}`,
+        ).toMatch(/:not\(:has\(\.tpl-input:focus\)\)/);
+      }
+      expect(
+        selector,
+        `a control is revealed by editing: ${selector.trim()}`,
+      ).not.toMatch(/\.tpl-bullet:focus-within/);
+    }
+  });
+
+  it('stands where the bullet marker stands', () => {
+    /*
+     * Centred in the marker column, whose width only the template knows — so
+     * the shared stylesheet reads it and each template states it beside the
+     * `grid-template-columns` that decides it. A template that added a bullet
+     * list without stating one would put the handle at a guessed width, which
+     * is what the fallback makes survivable and this makes visible.
+     */
+    const css = readFileSync(
+      join(__dirname, '..', 'nodes', 'template-node.css'),
+      'utf8',
+    );
+    const grip = css.slice(css.indexOf('.tpl-bullet__grip {'));
+    expect(grip.slice(0, grip.indexOf('}'))).toMatch(
+      /width:\s*var\(--tpl-marker/,
+    );
+
+    const dir = join(__dirname, '..', 'templates');
+    for (const template of readdirSync(dir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)) {
+      const file = readdirSync(join(dir, template)).find((f) =>
+        f.endsWith('.css'),
+      );
+      expect(
+        readFileSync(join(dir, template, file!), 'utf8'),
+        `${template} states its marker column`,
+      ).toMatch(/--tpl-marker:/);
+    }
   });
 
   it('refuses to remove the last one, and says why', async () => {

@@ -225,6 +225,16 @@
 }
 
 .tpl-exec .tpl-bullet {
+  /*
+   * The marker column, named so the drag handle can sit centred in it.
+   *
+   * `template-node.css` draws the handle for every template and cannot know how
+   * wide this one's gutter is — so the stylesheet that DECIDES the width is the
+   * one that states it. Repeating the value would be two places to disagree,
+   * which is why it is the same expression rather than a rounded copy.
+   */
+  --tpl-marker: calc(14pt * var(--e-scale));
+
   /* Hanging indent, as in Harvard: a wrapped line aligns with the text above
      it, not under the marker. */
   display: grid;

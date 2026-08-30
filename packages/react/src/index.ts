@@ -71,6 +71,7 @@ export {
  * renderer free of authoring by construction rather than by remembering.
  */
 export { DocumentAuthoringProvider } from './collections/authoring-context.js';
+export { preloadEditingLayer } from './collections/preload.js';
 export type { AuthoringContextValue } from './collections/authoring-context.js';
 
 /** The editable nodes, and the rules that keep them locked. */
