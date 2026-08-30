@@ -11,6 +11,8 @@
 
 /** Letter at 96dpi, and the document's own vertical margin, both in CSS pixels. */
 export const PAGE_HEIGHT = 11 * 96;
+/** Letter's other dimension, which is what a view zoom has to fit into. */
+export const PAGE_WIDTH = 8.5 * 96;
 export const PAGE_MARGIN = 0.5 * 96;
 /** The gap drawn between sheets on screen. Presentation only — never printed. */
 export const SHEET_GAP = 28;

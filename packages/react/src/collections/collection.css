@@ -4,11 +4,11 @@
  * Two rules govern everything here, and they are why it looks the way it does
  * rather than the way a page builder does.
  *
- * **Nothing here may move a line.** Every highlight is an `outline` and every
- * control is absolutely positioned, because an outline takes no space and an
- * absolutely positioned box takes none either. A border, a padding, or an
- * in-flow toolbar would change where the page breaks the moment a candidate
- * hovered something — and the page break is what the export renders against.
+ * **Nothing here may move a line.** Every highlight is drawn on an absolutely
+ * positioned pseudo-element and every control is absolutely positioned too,
+ * because neither takes layout space. A border, a padding, or an in-flow toolbar
+ * would change where the page breaks the moment a candidate hovered something —
+ * and the page break is what the export renders against.
  *
  * **Nothing here is on paper.** The document is a document; the tools are not
  * part of it. Everything below is switched off for print, and the editor clears
@@ -29,25 +29,64 @@
 
 [data-entry] {
   position: relative;
-  border-radius: 3px;
-  outline: 2px dashed rgb(var(--tpl-accent) / 0.38);
-  outline-offset: 4px;
+  border-radius: 6px;
+  transition: background-color 160ms ease;
+}
+
+/*
+ * The ring is a PSEUDO-ELEMENT, not an `outline`.
+ *
+ * An outline cannot be rounded independently of the box it surrounds, cannot be
+ * inset differently on each axis, and cannot carry a shadow — so it draws a hard
+ * rectangle with square-ish corners hugging the text. An absolutely positioned
+ * ring gives all three and still takes no layout space, which is the property
+ * that mattered about `outline` in the first place.
+ *
+ * `pointer-events: none` because it sits outside the entry's box: without it the
+ * ring would swallow clicks aimed at whatever is in the margin beside it.
+ */
+[data-entry]::after {
+  content: '';
+  position: absolute;
+
+  /* Wider than it is tall, so the ring clears the text's side bearings and does
+     not crowd the line above and below it. */
+  inset: -5px -9px;
+
+  border: 1.5px dashed rgb(var(--tpl-accent) / 0.34);
+  border-radius: 9px;
+  pointer-events: none;
   transition:
-    outline-color 140ms ease,
-    background-color 140ms ease;
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 [data-entry]:hover {
   cursor: default;
-  background-color: rgb(var(--tpl-accent) / 0.05);
-  outline-color: rgb(var(--tpl-accent) / 0.7);
+  background-color: rgb(var(--tpl-accent) / 0.04);
 }
 
-/* Selected: solid, and the only entry on the page drawn this way. */
+[data-entry]:hover::after {
+  border-color: rgb(var(--tpl-accent) / 0.6);
+}
+
+/*
+ * Selected: the dashes close into a line and the ring gains a soft halo.
+ *
+ * A heavier, darker border would have said the same thing louder; the halo says
+ * it by lifting the region off the page instead, which is legible next to
+ * seven other entries without being the loudest thing on it.
+ */
 [data-entry][data-selected] {
-  background-color: rgb(var(--tpl-accent) / 0.07);
-  outline: 2px solid rgb(var(--tpl-accent-ink) / 0.75);
-  outline-offset: 4px;
+  background-color: rgb(var(--tpl-accent) / 0.055);
+}
+
+[data-entry][data-selected]::after {
+  border-style: solid;
+  border-color: rgb(var(--tpl-accent) / 0.8);
+  box-shadow:
+    0 0 0 3px rgb(var(--tpl-accent) / 0.1),
+    0 2px 12px rgb(var(--tpl-accent-ink) / 0.12);
 }
 
 /* ---------------------------------------------------------------------------
@@ -164,6 +203,16 @@
   transition: background-color 100ms ease;
 }
 
+.tpl-entry-overlay__btn svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .tpl-entry-overlay__btn:hover:not(:disabled) {
   background: rgb(255 255 255 / 0.18);
 }
@@ -225,6 +274,7 @@
   }
 
   [data-entry],
+  [data-entry]::after,
   .tpl-entry-overlay__btn,
   .tpl-collection__add-btn {
     transition: none;
@@ -243,9 +293,11 @@
     display: none !important;
   }
 
-  [data-entry],
-  [data-entry][data-selected] {
+  [data-entry] {
     background: none !important;
-    outline: none !important;
+  }
+
+  [data-entry]::after {
+    display: none !important;
   }
 }

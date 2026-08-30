@@ -28,6 +28,21 @@ import { DocumentAuthoringProvider } from './authoring-context.js';
  * the authoring context removes every affordance without a template opting out.
  */
 
+/*
+ * Load the editing layer before any test needs it.
+ *
+ * The controls are behind a dynamic import — `template-rendering` requires the
+ * read-only document not to carry them — and a `React.lazy` boundary resolves on
+ * whatever schedule the module loader gives it. Under a full parallel run that
+ * was slower than the waits below allowed, so the suite failed on machine load
+ * rather than on anything about the code. Importing here puts the module in the
+ * cache, and every `lazy` after it settles on the next microtask.
+ */
+beforeAll(async () => {
+  await import('./AuthoredItems.js');
+  await import('../nodes/AuthoredBullets.js');
+});
+
 function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
   return {
     name: 'Ada Lovelace',
@@ -389,9 +404,9 @@ describe('the chrome is chrome', () => {
     expect(print).toMatch(/\.tpl-entry-overlay/);
     expect(print).toMatch(/\.tpl-collection__add/);
     expect(print).toMatch(/display:\s*none/);
-    /* The outline goes too — an entry on paper is an entry, not a region. */
-    expect(print).toMatch(/\[data-entry\]/);
-    expect(print).toMatch(/outline:\s*none/);
+    /* The ring goes too — an entry on paper is an entry, not a region. */
+    expect(print).toMatch(/\[data-entry\]::after/);
+    expect(print).toMatch(/display:\s*none/);
   });
 
   it('adds no element of its own to the document', async () => {

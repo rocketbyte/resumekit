@@ -12,12 +12,32 @@
   position: relative;
   width: 8.5in;
   margin: 0 auto;
+
+  /*
+   * The zoom eases rather than jumps.
+   *
+   * `zoom` takes part in layout, so this is animating a reflow — which is
+   * exactly why `PagedSheet` suspends pagination for the duration and measures
+   * once at the end: mid-transition the page is at neither size, and a plan made
+   * from those frames would be true for none of them.
+   *
+   * Duration from `--zoom-ms`, written by the component from the same constant
+   * that decides how long it waits. Where a browser will not interpolate `zoom`,
+   * this degrades to the jump it does today and nothing else changes.
+   */
+  transition: zoom var(--zoom-ms, 200ms) cubic-bezier(0.22, 1, 0.36, 1);
   /* Hold the paper open to every sheet the paginator drew. Absolutely
      positioned sheets contribute no height, so without this a one-line record
      is a clipped strip rather than a page. */
   min-height: calc(
     var(--pages, 1) * (var(--page-h) + var(--page-gap)) - var(--page-gap)
   );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tpl-pages {
+    transition: none;
+  }
 }
 
 /* Inert decoration behind the flow. No content lives here, so no content can be
@@ -112,5 +132,100 @@
   /* On paper there is no gap to hide, and a mask here would cut the document. */
   .tpl-pages[data-multipage] .tpl-pages__flow {
     mask-image: none;
+  }
+}
+
+/* ── The zoom control ───────────────────────────────────────────────────── */
+
+/*
+ * Canvas chrome, not document chrome.
+ *
+ * It sits OUTSIDE `.tpl-pages`, so it does not scale with the page it scales —
+ * and it is taken out of the flow by a negative bottom margin, so appearing
+ * costs the canvas no height and the paper does not shift down under it. The
+ * paginator measures only inside `.tpl-pages__flow`, so nothing here can reach
+ * where a page breaks.
+ *
+ * Drawn in the app's own neutral tokens rather than the document's green, since
+ * it acts on the view: it is not one of the affordances that says a part of the
+ * résumé can be edited.
+ */
+.tpl-zoom {
+  position: sticky;
+  top: 8px;
+  z-index: 5;
+
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  width: fit-content;
+  margin: 0 0 -32px auto;
+  padding: 3px;
+
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e2e2e6);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgb(0 0 0 / 12%));
+}
+
+.tpl-zoom__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font:
+    600 14px/1 system-ui,
+    sans-serif;
+  color: var(--color-text, #1a1a1a);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 5px;
+}
+
+.tpl-zoom__btn:hover:not(:disabled) {
+  background: var(--color-surface-subtle, #f2f2f4);
+}
+
+.tpl-zoom__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.tpl-zoom__value {
+  min-width: 44px;
+  padding: 0 4px;
+  font:
+    500 11px/1 system-ui,
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-subtle, #6a6a70);
+  text-align: center;
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.tpl-zoom__value:hover {
+  color: var(--color-text, #1a1a1a);
+}
+
+/*
+ * A view zoom is for looking at the document, never for producing it.
+ *
+ * `PagedSheet` writes `zoom` inline when the editor's canvas has room for it, so
+ * this is the reset that keeps the printed page — and the PDF rendered from the
+ * same stylesheet — at true Letter size regardless of what the reader was
+ * viewing it at.
+ */
+@media print {
+  .tpl-pages {
+    zoom: 1 !important;
+  }
+
+  .tpl-zoom {
+    display: none !important;
   }
 }

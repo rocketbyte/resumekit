@@ -39,6 +39,21 @@ export { PagedSheet, useRepaginate } from './PagedSheet.js';
 /** Where a page ends. The same decision on screen and on paper. */
 export * from './pagination.js';
 
+/**
+ * The view zoom: how large the page is DRAWN, which is never how large it is.
+ *
+ * A surface that can edit passes `maxZoom` to `PagedSheet`; everything that
+ * merely renders takes the default of 1 and gets no zoom and no control.
+ */
+export {
+  ZOOM_MAX,
+  ZOOM_MIN,
+  ZOOM_STEP,
+  ZOOM_SETTLE_MS,
+  fitZoom,
+  step,
+} from './useFitZoom.js';
+
 /** Presentation reaches nodes through context, never through frozen props. */
 export {
   DocumentPresentationProvider,

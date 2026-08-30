@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react';
+import { CloseIcon, PlusIcon } from '../collections/icons.js';
 import type { CollectionHandle } from '../collections/useCollection.js';
 import { SortableItems, useDragHandle } from '../collections/SortableItems.js';
 
@@ -47,6 +49,8 @@ function Bullet({
   editing,
   onEdit,
   sortable,
+  onActivate,
+  fieldRef,
 }: {
   index: number;
   item: string;
@@ -55,6 +59,8 @@ function Bullet({
   editing: boolean;
   onEdit: (index: number, next: string) => void;
   sortable: boolean;
+  onActivate: (index: number) => void;
+  fieldRef: (index: number, el: HTMLTextAreaElement | null) => void;
 }) {
   const { handleProps, setNodeRef, style } = useDragHandle(
     `${path}:${index}`,
@@ -66,6 +72,13 @@ function Bullet({
     <li
       className="tpl-bullet"
       data-authored
+      /*
+       * Which bullet the caret belongs in. A bullet list is ONE editor node, so
+       * selecting it turns every bullet into a field in the same render — and
+       * without this, which of them ends up focused is left to the order the
+       * browser happens to deliver the events in.
+       */
+      onPointerDown={() => onActivate(index)}
       ref={sortable ? setNodeRef : undefined}
       style={sortable ? style : undefined}
     >
@@ -92,6 +105,7 @@ function Bullet({
         <span className="tpl-text tpl-grow" data-value={item}>
           <textarea
             className="tpl-input"
+            ref={(el) => fieldRef(index, el)}
             value={item}
             rows={1}
             aria-label={`${path}.${index}`}
@@ -110,7 +124,7 @@ function Bullet({
           aria-label={`Add a bullet after ${index + 1}`}
           onClick={() => bullets.add(index)}
         >
-          ＋
+          <PlusIcon />
         </button>
         <button
           type="button"
@@ -126,7 +140,7 @@ function Bullet({
           aria-label={`Remove bullet ${index + 1}`}
           onClick={() => bullets.remove(index)}
         >
-          ×
+          <CloseIcon />
         </button>
       </span>
     </li>
@@ -143,6 +157,15 @@ export default function AuthoredBullets({
   const sortable = bullets.canMove;
   const ids = items.map((_, index) => `${path}:${index}`);
 
+  /* The bullet the candidate pointed at, and the fields to put the caret in. */
+  const [caret, setCaret] = useState<number | null>(null);
+  const fields = useRef<Record<number, HTMLTextAreaElement | null>>({});
+
+  useEffect(() => {
+    if (!editing || caret === null) return;
+    fields.current[caret]?.focus();
+  }, [editing, caret]);
+
   const rows = items.map((item, index) => (
     <Bullet
       // Bullets have no identity of their own — they are strings the candidate
@@ -155,6 +178,10 @@ export default function AuthoredBullets({
       editing={editing}
       onEdit={onEdit}
       sortable={sortable}
+      onActivate={setCaret}
+      fieldRef={(i, el) => {
+        fields.current[i] = el;
+      }}
     />
   ));
 

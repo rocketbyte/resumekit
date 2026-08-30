@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, fitZoom, step } from './useFitZoom.js';
+import { PAGE_WIDTH } from './pagination.js';
 import {
   PAGE_HEIGHT,
   PAGE_MARGIN,
@@ -176,5 +178,109 @@ describe('planPagination', () => {
       expect(target).toBeGreaterThanOrEqual(TEXT_TOP(sheet));
       expect(target).toBeLessThan(TEXT_BOTTOM(sheet));
     }
+  });
+});
+
+describe('a view zoom changes nothing about where pages break', () => {
+  /**
+   * What `PagedSheet` does with a zoomed layout: every rect comes back
+   * multiplied, and every one is divided again before the plan sees it.
+   */
+  const asMeasuredUnderZoom = <T>(
+    blocks: MeasuredBlock<T>[],
+    zoom: number,
+  ): MeasuredBlock<T>[] =>
+    blocks.map((block) => ({
+      ...block,
+      top: (block.top * zoom) / zoom,
+      height: (block.height * zoom) / zoom,
+    }));
+
+  it('plans identically at 1.15 as at 1', () => {
+    /* Tall enough to break: three pages of content at Letter height. */
+    const blocks = column('main', [400, 400, 400, 400, 400, 400, 400]);
+    const plain = planPagination(blocks);
+    const zoomed = planPagination(asMeasuredUnderZoom(blocks, 1.15));
+
+    expect(zoomed.pages).toBe(plain.pages);
+    expect([...zoomed.pushes]).toEqual([...plain.pushes]);
+    expect([...zoomed.targets]).toEqual([...plain.targets]);
+  });
+
+  it('survives a zoom that does not divide cleanly', () => {
+    // 1.07 is what a 900px canvas yields, and it is not a round binary fraction.
+    const blocks = column('main', [333, 289, 517, 461, 380]);
+    expect([
+      ...planPagination(asMeasuredUnderZoom(blocks, 1.07)).pushes,
+    ]).toEqual([...planPagination(blocks).pushes]);
+  });
+});
+
+describe('fitZoom', () => {
+  it('does nothing when it is not asked to', () => {
+    expect(fitZoom(4000, 1)).toBe(1);
+  });
+
+  it('takes what it was asked for when there is room', () => {
+    // 8.5in is 816px; 1.15 of that plus clearance is comfortably under 1200.
+    expect(fitZoom(1200, 1.15)).toBe(1.15);
+  });
+
+  it('takes only what fits, rather than what it was asked for', () => {
+    /*
+     * The whole point: a horizontal scrollbar is worse than a small page, so a
+     * container with room for 8% gets 8% and not the 15% requested.
+     */
+    const zoom = fitZoom(910, 1.15);
+    expect(zoom).toBeLessThan(1.15);
+    expect(zoom * PAGE_WIDTH).toBeLessThanOrEqual(910);
+  });
+
+  it('never shrinks the page', () => {
+    // Narrower than a page: the answer is 1, never a fraction of it. Shrinking
+    // would make the résumé's own type scale ambiguous.
+    expect(fitZoom(500, 1.15)).toBe(1);
+    expect(fitZoom(0, 1.15)).toBe(1);
+  });
+
+  it('leaves clearance, so fitting exactly is not one pixel from not fitting', () => {
+    expect(fitZoom(PAGE_WIDTH, 1.15)).toBe(1);
+  });
+});
+
+describe('one press of a zoom control', () => {
+  it('lands on the next round step, from wherever the page was sized', () => {
+    /*
+     * The automatic value is whatever fits, so it is rarely on the grid. A
+     * press moves to the next MULTIPLE rather than adding a step, which is what
+     * keeps the numbers round instead of walking 108 → 118 → 128.
+     */
+    expect(step(1.15, ZOOM_STEP)).toBe(1.2);
+    expect(step(1.15, -ZOOM_STEP)).toBe(1.1);
+    expect(step(1.08, ZOOM_STEP)).toBe(1.1);
+    expect(step(1.08, -ZOOM_STEP)).toBe(1);
+  });
+
+  it('is never stuck on a value the grid cannot represent exactly', () => {
+    // `1.2 / 0.1` is 12.000000000000002; without an epsilon a press of − here
+    // would floor to itself and the control would do nothing.
+    expect(step(1.2, -ZOOM_STEP)).toBe(1.1);
+    expect(step(1.2, ZOOM_STEP)).toBe(1.3);
+    expect(step(0.7, -ZOOM_STEP)).toBe(0.6);
+  });
+
+  it('stops at the ends rather than running past them', () => {
+    expect(step(ZOOM_MAX, ZOOM_STEP)).toBe(ZOOM_MAX);
+    expect(step(ZOOM_MIN, -ZOOM_STEP)).toBe(ZOOM_MIN);
+  });
+
+  it('goes below actual size, where the automatic value will not', () => {
+    /*
+     * The asymmetry is deliberate: an automatic shrink is indistinguishable
+     * from a résumé whose type scale changed, but somebody who pressed the
+     * button knows which of the two they did.
+     */
+    expect(step(1, -ZOOM_STEP)).toBeLessThan(1);
+    expect(fitZoom(400, 1.15)).toBe(1);
   });
 });

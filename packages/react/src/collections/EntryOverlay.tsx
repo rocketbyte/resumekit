@@ -1,3 +1,4 @@
+import { ArrowDownIcon, ArrowUpIcon, CloseIcon, PlusIcon } from './icons.js';
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';
 
@@ -81,7 +82,7 @@ export function EntryOverlay<T>({
             disabled={index === 0}
             onClick={() => collection.move(index, index - 1)}
           >
-            <span aria-hidden="true">↑</span>
+            <ArrowUpIcon />
           </button>
           <button
             type="button"
@@ -91,7 +92,7 @@ export function EntryOverlay<T>({
             disabled={index === last}
             onClick={() => collection.move(index, index + 1)}
           >
-            <span aria-hidden="true">↓</span>
+            <ArrowDownIcon />
           </button>
         </>
       )}
@@ -104,7 +105,7 @@ export function EntryOverlay<T>({
           aria-label={`Add a ${noun} after ${index + 1}`}
           onClick={() => collection.add(index)}
         >
-          <span aria-hidden="true">＋</span>
+          <PlusIcon />
         </button>
       )}
 
@@ -133,7 +134,7 @@ export function EntryOverlay<T>({
         }
         onClick={() => collection.remove(index)}
       >
-        <span aria-hidden="true">×</span>
+        <CloseIcon />
       </button>
     </span>
   );

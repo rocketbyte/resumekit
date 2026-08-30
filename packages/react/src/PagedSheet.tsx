@@ -9,6 +9,14 @@ import {
 } from 'react';
 import type { ReactNode } from 'react';
 import {
+  ZOOM_SETTLE_MS,
+  ZOOM_MAX,
+  ZOOM_MIN,
+  ZOOM_STEP,
+  step,
+  useFitZoom,
+} from './useFitZoom.js';
+import {
   PAGE_HEIGHT,
   SHEET_GAP,
   planPagination,
@@ -41,6 +49,15 @@ export interface PagedSheetProps {
   /** Re-measure whenever this changes — a style change resizes everything. */
   measureKey: string;
   children: ReactNode;
+  /**
+   * The most this may be zoomed for VIEWING, as a multiplier. `1`, the default,
+   * is no zoom at all — the read-only document and the export renderer both take
+   * it, because a rendered page is the page and nothing may scale it.
+   *
+   * The value actually applied is the lesser of this and what fits across the
+   * container: see `useFitZoom`.
+   */
+  maxZoom?: number;
 }
 
 /**
@@ -62,8 +79,54 @@ export interface PagedSheetProps {
  * It also degrades honestly — before the first measurement, or if measurement
  * fails, the reader sees a continuous document rather than a broken one.
  */
-export function PagedSheet({ measureKey, children }: PagedSheetProps) {
+export function PagedSheet({
+  measureKey,
+  children,
+  maxZoom = 1,
+}: PagedSheetProps) {
   const flow = useRef<HTMLDivElement>(null);
+  const pagesRef = useRef<HTMLDivElement>(null);
+  const fit = useFitZoom(pagesRef, maxZoom);
+
+  /*
+   * The candidate's own zoom, once they have expressed one.
+   *
+   * `null` means "whatever fits", so the automatic value keeps tracking the
+   * window. The moment they touch a control it stops: a resize must not undo a
+   * choice somebody made, and this is the smallest way to say which of the two
+   * is currently in charge.
+   *
+   * Never stored, on purpose. It is a fact about how somebody is looking at the
+   * document, not about the document — `editor-usability` (#35) is explicit that
+   * a view zoom must not become part of the artifact, because the résumé's own
+   * type scale already is.
+   */
+  const [chosen, setChosen] = useState<number | null>(null);
+  const zoom = chosen ?? fit;
+
+  /*
+   * Pagination is suspended while the zoom is easing.
+   *
+   * Measurements are divided by the TARGET zoom, and during a transition the
+   * layout is at neither the old value nor the new one — so a pass mid-animation
+   * would divide real rects by a scale they are not yet at and plan the pages
+   * against numbers that are true for no frame. The ResizeObserver fires on
+   * every one of those frames, so this is not a rare case; it is every press.
+   *
+   * A timer rather than `transitionend`, because `zoom` is not interpolable
+   * everywhere: where the browser snaps instead of easing, no event ever fires
+   * and pagination would stay suspended for good.
+   */
+  const zooming = useRef(false);
+  const settled = useRef(zoom);
+
+  /*
+   * Read by `measure`, which must not be rebuilt when the zoom changes: it is a
+   * `useCallback` the observers are bound to, and re-creating it would tear down
+   * and re-attach them on every resize.
+   */
+  const zoomRef = useRef(zoom);
+  zoomRef.current = zoom;
   const [pages, setPages] = useState(1);
   /*
    * Re-entrancy guard, cleared synchronously.
@@ -109,7 +172,18 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
     // Nothing to measure is a stable state, not a failure.
     if (blocks.length === 0) return '';
 
-    const origin = root.getBoundingClientRect().top;
+    /*
+     * Everything below is read from `getBoundingClientRect`, which reports the
+     * VIEWPORT box — so under a view zoom every distance comes back multiplied
+     * by it, while `PAGE_HEIGHT` and the margins the plan is compared against
+     * stay in unzoomed CSS pixels. Dividing here is what keeps the two in the
+     * same units: without it a document at 1.15 would break its pages 15% early.
+     *
+     * The pushes written back need no such correction. They are CSS lengths
+     * applied INSIDE the zoomed subtree, so the browser scales them itself.
+     */
+    const scale = zoomRef.current;
+    const origin = root.getBoundingClientRect().top / scale;
 
     /*
      * Write, then read, then write — never interleaved.
@@ -134,8 +208,8 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
          * belongs to the flow around it rather than to itself.
          */
         flow: block.parentElement?.closest<Element>('[data-flow]') ?? root,
-        top: rect.top - origin,
-        height: rect.height,
+        top: rect.top / scale - origin,
+        height: rect.height / scale,
         keepWithNext: block.hasAttribute('data-keep-with-next'),
       };
     });
@@ -176,10 +250,10 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
      * read a residual of zero and change nothing.
      */
     for (let correction = 0; correction < MAX_CORRECTIONS; correction++) {
-      const after = root.getBoundingClientRect().top;
+      const after = root.getBoundingClientRect().top / scale;
       let worst = 0;
       for (const [block, target] of targets) {
-        const actual = block.getBoundingClientRect().top - after;
+        const actual = block.getBoundingClientRect().top / scale - after;
         const residual = target - actual;
         if (Math.abs(residual) < 0.5) continue;
         worst = Math.max(worst, Math.abs(residual));
@@ -218,7 +292,7 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
     queueMicrotask(() => {
       scheduled.current = false;
       const root = flow.current;
-      if (!root || running.current) return;
+      if (!root || running.current || zooming.current) return;
       running.current = true;
       try {
         /*
@@ -265,6 +339,26 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
    */
   useLayoutEffect(paginate, [paginate, measureKey, children]);
 
+  /*
+   * Once the zoom has settled, measure once.
+   *
+   * A uniform scale cannot move a page break on its own — `pagination.spec.ts`
+   * asserts the plan is identical at 1.15 as at 1 — so this is not correcting
+   * for the zoom itself. It is correcting for what the zoom does to text: line
+   * breaking happens at the scaled width, and a line that fit at 100% can wrap
+   * at 115%, which moves everything under it.
+   */
+  useEffect(() => {
+    if (settled.current === zoom) return;
+    settled.current = zoom;
+    zooming.current = true;
+    const timer = setTimeout(() => {
+      zooming.current = false;
+      paginate();
+    }, ZOOM_SETTLE_MS);
+    return () => clearTimeout(timer);
+  }, [zoom, paginate]);
+
   useEffect(() => {
     const root = flow.current;
     if (!root) return;
@@ -290,7 +384,57 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
 
   return (
     <RepaginateContext.Provider value={paginate}>
+      {/*
+       * OUTSIDE the zoomed element, or the control would zoom with the page and
+       * the button for making things smaller would grow as you pressed it.
+       *
+       * Rendered only where a zoom is offered at all, so the read-only document
+       * and the export renderer emit nothing — they pass the default `maxZoom`
+       * of 1 and never reach this branch.
+       */}
+      {maxZoom > 1 && (
+        <div
+          className="tpl-zoom"
+          data-chrome
+          role="group"
+          aria-label="View zoom"
+        >
+          <button
+            type="button"
+            className="tpl-zoom__btn"
+            aria-label="Zoom out"
+            title="Zoom out"
+            disabled={zoom <= ZOOM_MIN}
+            onClick={() => setChosen(step(zoom, -ZOOM_STEP))}
+          >
+            −
+          </button>
+          <button
+            type="button"
+            className="tpl-zoom__value"
+            /* The percentage is also the way back: one press returns the page
+               to the size the canvas has room for, which is where it started. */
+            aria-label={`Zoom ${Math.round(zoom * 100)} percent — reset to fit`}
+            title="Reset to fit"
+            onClick={() => setChosen(null)}
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+          <button
+            type="button"
+            className="tpl-zoom__btn"
+            aria-label="Zoom in"
+            title="Zoom in"
+            disabled={zoom >= ZOOM_MAX}
+            onClick={() => setChosen(step(zoom, ZOOM_STEP))}
+          >
+            +
+          </button>
+        </div>
+      )}
+
       <div
+        ref={pagesRef}
         className="tpl-pages"
         /*
          * There is a gap to hide only once there are two sheets. The stylesheet
@@ -312,6 +456,23 @@ export function PagedSheet({ measureKey, children }: PagedSheetProps) {
              * the state a record starts in.
              */
             '--pages': pages,
+            /*
+             * `zoom` rather than `transform: scale()`, because zoom takes part
+             * in layout: the element's own box grows with it, so the canvas
+             * scrolls naturally and no height has to be reserved by hand. A
+             * transform would leave the box its unzoomed size and the sheets
+             * would overlap whatever follows them.
+             *
+             * Undefined at 1 so the property is absent from an unzoomed
+             * document — which is every document outside the editor.
+             */
+            zoom: zoom === 1 ? undefined : zoom,
+            /*
+             * The transition's duration, supplied from the same constant that
+             * decides how long pagination waits — so the stylesheet and the
+             * measurement pause cannot drift apart.
+             */
+            '--zoom-ms': `${ZOOM_SETTLE_MS}ms`,
           } as React.CSSProperties
         }
       >

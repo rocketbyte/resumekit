@@ -249,8 +249,9 @@
  * that set its groups further apart would want the shared offset. The stylesheet
  * that decided the spacing is the one that knows.
  */
-.tpl-harvard__skill-group[data-entry] {
-  outline-offset: 0;
+.tpl-harvard__skill-group[data-entry]::after {
+  inset: -1px -6px;
+  border-radius: 6px;
 }
 
 .tpl-harvard__skill-label {
