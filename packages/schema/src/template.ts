@@ -1250,6 +1250,21 @@ function sameValue(a: unknown, b: EditValue): boolean {
       Array.isArray(a) && a.length === b.length && a.every((x, i) => x === b[i])
     );
   }
+  /*
+   * Nothing where there was nothing.
+   *
+   * A field the writer's résumé never carried, still blank, is not an edit —
+   * it is the absence it always was. This matters because a template may OFFER
+   * a field the résumé has no value for: the header's phone number is drawn
+   * whether or not there is one, so the candidate has somewhere to type it.
+   * Without this, `undefined !== ''` and merely opening the editor wrote an
+   * overlay full of empty strings — a document nobody had touched was dirty,
+   * and autosave stored it.
+   *
+   * Clearing a field that DID have a value is still an edit, and still records
+   * the empty string: `a` is the old text, not nothing.
+   */
+  if (b === '' && (a === undefined || a === null)) return true;
   return a === b;
 }
 

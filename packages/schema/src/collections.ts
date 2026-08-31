@@ -83,6 +83,15 @@ export interface CollectionDef {
  * reads in an empty field, and they are never stored, exported or extractable.
  */
 export const PLACEHOLDERS: Record<string, string> = {
+  /*
+   * The header's own fields, which had none — and a field with no guidance is
+   * a field a candidate cannot see is missing. A résumé whose writer produced
+   * no phone number rendered no phone number, and there was nothing on the page
+   * to say one belonged there or to click on to add it.
+   */
+  location: 'City, Country',
+  email: 'you@example.com',
+  phone: 'Phone number',
   company: 'Employer',
   title: 'Your role',
   start: 'YYYY-MM',

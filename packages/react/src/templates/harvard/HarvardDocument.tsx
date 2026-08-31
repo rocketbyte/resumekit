@@ -4,6 +4,7 @@ import {
   DENSITIES,
   DOCUMENT_FONTS,
   INK_COLORS,
+  PLACEHOLDERS,
   type DocumentStyle,
   type ResumeObject,
 } from '@cvgs/core';
@@ -81,11 +82,23 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
    */
   const authoring = useAuthoring() !== null;
 
-  const contact = [
-    resume.contact.location && { path: 'contact.location' },
-    resume.contact.email && { path: 'contact.email' },
-    resume.contact.phone && { path: 'contact.phone' },
-  ].filter(Boolean) as { path: string }[];
+  /**
+   * The header's contact details.
+   *
+   * While the document is being AUTHORED all three are offered, filled or not,
+   * because an absent field is one a candidate cannot add: a résumé the writer
+   * produced without a phone number rendered no phone number, and there was
+   * nothing on the page saying one belonged there. Empty, each shows its
+   * placeholder — the same invitation an empty section gets.
+   *
+   * On paper only what was filled in survives, which is the same rule the
+   * sections follow and the reason the two lists are built separately rather
+   * than filtered at the point of rendering.
+   */
+  const CONTACT_FIELDS = ['location', 'email', 'phone'] as const;
+  const contact = CONTACT_FIELDS.filter(
+    (field) => authoring || resume.contact[field],
+  ).map((field) => ({ path: `contact.${field}`, field }));
 
   return (
     <article
@@ -117,35 +130,52 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
           </p>
         )}
 
-        {(contact.length > 0 || resume.links.length > 0) && (
+        {(contact.length > 0 || resume.links.length > 0 || authoring) && (
           <p className="tpl-harvard__contact">
             {/* The separator is drawn by CSS between siblings, so a detail the
                 writer did not have cannot leave a stray bar behind it. */}
-            {contact.map(({ path }) => (
+            {contact.map(({ path, field }) => (
               <span key={path} className="tpl-harvard__contact-item">
                 <Element
                   id={path}
                   is={EditableText}
                   path={path}
-                  value={String(
-                    resume.contact[
-                      path.split('.')[1] as keyof typeof resume.contact
-                    ] ?? '',
-                  )}
+                  value={String(resume.contact[field] ?? '')}
+                  placeholder={PLACEHOLDERS[field]}
                 />
               </span>
             ))}
-            {resume.links.map((link, i) => (
-              <span key={`link-${i}`} className="tpl-harvard__contact-item">
-                <Element
-                  id={`links.${i}.label`}
-                  is={EditableText}
-                  path={`links.${i}.label`}
-                  value={link.label ?? link.url}
-                  href={link.url}
-                />
-              </span>
-            ))}
+
+            {/*
+             * Links are a COLLECTION, like every other repeatable part of the
+             * résumé, and for the reason the contact fields above are always
+             * offered: a candidate whose writer produced none had no way to add
+             * one. The collection brings the add control with it — including
+             * the in-flow "+ Add link" it shows when there are none at all —
+             * so LinkedIn and GitHub are a click away rather than absent.
+             */}
+            <Collection section="links" items={resume.links}>
+              {({ item, path, chrome, itemProps }) => (
+                <span {...itemProps} className="tpl-harvard__contact-item">
+                  {chrome}
+                  <Element
+                    id={`${path}.label`}
+                    is={EditableText}
+                    path={`${path}.label`}
+                    value={item.label ?? item.url}
+                    placeholder={PLACEHOLDERS['label']}
+                    /*
+                     * `undefined` rather than `''` for a link with no address
+                     * yet. `href ?? format?.href` falls back only on nullish,
+                     * so an empty string SHADOWED the address the candidate
+                     * sets from the rail — a link they had just addressed still
+                     * printed as dead text.
+                     */
+                    href={item.url || undefined}
+                  />
+                </span>
+              )}
+            </Collection>
           </p>
         )}
       </header>
