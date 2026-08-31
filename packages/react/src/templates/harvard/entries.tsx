@@ -8,6 +8,7 @@ import {
   type Experience,
   type SkillGroup,
 } from '@cvgs/core';
+import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { EditableInlineList } from '../../nodes/EditableInlineList.js';
@@ -114,6 +115,8 @@ export function HarvardEducationEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const authoring = useAuthoring() !== null;
+
   return (
     <article {...itemProps} className="tpl-harvard__entry" data-block>
       {chrome}
@@ -127,8 +130,24 @@ export function HarvardEducationEntry({
             placeholder={PLACEHOLDERS['school']}
           />
         </span>
-        <span className="tpl-harvard__dates">
-          {[item.start, item.end].filter(Boolean).join(' – ')}
+        {/*
+         * WHERE on the school's line, WHEN on the qualification's — the order
+         * the grid places them in is the order they are written here.
+         *
+         * The opposite of the experience entry above, and deliberately: a
+         * degree is identified by its institution and the place is part of
+         * naming it, where a role is identified by what you did and the dates
+         * are what a reader scans for. It is also the order the reference
+         * résumés use.
+         */}
+        <span className="tpl-harvard__where">
+          <Element
+            id={`${path}.location`}
+            is={EditableText}
+            path={`${path}.location`}
+            value={item.location ?? ''}
+            placeholder={PLACEHOLDERS['location']}
+          />
         </span>
         <span className="tpl-harvard__role">
           <Element
@@ -147,7 +166,37 @@ export function HarvardEducationEntry({
             placeholder={PLACEHOLDERS['field']}
           />
         </span>
-        <span className="tpl-harvard__where" />
+        {/*
+         * EDITABLE, which they were not. These were a joined string —
+         * `[start, end].filter(Boolean).join(' – ')` — so a qualification whose
+         * dates the writer missed showed nothing, and there was no field to
+         * type them into. The experience entry above has always used real
+         * fields here; this one was reading its own data and printing it.
+         */}
+        <span className="tpl-harvard__dates">
+          <Element
+            id={`${path}.start`}
+            is={EditableText}
+            path={`${path}.start`}
+            value={item.start ?? ''}
+            placeholder={PLACEHOLDERS['start']}
+          />
+          {/*
+           * The dash is REAL TEXT, so it only belongs where there is a range
+           * to punctuate. Unlike a role, a qualification may carry no dates at
+           * all, and an unconditional separator printed a lone "–" on the
+           * degree's line. In the editor it stays, because the two guided
+           * fields either side of it run together without it.
+           */}
+          {authoring || (item.start && item.end) ? ' – ' : ''}
+          <Element
+            id={`${path}.end`}
+            is={EditableText}
+            path={`${path}.end`}
+            value={item.end ?? ''}
+            placeholder={PLACEHOLDERS['end']}
+          />
+        </span>
       </div>
     </article>
   );

@@ -89,7 +89,20 @@ export function EditableText({
   };
 
   if (!selected) {
-    const text = value.length > 0 ? value : (placeholder ?? '');
+    /*
+     * The value, and ONLY the value.
+     *
+     * The placeholder used to stand in here when the field was empty, and it
+     * was a real text node — so "Degree", "Field of study" and "YYYY-MM" were
+     * painted into the exported PDF and extracted by anything reading it. A
+     * résumé that tells a screening system the candidate's degree is "Degree"
+     * is worse than one that omits the line.
+     *
+     * It is drawn by CSS now instead: guidance for a candidate looking at an
+     * editor, switched off for the read-only document and for paper, and never
+     * part of the text at all.
+     */
+    const text = value;
     /*
      * The résumé's own link wins over a candidate-applied one: a `links[]` entry
      * IS the address for that field, and a format that disagreed with it would
@@ -106,6 +119,7 @@ export function EditableText({
         style={formatInk(format)}
         data-ink={inkAttr(format)}
         data-empty={value.length === 0 || undefined}
+        data-placeholder={placeholder}
         data-path={path}
       >
         {/*

@@ -18,9 +18,28 @@
   white-space: pre-wrap;
 }
 
+/*
+ * An empty field says what belongs in it — as a DRAWING, never as text.
+ *
+ * The placeholder was the field's own content when the value was empty, which
+ * meant it printed: an exported PDF carried "Degree" and "YYYY-MM" as real
+ * words, and anything parsing that résumé read them as the candidate's answers.
+ * Drawn in a pseudo-element it cannot be extracted, cannot be selected, and can
+ * be switched off for the two places it is not guidance but noise — the
+ * read-only document, and paper.
+ */
 .tpl-text[data-empty] {
   color: var(--tpl-paper-muted);
   font-style: italic;
+}
+
+.tpl-text[data-empty]::before {
+  content: attr(data-placeholder);
+}
+
+/* Nothing here can be edited, so there is nothing to guide. */
+.tpl-editor--static .tpl-text[data-empty]::before {
+  content: none;
 }
 
 .tpl-input {
@@ -504,6 +523,16 @@ span.tpl-input[data-empty]::before {
   [data-selected] .tpl-text[data-empty] {
     background: none !important;
     box-shadow: none !important;
+  }
+
+  /*
+   * And the guidance itself goes. Printing happens from the EDITOR too — the
+   * PDF export is `window.print()` — so hiding it on the read-only document is
+   * only half the rule.
+   */
+  .tpl-text[data-empty]::before,
+  span.tpl-input[data-empty]::before {
+    content: none !important;
   }
 }
 

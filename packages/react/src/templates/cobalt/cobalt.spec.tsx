@@ -206,6 +206,9 @@ describe('the Cobalt document', () => {
       'data-path',
       'data-ink',
       'data-empty',
+      /* What an empty field is guided by — drawn in CSS, so it never prints
+         and no parser can read it as an answer. */
+      'data-placeholder',
       'data-value',
       'data-editing',
     ]);

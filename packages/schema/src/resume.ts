@@ -186,6 +186,19 @@ export const EducationSchema = z.object({
   school: z.string().min(1).describe('Institution name as in the resume.'),
   degree: z.string().optional().describe("e.g. 'BSc'."),
   field: z.string().optional().describe("e.g. 'Computer Science'."),
+  /*
+   * Where the institution is, which the résumé had nowhere to put.
+   *
+   * Every template draws a slot beside the school for it — Harvard has carried
+   * an empty `__where` since it was written — and the record it was drawn from
+   * could not hold one, so it printed blank on every résumé and no candidate
+   * could type it in. Optional, because plenty of qualifications are stated
+   * without a city and inventing one is worse than omitting it.
+   */
+  location: z
+    .string()
+    .optional()
+    .describe("Where the institution is, e.g. 'Madrid, Spain'."),
   start: z.string().optional().describe("'YYYY' or 'YYYY-MM'."),
   end: z.string().optional().describe("'YYYY', 'YYYY-MM', or 'Present'."),
 });

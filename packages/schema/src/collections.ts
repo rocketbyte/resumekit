@@ -119,7 +119,14 @@ const mintExperience = () => ({
   tech: [],
 });
 
-const mintEducation = () => ({ school: '', degree: '', field: '' });
+const mintEducation = () => ({
+  school: '',
+  degree: '',
+  field: '',
+  location: '',
+  start: '',
+  end: '',
+});
 
 const mintSkillGroup = () => ({ category: '', items: [''] });
 
