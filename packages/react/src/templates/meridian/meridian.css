@@ -257,6 +257,15 @@
 .tpl-mer__entry {
   margin-top: calc(11pt * var(--m-scale) * var(--m-density));
   break-inside: avoid;
+
+  /*
+   * This layout has the least room beside an entry of any of the four: the
+   * main column's right edge is a 22pt gutter with the aside's rule down the
+   * far side of it, and at the smallest scale that is under 25px. The editor's
+   * ring reaches sideways by exactly this much, so it is told how far it may
+   * go — the default would draw its edge on top of the divider.
+   */
+  --tpl-ring-room: 15px;
 }
 
 .tpl-mer__entry:first-of-type {

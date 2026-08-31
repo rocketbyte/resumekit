@@ -188,6 +188,14 @@
 
 .tpl-exec__entry {
   margin-top: calc(8pt * var(--e-scale) * var(--e-density));
+
+  /*
+   * The narrowest page margin of the four — 30pt, and it scales with the
+   * document, so at the smallest size there is about 34px between an entry and
+   * the paper's edge. The editor's ring reaches sideways into exactly that
+   * space, and is told how far it may go before it meets the paper's edge.
+   */
+  --tpl-ring-room: 18px;
   break-inside: avoid;
 }
 

@@ -29,14 +29,40 @@
  * Resting state: an entry is quietly outlined, so the document reads as
  * editable before anybody clicks anything.
  *
- * Faint on purpose. The candidate is reading a résumé they are about to send an
- * employer, and an editor that shouts over it is one they cannot judge the
- * document in.
+ * Faint on purpose, and CLOSE on purpose. The candidate is reading a résumé
+ * they are about to send an employer, and an editor that shouts over it is one
+ * they cannot judge the document in. Every entry wears this ring at once, so
+ * the resting size is the one that has to survive being repeated eight times
+ * down a page — the room is given out below, to the one region being worked on.
  * ------------------------------------------------------------------------ */
 
 [data-entry] {
+  /*
+   * The ring's geometry, named rather than typed out.
+   *
+   * Three numbers in one place, because two things have to agree about them:
+   * the ring itself, and the overlay that hangs off its top-left corner. They
+   * were separate literals, and the overlay drifted off the ring the moment
+   * either was touched. They are also what the states below change — the whole
+   * of "the region opens up as you engage with it" is these three variables
+   * taking larger values.
+   */
+  /*
+   * Sideways room is the one figure a TEMPLATE gets a say in, so it is a
+   * variable of its own and the three states are multiples of it. What is
+   * beside an entry is not the same in every layout: Harvard has half an inch
+   * of paper margin, Meridian has a 22pt gutter with a rule down the middle of
+   * it. A template that narrows this narrows every state proportionally, and
+   * cannot narrow one and forget another.
+   */
+  --tpl-ring-room: 24px;
+
+  --tpl-ring-x: var(--tpl-ring-room);
+  --tpl-ring-y: 4px;
+  --tpl-ring-radius: 8px;
+
   position: relative;
-  border-radius: 10px;
+  border-radius: 6px;
   transition: background-color 160ms ease;
 }
 
@@ -56,17 +82,49 @@
   content: '';
   position: absolute;
 
-  /* Wider than it is tall, so the ring clears the text's side bearings and does
-     not crowd the line above and below it. */
-  inset: -6px -10px;
+  /*
+   * Wider than it is tall, and for a reason the vertical figure has to respect:
+   * a template sets its own spacing between entries — Harvard's is 7pt — and a
+   * ring that reaches further than half of that meets the ring of the entry
+   * above it. Sideways there is a page margin to spend and nothing to collide
+   * with, so that is where the room comes from.
+   */
+  inset: calc(-1 * var(--tpl-ring-y)) calc(-1 * var(--tpl-ring-x));
 
   border: 1px dashed var(--tpl-line);
-  border-radius: 14px;
+  border-radius: var(--tpl-ring-radius);
   pointer-events: none;
+  /* Colour and lift only — nothing here changes size, so nothing here moves. */
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease;
 }
+
+/* ---------------------------------------------------------------------------
+ * ONE geometry, and it never changes.
+ *
+ * This went through three shapes before arriving here, and the two it discarded
+ * are worth recording because each looked reasonable on its own.
+ *
+ * It first OPENED as the candidate engaged with a region — close at rest, wider
+ * under the pointer, wider still once selected. Two things were wrong with it.
+ * The click moved the region at the moment of committing to it, so the thing
+ * being aimed at shifted under the cursor. And once the sizes were generous
+ * enough to be worth having, a ring that inflated as the pointer swept the page
+ * read as the document breathing at you.
+ *
+ * So the ring is a fixed box, and engagement is carried entirely by its WEIGHT:
+ * hover darkens the dashes, selecting closes them into a line and lifts the
+ * region on a shadow. Nothing below this point changes a dimension — which is
+ * also why the transition above lists no geometry, and why the states have no
+ * `--tpl-ring-*` of their own.
+ *
+ * That in turn is what sets the resting size. Every entry on the page wears
+ * this ring at once, so it has to be a size eight of them can wear down a page
+ * without touching, which is why it is generous sideways and close top and
+ * bottom: a template sets its own spacing between entries — Harvard's is 7pt —
+ * and sideways there is a margin to spend.
+ * ------------------------------------------------------------------------ */
 
 [data-entry]:hover::after {
   border-color: var(--tpl-line-hover);
@@ -112,9 +170,11 @@
   position: absolute;
 
   /* Overlapping the ring's top edge, so the bar reads as the region's own
-     handle rather than as a tooltip floating above it. */
-  bottom: calc(100% + 1px);
-  left: -10px;
+     handle rather than as a tooltip floating above it. Hung off the ring's own
+     geometry, so it travels with the ring as the region opens rather than
+     being left behind inside it. */
+  bottom: calc(100% + var(--tpl-ring-y) - 5px);
+  left: calc(-1 * var(--tpl-ring-x));
   z-index: 3;
 
   display: flex;

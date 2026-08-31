@@ -89,7 +89,9 @@ export function EditableText({
 
   const change = (next: string) => {
     setProp((props: EditableTextProps) => {
-      props.value = next;
+      // A line stays a line. Pasting three lines of a signature block into a
+      // job title should give a job title, not a résumé with a hole in it.
+      props.value = multiline ? next : next.replace(/\s*\n\s*/g, ' ');
     }, 500);
     saveSoon();
   };
@@ -153,36 +155,57 @@ export function EditableText({
       }}
       className={formatClass(
         format,
-        multiline ? 'tpl-text tpl-grow' : 'tpl-text',
+        multiline ? 'tpl-text tpl-grow' : 'tpl-text tpl-grow tpl-grow--inline',
       )}
       style={formatInk(format)}
       data-ink={inkAttr(format)}
       data-path={path}
-      // The grow mirror renders this text invisibly behind the textarea, so the
-      // box is always exactly as tall as the content it holds.
-      data-value={multiline ? value : undefined}
+      /*
+       * What the grow mirror renders invisibly behind the field, so the box is
+       * exactly the size of the content it holds — height for a paragraph,
+       * WIDTH for a line.
+       *
+       * A line's mirror falls back to the placeholder, because an empty field
+       * whose box is the width of its (empty) value is a two-pixel target with
+       * a placeholder spilling out of it. What the candidate is invited to
+       * click is the words, so the words are what the box is cut to.
+       */
+      data-value={multiline ? value : value.length > 0 ? value : placeholder}
     >
-      {multiline ? (
-        <textarea
-          ref={field}
-          className="tpl-input"
-          value={value}
-          rows={1}
-          placeholder={placeholder}
-          aria-label={path}
-          onChange={(e) => change(e.target.value)}
-        />
-      ) : (
-        <input
-          ref={field}
-          className="tpl-input"
-          type="text"
-          value={value}
-          placeholder={placeholder}
-          aria-label={path}
-          onChange={(e) => change(e.target.value)}
-        />
-      )}
+      {/*
+       * A TEXTAREA for every field, a line as much as a paragraph.
+       *
+       * A line used to be an `<input>`, and an input cannot wrap. That was
+       * invisible while every field was full-width, and became the defect the
+       * moment they were not: three of the templates put a link's URL into a
+       * 153pt rail where the static text wraps to three lines, and clicking it
+       * collapsed the text to the one line an input can show. Same box, edited
+       * or not, is the rule this file exists for — and only a textarea can keep
+       * it for text that wraps.
+       *
+       * What made an input the right element was that it holds one line. That
+       * is a RULE about the value, not a reason to pick a widget, so it is
+       * enforced as one: Enter is refused, and a pasted newline is flattened in
+       * `change` above.
+       *
+       * `cols`, like the `size` it replaces, is what stops the widget having an
+       * opinion about its own width — a textarea's intrinsic width is twenty
+       * characters, and in an inline grid that is what would size the column
+       * rather than the mirror.
+       */}
+      <textarea
+        ref={field}
+        className="tpl-input"
+        value={value}
+        rows={1}
+        cols={1}
+        placeholder={placeholder}
+        aria-label={path}
+        onChange={(e) => change(e.target.value)}
+        onKeyDown={(e) => {
+          if (!multiline && e.key === 'Enter') e.preventDefault();
+        }}
+      />
     </span>
   );
 }

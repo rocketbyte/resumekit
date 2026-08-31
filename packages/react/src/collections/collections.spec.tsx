@@ -659,6 +659,134 @@ describe('the chrome is chrome', () => {
     expect(selected?.querySelector('.tpl-entry-overlay')).not.toBeNull();
   });
 
+  /**
+   * Every rule in `collection.css` that SETS the ring's width, by its selector.
+   *
+   * Declarations only — the `::after` that draws the ring and the overlay that
+   * hangs off it both read `var(--tpl-ring-x)`, and neither of them decides
+   * anything.
+   */
+  function ringRules() {
+    const css = readFileSync(join(__dirname, 'collection.css'), 'utf8');
+    return [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)]
+      .filter(([, , body]) => /--tpl-ring-x:/.test(body ?? ''))
+      .map(([, selector, body]) => ({
+        // The capture runs back to the previous rule, so it carries whatever
+        // comment introduced this one.
+        selector: (selector ?? '').replace(/\/\*[\s\S]*?\*\//g, '').trim(),
+        body: body ?? '',
+      }));
+  }
+
+  it('never changes size, so nothing moves under the pointer', () => {
+    /*
+     * The ring opened as a candidate engaged with a region — close at rest,
+     * wider on hover, wider still on click — and both halves of that were
+     * wrong. The click moved the region at the moment of committing to it, so
+     * the thing being aimed at shifted under the cursor; and once the sizes
+     * were worth having, a ring that inflated as the pointer crossed the page
+     * read as the document breathing at you.
+     *
+     * Engagement is carried by WEIGHT now — the dashes darken, then close into
+     * a line with a shadow under them. What is asserted is that there is
+     * nowhere for a second size to come back from: exactly one rule states the
+     * geometry, and no state rule may state one of its own.
+     */
+    const sized = ringRules();
+    expect(sized).toHaveLength(1);
+    expect(sized[0]?.selector).toBe('[data-entry]');
+
+    /*
+     * And the ring never animates a dimension. A transition on `inset` is the
+     * shape the resizing version took, and it would be the first thing added
+     * back by someone reintroducing it.
+     */
+    const css = readFileSync(join(__dirname, 'collection.css'), 'utf8');
+    const after = css.slice(css.indexOf('[data-entry]::after {'));
+    const body = after.slice(0, after.indexOf('}'));
+    const transition = /transition:([^;]*);/.exec(body)?.[1] ?? '';
+    for (const property of [
+      'inset',
+      'top',
+      'right',
+      'bottom',
+      'left',
+      'width',
+      'height',
+    ]) {
+      expect(
+        transition,
+        `the ring animates ${property}, so it changes size somewhere`,
+      ).not.toMatch(new RegExp(`\\b${property}\\b`));
+    }
+  });
+
+  it('is close enough top and bottom that eight of them fit down a page', () => {
+    /*
+     * Every entry wears this ring at once, so its VERTICAL reach has to fit the
+     * tightest spacing any template puts between two entries — Harvard's 7pt,
+     * about 9.3px. Two rings meet in the middle, so each may have less than
+     * half, or a résumé at rest is a stack of touching boxes. Sideways there is
+     * a page margin to spend, which is why the box is much wider than it is
+     * tall.
+     */
+    const rest = ringRules()[0]?.body ?? '';
+    const y = Number(/--tpl-ring-y:\s*(\d+)px/.exec(rest)?.[1]);
+    expect(y * 2).toBeLessThan(7 * 1.333);
+  });
+
+  it('lets a template say how much room it has beside an entry', () => {
+    /*
+     * The ring opens SIDEWAYS, and what is beside an entry is not the same in
+     * every layout: Harvard has half an inch of paper margin, Meridian has a
+     * 22pt gutter with the aside's rule down the far side of it — under 25px at
+     * the smallest scale, where a selected region's edge would land on top of
+     * the divider.
+     *
+     * So the width is one variable and the states are MULTIPLES of it. That is
+     * what makes the override safe: a template narrows the room and every state
+     * narrows with it, where three separate figures could be narrowed two at a
+     * time and leave the third overhanging.
+     */
+    for (const { selector, body } of ringRules()) {
+      expect(
+        body,
+        `${selector} sets its width without --tpl-ring-room`,
+      ).toMatch(/--tpl-ring-x:[^;]*var\(--tpl-ring-room\)/);
+    }
+
+    /*
+     * And the templates that cannot afford the default say so, each for its own
+     * reason: Meridian's main column ends at the aside's rule, Cobalt has
+     * entries facing each other across a gutter, Executive has the narrowest
+     * paper margin of the four. Harvard is the one with room to spare, and is
+     * what the default is sized for.
+     */
+    for (const template of ['meridian', 'cobalt', 'executive']) {
+      const sheet = readFileSync(
+        join(__dirname, '..', 'templates', template, `${template}.css`),
+        'utf8',
+      );
+      expect(sheet, `${template} takes the default ring width`).toMatch(
+        /--tpl-ring-room:/,
+      );
+    }
+  });
+
+  it('hangs the overlay off the ring rather than off its own numbers', () => {
+    /*
+     * The bar sits on the ring's top-left corner. It used to say `-10px`
+     * because the ring did, which meant the two agreed only for as long as
+     * nobody touched either — and the ring now MOVES between states, so a
+     * literal here would leave the bar stranded inside an opened ring.
+     */
+    const css = readFileSync(join(__dirname, 'collection.css'), 'utf8');
+    const rule = css.slice(css.indexOf('.tpl-entry-overlay {'));
+    const body = rule.slice(0, rule.indexOf('}'));
+    expect(body).toMatch(/bottom:[^;]*--tpl-ring-y/);
+    expect(body).toMatch(/left:[^;]*--tpl-ring-x/);
+  });
+
   it('is drawn against the entry, and no template has to know that', () => {
     /*
      * The overlay is absolutely positioned, so an entry that is not a

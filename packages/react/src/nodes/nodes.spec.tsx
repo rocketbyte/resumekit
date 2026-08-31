@@ -163,6 +163,61 @@ describe('the design is not addressable', () => {
  * and no way to lay it out. These assert the second half — the part that would
  * be easy to lose while adding the first.
  */
+describe('an editable field is the size of its own text', () => {
+  /*
+   * The defect this guards: clicking a phone number, a date or an email handed
+   * the field the ENTIRE row. A single-line field was a bare `<input>` carrying
+   * `width: 100%`, and a percentage width on an inline-level box resolves
+   * against the nearest BLOCK ancestor — so the tint band ran the width of the
+   * page and everything sharing the line with it was pushed onto a line of its
+   * own. The document rearranged itself around the field you were reading.
+   *
+   * Asserted on the source, because the property is a LAYOUT one and jsdom
+   * computes no layout. What can be checked here is that the two things the fix
+   * rests on are still true, and both are one edit away from being undone.
+   */
+  const css = readFileSync(join(NODE_DIR, 'template-node.css'), 'utf8');
+  const field = readFileSync(join(NODE_DIR, 'EditableText.tsx'), 'utf8');
+  /* The comments here discuss the element that was removed, by name. */
+  const code = field.replace(/\/\*[\s\S]*?\*\//g, '');
+
+  it('sizes a line to its content rather than to its row', () => {
+    const rule = css.slice(css.indexOf('.tpl-grow--inline {'));
+    const body = rule.slice(0, rule.indexOf('}'));
+    // Shrink-to-fit, and never past the column it sits in.
+    expect(body).toMatch(/display:\s*inline-grid/);
+    expect(body).toMatch(/max-width:\s*100%/);
+  });
+
+  it('gives every field the mirror that measures it', () => {
+    // The wrapper carries the mirror class and the string to measure; without
+    // `data-value` the mirror is empty and the box collapses.
+    expect(code).toMatch(/tpl-grow--inline/);
+    expect(code).toMatch(/data-value=/);
+  });
+
+  it('lets no widget have an opinion about its own width', () => {
+    /*
+     * A textarea's intrinsic width is twenty characters, and in an inline grid
+     * THAT sizes the column — `width: 100%` counts for nothing while a track is
+     * being measured. `cols={1}` is what leaves the mirror in charge.
+     */
+    expect(code).toMatch(/cols=\{1\}/);
+  });
+
+  it('uses one widget for every field, so wrapping text can be edited', () => {
+    /*
+     * An `<input>` cannot wrap. Three templates put a link's URL into a 153pt
+     * rail where the static text runs to three lines, and an input collapsed it
+     * to the one line it can show — the same box, edited or not, is the rule
+     * this whole file exists for. A line stays a line by REFUSING Enter, not by
+     * being given a widget that cannot hold two.
+     */
+    expect(code).not.toMatch(/<input/);
+    expect(code).toMatch(/e\.key === 'Enter'/);
+  });
+});
+
 describe('authored content is as locked as written content', () => {
   it('adds no canvas and no drag handle anywhere', () => {
     const source = readFileSync(join(NODE_DIR, 'CustomSections.tsx'), 'utf8');

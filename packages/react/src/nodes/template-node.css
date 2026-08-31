@@ -49,9 +49,9 @@
  * The auto-growing field.
  *
  * The mirror renders the same string invisibly in the same grid cell, so the
- * box is exactly as tall as its content — with no measurement, no `scrollHeight`
- * read, and no frame where the height is wrong. A wrapping bullet stays wrapped
- * while it is edited, which an <input> could never do.
+ * box is exactly the size of its content — with no measurement, no
+ * `scrollHeight` read, and no frame where the size is wrong. A wrapping bullet
+ * stays wrapped while it is edited, which an <input> could never do.
  */
 .tpl-grow {
   display: grid;
@@ -70,6 +70,57 @@
 .tpl-grow > .tpl-input,
 .tpl-grow::after {
   grid-area: 1 / 1 / 2 / 2;
+}
+
+/*
+ * A field that is a LINE rather than a paragraph, and the mirror sizes its
+ * WIDTH.
+ *
+ * The same trick, turned ninety degrees, and it is the fix for the worst thing
+ * the editor did. A single-line field was a bare `<input>` carrying
+ * `width: 100%` inside an inline span — and a percentage width on an
+ * inline-level box resolves against the nearest BLOCK ancestor, which is the
+ * whole line. So clicking a phone number, a date, or an email handed it the
+ * entire row: the tint band ran the width of the page and everything that
+ * shared the line with it — the separator, the next field — was pushed onto a
+ * line of its own. The document rearranged itself around the field you were
+ * trying to read.
+ *
+ * `inline-grid` puts the box back where the text is: the track is sized to the
+ * mirror, the field fills that track, and three fields in a row stay three
+ * fields in a row. Capped at the container, because a line that cannot wrap
+ * must not be allowed to push the page wider than the paper.
+ */
+.tpl-grow--inline {
+  display: inline-grid;
+  max-width: 100%;
+  /* Sits on the line's baseline, like the static text it replaces. */
+  vertical-align: baseline;
+}
+
+/*
+ * The mirror WRAPS, inherited from `.tpl-grow::after`, and it is worth saying
+ * why it is not pinned to one line.
+ *
+ * `inline-grid` is shrink-to-fit, so wrapping text still measures at its
+ * max-content — the whole string on one line — and the field hugs it. The
+ * difference only shows where the field cannot hug: three of the templates put
+ * a link's URL straight into a `1fr` column of a grid, which blockifies this
+ * box and stretches it to the track. That is CORRECT there — a URL has no
+ * spaces to break at and the rail it sits in is 153pt wide, so the static text
+ * wraps and the field has to wrap with it. Held to one line, the box would have
+ * been one line tall where the text was three.
+ *
+ * So the same declaration serves both: hug where there is room, fill and wrap
+ * where there is not.
+ */
+
+.tpl-grow--inline > .tpl-input {
+  /*
+   * Nothing about the input may widen the track — the mirror is the only thing
+   * allowed a say in how wide the field is.
+   */
+  min-width: 0;
 }
 
 /*
