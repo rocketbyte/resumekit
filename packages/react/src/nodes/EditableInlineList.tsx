@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useNode } from '@craftjs/core';
 import { LOCKED_RULES } from './locked.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
 import { useAutosave } from '../autosave-context.js';
+import { PlainTextField } from './PlainTextField.js';
 
 export interface EditableInlineListProps {
   /** Where this list lives in the `ResumeObject` — e.g. `skills.0.items`. */
@@ -41,13 +42,15 @@ export function EditableInlineList({ path, items }: EditableInlineListProps) {
   /* Typing, so deferred — the same bargain `EditableText` makes. */
   const { saveSoon } = useAutosave();
 
+  /*
+   * The raw text, held locally while it is being typed.
+   *
+   * Deriving the displayed text from the array instead would delete the comma
+   * the moment it was typed. The field itself is uncontrolled — see
+   * `PlainTextField` — so this is only what the UNSELECTED text is read from
+   * once the candidate leaves.
+   */
   const [buffer, setBuffer] = useState<string | null>(null);
-  const field = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (!selected) setBuffer(null);
-    else field.current?.focus();
-  }, [selected]);
 
   const text = buffer ?? items.join(SEPARATOR);
 
@@ -64,24 +67,17 @@ export function EditableInlineList({ path, items }: EditableInlineListProps) {
       ref={(ref) => {
         if (ref) connect(ref);
       }}
-      className={formatClass(
-        format,
-        selected ? 'tpl-text tpl-grow' : 'tpl-text',
-      )}
+      className={formatClass(format, 'tpl-text')}
       style={formatInk(format)}
       data-ink={inkAttr(format)}
       data-path={path}
-      data-value={selected ? text : undefined}
     >
       {selected ? (
-        <textarea
-          ref={field}
-          className="tpl-input"
-          value={text}
-          rows={1}
-          aria-label={path}
-          onChange={(e) => change(e.target.value)}
-        />
+        /*
+         * Keyed on nothing and mounted only while selected, so it re-reads the
+         * list each time it is opened and holds its own text in between.
+         */
+        <PlainTextField value={text} label={path} onChange={change} />
       ) : (
         text
       )}

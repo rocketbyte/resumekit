@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
 import { useEditor, useNode } from '@craftjs/core';
 import { isSafeLinkTarget } from '@cvgs/core';
 import { LOCKED_RULES } from './locked.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
+import { PlainTextField } from './PlainTextField.js';
 import { useAutosave } from '../autosave-context.js';
 
 export interface EditableTextProps {
@@ -79,14 +79,6 @@ export function EditableText({
    */
   const { saveSoon } = useAutosave();
 
-  const field = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
-
-  // Selection is what reveals the field, so the click that selected it has to
-  // land in it — otherwise editing takes two clicks everywhere.
-  useEffect(() => {
-    if (selected) field.current?.focus();
-  }, [selected]);
-
   const change = (next: string) => {
     setProp((props: EditableTextProps) => {
       // A line stays a line. Pasting three lines of a signature block into a
@@ -153,58 +145,22 @@ export function EditableText({
       ref={(ref) => {
         if (ref) connect(ref);
       }}
-      className={formatClass(
-        format,
-        multiline ? 'tpl-text tpl-grow' : 'tpl-text tpl-grow tpl-grow--inline',
-      )}
+      /*
+       * A plain inline box, and nothing more. The field inside it flows and
+       * wraps on its own now, so there is no mirror to measure it and no grid
+       * to hold the two of them in the same cell.
+       */
+      className={formatClass(format, 'tpl-text')}
       style={formatInk(format)}
       data-ink={inkAttr(format)}
       data-path={path}
-      /*
-       * What the grow mirror renders invisibly behind the field, so the box is
-       * exactly the size of the content it holds — height for a paragraph,
-       * WIDTH for a line.
-       *
-       * A line's mirror falls back to the placeholder, because an empty field
-       * whose box is the width of its (empty) value is a two-pixel target with
-       * a placeholder spilling out of it. What the candidate is invited to
-       * click is the words, so the words are what the box is cut to.
-       */
-      data-value={multiline ? value : value.length > 0 ? value : placeholder}
     >
-      {/*
-       * A TEXTAREA for every field, a line as much as a paragraph.
-       *
-       * A line used to be an `<input>`, and an input cannot wrap. That was
-       * invisible while every field was full-width, and became the defect the
-       * moment they were not: three of the templates put a link's URL into a
-       * 153pt rail where the static text wraps to three lines, and clicking it
-       * collapsed the text to the one line an input can show. Same box, edited
-       * or not, is the rule this file exists for — and only a textarea can keep
-       * it for text that wraps.
-       *
-       * What made an input the right element was that it holds one line. That
-       * is a RULE about the value, not a reason to pick a widget, so it is
-       * enforced as one: Enter is refused, and a pasted newline is flattened in
-       * `change` above.
-       *
-       * `cols`, like the `size` it replaces, is what stops the widget having an
-       * opinion about its own width — a textarea's intrinsic width is twenty
-       * characters, and in an inline grid that is what would size the column
-       * rather than the mirror.
-       */}
-      <textarea
-        ref={field}
-        className="tpl-input"
+      <PlainTextField
         value={value}
-        rows={1}
-        cols={1}
         placeholder={placeholder}
-        aria-label={path}
-        onChange={(e) => change(e.target.value)}
-        onKeyDown={(e) => {
-          if (!multiline && e.key === 'Enter') e.preventDefault();
-        }}
+        multiline={multiline}
+        label={path}
+        onChange={change}
       />
     </span>
   );

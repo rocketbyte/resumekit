@@ -31,18 +31,51 @@
   /* Not inherited by form controls in the UA stylesheet, so an aligned field
      would align its static text and not the field that replaces it. */
   text-align: inherit;
-  width: 100%;
   margin: 0;
   padding: 0;
   border: 0;
   outline: 0;
   background: transparent;
+}
+
+/*
+ * A textarea — which is now only the bullets, where the field is a block that
+ * fills its row and the mirror below gives it its height.
+ */
+textarea.tpl-input {
+  width: 100%;
   resize: none;
   overflow: hidden;
   /* A textarea's default box is content-box with a 2px inset. Both would shift
      the text by a hair the moment the field appears. */
   box-sizing: border-box;
   vertical-align: baseline;
+}
+
+/*
+ * An editable SPAN — every field that is a line of the document.
+ *
+ * Inline, so it breaks across lines wherever the static text broke, which is
+ * the property no form control can offer. It inherits `pre-wrap` from
+ * `.tpl-text`, so the wrapping is the same rule as well as the same shape.
+ */
+span.tpl-input {
+  display: inline;
+}
+
+/*
+ * The placeholder, which a span has no attribute for.
+ *
+ * Drawn rather than typed, so it is never part of the value and never lands in
+ * the résumé. Emptiness is an attribute the field sets on itself as it is
+ * typed into, not something read back from the stored value — that arrives half
+ * a second later and the guidance would still be sitting beside the first
+ * letter written over it.
+ */
+span.tpl-input[data-empty]::before {
+  content: attr(data-placeholder);
+  color: var(--tpl-paper-muted);
+  font-style: italic;
 }
 
 /*
@@ -70,57 +103,6 @@
 .tpl-grow > .tpl-input,
 .tpl-grow::after {
   grid-area: 1 / 1 / 2 / 2;
-}
-
-/*
- * A field that is a LINE rather than a paragraph, and the mirror sizes its
- * WIDTH.
- *
- * The same trick, turned ninety degrees, and it is the fix for the worst thing
- * the editor did. A single-line field was a bare `<input>` carrying
- * `width: 100%` inside an inline span — and a percentage width on an
- * inline-level box resolves against the nearest BLOCK ancestor, which is the
- * whole line. So clicking a phone number, a date, or an email handed it the
- * entire row: the tint band ran the width of the page and everything that
- * shared the line with it — the separator, the next field — was pushed onto a
- * line of its own. The document rearranged itself around the field you were
- * trying to read.
- *
- * `inline-grid` puts the box back where the text is: the track is sized to the
- * mirror, the field fills that track, and three fields in a row stay three
- * fields in a row. Capped at the container, because a line that cannot wrap
- * must not be allowed to push the page wider than the paper.
- */
-.tpl-grow--inline {
-  display: inline-grid;
-  max-width: 100%;
-  /* Sits on the line's baseline, like the static text it replaces. */
-  vertical-align: baseline;
-}
-
-/*
- * The mirror WRAPS, inherited from `.tpl-grow::after`, and it is worth saying
- * why it is not pinned to one line.
- *
- * `inline-grid` is shrink-to-fit, so wrapping text still measures at its
- * max-content — the whole string on one line — and the field hugs it. The
- * difference only shows where the field cannot hug: three of the templates put
- * a link's URL straight into a `1fr` column of a grid, which blockifies this
- * box and stretches it to the track. That is CORRECT there — a URL has no
- * spaces to break at and the rail it sits in is 153pt wide, so the static text
- * wraps and the field has to wrap with it. Held to one line, the box would have
- * been one line tall where the text was three.
- *
- * So the same declaration serves both: hug where there is room, fill and wrap
- * where there is not.
- */
-
-.tpl-grow--inline > .tpl-input {
-  /*
-   * Nothing about the input may widen the track — the mirror is the only thing
-   * allowed a say in how wide the field is.
-   */
-  min-width: 0;
 }
 
 /*

@@ -176,7 +176,16 @@ export function HarvardSkillGroup({
           placeholder={PLACEHOLDERS['category']}
         />
         :
-      </span>
+      </span>{' '}
+      {/*
+       * A REAL space, not a gap made of CSS.
+       *
+       * The two used to be cells of a grid and the gap was `column-gap`, which
+       * a parser reading the exported PDF cannot see: it extracts the words in
+       * order and gets "Backend:Node.js". A résumé is written to be read by a
+       * machine first, so the separator between a category and its skills has
+       * to be a character.
+       */}
       <Element
         id={`${path}.items`}
         is={EditableInlineList}

@@ -952,6 +952,36 @@ describe('a collection stores itself', () => {
     expect(asked).toEqual([]);
   });
 
+  it('opens a line as an editable span, and stores what is typed into it', async () => {
+    /*
+     * The whole path, through a real document: select a field, type, and see
+     * the value reach the overlay. Worth doing end to end because the field is
+     * a `contenteditable` — it has no `value`, it is written to once and read
+     * back from the DOM, and every one of those is a place the wiring can be
+     * right in the source and wrong in the tree.
+     */
+    const { asked, autosave } = recorder();
+    const seen: ResumeEdits[] = [];
+    await drawAuthored(resume(), [], (next) => seen.push(next), 0, autosave);
+
+    const field = await waitFor(() => {
+      fireEvent.mouseDown(screen.getByText('Engineer', { selector: '*' }));
+      return screen.getByLabelText('experience.0.title');
+    });
+
+    // An editable span, not a control: only a span can break across lines
+    // where the static text did.
+    expect(field.tagName).toBe('SPAN');
+    expect(field.getAttribute('contenteditable')).toBe('plaintext-only');
+    expect(field.textContent).toBe('Engineer');
+
+    field.textContent = 'Staff Engineer';
+    fireEvent.input(field);
+
+    // Typing is deferred, never immediate — one write per sentence.
+    expect(asked).toEqual(['soon']);
+  });
+
   it('defers when a bullet is typed into', async () => {
     const { asked, autosave } = recorder();
     await drawAuthored(resume(), [], () => undefined, 0, autosave);

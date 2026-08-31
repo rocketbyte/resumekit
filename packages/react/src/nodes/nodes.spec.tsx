@@ -163,58 +163,137 @@ describe('the design is not addressable', () => {
  * and no way to lay it out. These assert the second half — the part that would
  * be easy to lose while adding the first.
  */
-describe('an editable field is the size of its own text', () => {
+describe("Harvard's skills read as lines, not as a table", () => {
   /*
-   * The defect this guards: clicking a phone number, a date or an email handed
-   * the field the ENTIRE row. A single-line field was a bare `<input>` carrying
-   * `width: 100%`, and a percentage width on an inline-level box resolves
-   * against the nearest BLOCK ancestor — so the tint band ran the width of the
-   * page and everything sharing the line with it was pushed onto a line of its
-   * own. The document rearranged itself around the field you were reading.
+   * This section was rebuilt twice and the tests are what stop it going back.
    *
-   * Asserted on the source, because the property is a LAYOUT one and jsdom
-   * computes no layout. What can be checked here is that the two things the fix
-   * rests on are still true, and both are one edit away from being undone.
+   * A per-row grid of `auto 1fr` gave every row a hanging indent measured from
+   * its own category, so eight rows had eight different left edges. Replacing
+   * it with ONE grid over the list aligned them — by making the section a
+   * two-column table, which put a column of dead space beside every short
+   * category and, worse, put the skills in cells. A résumé is read by a parser
+   * before it is read by a person, and cells are what stop it being read
+   * linearly.
+   *
+   * What it is now is ordinary text flow: category and skills on one line, a
+   * wrap returning to the left margin.
    */
+  const css = readFileSync(
+    join(TEMPLATE_DIR, 'harvard', 'harvard.css'),
+    'utf8',
+  );
+  const rule = (selector: string) => {
+    const from = css.slice(css.indexOf(selector));
+    return from.slice(0, from.indexOf('}'));
+  };
+
+  it('lays out no columns, so a wrap returns to the margin', () => {
+    for (const selector of [
+      '.tpl-harvard__skills {',
+      '.tpl-harvard__skill-group {',
+    ]) {
+      const body = rule(selector);
+      expect(body, `${selector} lays out columns`).not.toMatch(
+        /grid-template-columns|columns:|display:\s*(grid|flex)/,
+      );
+      // Nor by the other route to the same thing: a hanging indent.
+      expect(body, `${selector} indents its wrapped lines`).not.toMatch(
+        /text-indent|padding-left|margin-left/,
+      );
+    }
+  });
+
+  it('keeps a category on one line', () => {
+    // A name is a name; half of one at the end of a line reads as an accident.
+    expect(rule('.tpl-harvard__skill-label {')).toMatch(
+      /white-space:\s*nowrap/,
+    );
+  });
+
+  it('separates a category from its skills with a real character', () => {
+    /*
+     * The gap used to be `column-gap`, which a parser reading the exported PDF
+     * cannot see — it takes the words in order and gets "Backend:Node.js". The
+     * separator has to survive being extracted, so it is a space in the markup.
+     */
+    const entries = readFileSync(
+      join(TEMPLATE_DIR, 'harvard', 'entries.tsx'),
+      'utf8',
+    );
+    expect(entries).toMatch(/<\/span>\{' '\}/);
+  });
+});
+
+describe('an editable field breaks across lines like the text it replaces', () => {
+  /*
+   * The rule this whole layer exists for is that a field occupies the SAME BOX
+   * whether it is being edited or not, and it took three attempts to keep it.
+   *
+   * A single-line field was an `<input>` carrying `width: 100%` inside an
+   * inline span, and a percentage on an inline box resolves against the nearest
+   * BLOCK ancestor — so clicking a date or an email handed it the whole row and
+   * pushed the line apart. Sizing it to a mirror fixed that for text that fits
+   * on one line, and could not fix it for text that does not: a form control is
+   * an ATOMIC inline box, so a field holding "Architecture & Quality:
+   * Distributed Systems, …" had to move somewhere it fitted whole, and the
+   * skills dropped below their own category.
+   *
+   * An editable span is not atomic. It flows, wraps, and breaks exactly where
+   * the static text broke. Everything asserted here is a piece of that, and
+   * each is one edit away from being undone.
+   */
+  const NODE = (name: string) =>
+    readFileSync(join(NODE_DIR, name), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
   const css = readFileSync(join(NODE_DIR, 'template-node.css'), 'utf8');
-  const field = readFileSync(join(NODE_DIR, 'EditableText.tsx'), 'utf8');
-  /* The comments here discuss the element that was removed, by name. */
-  const code = field.replace(/\/\*[\s\S]*?\*\//g, '');
+  const field = NODE('PlainTextField.tsx');
 
-  it('sizes a line to its content rather than to its row', () => {
-    const rule = css.slice(css.indexOf('.tpl-grow--inline {'));
-    const body = rule.slice(0, rule.indexOf('}'));
-    // Shrink-to-fit, and never past the column it sits in.
-    expect(body).toMatch(/display:\s*inline-grid/);
-    expect(body).toMatch(/max-width:\s*100%/);
+  it('is an editable span, never a form control', () => {
+    // The two components that hold a LINE of the document. A control here is
+    // the defect, whichever control it is.
+    for (const name of ['EditableText.tsx', 'EditableInlineList.tsx']) {
+      const source = NODE(name);
+      expect(source, `${name} renders a form control`).not.toMatch(
+        /<input|<textarea/,
+      );
+      expect(source).toMatch(/PlainTextField/);
+    }
+    expect(field).toMatch(/contentEditable=/);
   });
 
-  it('gives every field the mirror that measures it', () => {
-    // The wrapper carries the mirror class and the string to measure; without
-    // `data-value` the mirror is empty and the box collapses.
-    expect(code).toMatch(/tpl-grow--inline/);
-    expect(code).toMatch(/data-value=/);
+  it('flows inline, so a wrap returns to the margin', () => {
+    const rule = css.slice(css.indexOf('span.tpl-input {'));
+    expect(rule.slice(0, rule.indexOf('}'))).toMatch(/display:\s*inline/);
   });
 
-  it('lets no widget have an opinion about its own width', () => {
+  it('takes plain text only, so a paste cannot style the résumé', () => {
+    expect(field).toMatch(/plaintext-only/);
+  });
+
+  it('writes its text into the DOM once, so the caret stays put', () => {
     /*
-     * A textarea's intrinsic width is twenty characters, and in an inline grid
-     * THAT sizes the column — `width: 100%` counts for nothing while a track is
-     * being measured. `cols={1}` is what leaves the mirror in charge.
+     * A controlled `contenteditable` replaces the text node the caret stands
+     * in on every keystroke, and the caret jumps to the start of the field. The
+     * child React holds has to be frozen at mount.
      */
-    expect(code).toMatch(/cols=\{1\}/);
+    expect(field).toMatch(/const \[initial\]\s*=\s*useState\(value\)/);
+    expect(field).toMatch(/\{initial\}/);
   });
 
-  it('uses one widget for every field, so wrapping text can be edited', () => {
+  it('keeps a line a line', () => {
+    expect(field).toMatch(/!multiline && e\.key === 'Enter'/);
+    // And for the newline that arrives by paste rather than by keystroke.
+    expect(field).toMatch(/flatten/);
+  });
+
+  it('needs no mirror, because an inline box is its own size', () => {
     /*
-     * An `<input>` cannot wrap. Three templates put a link's URL into a 153pt
-     * rail where the static text runs to three lines, and an input collapsed it
-     * to the one line it can show — the same box, edited or not, is the rule
-     * this whole file exists for. A line stays a line by REFUSING Enter, not by
-     * being given a widget that cannot hold two.
+     * The measuring apparatus the atomic box needed is gone with it: no inline
+     * grid, no invisible copy of the text sizing a track. What remains of
+     * `tpl-grow` is the BLOCK one, which gives a bullet's textarea its height.
      */
-    expect(code).not.toMatch(/<input/);
-    expect(code).toMatch(/e\.key === 'Enter'/);
+    expect(css).not.toMatch(/tpl-grow--inline/);
+    expect(NODE('EditableText.tsx')).not.toMatch(/tpl-grow|data-value/);
+    expect(NODE('EditableInlineList.tsx')).not.toMatch(/tpl-grow|data-value/);
   });
 });
 

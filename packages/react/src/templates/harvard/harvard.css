@@ -233,6 +233,28 @@
 
 /* ── Skills ─────────────────────────────────────────────────────────────── */
 
+/*
+ * Skills are LINES, not a table, and the difference is the whole of this rule.
+ *
+ * A category and its skills sit on one line — "Backend: Node.js, TypeScript,
+ * …" — and a line too long for the page wraps back to the LEFT MARGIN, level
+ * with the category above it. Ordinary text flow, which is the point: no grid,
+ * no columns, no indent.
+ *
+ * Two shapes were tried here and both were worse. A per-row grid of
+ * `auto 1fr` gave each row a hanging indent measured from its own category, so
+ * eight rows had eight different left edges and the section read as text
+ * indented by hand. One grid over the whole list fixed the alignment by making
+ * it a real two-column table — and bought a column of dead space beside every
+ * short category, and cells, which is exactly the structure that makes a
+ * résumé hard for a parser to read linearly.
+ *
+ * Flowing text has neither problem. It is the densest use of the page, it reads
+ * top to bottom in one pass, and what a parser extracts is the order the words
+ * are written in. The space between the category and its skills is a REAL
+ * space in the markup rather than a gap made of CSS, for the same reason: what
+ * is extracted has to say "Backend: Node.js", not "Backend:Node.js".
+ */
 .tpl-harvard__skills {
   margin: 0;
   padding: 0;
@@ -241,29 +263,19 @@
 
 .tpl-harvard__skill-group {
   margin-top: calc(1.5pt * var(--h-scale));
-  /* Same hanging indent as a bullet, so a long list wraps under its items
-     rather than under its category label. */
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: calc(4pt * var(--h-scale));
+}
+
+.tpl-harvard__skill-group[data-entry] {
+  --tpl-ring-room: 6px;
+  --tpl-ring-y: 1px;
+  --tpl-ring-radius: 6px;
 }
 
 /*
- * Skills groups are stacked rows, 1.5pt apart — where an experience entry has
- * room around it, these have almost none. At the shared 4px outline offset each
- * row's region outline reached over its neighbours and the gaps read as doubled
- * dashed lines, which is what the editor looked like in practice.
- *
- * The offset belongs here rather than in `collections/collection.css` because it
- * is a fact about THIS template's spacing: the same collection in a template
- * that set its groups further apart would want the shared offset. The stylesheet
- * that decided the spacing is the one that knows.
+ * The category never breaks across two lines. It is a name, and half a name at
+ * the end of a line is the one break in this section that would read as an
+ * accident rather than as prose running on.
  */
-.tpl-harvard__skill-group[data-entry]::after {
-  inset: -1px -6px;
-  border-radius: 6px;
-}
-
 .tpl-harvard__skill-label {
   font-weight: 700;
   white-space: nowrap;
