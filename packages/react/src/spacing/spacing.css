@@ -61,19 +61,6 @@
    */
   position: relative;
   /*
-   * The gap EASES rather than jumps.
-   *
-   * A step is a fifth of the template's own rhythm, which is a few pixels — and
-   * a few pixels arriving instantly reads as the page flinching rather than as
-   * the document opening up. Short enough that a drag still feels attached to
-   * the hand.
-   *
-   * Only the margin, and only here: the paginator coalesces every measurement
-   * into one per task, so the frames this animates through cost one measuring
-   * pass between them rather than one each.
-   */
-  transition: margin-top 140ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  /*
    * The recorded space as one length. The template's own margin rule adds this
    * in — `calc(7pt * … + var(--tpl-space-height, 0px))` — so a gap is the
    * template's own rhythm plus what the candidate asked for, and the rule that
@@ -82,6 +69,28 @@
   --tpl-space-height: calc(
     var(--tpl-space-steps, 0) * var(--tpl-space-unit, 8px)
   );
+  /*
+   * The gap EASES rather than jumps.
+   *
+   * A step is a fifth of the template's own rhythm, which is a few pixels — and
+   * a few pixels arriving instantly reads as the page flinching rather than as
+   * the document opening up.
+   *
+   * Only the margin, and only here: the paginator coalesces every measurement
+   * into one per task, so the frames this animates through cost one measuring
+   * pass between them rather than one each.
+   */
+  transition: margin-top 140ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/*
+ * Except under the hand. A drag is direct manipulation: the gap has to be where
+ * the pointer is, not easing towards where it was 140ms ago. The easing is for
+ * a keypress and for the settle at the end of a drag, which are the changes
+ * that would otherwise arrive as a flinch.
+ */
+[data-spaced]:has(> .tpl-space[data-dragging]) {
+  transition: none;
 }
 
 .tpl-space {
