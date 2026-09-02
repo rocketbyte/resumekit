@@ -1,36 +1,51 @@
 /*
- * The gap, as a control.
+ * Structural spacing: the gap between two parts of the document, as a control.
  *
- * Three rules govern everything here.
+ * Four rules govern everything here.
  *
  * It adds NO height. The space a candidate records is padding on the element it
  * belongs to, already in the flow; this is absolutely positioned inside that
  * padding. A handle that occupied space would move the page by existing, and
  * the thing it is for is not moving the page by accident.
  *
- * It is INVISIBLE until somebody comes looking. A résumé is a document before
- * it is a workspace, and a page ruled with editing furniture reads as a form.
- * The hit area is generous and silent; only the line and its readout fade in.
+ * At rest it is a KNOB IN THE MARGIN and nothing else. Spacing is structural —
+ * it belongs to the document rather than to whichever component sits below it —
+ * so the capability has to be visible, or nobody finds it. But a résumé ruled
+ * with lines between its parts reads as a form, and the candidate is looking at
+ * their own document: the line is drawn only under the pointer, out where the
+ * text is, while the quiet column of knobs down the margin is what says these
+ * gaps can be moved at all.
  *
- * It is CHROME. `data-chrome` is dropped by the print rules and by every
- * read-only surface, so the space prints and the handle never does.
+ * The knobs ALTERNATE sides. A stack of experience entries puts four gaps a
+ * centimetre apart, and four knobs in one vertical line are four things to tell
+ * apart by position alone. Left, right, left, right and each is obviously its
+ * own. `SpaceHandle` assigns the side from DOM order.
+ *
+ * It is CHROME. `data-chrome` and the print rule at the foot drop it from paper
+ * and from the export; the padding it writes is document, and stays.
  */
 
 .tpl-space {
   position: absolute;
-  /*
-   * Pinned to the TOP of the box it belongs to and stretched across it, so the
-   * control sits in the gap it opens rather than beside it.
-   */
-  top: 0;
   left: 0;
   right: 0;
   /*
-   * The reach. Taller than the line it draws, so the gap answers before the
-   * pointer is exactly on it — a 1px target is a target nobody hits — and never
-   * so tall that it swallows clicks meant for the text below.
+   * ABOVE the element, in the gap the template already leaves — not over the
+   * first line of it.
+   *
+   * The obvious placement is `top: 0`, and it is wrong: with no space recorded
+   * there is no padding to sit in, so a 16px strip at the top of an entry lies
+   * across the company name and takes the clicks meant for it. `bottom: 100%`
+   * puts the whole strip in the gap, which is both where the control belongs
+   * and the only place it costs nothing.
    */
-  height: var(--tpl-space-reach, 14px);
+  bottom: 100%;
+  /*
+   * The reach. Taller than the line it draws, so the gap answers before the
+   * pointer is exactly on it — a 2px target is a target nobody hits — and never
+   * so tall that it reaches the text above.
+   */
+  height: var(--tpl-space-reach, 16px);
   /*
    * Above the text it sits over, below the entry overlay, which is the control
    * for the thing rather than for the space above it.
@@ -45,76 +60,156 @@
  * A recorded space is taller than the reach, and the control should fill it —
  * so a candidate who has opened a gap up can grab it anywhere in the gap.
  */
+/*
+ * Once a space IS recorded, the strip becomes that space: it fills the padding,
+ * which is inside the element and still above all of its content, so the gap
+ * can be grabbed anywhere along it and still nothing overlaps a line of text.
+ */
 .tpl-space[data-set] {
+  bottom: auto;
+  top: 0;
   height: calc(var(--tpl-space-steps, 0) * var(--tpl-space-unit, 8px));
-  min-height: var(--tpl-space-reach, 14px);
+  min-height: var(--tpl-space-reach, 16px);
 }
 
+/*
+ * The grip reaches INTO both margins, so the knob out there is part of the same
+ * target as the gap itself: the icon can be dragged, and so can the space
+ * beside it.
+ */
 .tpl-space__grip {
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: calc(-1 * var(--tpl-space-gutter, 16px));
+  right: calc(-1 * var(--tpl-space-gutter, 16px));
   display: flex;
   align-items: center;
-  justify-content: center;
   cursor: ns-resize;
-  /* The grip is the whole reach; what is SEEN is the line inside it. */
   background: none;
   border: 0;
   padding: 0;
 }
 
+/* ── The knob ────────────────────────────────────────────────────────────── */
+
 /*
- * The line.
+ * The one thing that is visible before anybody goes looking.
  *
- * Drawn in the editor's own accent, at the alpha `document.css` mixes for a
- * line — the same value the entry outlines use — so the page has one editing
- * colour rather than a palette of nearly-identical ones.
+ * In the MARGIN, never over the text: it is the document's own furniture, and
+ * a résumé has to read as a résumé while it is being written. Faint at rest so
+ * a column of them is an invitation rather than a ruler.
  */
-.tpl-space__line {
+.tpl-space__knob {
   position: absolute;
-  left: 0;
-  right: 0;
   top: 50%;
-  height: 2px;
-  border-radius: 2px;
-  transform: translateY(-50%) scaleX(0.35);
-  background: var(--tpl-line, currentColor);
-  opacity: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--tpl-accent, currentColor);
+  /* A ring in the paper's own colour, so a knob that lands beside a rule or a
+     page edge still reads as a separate object. */
+  box-shadow: 0 0 0 2px var(--tpl-paper, #fff);
+  transform: translateY(-50%) scale(0.8);
+  opacity: 0.32;
   transition:
     opacity 160ms ease,
     transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+.tpl-space[data-side='left'] .tpl-space__knob {
+  left: 0;
+}
+
+.tpl-space[data-side='right'] .tpl-space__knob {
+  right: 0;
+}
+
+/* ── The line ────────────────────────────────────────────────────────────── */
+
 /*
- * The readout: what this gap is worth, in the template's own steps.
+ * Drawn only under the pointer, and drawn OUT FROM THE KNOB — the animation
+ * says which knob this gap belongs to, which is the whole reason the sides
+ * alternate.
+ */
+.tpl-space__line {
+  position: absolute;
+  top: 50%;
+  left: var(--tpl-space-gutter, 16px);
+  right: var(--tpl-space-gutter, 16px);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--tpl-line, currentColor);
+  opacity: 0;
+  transform: translateY(-50%) scaleX(0);
+  transition:
+    opacity 160ms ease,
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.tpl-space[data-side='left'] .tpl-space__line {
+  transform-origin: left center;
+}
+
+.tpl-space[data-side='right'] .tpl-space__line {
+  transform-origin: right center;
+}
+
+/* ── The readout ─────────────────────────────────────────────────────────── */
+
+/*
+ * What this gap is worth, in the template's own steps.
  *
- * Centred on the line and only present while the gap is being approached or
- * dragged, because a number standing permanently in a résumé is furniture.
+ * An ATTRIBUTE the stylesheet draws, never a text node: a handle sits in every
+ * gap, so a word in one of these is a word in the résumé's own text — it would
+ * ride along with a candidate's copy-and-paste and be read back by anything
+ * parsing the page. The slider's accessible name says the same thing properly.
  */
 .tpl-space__readout::after {
   content: attr(data-readout);
 }
 
 .tpl-space__readout {
-  position: relative;
+  position: absolute;
+  top: 50%;
   z-index: 1;
   font:
     600 10px/1 ui-sans-serif,
     system-ui,
     sans-serif;
   letter-spacing: 0.04em;
-  color: var(--tpl-accent-ink, currentColor);
-  background: var(--tpl-paper, #fff);
+  white-space: nowrap;
+  color: var(--tpl-chrome-ink, currentColor);
+  background: var(--tpl-chrome, #fff);
+  box-shadow: 0 1px 3px rgb(var(--tpl-chrome-line, 0 0 0) / 0.16);
   border-radius: 999px;
   padding: 3px 7px;
   opacity: 0;
-  transform: scale(0.9);
+  transform: translateY(-50%) scale(0.9);
   transition:
     opacity 160ms ease,
     transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* Beside its own knob, on whichever side that is. */
+.tpl-space[data-side='left'] .tpl-space__readout {
+  left: calc(var(--tpl-space-gutter, 16px) * 0.5);
+}
+
+.tpl-space[data-side='right'] .tpl-space__readout {
+  right: calc(var(--tpl-space-gutter, 16px) * 0.5);
+}
+
+/* ── Engaged ─────────────────────────────────────────────────────────────── */
+
 /* Approached, focused, or being dragged — the three ways it becomes real. */
+.tpl-space:hover .tpl-space__knob,
+.tpl-space__grip:focus-visible .tpl-space__knob,
+.tpl-space[data-dragging] .tpl-space__knob {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
 .tpl-space:hover .tpl-space__line,
 .tpl-space__grip:focus-visible .tpl-space__line,
 .tpl-space[data-dragging] .tpl-space__line {
@@ -126,38 +221,45 @@
 .tpl-space__grip:focus-visible .tpl-space__readout,
 .tpl-space[data-dragging] .tpl-space__readout {
   opacity: 1;
-  transform: scale(1);
+  transform: translateY(-50%) scale(1);
 }
 
-/* A gap that already carries space says so, faintly, without being hovered. */
-.tpl-space[data-set] .tpl-space__line {
-  opacity: 0.28;
-  transform: translateY(-50%) scaleX(1);
+/* A gap that already carries space says so without being hovered. */
+.tpl-space[data-set] .tpl-space__knob {
+  opacity: 0.75;
+  transform: translateY(-50%) scale(1);
 }
 
 .tpl-space__grip:focus-visible {
-  outline: 2px solid var(--tpl-accent, currentColor);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: none;
+}
+
+.tpl-space__grip:focus-visible .tpl-space__knob {
+  box-shadow:
+    0 0 0 2px var(--tpl-paper, #fff),
+    0 0 0 4px var(--tpl-accent, currentColor);
 }
 
 /*
  * While dragging, the whole page keeps the resize cursor — otherwise it flicks
- * back to a text caret the moment the pointer leaves the 14px it started in.
+ * back to a text caret the moment the pointer leaves the strip it started in.
  */
 .tpl-space[data-dragging] {
   cursor: ns-resize;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .tpl-space__knob,
   .tpl-space__line,
   .tpl-space__readout {
     transition: none;
   }
 }
 
+/* ── The space itself ────────────────────────────────────────────────────── */
+
 /*
- * The space itself, on the element it sits above.
+ * On the element it sits above.
  *
  * Padding, never margin: the paginator clears and rewrites each block's inline
  * `margin-top` to push it onto the next sheet, so a margin written here would
@@ -180,7 +282,7 @@
  *
  * That split is the whole reason the value is stored on the element and the
  * handle is a separate, absolutely-positioned child: `[data-spaced]`'s padding
- * is document, and prints; everything below is chrome, and does not. Printing
+ * is document, and prints; everything above is chrome, and does not. Printing
  * happens from the EDITOR too — the PDF export is `window.print()` — so hiding
  * this on the read-only document would be only half the rule.
  */

@@ -54,6 +54,13 @@
    * a different distance, which is exactly what the token is for.
    */
   --tpl-space-unit: calc(10pt * var(--h-scale) * var(--h-density));
+  /*
+   * How far into the margin a gap's knob sits. Harvard's page margin is 0.55in,
+   * so there is room for a roomy one that clears the text column properly; the
+   * shared default is deliberately tighter, for a template whose columns are
+   * narrow and whose margins this file cannot know.
+   */
+  --tpl-space-gutter: 26px;
   --h-rule: var(--h-accent);
   --h-paper: #ffffff;
   --h-body: calc(9.6pt * var(--h-scale));
