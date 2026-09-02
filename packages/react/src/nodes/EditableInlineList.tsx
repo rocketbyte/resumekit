@@ -10,6 +10,17 @@ export interface EditableInlineListProps {
   /** Where this list lives in the `ResumeObject` — e.g. `skills.0.items`. */
   path: string;
   items: string[];
+  /**
+   * Shown while the list is empty. Never saved — the same bargain
+   * `EditableText` makes, and drawn the same way, by CSS.
+   *
+   * Not optional in practice, whatever the type says. An empty inline list has
+   * no text, and a span with no text has no width: a skills group the candidate
+   * had just added drew its category, a colon, and then nothing — no visible
+   * field, and nothing with an area to click on. The guidance is what gives an
+   * empty list a body.
+   */
+  placeholder?: string;
 }
 
 /** How a keyword list reads on the page, and how the candidate types it. */
@@ -31,7 +42,11 @@ function split(text: string): string[] {
  * written through to the node on every keystroke. Deriving the displayed text
  * from the array instead would delete the comma the moment it was typed.
  */
-export function EditableInlineList({ path, items }: EditableInlineListProps) {
+export function EditableInlineList({
+  path,
+  items,
+  placeholder,
+}: EditableInlineListProps) {
   const format = useFieldFormat(path);
   const {
     connectors: { connect },
@@ -70,6 +85,13 @@ export function EditableInlineList({ path, items }: EditableInlineListProps) {
       className={formatClass(format, 'tpl-text')}
       style={formatInk(format)}
       data-ink={inkAttr(format)}
+      /*
+       * Only while it is CLOSED. The field draws its own guidance once it is
+       * open, and marking the box empty as well would print the sentence twice
+       * — the same split `EditableText` makes for the same reason.
+       */
+      data-empty={(!selected && text.length === 0) || undefined}
+      data-placeholder={placeholder}
       data-path={path}
     >
       {selected ? (
@@ -77,7 +99,12 @@ export function EditableInlineList({ path, items }: EditableInlineListProps) {
          * Keyed on nothing and mounted only while selected, so it re-reads the
          * list each time it is opened and holds its own text in between.
          */
-        <PlainTextField value={text} label={path} onChange={change} />
+        <PlainTextField
+          value={text}
+          placeholder={placeholder}
+          label={path}
+          onChange={change}
+        />
       ) : (
         text
       )}

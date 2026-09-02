@@ -284,6 +284,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
               is={EditableInlineList}
               path="certifications"
               items={resume.certifications}
+              placeholder={PLACEHOLDERS['certifications']}
             />
           </p>
         </section>

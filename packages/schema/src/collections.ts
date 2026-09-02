@@ -107,6 +107,18 @@ export const PLACEHOLDERS: Record<string, string> = {
   certification: 'Certification name',
   label: 'Link text',
   url: 'https://',
+  /*
+   * The LIST fields, guided by what the whole list is and how it is separated.
+   *
+   * Named for the field rather than for one of its items, because that is what
+   * the candidate is looking at: an inline list is one run of text, and the
+   * comma is the whole of how a second skill is added to it. A group added to
+   * Harvard's skills rendered as a category, a colon, and then nothing at all —
+   * an empty span with no width — so there was no way to see that the skills
+   * went there, and nothing to click on to type them.
+   */
+  items: 'Skills, separated by commas',
+  certifications: 'Certifications, separated by commas',
 };
 
 /** A blank experience entry: every field empty, every field guided. */

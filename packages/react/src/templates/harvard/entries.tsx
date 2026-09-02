@@ -240,6 +240,7 @@ export function HarvardSkillGroup({
         is={EditableInlineList}
         path={`${path}.items`}
         items={item.items}
+        placeholder={PLACEHOLDERS['items']}
       />
     </li>
   );
