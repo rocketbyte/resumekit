@@ -301,6 +301,33 @@ describe('the paged canvas does not move under the reader', () => {
     'utf8',
   ).replace(/\/\*[\s\S]*?\*\//g, '');
 
+  it('adds a page push to the block\u2019s own margin rather than replacing it', () => {
+    /*
+     * A push is written as an inline `margin-top`, and inline beats the
+     * stylesheet — so pushing a block onto the next sheet used to DELETE the
+     * margin it was drawn with. A candidate who had opened a gap above a
+     * section watched it disappear the moment that section crossed a page
+     * boundary, and the correction loop then had to rediscover the lost
+     * distance by measuring, which it does to within half a pixel and no
+     * closer.
+     *
+     * Asserted against the source, because the thing that would break is an
+     * arithmetic decision inside a function jsdom cannot run: it measures
+     * nothing, so there is no layout here to push.
+     */
+    const source = readFileSync(
+      join(import.meta.dirname, 'PagedSheet.tsx'),
+      'utf8',
+    ).replace(/\/\*[\s\S]*?\*\//g, '');
+
+    // The block's own margin is read once the inline ones are cleared…
+    expect(source).toMatch(/getComputedStyle\(block\)\.marginTop/);
+    // …and the push that gets written is that margin plus the plan's offset.
+    expect(source).toMatch(/\(own\[index\] \?\? 0\) \+ offset/);
+    // Never the offset on its own, which is what threw the margin away.
+    expect(source).not.toMatch(/marginTop = `\$\{offset\}px`/);
+  });
+
   it('opts out of the browser holding the document still', () => {
     /*
      * Scroll anchoring compensates for content that changes size above the

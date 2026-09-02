@@ -53,13 +53,21 @@
  * whether or not there is space above it, and the space reads as document
  * between two entries rather than as part of the one below.
  */
-[data-spaced] {
-  /*
-   * The containing block for the handle, which hangs in the margin above this
-   * element. `position: relative` with no offsets moves nothing, so carrying it
-   * in the editor and not in the preview costs no pixel.
-   */
+/*
+ * Hosting a CONTROL. Editor only, and the reason the handle can be positioned
+ * at all: `position: relative` with no offsets moves nothing, so an element
+ * that merely offers a gap is drawn exactly as the preview draws it.
+ */
+[data-gap] {
   position: relative;
+}
+
+/*
+ * CARRYING space. True of the document, so identically true in the editor, the
+ * preview and the export — which is what stops the three from laying the same
+ * résumé out differently.
+ */
+[data-spaced] {
   /*
    * The recorded space as one length. The template's own margin rule adds this
    * in — `calc(7pt * … + var(--tpl-space-height, 0px))` — so a gap is the
@@ -69,6 +77,25 @@
   --tpl-space-height: calc(
     var(--tpl-space-steps, 0) * var(--tpl-space-unit, 8px)
   );
+
+  /*
+   * And the gap must not be able to swallow a page break.
+   *
+   * The paginator pushes a block onto the next sheet by giving it a top margin,
+   * and the block it pushes is very often the first child of a section — a
+   * heading. A first child's top margin COLLAPSES with its parent's, and
+   * collapsing takes the larger of the two, so a section carrying a recorded
+   * gap simply absorbed the push: dragging the gap wider did nothing at all
+   * until it exceeded the push, and then everything moved at once. That is what
+   * a candidate saw as the space refusing to grow once Education crossed onto
+   * the second page.
+   *
+   * `flow-root` makes this element a formatting context of its own, which is
+   * the one thing that stops a child's margin escaping into it. It changes
+   * nothing else here: these sections carry no floats, and their own margins
+   * still collapse with their siblings' exactly as before.
+   */
+  display: flow-root;
   /*
    * The gap EASES rather than jumps.
    *

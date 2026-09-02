@@ -212,6 +212,26 @@ export function PagedSheet({
      */
     for (const block of blocks) block.style.marginTop = '';
 
+    /*
+     * Each block's OWN top margin, read once the inline ones are cleared.
+     *
+     * A push is written as an inline `margin-top`, which REPLACES whatever the
+     * stylesheet gave the block rather than adding to it — so pushing a block
+     * onto the next sheet used to delete the margin it was drawn with, and a
+     * candidate who had opened a gap above a section watched it vanish the
+     * moment that section crossed a page boundary. The correction loop below
+     * then had to rediscover the lost distance by measuring, which it does to
+     * within half a pixel and no closer.
+     *
+     * Kept here so the push can be written as the block's own margin PLUS the
+     * offset. The plan's offsets are distances to move FROM the natural layout,
+     * and the natural layout already includes these — so adding them back is
+     * what makes the block move by exactly what the plan asked for.
+     */
+    const own = blocks.map(
+      (block) => Number.parseFloat(getComputedStyle(block).marginTop) || 0,
+    );
+
     const measured: MeasuredBlock<Element>[] = blocks.map((block) => {
       const rect = block.getBoundingClientRect();
       return {
@@ -239,8 +259,9 @@ export function PagedSheet({
     const pushes = new Map<HTMLElement, number>();
     const targets = new Map<HTMLElement, number>();
     for (const [index, offset] of plan.pushes) {
-      pushes.set(blocks[index], offset);
-      blocks[index].style.marginTop = `${offset}px`;
+      const applied = (own[index] ?? 0) + offset;
+      pushes.set(blocks[index], applied);
+      blocks[index].style.marginTop = `${applied}px`;
     }
     for (const [index, target] of plan.targets) {
       targets.set(blocks[index], target);

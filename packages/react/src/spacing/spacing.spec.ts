@@ -82,6 +82,30 @@ describe('a gap is space ABOVE a block, not space around a line', () => {
     expect(rule('.tpl-space')).toMatch(/position:\s*absolute/);
   });
 
+  it('keeps a gap from swallowing a page break', () => {
+    /*
+     * The paginator pushes a block onto the next sheet by giving it a top
+     * margin, and that block is very often a section's first child. A first
+     * child's top margin collapses with its parent's and collapsing takes the
+     * LARGER, so a section carrying a gap absorbed the push whole: dragging the
+     * gap wider did nothing until it passed the push, and then everything moved
+     * at once.
+     */
+    expect(rule('[data-spaced]')).toMatch(/display:\s*flow-root/);
+  });
+
+  it('separates hosting a control from carrying space', () => {
+    /*
+     * Two markers, because they are true at different times. Hosting is an
+     * editor-only fact and gives the handle somewhere to hang; carrying space
+     * is a fact about the DOCUMENT and so must be identically true in the
+     * preview and the export. One marker meant the editor styled every gap as
+     * though it were open.
+     */
+    expect(rule('[data-gap]')).toMatch(/position:\s*relative/);
+    expect(rule('[data-gap]')).not.toMatch(/--tpl-space-height/);
+  });
+
   it('adds the space to the template\u2019s own margin rather than replacing it', () => {
     /*
      * The rule that decides a template's natural rhythm stays the only rule
