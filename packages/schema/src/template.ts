@@ -1269,35 +1269,102 @@ function sameValue(a: unknown, b: EditValue): boolean {
 }
 
 /**
- * Where each addition currently sits on the page, as a path prefix.
+ * Where each addition's fields are ADDRESSED, as a path prefix.
  *
- * Read from `collectionOrder` — the SAME derivation the document was drawn from
- * — rather than from `appendedEntryRefs`, which reports the position an addition
- * occupies before any ordering is applied. The editor emits its paths from what
- * it rendered, so a different derivation here would attach a candidate's typing
- * to the wrong entry the moment they reordered the section.
+ * Past the end of the writer's own array, never among it: an addition to a
+ * section of two roles is `experience.2`, whatever position it is drawn in.
+ * That is where `applyPresentation` actually puts it — appends are pushed onto
+ * the end of the section — so the prefix names the entry in the presented
+ * résumé, and it is the scheme `custom_sections` has always used.
  *
- * Used twice, which is the point: once to fold an addition's own text into it,
- * and once to keep those same paths OUT of the replacements. A reordering can
- * put an addition at index 0, where `addressesBase` is perfectly happy to also
- * emit it as a `set` against the writer's first entry — and then the candidate's
- * new job overwrites their oldest one.
+ * It used to be the RENDER index, which collided. A candidate who added a role
+ * above their second one gave the addition `experience.1`, which is also the
+ * writer's second role's own address: the editor built two fields claiming to
+ * edit the same path, Craft.js resolved both to one node, and the writer's role
+ * was blanked off the page. The `claimed` filter below then swallowed its text
+ * as belonging to the addition. Ordering is expressed by a `reorder` edit and
+ * by nothing else; an address must not move when a document is rearranged.
+ *
+ * Used three times, which is the point: to fold an addition's own text into it,
+ * to keep those paths out of the replacements, and — through `additionPaths` —
+ * by the editor that emits them, so there is one definition rather than two
+ * free to drift.
  */
 function additionSlots(
   base: ResumeObject,
   structural: ResumeEdits,
 ): Map<string, string> {
   const slots = new Map<string, string>();
+  const dropped = new Set(structural.filter(isDropEdit).map((e) => e.ref));
+
   for (const section of APPENDABLE_SECTIONS) {
-    collectionOrder(base, structural, section).forEach((slot, index) => {
-      if ('ref' in slot) slots.set(slot.ref, `${section}.${index}`);
-    });
+    const written = (base[section] as unknown[] | undefined)?.length ?? 0;
+    let ordinal = 0;
+    for (const edit of structural) {
+      if (!isAppendEdit(edit) || edit.section !== section) continue;
+      if (dropped.has(edit.ref)) continue;
+      // The same admission test `applyPresentation` applies, so the ordinal
+      // counts exactly the entries that reach the résumé.
+      if (!APPEND_SCHEMAS[section].safeParse(edit.entry).success) continue;
+      slots.set(edit.ref, `${section}.${written + ordinal}`);
+      ordinal += 1;
+    }
   }
+
   const written = (base.custom_sections ?? []).length;
-  structural.filter(isSectionEdit).forEach((edit, i) => {
-    slots.set(edit.ref, `custom_sections.${written + i}`);
-  });
+  structural
+    .filter(isSectionEdit)
+    .filter((edit) => !dropped.has(edit.ref))
+    .forEach((edit, i) => {
+      slots.set(edit.ref, `custom_sections.${written + i}`);
+    });
   return slots;
+}
+
+/**
+ * Where each addition's fields are addressed, for the editor that draws them.
+ *
+ * Exported so the document emits the paths this module reads back, from this
+ * module's own arithmetic. The two were computed separately and disagreed —
+ * see `additionSlots` — which is the kind of bug that only shows up as text
+ * appearing in the wrong job.
+ */
+export function additionPaths(
+  base: ResumeObject,
+  edits: ResumeEdits,
+): Map<string, string> {
+  return additionSlots(
+    base,
+    edits.filter((edit) => !isSetEdit(edit)),
+  );
+}
+
+/**
+ * What decides which FIELDS the document has, as opposed to what they say.
+ *
+ * The editor rebuilds its node tree when this changes, and must not when only
+ * the text does. An addition's words live inside its own `append` edit — that
+ * is what `foldAdditions` is for — so serializing the overlay whole made every
+ * character typed into a newly added role look like a structural change: the
+ * tree was rebuilt mid-word and the field the candidate was typing in was
+ * unmounted from under them. What a `ref` SAYS is not part of the document's
+ * shape; that it exists, and where it sits, is.
+ *
+ * A custom section's entry COUNT is shape — one more entry is one more set of
+ * fields — while its heading and its entries' text are not.
+ */
+export function documentShapeKey(edits: ResumeEdits): string {
+  const shape = edits.flatMap((edit) => {
+    if (isAppendEdit(edit)) return [`a:${edit.section}:${edit.ref}`];
+    if (isDropEdit(edit)) return [`d:${edit.ref}`];
+    if (isHideEdit(edit)) return [`h:${edit.section}:${edit.base}`];
+    if (isReorderEdit(edit)) {
+      return [`o:${edit.section}:${edit.order.map(slotKey).join(',')}`];
+    }
+    if (isSectionEdit(edit)) return [`s:${edit.ref}:${edit.entries.length}`];
+    return [];
+  });
+  return shape.join('|');
 }
 
 /** Write `value` at `segments` inside `target`, creating nothing that is absent. */

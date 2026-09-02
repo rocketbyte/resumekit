@@ -35,26 +35,40 @@ export function useCustomEntries(
         reorder: () => undefined,
       };
     }
-    const { edits, onEditsChange } = authoring;
+    const { liveEdits, onEditsChange } = authoring;
 
-    const write = (next: readonly CustomEntry[]) =>
+    /*
+     * Rewritten from the OVERLAY's own entries, not from the ones on screen.
+     *
+     * The rendered list is a projection frozen when the document tree was
+     * built, and the candidate's typing since then lives in the editor's nodes
+     * — it reaches the overlay through the reporter, and only the overlay. So
+     * an insert or a move rebuilt from what is drawn would write back the text
+     * the section was declared with and quietly undo the sentence somebody had
+     * just finished. The overlay is what the overlay is written from.
+     */
+    const write = (
+      transform: (current: CustomEntry[]) => readonly CustomEntry[],
+    ) =>
       onEditsChange(
-        edits.map((edit) =>
+        liveEdits().map((edit) =>
           isSectionEdit(edit) && edit.ref === sectionRef
-            ? { ...edit, entries: [...next] }
+            ? { ...edit, entries: [...transform([...edit.entries])] }
             : edit,
         ),
       );
 
     return {
       items: entries,
-      insert: (index, item) => {
-        const next = [...entries];
-        next.splice(Math.min(index, next.length), 0, item);
-        write(next);
-      },
-      removeAt: (index) => write(entries.filter((_, i) => i !== index)),
-      reorder: (from, to) => write(movedTo(entries, from, to)),
+      insert: (index, item) =>
+        write((current) => {
+          const next = [...current];
+          next.splice(Math.min(index, next.length), 0, item);
+          return next;
+        }),
+      removeAt: (index) =>
+        write((current) => current.filter((_, i) => i !== index)),
+      reorder: (from, to) => write((current) => movedTo(current, from, to)),
     };
   }, [authoring, entries, sectionRef]);
 

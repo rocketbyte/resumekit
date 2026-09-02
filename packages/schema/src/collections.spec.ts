@@ -116,12 +116,20 @@ describe('an addition keeps what the candidate types into it', () => {
     expect(saved.filter((e) => e.kind === 'set')).toHaveLength(0);
   });
 
-  it('folds against where the entry is DRAWN, not where it was appended', () => {
+  it('is addressed past the writer\u2019s entries, wherever it is drawn', () => {
     /*
-     * The interaction that makes this subtle: an addition appended last is
-     * rendered first once the section is reordered, so the editor emits its
-     * fields at `experience.0.*`. Folding against the pre-reorder position
-     * would attach the candidate's typing to the wrong entry.
+     * An addition's address does NOT follow it around the page.
+     *
+     * Drawing order is what a `reorder` edit says, and nothing else. An address
+     * that moved with it would land inside the writer's own range — an addition
+     * pulled to the top would claim `experience.0`, which is already the
+     * writer's first role — and then two fields on one document would claim to
+     * edit the same thing. In the editor that is not a near miss: Craft.js
+     * resolves one id to one node, so the writer's role rendered blank and its
+     * text was swallowed as belonging to the addition.
+     *
+     * So it stays at `experience.2`, which is where applying the overlay puts
+     * it, reordered or not.
      */
     const structural: ResumeEdits = [
       ...appended('add-1', COLLECTIONS.experience.mint()),
@@ -133,7 +141,12 @@ describe('an addition keeps what the candidate types into it', () => {
     ];
     const saved = presentationEdits(
       base,
-      { 'experience.0.company': 'Real Employer Ltd' },
+      {
+        'experience.2.company': 'Real Employer Ltd',
+        // The writer's own first role, edited in the same pass. It keeps its
+        // own address even though the addition is drawn above it.
+        'experience.0.title': 'Principal',
+      },
       structural,
     );
     const out = applyPresentation(base, saved).experience;
@@ -142,6 +155,41 @@ describe('an addition keeps what the candidate types into it', () => {
       'Acme',
       'Beta',
     ]);
+    expect(out.map((e) => e.title)).toEqual([
+      COLLECTIONS.experience.mint().title,
+      'Principal',
+      'Junior',
+    ]);
+  });
+
+  it('leaves the writer\u2019s entries alone when one is inserted above them', () => {
+    /*
+     * The report this exists for: adding a role above the second one blanked
+     * that role off the page. The addition claimed `experience.1` — the render
+     * index it happened to occupy — which is the writer's second role's own
+     * address, so the editor built two fields for one path and the role's text
+     * was filtered out of the overlay as "claimed" by the addition.
+     */
+    const structural: ResumeEdits = [
+      ...appended('add-1', COLLECTIONS.experience.mint()),
+      {
+        kind: 'reorder',
+        section: 'experience',
+        order: [{ base: 0 }, { ref: 'add-1' }, { base: 1 }],
+      },
+    ];
+    const saved = presentationEdits(
+      base,
+      {
+        'experience.0.company': 'Acme',
+        'experience.1.company': 'Beta',
+        'experience.2.company': 'Real Employer Ltd',
+      },
+      structural,
+    );
+    expect(
+      applyPresentation(base, saved).experience.map((e) => e.company),
+    ).toEqual(['Acme', 'Real Employer Ltd', 'Beta']);
   });
 
   it('round-trips: what the candidate left in the field is what reloads', () => {

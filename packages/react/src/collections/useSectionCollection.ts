@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  additionPaths,
   collectionOrder,
   isAppendEdit,
   isDropEdit,
@@ -65,6 +66,18 @@ export function useSectionCollection<T>(
     [authoring, section],
   );
 
+  /*
+   * Where an addition's fields are addressed, taken from the domain rather
+   * than re-derived here. This module used to answer it with the render index,
+   * which is a different answer from the one `presentationEdits` reads back —
+   * and two answers to "where does this entry live" is how a candidate's new
+   * role came to share its fields with the writer's second one.
+   */
+  const additions = useMemo(
+    () => (authoring ? additionPaths(authoring.base, authoring.edits) : null),
+    [authoring],
+  );
+
   const store = useMemo<CollectionStore<T>>(() => {
     if (!authoring) {
       // Read-only: the list is what it is, and nothing can act on it.
@@ -75,10 +88,17 @@ export function useSectionCollection<T>(
         reorder: () => undefined,
       };
     }
-    const { edits, onEditsChange } = authoring;
+    const { liveEdits, onEditsChange } = authoring;
+
+    /*
+     * Every write below starts from the LIVE overlay, never from the snapshot
+     * the slots were derived from: what a candidate has typed into an addition
+     * since the last shape change lives inside that addition's own edit, and
+     * rebuilding from a snapshot would write the placeholder back over it.
+     */
 
     /** Store an ordering of the given slots, replacing any earlier one. */
-    const writeOrder = (next: Slot[], rest: ResumeEdits = edits) =>
+    const writeOrder = (next: Slot[], rest: ResumeEdits = liveEdits()) =>
       onEditsChange([
         ...rest.filter(
           (edit) => !(isReorderEdit(edit) && edit.section === section),
@@ -92,7 +112,7 @@ export function useSectionCollection<T>(
       insert: (index, item) => {
         const ref = mintRef();
         const next: ResumeEdits = [
-          ...edits,
+          ...liveEdits(),
           {
             kind: 'append',
             ref,
@@ -119,7 +139,7 @@ export function useSectionCollection<T>(
            */
           writeOrder(
             remaining,
-            edits.filter(
+            liveEdits().filter(
               (edit) =>
                 !(
                   (isAppendEdit(edit) || isDropEdit(edit)) &&
@@ -136,7 +156,7 @@ export function useSectionCollection<T>(
          * longer exists.
          */
         writeOrder(remaining, [
-          ...edits,
+          ...liveEdits(),
           { kind: 'hide', section, base: slot.base },
         ]);
       },
@@ -167,14 +187,17 @@ export function useSectionCollection<T>(
         const slot = slots[index];
         if (slot && 'base' in slot) return `${section}.${slot.base}`;
         /*
-         * An addition has no base position, so its fields are addressed by
-         * where it currently sits — which is what `presentationEdits` folds
-         * back into the addition itself, so nothing is stored against it.
+         * An addition is addressed PAST the end of the writer's array, which
+         * is where applying the overlay actually puts it — never by the
+         * position it is drawn in. Drawing position belongs to the `reorder`
+         * edit; an address that moved with it would collide with the writer's
+         * own entry at that index and blank it off the page.
          */
-        return `${section}.${index}`;
+        const path = slot ? additions?.get(slot.ref) : undefined;
+        return path ?? `${section}.${index}`;
       },
     }),
-    [handle, slots, section],
+    [handle, slots, section, additions],
   );
 }
 
