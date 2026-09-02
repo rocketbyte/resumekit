@@ -40,6 +40,20 @@
    */
   --h-accent: currentColor;
   --h-density: 1;
+
+  /*
+   * What ONE STEP of recorded space is worth here — `document-styling` (#36).
+   *
+   * Harvard's own section gap, so a step of space is "one more gap like the one
+   * already there" rather than a number of millimetres imported from somewhere
+   * else. It follows the type scale and the density for the same reason the gap
+   * it is measured against does: a document set tighter should not have its
+   * candidate-added air stay put while everything around it closes up.
+   *
+   * A template that set this differently would make the same stored token mean
+   * a different distance, which is exactly what the token is for.
+   */
+  --tpl-space-unit: calc(10pt * var(--h-scale) * var(--h-density));
   --h-rule: var(--h-accent);
   --h-paper: #ffffff;
   --h-body: calc(9.6pt * var(--h-scale));

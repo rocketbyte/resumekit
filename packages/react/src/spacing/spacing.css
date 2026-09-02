@@ -1,0 +1,191 @@
+/*
+ * The gap, as a control.
+ *
+ * Three rules govern everything here.
+ *
+ * It adds NO height. The space a candidate records is padding on the element it
+ * belongs to, already in the flow; this is absolutely positioned inside that
+ * padding. A handle that occupied space would move the page by existing, and
+ * the thing it is for is not moving the page by accident.
+ *
+ * It is INVISIBLE until somebody comes looking. A résumé is a document before
+ * it is a workspace, and a page ruled with editing furniture reads as a form.
+ * The hit area is generous and silent; only the line and its readout fade in.
+ *
+ * It is CHROME. `data-chrome` is dropped by the print rules and by every
+ * read-only surface, so the space prints and the handle never does.
+ */
+
+.tpl-space {
+  position: absolute;
+  /*
+   * Pinned to the TOP of the box it belongs to and stretched across it, so the
+   * control sits in the gap it opens rather than beside it.
+   */
+  top: 0;
+  left: 0;
+  right: 0;
+  /*
+   * The reach. Taller than the line it draws, so the gap answers before the
+   * pointer is exactly on it — a 1px target is a target nobody hits — and never
+   * so tall that it swallows clicks meant for the text below.
+   */
+  height: var(--tpl-space-reach, 14px);
+  /*
+   * Above the text it sits over, below the entry overlay, which is the control
+   * for the thing rather than for the space above it.
+   */
+  z-index: 2;
+  display: block;
+  /* Nothing here is text. */
+  user-select: none;
+}
+
+/*
+ * A recorded space is taller than the reach, and the control should fill it —
+ * so a candidate who has opened a gap up can grab it anywhere in the gap.
+ */
+.tpl-space[data-set] {
+  height: calc(var(--tpl-space-steps, 0) * var(--tpl-space-unit, 8px));
+  min-height: var(--tpl-space-reach, 14px);
+}
+
+.tpl-space__grip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ns-resize;
+  /* The grip is the whole reach; what is SEEN is the line inside it. */
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+/*
+ * The line.
+ *
+ * Drawn in the editor's own accent, at the alpha `document.css` mixes for a
+ * line — the same value the entry outlines use — so the page has one editing
+ * colour rather than a palette of nearly-identical ones.
+ */
+.tpl-space__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  border-radius: 2px;
+  transform: translateY(-50%) scaleX(0.35);
+  background: var(--tpl-line, currentColor);
+  opacity: 0;
+  transition:
+    opacity 160ms ease,
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/*
+ * The readout: what this gap is worth, in the template's own steps.
+ *
+ * Centred on the line and only present while the gap is being approached or
+ * dragged, because a number standing permanently in a résumé is furniture.
+ */
+.tpl-space__readout::after {
+  content: attr(data-readout);
+}
+
+.tpl-space__readout {
+  position: relative;
+  z-index: 1;
+  font:
+    600 10px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.04em;
+  color: var(--tpl-accent-ink, currentColor);
+  background: var(--tpl-paper, #fff);
+  border-radius: 999px;
+  padding: 3px 7px;
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity 160ms ease,
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Approached, focused, or being dragged — the three ways it becomes real. */
+.tpl-space:hover .tpl-space__line,
+.tpl-space__grip:focus-visible .tpl-space__line,
+.tpl-space[data-dragging] .tpl-space__line {
+  opacity: 1;
+  transform: translateY(-50%) scaleX(1);
+}
+
+.tpl-space:hover .tpl-space__readout,
+.tpl-space__grip:focus-visible .tpl-space__readout,
+.tpl-space[data-dragging] .tpl-space__readout {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* A gap that already carries space says so, faintly, without being hovered. */
+.tpl-space[data-set] .tpl-space__line {
+  opacity: 0.28;
+  transform: translateY(-50%) scaleX(1);
+}
+
+.tpl-space__grip:focus-visible {
+  outline: 2px solid var(--tpl-accent, currentColor);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/*
+ * While dragging, the whole page keeps the resize cursor — otherwise it flicks
+ * back to a text caret the moment the pointer leaves the 14px it started in.
+ */
+.tpl-space[data-dragging] {
+  cursor: ns-resize;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tpl-space__line,
+  .tpl-space__readout {
+    transition: none;
+  }
+}
+
+/*
+ * The space itself, on the element it sits above.
+ *
+ * Padding, never margin: the paginator clears and rewrites each block's inline
+ * `margin-top` to push it onto the next sheet, so a margin written here would
+ * be erased on every measuring pass. Padding survives it, is included in the
+ * block's measured height, and so paginates correctly with no change to the
+ * paginator at all.
+ *
+ * `position: relative` because the handle above is absolutely positioned into
+ * this box. Entries already declare it for their own chrome; declaring it again
+ * with the same value costs nothing and means a section does not have to
+ * remember.
+ */
+[data-spaced] {
+  position: relative;
+  padding-top: calc(var(--tpl-space-steps, 0) * var(--tpl-space-unit, 8px));
+}
+
+/*
+ * On paper the space is there and the control is not.
+ *
+ * That split is the whole reason the value is stored on the element and the
+ * handle is a separate, absolutely-positioned child: `[data-spaced]`'s padding
+ * is document, and prints; everything below is chrome, and does not. Printing
+ * happens from the EDITOR too — the PDF export is `window.print()` — so hiding
+ * this on the read-only document would be only half the rule.
+ */
+@media print {
+  .tpl-space {
+    display: none !important;
+  }
+}

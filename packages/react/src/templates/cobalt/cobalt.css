@@ -30,6 +30,16 @@
  */
 
 .tpl-cob {
+  /*
+   * What ONE STEP of recorded space is worth here — `document-styling` (#36).
+   *
+   * This template's OWN section gap, so the same stored token is a different
+   * distance in each template — which is what the token is for. It follows
+   * the type scale and the density for the same reason the gap it is measured
+   * against does.
+   */
+  --tpl-space-unit: calc(16.5pt * var(--c-scale) * var(--c-density));
+
   --c-scale: 1;
   /* The template's own rhythm. `document-styling` (#36) writes a multiplier
      here; absent means what the reference measures. */

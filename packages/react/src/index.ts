@@ -34,7 +34,7 @@ export { TemplateDocument } from './TemplateDocument.js';
 export { presentedResume } from './presented.js';
 
 /** The sheet: real page geometry, and the measurement that fills it. */
-export { PagedSheet, useRepaginate } from './PagedSheet.js';
+export { PagedSheet, useRepaginate, useSheetZoom } from './PagedSheet.js';
 
 /** Where a page ends. The same decision on screen and on paper. */
 export * from './pagination.js';
@@ -82,6 +82,20 @@ export { DocumentAuthoringProvider } from './collections/authoring-context.js';
  * mounts nothing and therefore writes nothing.
  */
 export { DocumentAutosaveProvider } from './autosave-context.js';
+
+/**
+ * Spacing: the gap above a section or an entry, as a control in the gap.
+ *
+ * The PROVIDER crosses the boundary and the handle does not, on the same terms
+ * as authoring above. A surface that can edit mounts this and supplies the one
+ * write; a surface that only draws a résumé mounts nothing, so every gap in it
+ * renders the space a candidate recorded and no control at all.
+ */
+export {
+  DocumentSpacingProvider,
+  type DocumentSpacingValue,
+  type SpaceTarget,
+} from './spacing/spacing-context.js';
 export type { AutosaveContextValue } from './autosave-context.js';
 export { preloadEditingLayer } from './collections/preload.js';
 export type { AuthoringContextValue } from './collections/authoring-context.js';

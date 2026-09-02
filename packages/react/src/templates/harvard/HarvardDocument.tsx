@@ -14,6 +14,7 @@ import { EditableText } from '../../nodes/EditableText.js';
 import { EditableInlineList } from '../../nodes/EditableInlineList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
+import { useSpaceSlot } from '../../spacing/SpaceHandle.js';
 import {
   HarvardCustomEntry,
   HarvardEducationEntry,
@@ -95,6 +96,25 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
    * sections follow and the reason the two lists are built separately rather
    * than filtered at the point of rendering.
    */
+  /*
+   * The gap above each section, as a control in the gap itself.
+   *
+   * Declared here, together and unconditionally, because a section is rendered
+   * only when it has something in it and a hook may not be called behind that
+   * condition. The cost is nothing: with no space recorded a slot is an empty
+   * props object and a null handle.
+   */
+  const sectionSpace = {
+    summary: useSpaceSlot({ section: 'summary' }, 'Professional Summary'),
+    experience: useSpaceSlot({ section: 'experience' }, 'Experience'),
+    education: useSpaceSlot({ section: 'education' }, 'Education'),
+    skills: useSpaceSlot({ section: 'skills' }, 'Technical Skills'),
+    certifications: useSpaceSlot(
+      { section: 'certifications' },
+      'Certifications',
+    ),
+  };
+
   const CONTACT_FIELDS = ['location', 'email', 'phone'] as const;
   const contact = CONTACT_FIELDS.filter(
     (field) => authoring || resume.contact[field],
@@ -181,7 +201,11 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
       </header>
 
       {resume.summary && (
-        <section className="tpl-harvard__section">
+        <section
+          className="tpl-harvard__section"
+          {...sectionSpace.summary.rootProps}
+        >
+          {sectionSpace.summary.handle}
           <h2
             className="tpl-harvard__section-title"
             data-block
@@ -202,7 +226,11 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
       )}
 
       {(resume.experience.length > 0 || authoring) && (
-        <section className="tpl-harvard__section">
+        <section
+          className="tpl-harvard__section"
+          {...sectionSpace.experience.rootProps}
+        >
+          {sectionSpace.experience.handle}
           <h2
             className="tpl-harvard__section-title"
             data-block
@@ -224,7 +252,11 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
       )}
 
       {(resume.education.length > 0 || authoring) && (
-        <section className="tpl-harvard__section">
+        <section
+          className="tpl-harvard__section"
+          {...sectionSpace.education.rootProps}
+        >
+          {sectionSpace.education.handle}
           <h2
             className="tpl-harvard__section-title"
             data-block
@@ -246,7 +278,11 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
       )}
 
       {(resume.skills.length > 0 || authoring) && (
-        <section className="tpl-harvard__section">
+        <section
+          className="tpl-harvard__section"
+          {...sectionSpace.skills.rootProps}
+        >
+          {sectionSpace.skills.handle}
           <h2
             className="tpl-harvard__section-title"
             data-block
@@ -270,7 +306,11 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
       )}
 
       {resume.certifications.length > 0 && (
-        <section className="tpl-harvard__section">
+        <section
+          className="tpl-harvard__section"
+          {...sectionSpace.certifications.rootProps}
+        >
+          {sectionSpace.certifications.handle}
           <h2
             className="tpl-harvard__section-title"
             data-block

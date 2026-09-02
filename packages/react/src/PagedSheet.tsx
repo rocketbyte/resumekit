@@ -45,6 +45,22 @@ export function useRepaginate(): () => void {
   return useContext(RepaginateContext);
 }
 
+/**
+ * How much the sheet is magnified, for the one thing that has to divide by it.
+ *
+ * The page is drawn with CSS `zoom`, so a pointer that has travelled 30 screen
+ * pixels has travelled 30/zoom document pixels — and a control that turns
+ * pointer travel into a document measurement gets it wrong by the zoom unless
+ * it knows. Everything else in here works in document pixels already and needs
+ * this no more than `useRepaginate` needs a scale.
+ */
+const ZoomContext = createContext(1);
+
+/** The sheet's current magnification. `1` — no zoom — outside a sheet. */
+export function useSheetZoom(): number {
+  return useContext(ZoomContext);
+}
+
 export interface PagedSheetProps {
   /** Re-measure whenever this changes — a style change resizes everything. */
   measureKey: string;
@@ -384,117 +400,130 @@ export function PagedSheet({
 
   return (
     <RepaginateContext.Provider value={paginate}>
-      {/*
-       * OUTSIDE the zoomed element, or the control would zoom with the page and
-       * the button for making things smaller would grow as you pressed it.
-       *
-       * Rendered only where a zoom is offered at all, so the read-only document
-       * and the export renderer emit nothing — they pass the default `maxZoom`
-       * of 1 and never reach this branch.
-       */}
-      {maxZoom > 1 && (
-        <div
-          className="tpl-zoom"
-          data-chrome
-          role="group"
-          aria-label="View zoom"
-        >
-          <button
-            type="button"
-            className="tpl-zoom__btn"
-            aria-label="Zoom out"
-            title="Zoom out"
-            disabled={zoom <= ZOOM_MIN}
-            onClick={() => setChosen(step(zoom, -ZOOM_STEP))}
+      <ZoomProvider zoom={zoom}>
+        {/*
+         * OUTSIDE the zoomed element, or the control would zoom with the page and
+         * the button for making things smaller would grow as you pressed it.
+         *
+         * Rendered only where a zoom is offered at all, so the read-only document
+         * and the export renderer emit nothing — they pass the default `maxZoom`
+         * of 1 and never reach this branch.
+         */}
+        {maxZoom > 1 && (
+          <div
+            className="tpl-zoom"
+            data-chrome
+            role="group"
+            aria-label="View zoom"
           >
-            −
-          </button>
-          <button
-            type="button"
-            className="tpl-zoom__value"
-            /* The percentage is also the way back: one press returns the page
-               to the size the canvas has room for, which is where it started. */
-            aria-label={`Zoom ${Math.round(zoom * 100)} percent — reset to fit`}
-            title="Reset to fit"
-            onClick={() => setChosen(null)}
-          >
-            {Math.round(zoom * 100)}%
-          </button>
-          <button
-            type="button"
-            className="tpl-zoom__btn"
-            aria-label="Zoom in"
-            title="Zoom in"
-            disabled={zoom >= ZOOM_MAX}
-            onClick={() => setChosen(step(zoom, ZOOM_STEP))}
-          >
-            +
-          </button>
-        </div>
-      )}
-
-      <div
-        ref={pagesRef}
-        className="tpl-pages"
-        /*
-         * There is a gap to hide only once there are two sheets. The stylesheet
-         * masks the flow off at every boundary, and a mask costs a composited
-         * layer on the element the candidate types into — so a one-page résumé
-         * does not carry one.
-         */
-        data-multipage={pages > 1 ? '' : undefined}
-        style={
-          {
-            '--page-h': `${PAGE_HEIGHT}px`,
-            '--page-gap': `${SHEET_GAP}px`,
-            /*
-             * The sheets are absolutely positioned decoration, so they add
-             * nothing to this element's height — it would otherwise collapse to
-             * the TEXT, and a short document would render as a sliver of paper
-             * cut off mid-page. Reserving the sheets' full extent here keeps a
-             * page looking like a page when it is nearly empty, which is exactly
-             * the state a record starts in.
-             */
-            '--pages': pages,
-            /*
-             * `zoom` rather than `transform: scale()`, because zoom takes part
-             * in layout: the element's own box grows with it, so the canvas
-             * scrolls naturally and no height has to be reserved by hand. A
-             * transform would leave the box its unzoomed size and the sheets
-             * would overlap whatever follows them.
-             *
-             * Undefined at 1 so the property is absent from an unzoomed
-             * document — which is every document outside the editor.
-             */
-            zoom: zoom === 1 ? undefined : zoom,
-            /*
-             * The transition's duration, supplied from the same constant that
-             * decides how long pagination waits — so the stylesheet and the
-             * measurement pause cannot drift apart.
-             */
-            '--zoom-ms': `${ZOOM_SETTLE_MS}ms`,
-          } as React.CSSProperties
-        }
-      >
-        {/* Decoration. Nothing in here is content, so nothing here can be lost. */}
-        <div className="tpl-pages__sheets" aria-hidden="true">
-          {Array.from({ length: pages }, (_, i) => (
-            <div
-              key={i}
-              className="tpl-sheet"
-              style={{ top: `${i * (PAGE_HEIGHT + SHEET_GAP)}px` }}
+            <button
+              type="button"
+              className="tpl-zoom__btn"
+              aria-label="Zoom out"
+              title="Zoom out"
+              disabled={zoom <= ZOOM_MIN}
+              onClick={() => setChosen(step(zoom, -ZOOM_STEP))}
             >
-              <span className="tpl-sheet__number">
-                {i + 1} / {pages}
-              </span>
-            </div>
-          ))}
-        </div>
+              −
+            </button>
+            <button
+              type="button"
+              className="tpl-zoom__value"
+              /* The percentage is also the way back: one press returns the page
+               to the size the canvas has room for, which is where it started. */
+              aria-label={`Zoom ${Math.round(zoom * 100)} percent — reset to fit`}
+              title="Reset to fit"
+              onClick={() => setChosen(null)}
+            >
+              {Math.round(zoom * 100)}%
+            </button>
+            <button
+              type="button"
+              className="tpl-zoom__btn"
+              aria-label="Zoom in"
+              title="Zoom in"
+              disabled={zoom >= ZOOM_MAX}
+              onClick={() => setChosen(step(zoom, ZOOM_STEP))}
+            >
+              +
+            </button>
+          </div>
+        )}
 
-        <div className="tpl-pages__flow" ref={flow}>
-          {children}
+        <div
+          ref={pagesRef}
+          className="tpl-pages"
+          /*
+           * There is a gap to hide only once there are two sheets. The stylesheet
+           * masks the flow off at every boundary, and a mask costs a composited
+           * layer on the element the candidate types into — so a one-page résumé
+           * does not carry one.
+           */
+          data-multipage={pages > 1 ? '' : undefined}
+          style={
+            {
+              '--page-h': `${PAGE_HEIGHT}px`,
+              '--page-gap': `${SHEET_GAP}px`,
+              /*
+               * The sheets are absolutely positioned decoration, so they add
+               * nothing to this element's height — it would otherwise collapse to
+               * the TEXT, and a short document would render as a sliver of paper
+               * cut off mid-page. Reserving the sheets' full extent here keeps a
+               * page looking like a page when it is nearly empty, which is exactly
+               * the state a record starts in.
+               */
+              '--pages': pages,
+              /*
+               * `zoom` rather than `transform: scale()`, because zoom takes part
+               * in layout: the element's own box grows with it, so the canvas
+               * scrolls naturally and no height has to be reserved by hand. A
+               * transform would leave the box its unzoomed size and the sheets
+               * would overlap whatever follows them.
+               *
+               * Undefined at 1 so the property is absent from an unzoomed
+               * document — which is every document outside the editor.
+               */
+              zoom: zoom === 1 ? undefined : zoom,
+              /*
+               * The transition's duration, supplied from the same constant that
+               * decides how long pagination waits — so the stylesheet and the
+               * measurement pause cannot drift apart.
+               */
+              '--zoom-ms': `${ZOOM_SETTLE_MS}ms`,
+            } as React.CSSProperties
+          }
+        >
+          {/* Decoration. Nothing in here is content, so nothing here can be lost. */}
+          <div className="tpl-pages__sheets" aria-hidden="true">
+            {Array.from({ length: pages }, (_, i) => (
+              <div
+                key={i}
+                className="tpl-sheet"
+                style={{ top: `${i * (PAGE_HEIGHT + SHEET_GAP)}px` }}
+              >
+                <span className="tpl-sheet__number">
+                  {i + 1} / {pages}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="tpl-pages__flow" ref={flow}>
+            {children}
+          </div>
         </div>
-      </div>
+      </ZoomProvider>
     </RepaginateContext.Provider>
   );
+}
+
+/** Split out so the sheet's own re-render is not a new context object. */
+function ZoomProvider({
+  zoom,
+  children,
+}: {
+  zoom: number;
+  children: ReactNode;
+}) {
+  return <ZoomContext.Provider value={zoom}>{children}</ZoomContext.Provider>;
 }

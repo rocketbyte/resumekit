@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useAuthoring } from './authoring-context.js';
+import { useSpaceSlot } from '../spacing/SpaceHandle.js';
 import type { ItemOrigin } from './EntryOverlay.js';
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';
@@ -92,13 +93,26 @@ export interface ItemProps<T> {
  * existed, and the printed page and the export renderer cannot carry chrome
  * they never asked to be free of.
  */
-function ReadOnlyItem<T>({ collection, index, path, children }: ItemProps<T>) {
+function ReadOnlyItem<T>({
+  collection,
+  index,
+  path,
+  noun,
+  children,
+}: ItemProps<T>) {
+  /*
+   * The SPACE, but never the handle: `useSpaceSlot` returns no control without
+   * an authoring context, so a read item carries the padding a candidate
+   * recorded and nothing to change it with. Which is the point — the space is
+   * the document and prints; the control is chrome and does not.
+   */
+  const space = useSpaceSlot({ path }, `${noun} ${index + 1}`);
   const element = children({
     item: collection.items[index] as T,
     path,
     index,
     chrome: null,
-    itemProps: {},
+    itemProps: { ...space.rootProps },
   });
   return isValidElement(element) ? element : null;
 }

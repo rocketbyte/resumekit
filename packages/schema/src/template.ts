@@ -697,25 +697,75 @@ export const DENSITY_DEFAULT: DensityId = 'normal';
  * Extra space above one section, or one field.
  *
  * The `steps` are counted in the template's OWN spacing unit, not in any
- * absolute measure — `md` is two of whatever a section gap is in that template,
- * so Harvard's `md` and Executive's `md` are both "noticeably more air" in their
+ * absolute measure — `s2` is two of whatever a section gap is in that template,
+ * so Harvard's `s2` and Executive's `s2` are both "noticeably more air" in their
  * respective rhythms rather than the same number of millimetres in both.
  *
  * This is the control a candidate actually reaches for when a section feels
- * cramped. Without it the only way to change that gap is the type scale, which
+ * cramped. Without it the only way to close a gap is the type scale, which
  * makes every word smaller to fix a margin.
+ *
+ * A SCALE, not a set of presets, and that is a consequence of what the control
+ * turned out to be. The catalog began as `sm` / `md` / `lg` — three names for a
+ * picker in a panel. The control is the gap itself now, dragged where the space
+ * will appear, and a drag with three stops reads as a switch: somebody closing
+ * up a header is adjusting a distance, not choosing an adjective. Eight steps is
+ * enough that the drag tracks the hand, and few enough that the whole product of
+ * styling combinations stays enumerable — which is what the ATS guarantee test
+ * walks. Nothing here is a measurement: the number counts the template's unit,
+ * and the template decides what that is.
  */
 export const SECTION_SPACES = {
   none: { name: 'None', steps: 0 },
-  sm: { name: 'Small', steps: 1 },
-  md: { name: 'Medium', steps: 2 },
-  lg: { name: 'Large', steps: 3 },
+  s1: { name: '1 step', steps: 1 },
+  s2: { name: '2 steps', steps: 2 },
+  s3: { name: '3 steps', steps: 3 },
+  s4: { name: '4 steps', steps: 4 },
+  s5: { name: '5 steps', steps: 5 },
+  s6: { name: '6 steps', steps: 6 },
+  s7: { name: '7 steps', steps: 7 },
+  s8: { name: '8 steps', steps: 8 },
 } as const;
 
 export type SectionSpaceId = keyof typeof SECTION_SPACES;
 export const SectionSpaceIdSchema = z.enum(
   Object.keys(SECTION_SPACES) as [SectionSpaceId, ...SectionSpaceId[]],
 );
+
+/** The scale in order, shallowest first. `none` is the first step, not a gap. */
+export const SPACE_SCALE = (
+  Object.keys(SECTION_SPACES) as SectionSpaceId[]
+).sort((a, b) => SECTION_SPACES[a].steps - SECTION_SPACES[b].steps);
+
+/** The most steps this catalog can express. */
+export const SPACE_MAX_STEPS =
+  SECTION_SPACES[SPACE_SCALE[SPACE_SCALE.length - 1] as SectionSpaceId].steps;
+
+/**
+ * How many steps a token is worth. `undefined` is none, which is what an
+ * absent record means.
+ */
+export function spaceSteps(id: SectionSpaceId | undefined): number {
+  return id ? SECTION_SPACES[id].steps : 0;
+}
+
+/**
+ * The token for a number of steps, clamped to the scale.
+ *
+ * The one place a number becomes a token, so a drag — which is arithmetic on a
+ * pointer — cannot express a value the catalog does not hold. Anything off the
+ * scale lands on its nearest end rather than being refused: a candidate who
+ * drags past the bottom has asked for no space, and a control that stopped
+ * responding would read as broken.
+ */
+export function spaceAtStep(steps: number): SectionSpaceId {
+  const wanted = Math.round(steps);
+  const found = SPACE_SCALE.find((id) => SECTION_SPACES[id].steps === wanted);
+  if (found) return found;
+  return wanted <= 0
+    ? ('none' as SectionSpaceId)
+    : (SPACE_SCALE[SPACE_SCALE.length - 1] as SectionSpaceId);
+}
 
 /**
  * The sections spacing can be keyed by.

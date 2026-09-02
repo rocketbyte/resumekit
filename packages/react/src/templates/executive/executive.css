@@ -10,6 +10,16 @@
  */
 
 .tpl-exec {
+  /*
+   * What ONE STEP of recorded space is worth here — `document-styling` (#36).
+   *
+   * This template's OWN section gap, so the same stored token is a different
+   * distance in each template — which is what the token is for. It follows
+   * the type scale and the density for the same reason the gap it is measured
+   * against does.
+   */
+  --tpl-space-unit: calc(10pt * var(--e-scale) * var(--e-density, 1));
+
   --e-scale: 1;
   --e-ink: #1f2937;
   --e-font: 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;

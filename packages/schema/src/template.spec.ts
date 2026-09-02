@@ -13,6 +13,11 @@ import {
   THEMES,
   applyTheme,
   spacingFor,
+  spaceAtStep,
+  spaceSteps,
+  SPACE_SCALE,
+  SPACE_MAX_STEPS,
+  SectionSpaceIdSchema,
   ResumeFormatsSchema,
   ResumePresentationSchema,
   SCALE_DEFAULT,
@@ -680,11 +685,47 @@ describe('document styling — bounded spacing, accent and themes', () => {
     expect(DENSITIES[DENSITY_DEFAULT].factor).toBe(1);
   });
 
+  it('turns a number of steps into a token, and never anything else', () => {
+    /*
+     * The one place arithmetic becomes a catalog value. The control is a drag,
+     * so what it computes is a pointer distance divided by a step — and the
+     * bounding this whole change exists for only holds if that number cannot
+     * escape the scale on the way in.
+     */
+    expect(spaceAtStep(0)).toBe('none');
+    expect(spaceAtStep(3)).toBe('s3');
+    // Off either end lands on the end, rather than being refused: a control
+    // that stopped answering under the hand reads as broken.
+    expect(spaceAtStep(-4)).toBe('none');
+    expect(spaceAtStep(99)).toBe(SPACE_SCALE[SPACE_SCALE.length - 1]);
+    // And a fractional drag position resolves to a whole step.
+    expect(spaceAtStep(2.4)).toBe('s2');
+    expect(spaceAtStep(2.6)).toBe('s3');
+
+    for (const id of SPACE_SCALE) {
+      expect(spaceAtStep(spaceSteps(id))).toBe(id);
+      expect(SectionSpaceIdSchema.safeParse(id).success).toBe(true);
+    }
+    expect(spaceSteps(undefined)).toBe(0);
+  });
+
+  it('offers a scale wide enough to drag and short enough to enumerate', () => {
+    // Both halves matter: a handful of stops reads as a switch under the hand,
+    // and an unbounded one makes the ATS guarantee test impossible.
+    expect(SPACE_SCALE.length).toBeGreaterThanOrEqual(6);
+    expect(SPACE_SCALE.length).toBeLessThanOrEqual(16);
+    expect(SPACE_SCALE[0]).toBe('none');
+    expect(SPACE_SCALE.map((id) => spaceSteps(id))).toEqual(
+      SPACE_SCALE.map((_, i) => i),
+    );
+    expect(SPACE_MAX_STEPS).toBe(SPACE_SCALE.length - 1);
+  });
+
   it('spaces a section at most once', () => {
     expect(
       ResumeSectionSpacingSchema.safeParse([
-        { section: 'experience', space: 'md' },
-        { section: 'experience', space: 'lg' },
+        { section: 'experience', space: 's2' },
+        { section: 'experience', space: 's3' },
       ]).success,
     ).toBe(false);
   });
@@ -701,27 +742,27 @@ describe('document styling — bounded spacing, accent and themes', () => {
   it('refuses spacing for a section the resume does not have', () => {
     expect(
       ResumeSectionSpacingSchema.safeParse([
-        { section: 'projects', space: 'md' },
+        { section: 'projects', space: 's2' },
       ]).success,
     ).toBe(false);
   });
 
   it('finds the spacing for a section, and nothing for an unspaced one', () => {
     const spacing = ResumeSectionSpacingSchema.parse([
-      { section: 'experience', space: 'lg' },
+      { section: 'experience', space: 's3' },
     ]);
-    expect(spacingFor(spacing, 'experience')?.space).toBe('lg');
+    expect(spacingFor(spacing, 'experience')?.space).toBe('s3');
     expect(spacingFor(spacing, 'education')).toBeUndefined();
     expect(spacingFor(undefined, 'experience')).toBeUndefined();
   });
 
   it('treats a field spaced by nothing as carrying no formatting', () => {
     expect(formatIsEmpty({ path: 'summary', space: 'none' })).toBe(true);
-    expect(formatIsEmpty({ path: 'summary', space: 'md' })).toBe(false);
+    expect(formatIsEmpty({ path: 'summary', space: 's2' })).toBe(false);
   });
 
   it('carries section spacing through the presentation and the request', () => {
-    const spacing = [{ section: 'skills', space: 'sm' }];
+    const spacing = [{ section: 'skills', space: 's1' }];
     expect(
       ResumePresentationSchema.safeParse({
         template_id: DEFAULT_TEMPLATE_ID,

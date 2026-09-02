@@ -49,6 +49,17 @@ export function useDocumentStyle(): DocumentStyle | undefined {
 }
 
 /**
+ * Every field's formatting, for the one reader that needs the whole list.
+ *
+ * `useFieldFormat` answers for a path and is what a node should ask; this is
+ * for `useSpace`, which reaches the same record for a different question and
+ * would otherwise need a second copy of the formats threaded to it.
+ */
+export function useDocumentFormats(): ResumeFormats | undefined {
+  return useContext(PresentationContext).formats;
+}
+
+/**
  * The formatting for one field, as bounded values a node may accept.
  *
  * Returns the format WITHOUT its path: a node already knows which field it is,

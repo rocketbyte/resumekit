@@ -8,6 +8,7 @@ import { TEMPLATE_RENDERERS } from './registry.js';
 import { presentedResume } from './presented.js';
 import { PagedSheet } from './PagedSheet.js';
 import { DocumentPresentationProvider } from './presentation-context.js';
+import { DocumentSpacingProvider } from './spacing/spacing-context.js';
 import './document.css';
 
 export interface TemplateDocumentProps {
@@ -44,11 +45,29 @@ export function TemplateDocument({
           style={presentation?.style}
           formats={presentation?.formats}
         >
-          <PagedSheet measureKey={JSON.stringify(presentation?.style)}>
-            <Frame>
-              <Element is={Document} resume={presented} />
-            </Frame>
-          </PagedSheet>
+          {/*
+           * The recorded space, with no way to change it.
+           *
+           * Mounted without an `onChange`, which is the whole of what makes
+           * this read-only: every gap renders the space its owner recorded and
+           * draws no handle, so the saved-résumé view and the PDF renderer
+           * carry the document and none of the workshop. The same rule the
+           * authoring context follows, stated the same way.
+           */}
+          <DocumentSpacingProvider
+            value={{ sections: presentation?.section_spacing }}
+          >
+            <PagedSheet
+              measureKey={JSON.stringify([
+                presentation?.style,
+                presentation?.section_spacing,
+              ])}
+            >
+              <Frame>
+                <Element is={Document} resume={presented} />
+              </Frame>
+            </PagedSheet>
+          </DocumentSpacingProvider>
         </DocumentPresentationProvider>
       </Editor>
     </div>
