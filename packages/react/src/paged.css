@@ -14,6 +14,25 @@
   margin: 0 auto;
 
   /*
+   * The browser must NOT try to hold this document still. The paginator does.
+   *
+   * Scroll anchoring exists for content that grows above the reader — an image
+   * loading, a banner unfolding — and it compensates by moving the scroll
+   * position under them. Every measuring pass here clears each block's
+   * `margin-top` and writes it back (see `PagedSheet.measure`, which must read
+   * a natural layout before it can plan the page breaks), and the browser reads
+   * that as the whole document collapsing and re-expanding. It then
+   * "compensated" for both halves, and they did not cancel: typing one letter
+   * into a skill dragged the canvas six hundred pixels, and the line being
+   * typed left the screen.
+   *
+   * Nothing is lost by switching it off. Anchoring keeps a reader's place while
+   * something else changes size; here the only thing changing size is the
+   * sentence under their own caret, which the browser keeps in view by itself.
+   */
+  overflow-anchor: none;
+
+  /*
    * The zoom eases rather than jumps.
    *
    * `zoom` takes part in layout, so this is animating a reflow — which is

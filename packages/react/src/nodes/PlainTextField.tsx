@@ -78,7 +78,15 @@ export function PlainTextField({
   useEffect(() => {
     const node = el.current;
     if (!node) return;
-    node.focus();
+    /*
+     * `preventScroll`, because the field is revealed by a CLICK — it is already
+     * under the pointer, and there is nothing to scroll to. Without it the
+     * browser scrolls every ancestor to reveal the newly focused element, and
+     * inside a zoomed sheet its idea of "revealed" is not the reader's: the
+     * canvas jumped by a line or two as the caret appeared, on a page the
+     * candidate was already looking at.
+     */
+    node.focus({ preventScroll: true });
     const selection = window.getSelection?.();
     if (!selection) return;
     const range = document.createRange();

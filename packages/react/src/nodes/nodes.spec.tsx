@@ -265,6 +265,46 @@ describe('an editable field breaks across lines like the text it replaces', () =
     expect(rule.slice(0, rule.indexOf('}'))).toMatch(/display:\s*inline/);
   });
 
+  it('wraps where the static text wrapped, not where the browser prefers', () => {
+    /*
+     * The defect this guards is the FORM CONTROL one arriving from a different
+     * direction. Every UA stylesheet hangs `overflow-wrap: break-word` and
+     * `-webkit-line-break: after-white-space` on `contenteditable` and on
+     * nothing else, and both decide where a line breaks — so the same sentence
+     * broke in a different place the instant it was clicked into, and the
+     * document moved under the candidate's cursor.
+     *
+     * Asserted in the source because the wrap is a real layout, and jsdom has
+     * none: it applies no UA stylesheet, so a test that rendered the field
+     * would pass with these rules deleted.
+     */
+    const rule = css.slice(css.indexOf('span.tpl-input {'));
+    const body = rule.slice(0, rule.indexOf('\n}'));
+    // `inherit`, not a value of its own: the field wraps however its
+    // surroundings wrap, which is what "the same box" means for text.
+    expect(body).toMatch(/overflow-wrap:\s*inherit/);
+    expect(body).toMatch(/word-break:\s*inherit/);
+    expect(body).toMatch(/-webkit-line-break:\s*auto/);
+    expect(body).toMatch(/[^-]line-break:\s*auto/);
+  });
+
+  it('does not scroll the page to a field the pointer is already on', () => {
+    /*
+     * Both fields, because a bullet is a textarea and reaches focus by its own
+     * route — and it was the one left behind when this was first fixed.
+     */
+    expect(NODE('AuthoredBullets.tsx')).toMatch(
+      /focus\(\{ preventScroll: true \}\)/,
+    );
+    /*
+     * Selection is revealed by a click, so focusing the field has nothing to
+     * reveal — but the browser scrolls every ancestor to show a newly focused
+     * element, and inside a zoomed sheet its idea of "shown" is not the
+     * reader's. The canvas jumped as the caret appeared.
+     */
+    expect(field).toMatch(/focus\(\{ preventScroll: true \}\)/);
+  });
+
   it('takes plain text only, so a paste cannot style the résumé', () => {
     expect(field).toMatch(/plaintext-only/);
   });

@@ -163,7 +163,14 @@ export default function AuthoredBullets({
 
   useEffect(() => {
     if (!editing || caret === null) return;
-    fields.current[caret]?.focus();
+    /*
+     * `preventScroll`, for the reason `PlainTextField` gives: the bullet was
+     * pointed at, so it is already on screen, and focusing it must not move the
+     * page. Inside the sheet's `zoom` the browser's own idea of where it is
+     * scrolling to is wrong by a factor of it, so "reveal the focused element"
+     * threw the line the candidate had just clicked out of view.
+     */
+    fields.current[caret]?.focus({ preventScroll: true });
   }, [editing, caret]);
 
   const rows = items.map((item, index) => (

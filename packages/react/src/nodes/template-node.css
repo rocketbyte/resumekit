@@ -80,6 +80,26 @@ textarea.tpl-input {
  */
 span.tpl-input {
   display: inline;
+
+  /*
+   * And the browser's OWN opinions about editable text, reset.
+   *
+   * Every UA stylesheet attaches two line-breaking rules to `contenteditable`
+   * that no other element gets — `overflow-wrap: break-word`, which lets a long
+   * word be split mid-word, and `-webkit-line-break: after-white-space`, which
+   * moves where a line may break relative to its spaces. Both decide where the
+   * text WRAPS, so a paragraph re-flowed the instant it was clicked into and
+   * the document moved under the candidate's cursor. It is the same defect the
+   * form controls had, arriving from a different direction: the box was right,
+   * and the rules for filling it were not.
+   *
+   * `inherit`, not a value of its own — the field wraps however the text around
+   * it wraps, which is the rule this whole file keeps.
+   */
+  overflow-wrap: inherit;
+  word-break: inherit;
+  -webkit-line-break: auto;
+  line-break: auto;
 }
 
 /*

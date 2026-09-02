@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, fitZoom, step } from './useFitZoom.js';
 import { PAGE_WIDTH } from './pagination.js';
@@ -282,5 +284,36 @@ describe('one press of a zoom control', () => {
      */
     expect(step(1, -ZOOM_STEP)).toBeLessThan(1);
     expect(fitZoom(400, 1.15)).toBe(1);
+  });
+});
+
+/**
+ * What pagination must not do to the reader.
+ *
+ * Asserted in the stylesheet because the defect is a browser behaviour, and
+ * jsdom has neither the layout nor the scrolling to show it. It was found in a
+ * real Chrome driven over CDP: typing one letter into a skill dragged the
+ * canvas 621px and took the line being typed off the screen.
+ */
+describe('the paged canvas does not move under the reader', () => {
+  const css = readFileSync(
+    join(import.meta.dirname, 'paged.css'),
+    'utf8',
+  ).replace(/\/\*[\s\S]*?\*\//g, '');
+
+  it('opts out of the browser holding the document still', () => {
+    /*
+     * Scroll anchoring compensates for content that changes size above the
+     * reader. Every measuring pass here CLEARS each block's `margin-top` and
+     * writes it back — `measure` has to read a natural layout before it can
+     * plan the breaks — and the browser reads that as the document collapsing
+     * and re-expanding, then compensates for both halves without them
+     * cancelling.
+     *
+     * The paginator is what holds this document still; the browser must not
+     * also try.
+     */
+    const rule = css.slice(css.indexOf('.tpl-pages {'));
+    expect(rule.slice(0, rule.indexOf('}'))).toMatch(/overflow-anchor:\s*none/);
   });
 });
