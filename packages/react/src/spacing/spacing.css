@@ -3,27 +3,53 @@
  *
  * Four rules govern everything here.
  *
- * It adds NO height. The space a candidate records is padding on the element it
- * belongs to, already in the flow; this is absolutely positioned inside that
- * padding. A handle that occupied space would move the page by existing, and
- * the thing it is for is not moving the page by accident.
+ * The space is held by a WRAPPER, never by the block it sits above. Padding on
+ * the block would have been the same distance and a different thing: a role's
+ * own box would grow, its selection outline with it, and the gap would belong
+ * to the entry instead of to the document between two entries. `.tpl-gap` has
+ * no background, no border and no outline, so its padding can only ever read as
+ * space above what follows.
  *
- * At rest it is a KNOB IN THE MARGIN and nothing else. Spacing is structural —
- * it belongs to the document rather than to whichever component sits below it —
- * so the capability has to be visible, or nobody finds it. But a résumé ruled
- * with lines between its parts reads as a form, and the candidate is looking at
- * their own document: the line is drawn only under the pointer, out where the
- * text is, while the quiet column of knobs down the margin is what says these
- * gaps can be moved at all.
+ * The knob lives OUTSIDE the paper. Spacing is structural — it belongs to the
+ * document rather than to whichever component sits below it — so the capability
+ * has to be visible, or nobody finds it; and a résumé with furniture drawn
+ * between its parts reads as a form. Out on the canvas it is neither: a quiet
+ * column down the edge of the page saying every one of these gaps can be moved.
+ * All on the LEFT, so it reads as one column rather than as a search.
  *
- * The knobs ALTERNATE sides. A stack of experience entries puts four gaps a
- * centimetre apart, and four knobs in one vertical line are four things to tell
- * apart by position alone. Left, right, left, right and each is obviously its
- * own. `SpaceHandle` assigns the side from DOM order.
+ * The line is drawn across the gap only under the pointer, out from the knob,
+ * so the animation says which gap is about to move.
  *
  * It is CHROME. `data-chrome` and the print rule at the foot drop it from paper
- * and from the export; the padding it writes is document, and stays.
+ * and from the export; the space the wrapper holds is document, and stays.
  */
+
+/*
+ * How far past the paper's edge a knob stands, and therefore how much room the
+ * flow has to reserve beside itself. Declared only where the knobs exist: a
+ * document being read draws none, and `paged.css` defaults this to zero so that
+ * surface is laid out exactly as it was.
+ */
+.tpl-editor:not(.tpl-editor--static) {
+  --tpl-space-bleed: 14px;
+}
+
+/* ── The wrapper: the space, and nothing else ────────────────────────────── */
+
+.tpl-gap {
+  /* The positioning context for the handle, which hangs out of the left of it. */
+  position: relative;
+  /*
+   * The recorded space. On the WRAPPER, so the block below is untouched — its
+   * box, its outline and its own margins are exactly what the template defines.
+   *
+   * Padding rather than margin for two reasons: it cannot collapse with the
+   * block's own top margin, which would silently swallow whichever is smaller;
+   * and the paginator writes each block's inline `margin-top` to push it onto
+   * the next sheet, which this never touches because it is not on a block.
+   */
+  padding-top: calc(var(--tpl-space-steps, 0) * var(--tpl-space-unit, 8px));
+}
 
 .tpl-space {
   position: absolute;
@@ -77,12 +103,24 @@
  * target as the gap itself: the icon can be dragged, and so can the space
  * beside it.
  */
+/*
+ * The grip reaches OUT OF THE PAGE on the left, so the knob on the canvas and
+ * the gap on the paper are one target: the icon can be dragged, and so can the
+ * space beside it.
+ *
+ * The distance is the page's own side margin plus a bleed past its edge, both
+ * declared by the template — `spacing.css` cannot know how wide a given
+ * template's margin is, and a fixed number would put the knob inside the text
+ * on one template and off the canvas on another.
+ */
 .tpl-space__grip {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(-1 * var(--tpl-space-gutter, 16px));
-  right: calc(-1 * var(--tpl-space-gutter, 16px));
+  left: calc(
+    -1 * (var(--tpl-space-margin, 24px) + var(--tpl-space-bleed, 14px))
+  );
+  right: 0;
   display: flex;
   align-items: center;
   cursor: ns-resize;
@@ -102,6 +140,11 @@
  */
 .tpl-space__knob {
   position: absolute;
+  /*
+   * At the far left of the grip, which reaches past the page's own margin and
+   * out onto the canvas — see `--tpl-space-bleed`.
+   */
+  left: 0;
   top: 50%;
   width: 9px;
   height: 9px;
@@ -117,14 +160,6 @@
     transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.tpl-space[data-side='left'] .tpl-space__knob {
-  left: 0;
-}
-
-.tpl-space[data-side='right'] .tpl-space__knob {
-  right: 0;
-}
-
 /* ── The line ────────────────────────────────────────────────────────────── */
 
 /*
@@ -135,24 +170,19 @@
 .tpl-space__line {
   position: absolute;
   top: 50%;
-  left: var(--tpl-space-gutter, 16px);
-  right: var(--tpl-space-gutter, 16px);
+  /* From just inside the knob to the far edge of the text column. */
+  left: calc(var(--tpl-space-reach, 16px) + 4px);
+  right: 0;
+  transform-origin: left center;
   height: 2px;
   border-radius: 2px;
   background: var(--tpl-line, currentColor);
   opacity: 0;
   transform: translateY(-50%) scaleX(0);
+  transform-origin: left center;
   transition:
     opacity 160ms ease,
     transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.tpl-space[data-side='left'] .tpl-space__line {
-  transform-origin: left center;
-}
-
-.tpl-space[data-side='right'] .tpl-space__line {
-  transform-origin: right center;
 }
 
 /* ── The readout ─────────────────────────────────────────────────────────── */
@@ -192,14 +222,6 @@
 }
 
 /* Beside its own knob, on whichever side that is. */
-.tpl-space[data-side='left'] .tpl-space__readout {
-  left: calc(var(--tpl-space-gutter, 16px) * 0.5);
-}
-
-.tpl-space[data-side='right'] .tpl-space__readout {
-  right: calc(var(--tpl-space-gutter, 16px) * 0.5);
-}
-
 /* ── Engaged ─────────────────────────────────────────────────────────────── */
 
 /* Approached, focused, or being dragged — the three ways it becomes real. */
@@ -254,27 +276,6 @@
   .tpl-space__readout {
     transition: none;
   }
-}
-
-/* ── The space itself ────────────────────────────────────────────────────── */
-
-/*
- * On the element it sits above.
- *
- * Padding, never margin: the paginator clears and rewrites each block's inline
- * `margin-top` to push it onto the next sheet, so a margin written here would
- * be erased on every measuring pass. Padding survives it, is included in the
- * block's measured height, and so paginates correctly with no change to the
- * paginator at all.
- *
- * `position: relative` because the handle above is absolutely positioned into
- * this box. Entries already declare it for their own chrome; declaring it again
- * with the same value costs nothing and means a section does not have to
- * remember.
- */
-[data-spaced] {
-  position: relative;
-  padding-top: calc(var(--tpl-space-steps, 0) * var(--tpl-space-unit, 8px));
 }
 
 /*

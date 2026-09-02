@@ -89,6 +89,20 @@
 .tpl-pages__flow {
   position: relative;
   z-index: 1;
+  /*
+   * Room beside the paper for the spacing knobs, which stand OUTSIDE it.
+   *
+   * The padding and the equal negative margin cancel: the content sits exactly
+   * where it did, and the flow's own BOX grows to the left. That is what this
+   * is for — the mask below clips to the box, so a knob out on the canvas would
+   * simply vanish on any résumé long enough to have a page break, which is the
+   * one case nobody would think to check.
+   *
+   * Zero unless something sets it, so the saved-résumé view and the export
+   * renderer — which draw no knobs — are laid out exactly as before.
+   */
+  padding-left: var(--tpl-space-bleed, 0px);
+  margin-left: calc(-1 * var(--tpl-space-bleed, 0px));
 }
 
 /*

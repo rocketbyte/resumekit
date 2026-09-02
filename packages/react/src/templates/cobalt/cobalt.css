@@ -39,6 +39,8 @@
    * against does.
    */
   --tpl-space-unit: calc(16.5pt * var(--c-scale) * var(--c-density));
+  /* This template's own side margin — see `spacing.css`. */
+  --tpl-space-margin: var(--c-margin);
 
   --c-scale: 1;
   /* The template's own rhythm. `document-styling` (#36) writes a multiplier

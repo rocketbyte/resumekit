@@ -25,6 +25,8 @@
    * against does.
    */
   --tpl-space-unit: calc(20pt * var(--m-scale) * var(--m-density));
+  /* This template's own side margin — see `spacing.css`. */
+  --tpl-space-margin: var(--m-margin);
 
   --m-scale: 1;
   --m-ink: #383838;

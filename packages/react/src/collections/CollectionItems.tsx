@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useAuthoring } from './authoring-context.js';
-import { useSpaceSlot } from '../spacing/SpaceHandle.js';
+import { SpacedBlock } from '../spacing/SpacedBlock.js';
 import type { ItemOrigin } from './EntryOverlay.js';
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';
@@ -71,6 +71,17 @@ export interface CollectionItemsProps<T> {
   noun: string;
   /** The section's own name, for the overlay's label. */
   label: string;
+  /**
+   * Whether these items may carry structural space above them.
+   *
+   * The TEMPLATE decides, because only the template knows what it renders an
+   * item as. Structural space is held by a wrapper element around the item, and
+   * a wrapper is not valid around every item: a skills group is an `<li>` in a
+   * `<ul>`, and a `<div>` between them is not a list. It is not wanted there
+   * either — nobody needs to push two lines of keywords apart. Defaults to on,
+   * so a template that renders entries gets its gaps by saying nothing.
+   */
+  gap?: boolean;
   /** The template's entry component. MUST return a single element. */
   children: (props: EntryRenderProps<T>) => ReactElement | null;
 }
@@ -82,6 +93,8 @@ export interface ItemProps<T> {
   path: string;
   noun: string;
   label: string;
+  /** Whether this item may carry structural space above it. See `gap`. */
+  gap: boolean;
   children: CollectionItemsProps<T>['children'];
 }
 
@@ -98,23 +111,30 @@ function ReadOnlyItem<T>({
   index,
   path,
   noun,
+  gap,
   children,
 }: ItemProps<T>) {
-  /*
-   * The SPACE, but never the handle: `useSpaceSlot` returns no control without
-   * an authoring context, so a read item carries the padding a candidate
-   * recorded and nothing to change it with. Which is the point — the space is
-   * the document and prints; the control is chrome and does not.
-   */
-  const space = useSpaceSlot({ path }, `${noun} ${index + 1}`);
   const element = children({
     item: collection.items[index] as T,
     path,
     index,
     chrome: null,
-    itemProps: { ...space.rootProps },
+    itemProps: {},
   });
-  return isValidElement(element) ? element : null;
+  if (!isValidElement(element)) return null;
+  /*
+   * The SPACE, but never the handle: `SpacedBlock` draws no control without an
+   * authoring context, so a read item sits below the space its owner recorded
+   * and offers nothing to change it with. Which is the point — the space is the
+   * document and prints; the control is chrome and does not.
+   */
+  return gap ? (
+    <SpacedBlock target={{ path }} label={`${noun} ${index + 1}`}>
+      {element}
+    </SpacedBlock>
+  ) : (
+    element
+  );
 }
 
 /**
@@ -136,6 +156,7 @@ const AuthoredItems = lazy(() => import('./AuthoredItems.js')) as <T>(
     CollectionItemsProps<T>,
     'collection' | 'basePath' | 'noun' | 'label'
   > & {
+    gap: boolean;
     ids: readonly string[];
     sortable: boolean;
     children: CollectionItemsProps<T>['children'];
@@ -147,6 +168,7 @@ export function CollectionItems<T>({
   basePath,
   noun,
   label,
+  gap = true,
   children,
 }: CollectionItemsProps<T>) {
   const authoring = useAuthoring();
@@ -168,6 +190,7 @@ export function CollectionItems<T>({
       index={index}
       noun={noun}
       label={label}
+      gap={gap}
       path={
         collection.pathOf?.(index) ??
         `${basePath ?? ''}.${index}`.replace(/^\./, '')
@@ -198,6 +221,7 @@ export function CollectionItems<T>({
             basePath={basePath}
             noun={noun}
             label={label}
+            gap={gap}
             ids={ids}
             sortable={sortable}
           >

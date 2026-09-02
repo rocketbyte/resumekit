@@ -2,7 +2,7 @@ import { isValidElement } from 'react';
 import { EntryOverlay } from './EntryOverlay.js';
 import { SortableItems, useDragHandle } from './SortableItems.js';
 import { useEntrySelection } from './selection-context.js';
-import { useSpaceSlot } from '../spacing/SpaceHandle.js';
+import { SpacedBlock } from '../spacing/SpacedBlock.js';
 import type {
   CollectionItemsProps,
   ItemProps,
@@ -32,19 +32,13 @@ function AuthoredItem<T>({
   id,
   noun,
   label,
+  gap,
   sortable,
   children,
 }: ItemProps<T> & { id: string; sortable: boolean }) {
   const { handleProps, setNodeRef, style } = useDragHandle(id, !sortable);
   const { active, select } = useEntrySelection();
   const selected = active === id;
-  /*
-   * The gap above this entry, which is how one role is separated from the one
-   * before it without opening up every role in the section. Addressed by the
-   * entry's own PATH, so the space follows the job through a reorder rather
-   * than staying at the position it was set in.
-   */
-  const space = useSpaceSlot({ path }, `${noun} ${index + 1}`);
 
   const element = children({
     item: collection.items[index] as T,
@@ -56,26 +50,15 @@ function AuthoredItem<T>({
      * actions belong to the one region the candidate is working on, or the page
      * would be a wall of toolbars.
      */
-    /*
-     * The entry's controls, and its gap. The handle is here rather than beside
-     * the overlay because it is always available — an entry does not have to be
-     * selected before its gap can be adjusted, since the gap is what the
-     * candidate is pointing at.
-     */
-    chrome: (
-      <>
-        {space.handle}
-        {selected ? (
-          <EntryOverlay
-            collection={collection}
-            index={index}
-            noun={noun}
-            label={label}
-            handleProps={sortable ? handleProps : undefined}
-          />
-        ) : null}
-      </>
-    ),
+    chrome: selected ? (
+      <EntryOverlay
+        collection={collection}
+        index={index}
+        noun={noun}
+        label={label}
+        handleProps={sortable ? handleProps : undefined}
+      />
+    ) : null,
     itemProps: {
       /*
        * The marker every editing affordance hangs off: the outline that shows
@@ -94,20 +77,26 @@ function AuthoredItem<T>({
        * field, this overlay acts on the entry, and neither has to win.
        */
       onClick: () => select(id),
-      ...space.rootProps,
-      /*
-       * Merged rather than spread over: the sortable transform and the recorded
-       * space are both styles on this one element, and whichever was written
-       * second would otherwise delete the other — a spaced entry would snap
-       * shut the moment it was dragged.
-       */
-      ...(sortable
-        ? { ref: setNodeRef, style: { ...space.rootProps.style, ...style } }
-        : {}),
+      ...(sortable ? { ref: setNodeRef, style } : {}),
     } as ItemRootProps,
   });
 
-  return isValidElement(element) ? element : null;
+  if (!isValidElement(element)) return null;
+
+  /*
+   * The gap above this entry, held OUTSIDE it — which is how one role is
+   * separated from the one before it without the role's own box growing and
+   * taking its selection outline with it. Addressed by the entry's own PATH, so
+   * the space follows the job through a reorder rather than staying at the
+   * position it was set in.
+   */
+  return gap ? (
+    <SpacedBlock target={{ path }} label={`${noun} ${index + 1}`}>
+      {element}
+    </SpacedBlock>
+  ) : (
+    element
+  );
 }
 
 /** The items of a collection, drawn with their controls. */
@@ -116,6 +105,7 @@ export default function AuthoredItems<T>({
   basePath,
   noun,
   label,
+  gap,
   ids,
   sortable,
   children,
@@ -123,6 +113,7 @@ export default function AuthoredItems<T>({
   CollectionItemsProps<T>,
   'collection' | 'basePath' | 'noun' | 'label'
 > & {
+  gap: boolean;
   ids: readonly string[];
   sortable: boolean;
   children: CollectionItemsProps<T>['children'];
@@ -135,6 +126,7 @@ export default function AuthoredItems<T>({
       index={index}
       noun={noun}
       label={label}
+      gap={gap}
       sortable={sortable}
       path={
         collection.pathOf?.(index) ??

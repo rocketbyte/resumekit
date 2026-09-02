@@ -55,12 +55,12 @@
    */
   --tpl-space-unit: calc(10pt * var(--h-scale) * var(--h-density));
   /*
-   * How far into the margin a gap's knob sits. Harvard's page margin is 0.55in,
-   * so there is room for a roomy one that clears the text column properly; the
-   * shared default is deliberately tighter, for a template whose columns are
-   * narrow and whose margins this file cannot know.
+   * This template's own side margin, so a gap's knob can be placed just OUTSIDE
+   * the paper. `spacing.css` cannot know how wide a page's margin is, and a
+   * fixed number would put the knob inside the text on one template and off the
+   * canvas on another — so each template states its own.
    */
-  --tpl-space-gutter: 26px;
+  --tpl-space-margin: 0.55in;
   --h-rule: var(--h-accent);
   --h-paper: #ffffff;
   --h-body: calc(9.6pt * var(--h-scale));

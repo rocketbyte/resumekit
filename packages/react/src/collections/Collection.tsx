@@ -14,6 +14,11 @@ export interface CollectionProps<T> {
    * template never names a thing differently from the rest of the product.
    */
   noun?: string;
+  /**
+   * Whether these items may carry structural space above them. The template
+   * decides — see `CollectionItems`. Defaults to on.
+   */
+  gap?: boolean;
 }
 
 /**
@@ -35,6 +40,7 @@ export function Collection<T>({
   items,
   children,
   noun,
+  gap,
 }: CollectionProps<T>) {
   const collection = useSectionCollection<T>(section, items);
   return (
@@ -42,6 +48,7 @@ export function Collection<T>({
       collection={collection}
       noun={noun ?? COLLECTIONS[section].noun}
       label={COLLECTIONS[section].label}
+      gap={gap}
     >
       {children}
     </CollectionItems>

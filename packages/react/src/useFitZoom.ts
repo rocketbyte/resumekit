@@ -8,8 +8,13 @@ import { PAGE_WIDTH } from './pagination.js';
  * what introduces a horizontal scrollbar, and a page measured to fit its
  * container exactly is one rounding error away from not fitting. The margin is
  * the width of that error plus the shadow the sheet casts.
+ *
+ * Widened for the spacing knobs, which stand outside the paper on the left
+ * (`spacing.css`). They are drawn beside the page rather than on it, so the
+ * room they need is room the page must not have taken — otherwise zooming to
+ * "fit" fits everything except the controls.
  */
-const CLEARANCE = 24;
+const CLEARANCE = 48;
 
 /**
  * The zoom for a given amount of room, as arithmetic.
