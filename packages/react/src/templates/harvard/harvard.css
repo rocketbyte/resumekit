@@ -44,16 +44,20 @@
   /*
    * What ONE STEP of recorded space is worth here — `document-styling` (#36).
    *
-   * Harvard's own section gap, so a step of space is "one more gap like the one
-   * already there" rather than a number of millimetres imported from somewhere
-   * else. It follows the type scale and the density for the same reason the gap
-   * it is measured against does: a document set tighter should not have its
+   * A FIFTH of Harvard's own section gap, so a step is a nudge rather than
+   * another whole gap — the control is a drag, and a drag wants somewhere to
+   * land between two positions. Twenty of them is four section gaps, which is
+   * as much air as a page can spare.
+   *
+   * Measured against this template's rhythm rather than in millimetres, and it
+   * follows the type scale and the density for the same reason the gap it is
+   * measured against does: a document set tighter should not have its
    * candidate-added air stay put while everything around it closes up.
    *
    * A template that set this differently would make the same stored token mean
    * a different distance, which is exactly what the token is for.
    */
-  --tpl-space-unit: calc(10pt * var(--h-scale) * var(--h-density));
+  --tpl-space-unit: calc(2pt * var(--h-scale) * var(--h-density));
   /*
    * This template's own side margin, so a gap's knob can be placed just OUTSIDE
    * the paper. `spacing.css` cannot know how wide a page's margin is, and a

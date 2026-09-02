@@ -9,6 +9,7 @@ import { presentedResume } from './presented.js';
 import { PagedSheet } from './PagedSheet.js';
 import { DocumentPresentationProvider } from './presentation-context.js';
 import { DocumentSpacingProvider } from './spacing/spacing-context.js';
+import { DocumentOverlayProvider } from './collections/overlay-context.js';
 import './document.css';
 
 export interface TemplateDocumentProps {
@@ -54,20 +55,32 @@ export function TemplateDocument({
            * carry the document and none of the workshop. The same rule the
            * authoring context follows, stated the same way.
            */}
-          <DocumentSpacingProvider
-            value={{ sections: presentation?.section_spacing }}
+          {/*
+           * What this document was projected from, so its entries are addressed
+           * the same way the editor addressed them. Without it a reordered
+           * résumé numbered its entries by where they were DRAWN here, and
+           * every stored value on one — its space, its bolding, its link — was
+           * read at the wrong address.
+           */}
+          <DocumentOverlayProvider
+            base={resume}
+            edits={presentation?.edits ?? []}
           >
-            <PagedSheet
-              measureKey={JSON.stringify([
-                presentation?.style,
-                presentation?.section_spacing,
-              ])}
+            <DocumentSpacingProvider
+              value={{ sections: presentation?.section_spacing }}
             >
-              <Frame>
-                <Element is={Document} resume={presented} />
-              </Frame>
-            </PagedSheet>
-          </DocumentSpacingProvider>
+              <PagedSheet
+                measureKey={JSON.stringify([
+                  presentation?.style,
+                  presentation?.section_spacing,
+                ])}
+              >
+                <Frame>
+                  <Element is={Document} resume={presented} />
+                </Frame>
+              </PagedSheet>
+            </DocumentSpacingProvider>
+          </DocumentOverlayProvider>
         </DocumentPresentationProvider>
       </Editor>
     </div>

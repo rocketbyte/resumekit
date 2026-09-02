@@ -9,6 +9,7 @@ import {
 import { documentShapeKey } from '@cvgs/core';
 import type { ResumeEdits, ResumeObject } from '@cvgs/core';
 import { EntrySelectionProvider } from './selection-context.js';
+import { DocumentOverlayProvider } from './overlay-context.js';
 
 /**
  * What a document needs in order to be authored, rather than only read.
@@ -95,14 +96,23 @@ export function DocumentAuthoringProvider({
   return (
     <AuthoringContext.Provider value={published}>
       {/*
-       * Which entry is selected is state this provider OWNS rather than takes,
-       * because it is a fact about the editing session and not about the
-       * document — nothing stores it, nothing saves it, and a caller that had to
-       * pass it in would be a caller that could get it wrong. One selection for
-       * the whole document, so choosing a qualification puts away the role's
-       * overlay.
+       * An authorable document is a PROJECTION of these two values, so it
+       * publishes them as one — a caller that mounts authoring never has to
+       * remember to mount the projection beside it. A document that cannot be
+       * edited mounts the projection on its own; see `overlay-context.tsx` for
+       * why both surfaces must have it.
        */}
-      <EntrySelectionProvider>{children}</EntrySelectionProvider>
+      <DocumentOverlayProvider base={base} edits={snapshot}>
+        {/*
+         * Which entry is selected is state this provider OWNS rather than takes,
+         * because it is a fact about the editing session and not about the
+         * document — nothing stores it, nothing saves it, and a caller that had to
+         * pass it in would be a caller that could get it wrong. One selection for
+         * the whole document, so choosing a qualification puts away the role's
+         * overlay.
+         */}
+        <EntrySelectionProvider>{children}</EntrySelectionProvider>
+      </DocumentOverlayProvider>
     </AuthoringContext.Provider>
   );
 }

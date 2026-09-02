@@ -12,6 +12,7 @@ import {
   type Slot,
 } from '@cvgs/core';
 import { useAuthoring } from './authoring-context.js';
+import { useDocumentOverlay } from './overlay-context.js';
 import {
   movedTo,
   useCollection,
@@ -57,13 +58,18 @@ export function useSectionCollection<T>(
   items: readonly T[],
 ): SectionCollectionHandle<T> {
   const authoring = useAuthoring();
+  /*
+   * Where each entry SITS, taken from the projection rather than from the
+   * authoring capability — because a document that cannot be edited still has
+   * to know. Reading it from `useAuthoring` meant the saved-résumé view and the
+   * export renderer numbered entries by where they were drawn, so every stored
+   * value on a reordered entry was read at the wrong address there.
+   */
+  const { base, edits } = useDocumentOverlay();
 
   const slots = useMemo<Slot[]>(
-    () =>
-      authoring
-        ? collectionOrder(authoring.base, authoring.edits, section)
-        : [],
-    [authoring, section],
+    () => (base ? collectionOrder(base, edits ?? [], section) : []),
+    [base, edits, section],
   );
 
   /*
@@ -74,8 +80,8 @@ export function useSectionCollection<T>(
    * role came to share its fields with the writer's second one.
    */
   const additions = useMemo(
-    () => (authoring ? additionPaths(authoring.base, authoring.edits) : null),
-    [authoring],
+    () => (base ? additionPaths(base, edits ?? []) : null),
+    [base, edits],
   );
 
   const store = useMemo<CollectionStore<T>>(() => {

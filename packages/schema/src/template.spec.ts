@@ -17,6 +17,8 @@ import {
   spaceSteps,
   SPACE_SCALE,
   SPACE_MAX_STEPS,
+  SPACE_QUANTUM,
+  SPACE_LIMIT,
   SectionSpaceIdSchema,
   ResumeFormatsSchema,
   ResumePresentationSchema,
@@ -698,9 +700,13 @@ describe('document styling — bounded spacing, accent and themes', () => {
     // that stopped answering under the hand reads as broken.
     expect(spaceAtStep(-4)).toBe('none');
     expect(spaceAtStep(99)).toBe(SPACE_SCALE[SPACE_SCALE.length - 1]);
-    // And a fractional drag position resolves to a whole step.
-    expect(spaceAtStep(2.4)).toBe('s2');
-    expect(spaceAtStep(2.6)).toBe('s3');
+    // A drag position resolves to the nearest FIFTH of a unit, which is the
+    // accuracy the scale offers — not to the nearest whole one.
+    expect(spaceAtStep(2.4)).toBe('s2_4');
+    expect(spaceAtStep(2.44)).toBe('s2_4');
+    expect(spaceAtStep(2.55)).toBe('s2_6');
+    // And a hair above nothing is still nothing, so a twitch does not record.
+    expect(spaceAtStep(0.05)).toBe('none');
 
     for (const id of SPACE_SCALE) {
       expect(spaceAtStep(spaceSteps(id))).toBe(id);
@@ -713,12 +719,16 @@ describe('document styling — bounded spacing, accent and themes', () => {
     // Both halves matter: a handful of stops reads as a switch under the hand,
     // and an unbounded one makes the ATS guarantee test impossible.
     expect(SPACE_SCALE.length).toBeGreaterThanOrEqual(6);
-    expect(SPACE_SCALE.length).toBeLessThanOrEqual(16);
+    // Bounded, which is the condition on having a drag at all: the ATS
+    // guarantee test walks this product, and it can only do that if it ends.
+    expect(SPACE_SCALE.length).toBeLessThanOrEqual(256);
     expect(SPACE_SCALE[0]).toBe('none');
+    // Evenly spaced by the quantum, with no gap and no repeat.
     expect(SPACE_SCALE.map((id) => spaceSteps(id))).toEqual(
-      SPACE_SCALE.map((_, i) => i),
+      SPACE_SCALE.map((_, i) => Number((i * SPACE_QUANTUM).toFixed(1))),
     );
-    expect(SPACE_MAX_STEPS).toBe(SPACE_SCALE.length - 1);
+    expect(SPACE_MAX_STEPS).toBe(SPACE_LIMIT);
+    expect(spaceSteps(SPACE_SCALE[SPACE_SCALE.length - 1])).toBe(SPACE_LIMIT);
   });
 
   it('spaces a section at most once', () => {

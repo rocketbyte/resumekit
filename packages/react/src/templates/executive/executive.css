@@ -18,7 +18,7 @@
    * the type scale and the density for the same reason the gap it is measured
    * against does.
    */
-  --tpl-space-unit: calc(10pt * var(--e-scale) * var(--e-density, 1));
+  --tpl-space-unit: calc(2pt * var(--e-scale) * var(--e-density, 1));
 
   --e-scale: 1;
   --e-ink: #1f2937;

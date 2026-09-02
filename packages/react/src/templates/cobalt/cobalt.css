@@ -38,7 +38,7 @@
    * the type scale and the density for the same reason the gap it is measured
    * against does.
    */
-  --tpl-space-unit: calc(16.5pt * var(--c-scale) * var(--c-density));
+  --tpl-space-unit: calc(3.3pt * var(--c-scale) * var(--c-density));
   /* This template's own side margin — see `spacing.css`. */
   --tpl-space-margin: var(--c-margin);
 

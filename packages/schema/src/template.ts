@@ -709,23 +709,39 @@ export const DENSITY_DEFAULT: DensityId = 'normal';
  * turned out to be. The catalog began as `sm` / `md` / `lg` — three names for a
  * picker in a panel. The control is the gap itself now, dragged where the space
  * will appear, and a drag with three stops reads as a switch: somebody closing
- * up a header is adjusting a distance, not choosing an adjective. Eight steps is
- * enough that the drag tracks the hand, and few enough that the whole product of
- * styling combinations stays enumerable — which is what the ATS guarantee test
- * walks. Nothing here is a measurement: the number counts the template's unit,
- * and the template decides what that is.
+ * up a header is adjusting a distance, not choosing an adjective.
+ *
+ * So it is a fine scale with a ceiling: fifths of a unit, up to twenty. Fine
+ * enough that the drag tracks the hand and a gap can be nudged rather than
+ * jumped, bounded so that the whole product of styling combinations is still
+ * enumerable — which is what the ATS guarantee test walks, and the condition on
+ * having a drag at all. Nothing here is a measurement: the number counts the
+ * template's unit, and the template decides what that is.
  */
-export const SECTION_SPACES = {
-  none: { name: 'None', steps: 0 },
-  s1: { name: '1 step', steps: 1 },
-  s2: { name: '2 steps', steps: 2 },
-  s3: { name: '3 steps', steps: 3 },
-  s4: { name: '4 steps', steps: 4 },
-  s5: { name: '5 steps', steps: 5 },
-  s6: { name: '6 steps', steps: 6 },
-  s7: { name: '7 steps', steps: 7 },
-  s8: { name: '8 steps', steps: 8 },
-} as const;
+/** The finest adjustment the scale can express, in template units. */
+export const SPACE_QUANTUM = 0.2;
+/** The most space a gap can hold, in template units. */
+export const SPACE_LIMIT = 20;
+
+/**
+ * Built rather than written out, because a hundred named constants is a table
+ * nobody reads and one that cannot drift from its own arithmetic. The id keeps
+ * the number legible in a stored document — `s3_4` is three and two fifths of
+ * the template's unit — and the tenths are underscored because a dot is a path
+ * separator everywhere else in this file.
+ */
+export const SECTION_SPACES: Record<string, { name: string; steps: number }> =
+  Object.fromEntries([
+    ['none', { name: 'None', steps: 0 }],
+    ...Array.from(
+      { length: Math.round(SPACE_LIMIT / SPACE_QUANTUM) },
+      (_, i) => {
+        const steps = Number(((i + 1) * SPACE_QUANTUM).toFixed(1));
+        const id = `s${String(steps).replace('.', '_')}`;
+        return [id, { name: `${steps}`, steps }] as const;
+      },
+    ),
+  ]);
 
 export type SectionSpaceId = keyof typeof SECTION_SPACES;
 export const SectionSpaceIdSchema = z.enum(
@@ -738,8 +754,7 @@ export const SPACE_SCALE = (
 ).sort((a, b) => SECTION_SPACES[a].steps - SECTION_SPACES[b].steps);
 
 /** The most steps this catalog can express. */
-export const SPACE_MAX_STEPS =
-  SECTION_SPACES[SPACE_SCALE[SPACE_SCALE.length - 1] as SectionSpaceId].steps;
+export const SPACE_MAX_STEPS = SPACE_LIMIT;
 
 /**
  * How many steps a token is worth. `undefined` is none, which is what an
@@ -759,12 +774,14 @@ export function spaceSteps(id: SectionSpaceId | undefined): number {
  * responding would read as broken.
  */
 export function spaceAtStep(steps: number): SectionSpaceId {
-  const wanted = Math.round(steps);
-  const found = SPACE_SCALE.find((id) => SECTION_SPACES[id].steps === wanted);
-  if (found) return found;
-  return wanted <= 0
-    ? ('none' as SectionSpaceId)
-    : (SPACE_SCALE[SPACE_SCALE.length - 1] as SectionSpaceId);
+  // Quantised first, so a pointer position lands on the scale rather than
+  // between two of its values.
+  const wanted = Number(
+    (Math.round(steps / SPACE_QUANTUM) * SPACE_QUANTUM).toFixed(1),
+  );
+  if (wanted <= 0) return 'none' as SectionSpaceId;
+  const found = SPACE_SCALE.find((id) => SECTION_SPACES[id]?.steps === wanted);
+  return found ?? (SPACE_SCALE[SPACE_SCALE.length - 1] as SectionSpaceId);
 }
 
 /**

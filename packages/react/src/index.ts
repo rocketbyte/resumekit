@@ -91,6 +91,7 @@ export { DocumentAutosaveProvider } from './autosave-context.js';
  * write; a surface that only draws a résumé mounts nothing, so every gap in it
  * renders the space a candidate recorded and no control at all.
  */
+export { DocumentOverlayProvider } from './collections/overlay-context.js';
 export {
   DocumentSpacingProvider,
   type DocumentSpacingValue,

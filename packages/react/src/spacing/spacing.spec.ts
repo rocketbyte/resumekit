@@ -108,6 +108,19 @@ describe('a gap is space ABOVE a block, not space around a line', () => {
     }
   });
 
+  it('eases the gap rather than jumping it', () => {
+    /*
+     * A step is a fifth of the template's own rhythm — a few pixels — and a few
+     * pixels arriving instantly reads as the page flinching rather than as the
+     * document opening up.
+     */
+    expect(rule('[data-spaced]')).toMatch(/transition:\s*margin-top\s+\d+ms/);
+    // And not for somebody who has asked for less motion.
+    expect(css).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*\[data-spaced\]/,
+    );
+  });
+
   it('leaves the control off the printed page and the space on it', () => {
     // The split the whole design rests on.
     expect(css).toMatch(/@media print \{\s*\.tpl-space \{\s*display: none/);
