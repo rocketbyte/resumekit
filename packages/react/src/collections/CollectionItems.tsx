@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useAuthoring } from './authoring-context.js';
-import { SpacedBlock } from '../spacing/SpacedBlock.js';
+import { useSpaceSlot } from '../spacing/SpaceHandle.js';
 import type { ItemOrigin } from './EntryOverlay.js';
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';
@@ -114,27 +114,21 @@ function ReadOnlyItem<T>({
   gap,
   children,
 }: ItemProps<T>) {
+  /*
+   * The SPACE, but never the handle: `useSpaceSlot` yields no control without
+   * an authoring context, so a read item sits below the space its owner
+   * recorded and offers nothing to change it with. Which is the point — the
+   * space is the document and prints; the control is chrome and does not.
+   */
+  const space = useSpaceSlot({ path }, `${noun} ${index + 1}`);
   const element = children({
     item: collection.items[index] as T,
     path,
     index,
     chrome: null,
-    itemProps: {},
+    itemProps: gap ? { ...space.rootProps } : {},
   });
-  if (!isValidElement(element)) return null;
-  /*
-   * The SPACE, but never the handle: `SpacedBlock` draws no control without an
-   * authoring context, so a read item sits below the space its owner recorded
-   * and offers nothing to change it with. Which is the point — the space is the
-   * document and prints; the control is chrome and does not.
-   */
-  return gap ? (
-    <SpacedBlock target={{ path }} label={`${noun} ${index + 1}`}>
-      {element}
-    </SpacedBlock>
-  ) : (
-    element
-  );
+  return isValidElement(element) ? element : null;
 }
 
 /**

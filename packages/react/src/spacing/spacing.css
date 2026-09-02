@@ -3,12 +3,12 @@
  *
  * Four rules govern everything here.
  *
- * The space is held by a WRAPPER, never by the block it sits above. Padding on
- * the block would have been the same distance and a different thing: a role's
- * own box would grow, its selection outline with it, and the gap would belong
- * to the entry instead of to the document between two entries. `.tpl-gap` has
- * no background, no border and no outline, so its padding can only ever read as
- * space above what follows.
+ * The space is the element's own MARGIN, and nothing is rendered to hold it.
+ * Padding would have been the same distance and a different thing — a role's
+ * box would grow and its selection outline with it — and a wrapper element
+ * would have been worse still: present in the editor, absent from the preview,
+ * and an only-child parent that broke the `:first-of-type` and `+` rules the
+ * templates space their entries with.
  *
  * The knob lives OUTSIDE the paper. Spacing is structural — it belongs to the
  * document rather than to whichever component sits below it — so the capability
@@ -34,25 +34,37 @@
   --tpl-space-bleed: 14px;
 }
 
-/* ── The wrapper: the space, and nothing else ────────────────────────────── */
+/* ── The space: the element's own margin, and no element of its own ──────── */
 
-.tpl-gap {
-  /* The positioning context for the handle, which hangs out of the left of it. */
+/*
+ * A gap is a MARGIN on the résumé's own element, contributed through a custom
+ * property that the template's existing `margin-top` rule adds in. Nothing is
+ * rendered to hold it.
+ *
+ * A wrapper was the obvious way to hold a gap and its control together, and it
+ * was wrong twice. It is a real element, present in the editor and absent from
+ * the preview, so the same document measured differently in the two. And it
+ * made every entry an only child, which silently broke `:first-of-type` in
+ * Harvard and the `+` rule in Cobalt: the editor drew 4pt above every role
+ * where the preview drew 7. A control must not change what the document is.
+ *
+ * Margin and not padding, for the reason padding was rejected before it: margin
+ * sits outside the border box, so an entry's selection outline is the same box
+ * whether or not there is space above it, and the space reads as document
+ * between two entries rather than as part of the one below.
+ */
+[data-spaced] {
+  /*
+   * The containing block for the handle, which hangs in the margin above this
+   * element. `position: relative` with no offsets moves nothing, so carrying it
+   * in the editor and not in the preview costs no pixel.
+   */
   position: relative;
   /*
-   * The recorded space. On the WRAPPER, so the block below is untouched — its
-   * box, its outline and its own margins are exactly what the template defines.
-   *
-   * Padding rather than margin for two reasons: it cannot collapse with the
-   * block's own top margin, which would silently swallow whichever is smaller;
-   * and the paginator writes each block's inline `margin-top` to push it onto
-   * the next sheet, which this never touches because it is not on a block.
-   */
-  padding-top: var(--tpl-space-height);
-
-  /*
-   * The recorded space as one length, so the padding that MAKES the gap and the
-   * strip that lets you grab it cannot disagree about how big it is.
+   * The recorded space as one length. The template's own margin rule adds this
+   * in — `calc(7pt * … + var(--tpl-space-height, 0px))` — so a gap is the
+   * template's own rhythm plus what the candidate asked for, and the rule that
+   * decides the natural spacing stays the only rule that decides it.
    */
   --tpl-space-height: calc(
     var(--tpl-space-steps, 0) * var(--tpl-space-unit, 8px)
@@ -64,22 +76,17 @@
   left: 0;
   right: 0;
   /*
-   * The strip's BOTTOM edge is the top of the block, always — and the line is
-   * drawn along that bottom edge.
+   * The strip's BOTTOM edge is the top of the element, and the line is drawn
+   * along that edge — so everything a drag adds accumulates ABOVE the line and
+   * the block stays against it, which is what "space above this" means and what
+   * the pointer is doing. With the line centred, dragging down opened space
+   * above it and below it, and the block floated somewhere underneath.
    *
-   * Which is the difference between a gap and a padding. With the line centred
-   * in the strip, dragging down opened space above the line AND below it: the
-   * block did not sit against the line the candidate was moving, it floated
-   * somewhere under it. Anchored here, everything the drag adds accumulates
-   * ABOVE the line and the block stays against it, which is what "space above
-   * this" means and what the pointer is doing.
-   *
-   * `100%` is the wrapper's padding box, so `100% - height` is exactly where
-   * the padding ends and the block begins. With no space recorded that is
-   * `100%` — the strip sits in the natural gap above the wrapper — so one rule
-   * covers both states and the line does not jump when the first step is added.
+   * `bottom: 100%` puts it exactly there and nowhere else: the strip lives
+   * entirely in the margin, so it takes no clicks from the first line of the
+   * element and occupies none of its box.
    */
-  bottom: calc(100% - var(--tpl-space-height, 0px));
+  bottom: 100%;
   /*
    * The reach. Taller than the line it draws, so the gap answers before the
    * pointer is exactly on it — a 2px target is a target nobody hits — and never

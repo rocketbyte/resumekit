@@ -2,7 +2,7 @@ import { isValidElement } from 'react';
 import { EntryOverlay } from './EntryOverlay.js';
 import { SortableItems, useDragHandle } from './SortableItems.js';
 import { useEntrySelection } from './selection-context.js';
-import { SpacedBlock } from '../spacing/SpacedBlock.js';
+import { useSpaceSlot } from '../spacing/SpaceHandle.js';
 import type {
   CollectionItemsProps,
   ItemProps,
@@ -39,6 +39,12 @@ function AuthoredItem<T>({
   const { handleProps, setNodeRef, style } = useDragHandle(id, !sortable);
   const { active, select } = useEntrySelection();
   const selected = active === id;
+  /*
+   * The gap above this entry — how one role is separated from the one before
+   * it. Addressed by the entry's own PATH, so the space follows the job through
+   * a reorder rather than staying at the position it was set in.
+   */
+  const space = useSpaceSlot({ path }, `${noun} ${index + 1}`);
 
   const element = children({
     item: collection.items[index] as T,
@@ -50,15 +56,26 @@ function AuthoredItem<T>({
      * actions belong to the one region the candidate is working on, or the page
      * would be a wall of toolbars.
      */
-    chrome: selected ? (
-      <EntryOverlay
-        collection={collection}
-        index={index}
-        noun={noun}
-        label={label}
-        handleProps={sortable ? handleProps : undefined}
-      />
-    ) : null,
+    /*
+     * The gap's handle rides in the same slot the entry's own controls do:
+     * chrome, absolutely positioned, no layout. Unlike the overlay it is always
+     * present — an entry does not have to be selected before the gap above it
+     * can be moved, because the gap is what the candidate is pointing at.
+     */
+    chrome: (
+      <>
+        {gap ? space.handle : null}
+        {selected ? (
+          <EntryOverlay
+            collection={collection}
+            index={index}
+            noun={noun}
+            label={label}
+            handleProps={sortable ? handleProps : undefined}
+          />
+        ) : null}
+      </>
+    ),
     itemProps: {
       /*
        * The marker every editing affordance hangs off: the outline that shows
@@ -77,26 +94,22 @@ function AuthoredItem<T>({
        * field, this overlay acts on the entry, and neither has to win.
        */
       onClick: () => select(id),
-      ...(sortable ? { ref: setNodeRef, style } : {}),
+      ...(gap ? space.rootProps : {}),
+      /*
+       * Merged rather than spread over: the sortable transform and the recorded
+       * step count are both styles on this one element, and whichever was
+       * written second would otherwise delete the other.
+       */
+      ...(sortable
+        ? {
+            ref: setNodeRef,
+            style: { ...(gap ? space.rootProps.style : {}), ...style },
+          }
+        : {}),
     } as ItemRootProps,
   });
 
-  if (!isValidElement(element)) return null;
-
-  /*
-   * The gap above this entry, held OUTSIDE it — which is how one role is
-   * separated from the one before it without the role's own box growing and
-   * taking its selection outline with it. Addressed by the entry's own PATH, so
-   * the space follows the job through a reorder rather than staying at the
-   * position it was set in.
-   */
-  return gap ? (
-    <SpacedBlock target={{ path }} label={`${noun} ${index + 1}`}>
-      {element}
-    </SpacedBlock>
-  ) : (
-    element
-  );
+  return isValidElement(element) ? element : null;
 }
 
 /** The items of a collection, drawn with their controls. */

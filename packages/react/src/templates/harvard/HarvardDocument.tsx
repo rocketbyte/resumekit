@@ -14,7 +14,7 @@ import { EditableText } from '../../nodes/EditableText.js';
 import { EditableInlineList } from '../../nodes/EditableInlineList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
-import { SpacedBlock } from '../../spacing/SpacedBlock.js';
+import { useSpaceSlot } from '../../spacing/SpaceHandle.js';
 import {
   HarvardCustomEntry,
   HarvardEducationEntry,
@@ -96,6 +96,23 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
    * sections follow and the reason the two lists are built separately rather
    * than filtered at the point of rendering.
    */
+  /*
+   * The gap above each section. Declared together and unconditionally, because
+   * a section is rendered only when it has something in it and a hook may not
+   * be called behind that condition. With no space recorded a slot is a marker
+   * and a handle that occupies no layout, so it costs nothing.
+   */
+  const sectionSpace = {
+    summary: useSpaceSlot({ section: 'summary' }, 'Professional Summary'),
+    experience: useSpaceSlot({ section: 'experience' }, 'Experience'),
+    education: useSpaceSlot({ section: 'education' }, 'Education'),
+    skills: useSpaceSlot({ section: 'skills' }, 'Technical Skills'),
+    certifications: useSpaceSlot(
+      { section: 'certifications' },
+      'Certifications',
+    ),
+  };
+
   const CONTACT_FIELDS = ['location', 'email', 'phone'] as const;
   const contact = CONTACT_FIELDS.filter(
     (field) => authoring || resume.contact[field],
@@ -182,68 +199,99 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
       </header>
 
       {resume.summary && (
-        <SpacedBlock
-          target={{ section: 'summary' }}
-          label="Professional Summary"
+        <section
+          className="tpl-harvard__section"
+          {...sectionSpace.summary.rootProps}
         >
-          <section className="tpl-harvard__section">
-            <h2
-              className="tpl-harvard__section-title"
-              data-block
-              data-keep-with-next
-            >
-              Professional Summary
-            </h2>
-            <p className="tpl-harvard__summary" data-block>
-              <Element
-                id="summary"
-                is={EditableText}
-                path="summary"
-                value={resume.summary}
-                multiline
-              />
-            </p>
-          </section>
-        </SpacedBlock>
+          {sectionSpace.summary.handle}
+          <h2
+            className="tpl-harvard__section-title"
+            data-block
+            data-keep-with-next
+          >
+            Professional Summary
+          </h2>
+          <p className="tpl-harvard__summary" data-block>
+            <Element
+              id="summary"
+              is={EditableText}
+              path="summary"
+              value={resume.summary}
+              multiline
+            />
+          </p>
+        </section>
       )}
 
       {(resume.experience.length > 0 || authoring) && (
-        <SpacedBlock target={{ section: 'experience' }} label="Experience">
-          <section className="tpl-harvard__section">
-            <h2
-              className="tpl-harvard__section-title"
-              data-block
-              data-keep-with-next
-            >
-              Experience
-            </h2>
-            <Collection section="experience" items={resume.experience}>
-              {({ item, path, chrome, itemProps }) => (
-                <HarvardExperienceEntry
-                  item={item}
-                  path={path}
-                  chrome={chrome}
-                  itemProps={itemProps}
-                />
-              )}
-            </Collection>
-          </section>
-        </SpacedBlock>
+        <section
+          className="tpl-harvard__section"
+          {...sectionSpace.experience.rootProps}
+        >
+          {sectionSpace.experience.handle}
+          <h2
+            className="tpl-harvard__section-title"
+            data-block
+            data-keep-with-next
+          >
+            Experience
+          </h2>
+          <Collection section="experience" items={resume.experience}>
+            {({ item, path, chrome, itemProps }) => (
+              <HarvardExperienceEntry
+                item={item}
+                path={path}
+                chrome={chrome}
+                itemProps={itemProps}
+              />
+            )}
+          </Collection>
+        </section>
       )}
 
       {(resume.education.length > 0 || authoring) && (
-        <SpacedBlock target={{ section: 'education' }} label="Education">
-          <section className="tpl-harvard__section">
-            <h2
-              className="tpl-harvard__section-title"
-              data-block
-              data-keep-with-next
-            >
-              Education
-            </h2>
-            <Collection section="education" items={resume.education}>
+        <section
+          className="tpl-harvard__section"
+          {...sectionSpace.education.rootProps}
+        >
+          {sectionSpace.education.handle}
+          <h2
+            className="tpl-harvard__section-title"
+            data-block
+            data-keep-with-next
+          >
+            Education
+          </h2>
+          <Collection section="education" items={resume.education}>
+            {({ item, path, chrome, itemProps }) => (
+              <HarvardEducationEntry
+                item={item}
+                path={path}
+                chrome={chrome}
+                itemProps={itemProps}
+              />
+            )}
+          </Collection>
+        </section>
+      )}
+
+      {(resume.skills.length > 0 || authoring) && (
+        <section
+          className="tpl-harvard__section"
+          {...sectionSpace.skills.rootProps}
+        >
+          {sectionSpace.skills.handle}
+          <h2
+            className="tpl-harvard__section-title"
+            data-block
+            data-keep-with-next
+          >
+            Technical Skills
+          </h2>
+          <ul className="tpl-harvard__skills" data-block>
+            <Collection section="skills" items={resume.skills} gap={false}>
               {({ item, path, chrome, itemProps }) => (
-                <HarvardEducationEntry
+                <HarvardSkillGroup
                   item={item}
                   path={path}
                   chrome={chrome}
@@ -251,60 +299,33 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
                 />
               )}
             </Collection>
-          </section>
-        </SpacedBlock>
-      )}
-
-      {(resume.skills.length > 0 || authoring) && (
-        <SpacedBlock target={{ section: 'skills' }} label="Technical Skills">
-          <section className="tpl-harvard__section">
-            <h2
-              className="tpl-harvard__section-title"
-              data-block
-              data-keep-with-next
-            >
-              Technical Skills
-            </h2>
-            <ul className="tpl-harvard__skills" data-block>
-              <Collection section="skills" items={resume.skills} gap={false}>
-                {({ item, path, chrome, itemProps }) => (
-                  <HarvardSkillGroup
-                    item={item}
-                    path={path}
-                    chrome={chrome}
-                    itemProps={itemProps}
-                  />
-                )}
-              </Collection>
-            </ul>
-          </section>
-        </SpacedBlock>
+          </ul>
+        </section>
       )}
 
       {resume.certifications.length > 0 && (
-        <SpacedBlock
-          target={{ section: 'certifications' }}
-          label="Certifications"
+        <section
+          className="tpl-harvard__section"
+          {...sectionSpace.certifications.rootProps}
         >
-          <section className="tpl-harvard__section">
-            <h2
-              className="tpl-harvard__section-title"
-              data-block
-              data-keep-with-next
-            >
-              Certifications
-            </h2>
-            <p className="tpl-harvard__inline-list" data-block>
-              <Element
-                id="certifications"
-                is={EditableInlineList}
-                path="certifications"
-                items={resume.certifications}
-                placeholder={PLACEHOLDERS['certifications']}
-              />
-            </p>
-          </section>
-        </SpacedBlock>
+          {sectionSpace.certifications.handle}
+          <h2
+            className="tpl-harvard__section-title"
+            data-block
+            data-keep-with-next
+          >
+            Certifications
+          </h2>
+          <p className="tpl-harvard__inline-list" data-block>
+            <Element
+              id="certifications"
+              is={EditableInlineList}
+              path="certifications"
+              items={resume.certifications}
+              placeholder={PLACEHOLDERS['certifications']}
+            />
+          </p>
+        </section>
       )}
       {/*
        * The candidate's own sections, after every section this template

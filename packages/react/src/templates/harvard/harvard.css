@@ -161,7 +161,12 @@
 /* ── Sections ───────────────────────────────────────────────────────────── */
 
 .tpl-harvard__section {
-  margin-top: calc(10pt * var(--h-scale) * var(--h-density));
+  /* The template's own rhythm, plus whatever space the candidate asked for
+     above this section. Absent means zero, so an untouched document is
+     unchanged — `spacing.css`. */
+  margin-top: calc(
+    10pt * var(--h-scale) * var(--h-density) + var(--tpl-space-height, 0px)
+  );
 }
 
 .tpl-harvard__section-title {
@@ -188,14 +193,18 @@
 /* ── Experience & education entries ─────────────────────────────────────── */
 
 .tpl-harvard__entry {
-  margin-top: calc(7pt * var(--h-scale) * var(--h-density));
+  margin-top: calc(
+    7pt * var(--h-scale) * var(--h-density) + var(--tpl-space-height, 0px)
+  );
   /* Never strand an entry's heading at the foot of a page — the same rule the
      on-screen paginator applies, so the two agree. */
   break-inside: avoid;
 }
 
 .tpl-harvard__entry:first-of-type {
-  margin-top: calc(4pt * var(--h-scale) * var(--h-density));
+  margin-top: calc(
+    4pt * var(--h-scale) * var(--h-density) + var(--tpl-space-height, 0px)
+  );
 }
 
 .tpl-harvard__entry-head {
