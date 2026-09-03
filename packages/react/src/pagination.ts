@@ -14,7 +14,14 @@ export const PAGE_HEIGHT = 11 * 96;
 /** Letter's other dimension, which is what a view zoom has to fit into. */
 export const PAGE_WIDTH = 8.5 * 96;
 export const PAGE_MARGIN = 0.5 * 96;
-/** The gap drawn between sheets on screen. Presentation only — never printed. */
+/**
+ * The gap drawn between sheets on screen. Presentation only — never printed.
+ *
+ * It is the DEFAULT rather than the law, because the export renders the same
+ * document onto real paper, where sheets are contiguous. That is the single
+ * parameter separating the two renderings: pass `0` and the pitch becomes the
+ * page height, so sheet `k` starts exactly where printed page `k` starts.
+ */
 export const SHEET_GAP = 28;
 
 /**
@@ -42,11 +49,25 @@ export interface PaginationPlan {
   pages: number;
 }
 
-/** Sheet `k` occupies `[pitch*k, pitch*k + PAGE_HEIGHT)`. */
-const pitch = PAGE_HEIGHT + SHEET_GAP;
-const textTop = (k: number) => pitch * k + PAGE_MARGIN;
-const textBottom = (k: number) => pitch * k + PAGE_HEIGHT - PAGE_MARGIN;
-const usable = PAGE_HEIGHT - PAGE_MARGIN * 2;
+/**
+ * Sheet `k` occupies `[pitch*k, pitch*k + PAGE_HEIGHT)`, where the pitch is the
+ * page plus whatever gap is drawn between sheets.
+ *
+ * Derived per call rather than fixed at module scope: the editor draws a gap and
+ * the printed document does not, and those are the same document paginated with
+ * one number changed. Holding the screen's gap in a constant here is what would
+ * make the file and the screen break in different places.
+ */
+function geometry(gap: number) {
+  const pitch = PAGE_HEIGHT + gap;
+  return {
+    pitch,
+    textTop: (k: number) => pitch * k + PAGE_MARGIN,
+    textBottom: (k: number) => pitch * k + PAGE_HEIGHT - PAGE_MARGIN,
+    /** Independent of the gap: a sheet holds what a sheet holds. */
+    usable: PAGE_HEIGHT - PAGE_MARGIN * 2,
+  };
+}
 
 /**
  * Plan the breaks: which blocks move down, how far, and how many sheets result.
@@ -70,7 +91,9 @@ const usable = PAGE_HEIGHT - PAGE_MARGIN * 2;
  */
 export function planPagination<TFlow>(
   blocks: readonly MeasuredBlock<TFlow>[],
+  sheetGap: number = SHEET_GAP,
 ): PaginationPlan {
+  const { pitch, textTop, textBottom, usable } = geometry(sheetGap);
   const pushes = new Map<number, number>();
   const targets = new Map<number, number>();
   if (blocks.length === 0) return { pushes, targets, pages: 1 };

@@ -19,6 +19,7 @@ import {
 import {
   PAGE_HEIGHT,
   SHEET_GAP,
+  PAGE_MARGIN,
   planPagination,
   type MeasuredBlock,
 } from './pagination.js';
@@ -74,6 +75,15 @@ export interface PagedSheetProps {
    * container: see `useFitZoom`.
    */
   maxZoom?: number;
+  /**
+   * The gap between sheets, in CSS pixels. Defaults to the gap drawn on screen.
+   *
+   * The export passes `0`, because paper has no gap between its pages — and that
+   * is the ONLY difference between how the editor paginates a document and how
+   * the exported file does. It reaches both the paginator's arithmetic and the
+   * sheets' positions, so the two cannot disagree.
+   */
+  sheetGap?: number;
 }
 
 /**
@@ -99,10 +109,31 @@ export function PagedSheet({
   measureKey,
   children,
   maxZoom = 1,
+  sheetGap = SHEET_GAP,
 }: PagedSheetProps) {
   const flow = useRef<HTMLDivElement>(null);
   const pagesRef = useRef<HTMLDivElement>(null);
   const fit = useFitZoom(pagesRef, maxZoom);
+
+  /*
+   * The gap, held in a ref so `paginate` can stay dependency-free.
+   *
+   * `paginate` is deliberately a `useCallback` over `[]` — it is scheduled from
+   * effects, a resize listener and a microtask guard, and a changing identity
+   * would re-subscribe all of them on every render. The gap is a constant per
+   * surface in practice (28 in the editor, 0 in the export), so reading it
+   * through a ref keeps that property without the callback growing a dependency.
+   */
+  const gapRef = useRef(sheetGap);
+  gapRef.current = sheetGap;
+
+  /*
+   * A gap of zero means paper: sheets are contiguous only when they are pages.
+   * Derived rather than passed separately, so the two cannot be set to disagree.
+   */
+  const printing = sheetGap === 0;
+  const printingRef = useRef(printing);
+  printingRef.current = printing;
 
   /*
    * The candidate's own zoom, once they have expressed one.
@@ -250,7 +281,45 @@ export function PagedSheet({
       };
     });
 
-    const plan = planPagination(measured);
+    const plan = planPagination(measured, gapRef.current);
+
+    /*
+     * ── Printing takes the same PLAN and applies it differently ─────────────
+     *
+     * On screen a page break is a block pushed down by `margin-top` until it
+     * sits at the top of the next sheet. On paper that does not survive, and the
+     * reason is CSS fragmentation rather than anything about this code: when the
+     * printer breaks a flow across pages it TRUNCATES the margin at the break,
+     * and the element's own padding — the page's inner margin, which every
+     * template carries on its root box — is applied to the first fragment only.
+     * The measured symptom was exact: page one's text started 0.59in down and
+     * page two's started 0.064in down, flush against the paper's edge.
+     *
+     * So printing asks the browser for the break instead of positioning it.
+     * `break-before: page` puts the block at the top of a new sheet — the SAME
+     * block the shared paginator chose, so the decision is still made in one
+     * place — and `padding-top` re-establishes the page's inner margin, because
+     * padding at the start of a fragment is preserved where a margin is not.
+     *
+     * The correction pass below is skipped for the same reason: it exists to
+     * verify a block landed where it was pushed, and nothing is being pushed.
+     */
+    if (printingRef.current) {
+      for (const index of plan.pushes.keys()) {
+        const el = blocks[index];
+        /*
+         * Zero, not cleared. Clearing restores the block's own CSS margin — the
+         * space a section carries above itself — and at the top of a fresh page
+         * that is not space between sections, it is space above the first line
+         * of the page. It measured as 1.31in where the first page reads 0.59in.
+         */
+        el.style.marginTop = '0px';
+        el.style.breakBefore = 'page';
+        el.style.paddingTop = `${PAGE_MARGIN}px`;
+      }
+      setPages((current) => (current === plan.pages ? current : plan.pages));
+      return [...plan.pushes.keys()].join(',');
+    }
 
     /*
      * Back onto the elements the plan indexed. The model deals in positions, so
@@ -484,7 +553,7 @@ export function PagedSheet({
           style={
             {
               '--page-h': `${PAGE_HEIGHT}px`,
-              '--page-gap': `${SHEET_GAP}px`,
+              '--page-gap': `${sheetGap}px`,
               /*
                * The sheets are absolutely positioned decoration, so they add
                * nothing to this element's height — it would otherwise collapse to
@@ -520,7 +589,7 @@ export function PagedSheet({
               <div
                 key={i}
                 className="tpl-sheet"
-                style={{ top: `${i * (PAGE_HEIGHT + SHEET_GAP)}px` }}
+                style={{ top: `${i * (PAGE_HEIGHT + sheetGap)}px` }}
               >
                 <span className="tpl-sheet__number">
                   {i + 1} / {pages}

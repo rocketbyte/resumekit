@@ -17,6 +17,15 @@ export interface TemplateDocumentProps {
   resume: ResumeObject;
   /** How the owner chose to present it; absent means the default template. */
   presentation?: ResumePresentation;
+  /**
+   * The gap between sheets. Defaults to the gap drawn on screen; the export
+   * renderer passes `0`, because paper has none.
+   *
+   * This is the whole of the difference between the document on screen and the
+   * document in the file. Everything else — the components, the stylesheets, the
+   * geometry, the paginator — is one definition used twice.
+   */
+  sheetGap?: number;
 }
 
 /**
@@ -31,6 +40,7 @@ export interface TemplateDocumentProps {
 export function TemplateDocument({
   resume,
   presentation,
+  sheetGap,
 }: TemplateDocumentProps) {
   const templateId = presentation?.template_id ?? DEFAULT_TEMPLATE_ID;
   const { Document, resolver } = TEMPLATE_RENDERERS[templateId];
@@ -70,6 +80,7 @@ export function TemplateDocument({
               value={{ sections: presentation?.section_spacing }}
             >
               <PagedSheet
+                sheetGap={sheetGap}
                 measureKey={JSON.stringify([
                   presentation?.style,
                   presentation?.section_spacing,
