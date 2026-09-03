@@ -17,7 +17,25 @@
     "tags": [
       "scope:templates",
       "type:lib"
-    ]
+    ],
+    "targets": {
+      "build-export": {
+        "executor": "nx:run-commands",
+        "outputs": [
+          "{projectRoot}/dist-export"
+        ],
+        "cache": true,
+        "options": {
+          "cwd": "{projectRoot}",
+          "commands": [
+            "vite build --config vite.export.config.mts"
+          ]
+        },
+        "dependsOn": [
+          "^build"
+        ]
+      }
+    }
   },
   "private": true,
   "type": "module",
