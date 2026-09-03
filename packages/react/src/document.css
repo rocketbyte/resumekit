@@ -6,6 +6,26 @@
  * without having to know which stylesheets to import. The editor's own chrome
  * is deliberately not here: this is the document, not the workbench.
  */
+
+/*
+ * The stylesheets this document is made of.
+ *
+ * MUST stay at the top of the file. `@import` is only valid before any other
+ * rule, so an import placed after the `.tpl-editor` block below is silently
+ * dropped by every CSS parser — which is exactly what happened: the shipped
+ * typefaces reach a browser through this line and nothing else, so while these
+ * sat at the foot of the file the product's own fonts never loaded and every
+ * résumé was drawn in whatever the reader's machine substituted. The other six
+ * are also imported by the components that use them, so only the fonts failed
+ * silently; that is why it went unnoticed.
+ */
+@import './fonts/fonts.css';
+@import './paged.css';
+@import './nodes/template-node.css';
+@import './templates/harvard/harvard.css';
+@import './templates/executive/executive.css';
+@import './templates/meridian/meridian.css';
+@import './templates/cobalt/cobalt.css';
 .tpl-editor {
   /*
    * The editing palette, taken from the APP's primary rather than stated here.
@@ -83,10 +103,3 @@
   --tpl-reveal-ms: 140ms;
 }
 
-@import './fonts/fonts.css';
-@import './paged.css';
-@import './nodes/template-node.css';
-@import './templates/harvard/harvard.css';
-@import './templates/executive/executive.css';
-@import './templates/meridian/meridian.css';
-@import './templates/cobalt/cobalt.css';

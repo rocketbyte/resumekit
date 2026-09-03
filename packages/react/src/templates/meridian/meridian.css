@@ -30,7 +30,21 @@
 
   --m-scale: 1;
   --m-ink: #383838;
-  --m-font: 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
+  /*
+   * The DEFAULT body face, and it must name the supplied one first.
+   *
+   * A résumé whose owner never opened the typeface control has no `font` in its
+   * stored style, so nothing sets this variable inline and this literal is what
+   * draws the document. While it named only system families, the default
+   * document was drawn in whatever the reader's machine had — Helvetica Neue on
+   * macOS, Liberation Sans in the render container — so the screen and the
+   * exported file disagreed for every résumé that had not chosen a typeface,
+   * which is most of them. Same stack as `DOCUMENT_FONTS.helvetica`, so the
+   * default and an explicit "Helvetica" are the same document.
+   */
+  --m-font:
+    'TeX Gyre Heros', 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans',
+    sans-serif;
 
   /*
    * The display face is the TEMPLATE's, not the candidate's — the serif
