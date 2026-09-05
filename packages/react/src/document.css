@@ -41,12 +41,12 @@
    * An earlier version hardcoded a green on the argument that the résumé renders
    * in paper colours in both themes, so an affordance on it must hold against
    * white in both. That argument was weaker than it read: the dark override is
-   * `--indigo-400`, which is a mid-tone violet and perfectly legible on white.
+   * `--blue-400`, which is a mid-tone azure and perfectly legible on white.
    * What it correctly rules out is following a token that goes near-white in
    * dark mode, which this one does not.
    */
-  --tpl-accent: var(--color-accent, oklch(0.55 0.13 288));
-  --tpl-accent-ink: var(--color-accent-hover, oklch(0.46 0.14 288));
+  --tpl-accent: var(--color-accent, oklch(0.54 0.17 256));
+  --tpl-accent-ink: var(--color-accent-hover, oklch(0.46 0.16 256));
 
   /*
    * The alphas, mixed once.
