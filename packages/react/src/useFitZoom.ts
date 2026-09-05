@@ -56,6 +56,26 @@ export function useFitZoom(
   ref: RefObject<HTMLElement | null>,
   /** The most zoom to apply. `1` disables the hook entirely. */
   max: number,
+  /**
+   * How long to leave the page at 1 before fitting it for the first time.
+   *
+   * `0` fits during the first layout pass, which is what a surface that simply
+   * renders a document wants: the page is the size it is going to be before
+   * anything is painted, and there is no previous value for the CSS transition
+   * to animate from, so nothing moves.
+   *
+   * The EDITOR wants the opposite. It arrives on a screen that is still
+   * settling — the shell may be giving it the sidebar's width, and measuring
+   * into that is measuring a column mid-change — and a page that is simply
+   * born at 115% never shows the candidate that it was fitted to their window
+   * at all. Waiting means the first paint is the document at its own size, the
+   * screen finishes arriving, and then the page grows into the room in one
+   * deliberate movement the transition can actually animate.
+   *
+   * Only the FIRST fit waits. A resize is a candidate dragging a window edge
+   * and wanting to see the result, so those measure immediately.
+   */
+  fitDelayMs = 0,
 ): number {
   const [zoom, setZoom] = useState(1);
 
@@ -72,7 +92,15 @@ export function useFitZoom(
       setZoom(fitZoom(host.clientWidth, max));
     };
 
-    measure();
+    /*
+     * Synchronously when there is no delay, so the page is fitted before the
+     * first paint and is never seen at the wrong size. On a timer otherwise —
+     * and deliberately NOT in the layout pass, because the whole point is to
+     * let a frame at 1 reach the screen for the transition to start from.
+     */
+    let first: ReturnType<typeof setTimeout> | undefined;
+    if (fitDelayMs > 0) first = setTimeout(measure, fitDelayMs);
+    else measure();
 
     /*
      * The WINDOW, not the container.
@@ -84,8 +112,11 @@ export function useFitZoom(
      * actually varies, and it is unaffected by anything this returns.
      */
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [ref, max]);
+    return () => {
+      clearTimeout(first);
+      window.removeEventListener('resize', measure);
+    };
+  }, [ref, max, fitDelayMs]);
 
   return zoom;
 }
