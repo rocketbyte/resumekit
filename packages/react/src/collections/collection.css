@@ -339,6 +339,44 @@
   background: var(--tpl-tint);
 }
 
+/*
+ * The INLINE empty state: a field, not a button on a line of its own.
+ *
+ * A collection rendered inside a line of the document — the links in a contact
+ * row — cannot afford the block control above it. It drew a dashed button on a
+ * second line, so the header was a line taller in the editor than in the
+ * preview and in the file. Marking it `data-chrome` did not help: chrome that
+ * sits in the flow still moves the document.
+ *
+ * So this is shaped like the empty fields beside it. `font: inherit` is what
+ * makes it read as part of the line rather than as a widget dropped into one —
+ * the document's own size, weight and leading, so it occupies a field's worth
+ * of the line and not a control's.
+ *
+ * The label is a `data-placeholder` attribute drawn by CSS, never a text node.
+ * A word in the element is a word in the résumé's `textContent`: it would ride
+ * along with a candidate's copy-and-paste and be read back by anything parsing
+ * the page. The accessible name says it properly instead.
+ */
+.tpl-collection__add-inline {
+  padding: 0;
+  font: inherit;
+  color: var(--tpl-accent-ink);
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.tpl-collection__add-inline::after {
+  content: attr(data-placeholder);
+  border-bottom: 1px dashed var(--tpl-line-hover);
+}
+
+.tpl-collection__add-inline:hover::after,
+.tpl-collection__add-inline:focus-visible::after {
+  border-bottom-style: solid;
+}
+
 /* ---------------------------------------------------------------------------
  * Motion is an enhancement, never the mechanism.
  * ------------------------------------------------------------------------ */
@@ -364,7 +402,8 @@
 
 @media print {
   .tpl-entry-overlay,
-  .tpl-collection__add {
+  .tpl-collection__add,
+  .tpl-collection__add-inline {
     display: none !important;
   }
 

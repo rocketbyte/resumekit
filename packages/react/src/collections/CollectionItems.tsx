@@ -82,6 +82,8 @@ export interface CollectionItemsProps<T> {
    * so a template that renders entries gets its gaps by saying nothing.
    */
   gap?: boolean;
+  /** Where the empty-state add sits — see `Collection`. Defaults to `block`. */
+  emptyAdd?: 'block' | 'inline';
   /** The template's entry component. MUST return a single element. */
   children: (props: EntryRenderProps<T>) => ReactElement | null;
 }
@@ -163,6 +165,7 @@ export function CollectionItems<T>({
   noun,
   label,
   gap = true,
+  emptyAdd = 'block',
   children,
 }: CollectionItemsProps<T>) {
   const authoring = useAuthoring();
@@ -195,9 +198,10 @@ export function CollectionItems<T>({
   ));
 
   /*
-   * An empty collection has no item to hang "add below" on. Rendering an
-   * in-flow control here moves nothing, because a template omits a section it
-   * has no data for — there is no line below it to push.
+   * An empty collection has no item to hang "add below" on. A BLOCK control
+   * here moves nothing, because a template omits a section it has no data for —
+   * there is no line below it to push. Inside a line of the document that is
+   * false, and `emptyAdd` is how a template says so.
    */
   const empty = authoring && collection.canAdd && collection.items.length === 0;
 
@@ -226,21 +230,51 @@ export function CollectionItems<T>({
         rendered
       )}
 
-      {empty && (
-        <div
-          className="tpl-collection__add"
-          data-chrome
-          contentEditable={false}
-        >
+      {/*
+       * Adding to a collection that is empty.
+       *
+       * `block` is a control on its own line, and it can be: a template omits a
+       * section it has no data for, so there is no line below it to push.
+       *
+       * `inline` exists because that reasoning stops at a section. A collection
+       * rendered INSIDE a line — the links in a contact row — was drawing a
+       * dashed button on a second line the preview does not have, so the header
+       * was one line taller in the editor than in the file. Marking it chrome
+       * was not enough: chrome that sits in the flow still moves the document,
+       * which is what `LinkField.spec.tsx` could not see, because it strips
+       * chrome before comparing.
+       *
+       * The inline form is an empty FIELD with a placeholder, sized like the
+       * items beside it. Pressing it mints the entry, and the entry's own field
+       * takes over — so the line keeps its shape and the control reads as the
+       * thing it produces.
+       */}
+      {empty &&
+        (emptyAdd === 'inline' ? (
           <button
             type="button"
-            className="tpl-collection__add-btn"
+            className="tpl-collection__add-inline"
+            data-chrome
+            contentEditable={false}
+            data-placeholder={`Add ${noun}`}
+            aria-label={`Add ${noun}`}
             onClick={() => collection.add()}
+          />
+        ) : (
+          <div
+            className="tpl-collection__add"
+            data-chrome
+            contentEditable={false}
           >
-            + Add {noun}
-          </button>
-        </div>
-      )}
+            <button
+              type="button"
+              className="tpl-collection__add-btn"
+              onClick={() => collection.add()}
+            >
+              + Add {noun}
+            </button>
+          </div>
+        ))}
     </>
   );
 }

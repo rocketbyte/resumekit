@@ -19,6 +19,19 @@ export interface CollectionProps<T> {
    * decides — see `CollectionItems`. Defaults to on.
    */
   gap?: boolean;
+  /**
+   * How the empty-state add control sits in the document.
+   *
+   * `block` — the default — is a control on a line of its own, which is right
+   * for a SECTION a template omits when it has no data: there is no line below
+   * it to push.
+   *
+   * `inline` is for a collection that renders inside a line of the document,
+   * where a block control is a second line the preview does not have. It draws
+   * an empty field with a placeholder instead, sized like the items beside it,
+   * so the line keeps its shape.
+   */
+  emptyAdd?: 'block' | 'inline';
 }
 
 /**
@@ -41,6 +54,7 @@ export function Collection<T>({
   children,
   noun,
   gap,
+  emptyAdd,
 }: CollectionProps<T>) {
   const collection = useSectionCollection<T>(section, items);
   return (
@@ -49,6 +63,7 @@ export function Collection<T>({
       noun={noun ?? COLLECTIONS[section].noun}
       label={COLLECTIONS[section].label}
       gap={gap}
+      emptyAdd={emptyAdd}
     >
       {children}
     </CollectionItems>

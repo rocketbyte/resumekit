@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import type { ResumeObject, TemplateId } from '@cvgs/core';
 import { TEMPLATE_RENDERERS } from '../registry.js';
 import { DocumentPresentationProvider } from '../presentation-context.js';
+import { DocumentAuthoringProvider } from '../collections/authoring-context.js';
 
 /**
  * A link is one field in every template, and its chrome costs the document
@@ -48,16 +49,40 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
   };
 }
 
-function renderIn(id: TemplateId, data: ResumeObject, editing: boolean) {
+/**
+ * `authoring` mounts the provider a collection needs before it offers to add.
+ * Separate from `editing`, because they answer different questions: Craft's
+ * `enabled` decides whether a field can be typed into, and the authoring
+ * context decides whether the document's SHAPE can change. The read-only
+ * document has neither, which is what keeps the preview and the export free of
+ * chrome without either of them opting out.
+ */
+function renderIn(
+  id: TemplateId,
+  data: ResumeObject,
+  editing: boolean,
+  authoring = editing,
+) {
   const { Document, resolver } = TEMPLATE_RENDERERS[id];
-  return render(
+  const tree = (
     <DocumentPresentationProvider>
       <Editor resolver={resolver} enabled={editing}>
         <Frame>
           <Element is={Document} resume={data} />
         </Frame>
       </Editor>
-    </DocumentPresentationProvider>,
+    </DocumentPresentationProvider>
+  );
+  return render(
+    authoring ? (
+      <DocumentAuthoringProvider
+        value={{ base: data, edits: [], onEditsChange: () => undefined }}
+      >
+        {tree}
+      </DocumentAuthoringProvider>
+    ) : (
+      tree
+    ),
   );
 }
 
@@ -80,13 +105,38 @@ describe('a link is the same document, edited or read', () => {
     '%s: the editing DOM differs from the reading DOM only by chrome',
     (id) => {
       const data = resume();
-      const editing = renderIn(id, data, true);
+      /*
+       * `authoring: false` on the editing side, and that is a LIMIT of this
+       * assertion rather than a convenience. It covers everything Craft's
+       * `enabled` state adds — which is what a link's popover and trigger are —
+       * and not what the authoring CONTEXT adds. The `todo` below names what is
+       * still outstanding there.
+       */
+      const editing = renderIn(id, data, true, false);
       const reading = renderIn(id, data, false);
 
       expect(withoutChrome(editing.container)).toBe(
         withoutChrome(reading.container),
       );
     },
+  );
+
+  /*
+   * The same comparison with the authoring context mounted, which is the state
+   * a candidate actually edits in. It does not pass yet, and the reason is not
+   * links: Harvard builds its contact row as
+   * `CONTACT_FIELDS.filter((f) => authoring || resume.contact[f])`, so the
+   * editor renders empty `location` and `phone` fields the preview does not —
+   * three items in that line against one. Every template does something of this
+   * shape.
+   *
+   * The same defect as the add control, one level up, and bigger: fixing it
+   * means an empty optional field renders in BOTH states and is drawn as a
+   * placeholder only in the editor — which is already how `education.location`
+   * behaves, so the pattern exists and the contact row does not follow it.
+   */
+  it.todo(
+    'the editing DOM differs only by chrome with the authoring context mounted',
   );
 
   it.each(TEMPLATE_IDS)(
@@ -123,5 +173,58 @@ describe('a link is the same document, edited or read', () => {
       anchor,
       'the export reads this anchor, not a click handler',
     ).toBeTruthy();
+  });
+});
+
+/**
+ * The empty state does not add a line the document does not have.
+ *
+ * The defect these exist for, which the equivalence test above could not see:
+ * an empty links collection drew `.tpl-collection__add` — a `<div>` holding a
+ * dashed "+ Add link" button — inside Harvard's contact `<p>`. It was marked
+ * `data-chrome`, so the comparison stripped it and passed, while the editor
+ * showed a second line under the contact row that the preview and the file do
+ * not have.
+ *
+ * Two things were wrong and both are asserted here. Chrome that sits in the
+ * FLOW still moves the document, so marking it is not enough. And a `<div>`
+ * inside a `<p>` is invalid nesting a browser resolves by closing the
+ * paragraph — which is why it appeared below the line rather than in it.
+ */
+describe('an empty collection inside a line keeps the line', () => {
+  const noLinks = () => resume({ links: [] });
+
+  it('offers a field, not a block button', () => {
+    const { container } = renderIn('harvard', noLinks(), true);
+    expect(container.querySelector('.tpl-collection__add-inline')).toBeTruthy();
+    expect(container.querySelector('.tpl-collection__add')).toBeNull();
+  });
+
+  it('puts no block element inside the contact paragraph', () => {
+    // Invalid nesting, and the mechanism by which the control escaped the line.
+    const { container } = renderIn('harvard', noLinks(), true);
+    const contact = container.querySelector('.tpl-harvard__contact');
+    expect(contact, 'the contact line is rendered').toBeTruthy();
+    expect(contact!.querySelector('div')).toBeNull();
+  });
+
+  it('says what it adds without putting a word in the resume', () => {
+    /*
+     * A text node here would ride along with a candidate's copy-and-paste and
+     * be read back by anything parsing the page — the rule the placeholders
+     * already follow. The name is accessible; the label is an attribute CSS
+     * draws.
+     */
+    const { container } = renderIn('harvard', noLinks(), true);
+    const add = container.querySelector('.tpl-collection__add-inline');
+    expect(add?.textContent).toBe('');
+    expect(add?.getAttribute('data-placeholder')).toMatch(/link/i);
+    expect(add?.getAttribute('aria-label')).toMatch(/link/i);
+  });
+
+  it('offers nothing at all in a document being read', () => {
+    const { container } = renderIn('harvard', noLinks(), false);
+    expect(container.querySelector('.tpl-collection__add-inline')).toBeNull();
+    expect(container.querySelector('.tpl-collection__add')).toBeNull();
   });
 });

@@ -173,7 +173,17 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
              * the in-flow "+ Add link" it shows when there are none at all —
              * so LinkedIn and GitHub are a click away rather than absent.
              */}
-            <Collection section="links" items={resume.links} gap={false}>
+            {/*
+             * `inline`, because this collection lives INSIDE the contact line.
+             * The block add control drew a dashed button on a second line the
+             * preview does not have — see `CollectionItems`.
+             */}
+            <Collection
+              section="links"
+              items={resume.links}
+              gap={false}
+              emptyAdd="inline"
+            >
               {({ item, path, chrome, itemProps }) => (
                 <span {...itemProps} className="tpl-harvard__contact-item">
                   {chrome}
