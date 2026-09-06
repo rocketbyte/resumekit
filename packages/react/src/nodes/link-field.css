@@ -30,18 +30,23 @@
  * Beside it is the version that costs a space: an inline button in the contact
  * line makes that line longer in the editor than in the file, which is the
  * defect this whole change is about. So it is a positioned overlay across the
- * link's own box — pressing the link opens its address.
+ * link's own box — pressing the link opens its two fields.
+ *
+ * ON TOP, and deliberately. A positioned element with `z-index: 0` paints above
+ * its static siblings, so this covers the text and takes the click — which is
+ * the behaviour wanted, because a link is edited in its popover rather than in
+ * place. An earlier version of this rule claimed to sit UNDER the text; it did
+ * not, and could not: `z-index: 0` is not below the flow, and at `-1` the
+ * element would never receive a press at all.
  */
 .tpl-link__trigger {
   position: absolute;
   inset: 0;
+  z-index: 1;
   padding: 0;
   background: none;
   border: 0;
   cursor: pointer;
-  /* Under the text, so a click still reaches the field for in-place editing and
-     the trigger only claims what the text does not. */
-  z-index: 0;
 }
 
 .tpl-link__trigger:hover,
@@ -63,9 +68,8 @@
   top: calc(100% + 4px);
   left: 0;
   z-index: 6;
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
+  display: grid;
+  gap: 4px;
   width: max-content;
   max-width: 22rem;
   padding: 5px 8px;
@@ -83,15 +87,38 @@
   display: none;
 }
 
-.tpl-link__pop-label {
+/* One row per field: its name, then the control. */
+.tpl-link__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tpl-link__label {
+  min-width: 2.4rem;
   font-weight: 600;
   white-space: nowrap;
 }
 
-/* The address field itself, given room to be typed into without the popover
-   resizing under the cursor. */
-.tpl-link__pop-field {
-  min-width: 12rem;
+/*
+ * Real form controls, and they can be: nothing here is part of the document.
+ * `PlainTextField` exists because a control cannot be split across two lines of
+ * a résumé — a constraint that applies to the text IN the page, not to a panel
+ * floating above it.
+ */
+.tpl-link__input {
+  width: 15rem;
+  padding: 2px 5px;
+  font: inherit;
+  color: inherit;
+  background: var(--tpl-paper, #fff);
+  border: 1px solid var(--tpl-line-hover, #d4d4d8);
+  border-radius: 3px;
+}
+
+.tpl-link__input:focus-visible {
+  outline: 2px solid var(--tpl-accent, #2563eb);
+  outline-offset: -1px;
 }
 
 /* On paper the document is the only thing on the page — the belt to the

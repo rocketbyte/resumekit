@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { Editor, Element, Frame } from '@craftjs/core';
 import { describe, expect, it } from 'vitest';
 import type { ResumeObject, TemplateId } from '@cvgs/core';
@@ -226,5 +226,71 @@ describe('an empty collection inside a line keeps the line', () => {
     const { container } = renderIn('harvard', noLinks(), false);
     expect(container.querySelector('.tpl-collection__add-inline')).toBeNull();
     expect(container.querySelector('.tpl-collection__add')).toBeNull();
+  });
+});
+
+/**
+ * The popover carries both halves of a link, and both survive a save.
+ *
+ * "Survive a save" is the part worth asserting rather than assuming. The save
+ * rebuilds the overlay from the Craft nodes that carry a `path` — anything
+ * stored another way shows on screen and is gone on the next write — so what is
+ * checked here is that typing reaches those NODES, not merely that an input
+ * holds a character.
+ */
+describe('a link is edited in its popover', () => {
+  const openPopover = (data: ResumeObject) => {
+    const view = renderIn('harvard', data, true);
+    fireEvent.click(screen.getByRole('button', { name: /edit/i }));
+    return view;
+  };
+
+  it('offers the text and the address together', () => {
+    // Two places for one fact was the thing this replaced: a label on the page
+    // and its address in a panel on the other side of the screen.
+    openPopover(resume());
+    expect(screen.getByDisplayValue('LinkedIn')).toBeTruthy();
+    expect(
+      screen.getByDisplayValue('https://linkedin.com/in/example'),
+    ).toBeTruthy();
+  });
+
+  it('writes the text to the node the document renders', () => {
+    const { container } = openPopover(resume());
+    fireEvent.change(screen.getByDisplayValue('LinkedIn'), {
+      target: { value: 'My profile' },
+    });
+
+    // The node in the FLOW updated, which is both what prints and what is
+    // collected when the document saves.
+    const shown = container.querySelector('[data-path="links.0.label"]');
+    expect(shown?.textContent).toBe('My profile');
+  });
+
+  it('writes the address, and the document links to it', () => {
+    const { container } = openPopover(resume());
+    fireEvent.change(
+      screen.getByDisplayValue('https://linkedin.com/in/example'),
+      { target: { value: 'https://example.com/cv' } },
+    );
+
+    const anchor = container.querySelector('[data-path="links.0.label"] a');
+    expect(anchor?.getAttribute('href')).toBe('https://example.com/cv');
+  });
+
+  it('keeps the address mounted while the popover is shut', () => {
+    /*
+     * It is the store, not the control. A node outside the tree is not
+     * collected when the document saves, so closing the popover would lose the
+     * address if this were rendered only while open.
+     */
+    const { container } = renderIn('harvard', resume(), true);
+    expect(screen.queryByRole('button', { name: /edit/i })).toBeTruthy();
+    expect(container.querySelector('[data-path="links.0.url"]')).toBeTruthy();
+  });
+
+  it('offers no popover in a document being read', () => {
+    renderIn('harvard', resume(), false);
+    expect(screen.queryByRole('button', { name: /edit/i })).toBeNull();
   });
 });
