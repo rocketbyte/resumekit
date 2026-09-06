@@ -250,7 +250,35 @@ export function PagedSheet({
      * `planPagination`, which decides every push arithmetically. One reflow, not
      * one per block.
      */
-    for (const block of blocks) block.style.marginTop = '';
+    /*
+     * EVERY property a pass writes, cleared before the next one measures — not
+     * just the margin.
+     *
+     * The bug this fixes, which reached exported PDFs: printing writes
+     * `break-before` and `padding-top` as well (see the print branch below), and
+     * only the margin was ever reset. So the second pass measured a document
+     * that was still carrying the FIRST pass's page breaks. Under
+     * `emulatedMediaType: print` the renderer's layout is genuinely fragmented,
+     * so those breaks move the rects `getBoundingClientRect` reports — the plan
+     * read a heading already sitting at the top of page two, concluded that what
+     * followed no longer fitted, and broke again. Every pass added one more
+     * break, and the paginator ran several: the layout effect, the resize
+     * observer, and the export's settle loop.
+     *
+     * The symptom was exact. A résumé the editor drew on two pages exported on
+     * three, with EDUCATION alone at the top of page two and its entries
+     * stranded on page three.
+     *
+     * `''` restores the stylesheet's value rather than zeroing it, which is what
+     * makes this a reset to the NATURAL layout instead of a fourth opinion
+     * about spacing. `pagination-reset.spec.ts` fails if a future pass writes a
+     * property this loop does not clear.
+     */
+    for (const block of blocks) {
+      block.style.marginTop = '';
+      block.style.breakBefore = '';
+      block.style.paddingTop = '';
+    }
 
     /*
      * Each block's OWN top margin, read once the inline ones are cleared.
