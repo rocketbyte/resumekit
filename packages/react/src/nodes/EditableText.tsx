@@ -1,6 +1,5 @@
-import { useEditor, useNode } from '@craftjs/core';
 import { isSafeLinkTarget } from '@cvgs/core';
-import { LOCKED_RULES } from './locked.js';
+import { useField } from '../fields/field-registry.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
 import { PlainTextField } from './PlainTextField.js';
@@ -44,32 +43,25 @@ export interface EditableTextProps {
  */
 export function EditableText({
   path,
-  value,
+  value: given,
   placeholder,
   multiline,
   href,
 }: EditableTextProps) {
-  // Read live, so a formatting change shows the instant it is made — Craft's
-  // node props are the text, and only the text.
+  // Read live, so a formatting change shows the instant it is made — a field's
+  // value is the text, and only the text.
   const format = useFieldFormat(path);
   /*
-   * Whether this tree is being EDITED or merely displayed.
+   * The field, by its path in the résumé.
    *
-   * It decides what a click on a link means. In the editor a click must select
-   * the field — following the link would navigate away from the document the
-   * candidate is working on. In a read-only preview there is nothing to select,
-   * so the link behaves like a link. The anchor is in the DOM either way, which
-   * is what matters for the export: printing emits a Link annotation from the
-   * markup, not from the click handler.
+   * `editing` decides what a click on a link means. In the editor a click must
+   * select the field — following the link would navigate away from the document
+   * the candidate is working on. In a read-only preview there is nothing to
+   * select, so the link behaves like a link. The anchor is in the DOM either
+   * way, which is what matters for the export: printing emits a Link annotation
+   * from the markup, not from the click handler.
    */
-  const { editing } = useEditor((state) => ({
-    editing: state.options.enabled,
-  }));
-  const {
-    connectors: { connect },
-    selected,
-    actions: { setProp },
-  } = useNode((node) => ({ selected: node.events.selected }));
+  const { value, editing, selected, select, set } = useField(path, given);
 
   /*
    * Typing, so the DEFERRED request: this fires per character, and a field that
@@ -80,13 +72,21 @@ export function EditableText({
   const { saveSoon } = useAutosave();
 
   const change = (next: string) => {
-    setProp((props: EditableTextProps) => {
-      // A line stays a line. Pasting three lines of a signature block into a
-      // job title should give a job title, not a résumé with a hole in it.
-      props.value = multiline ? next : next.replace(/\s*\n\s*/g, ' ');
-    }, 500);
+    // A line stays a line. Pasting three lines of a signature block into a job
+    // title should give a job title, not a résumé with a hole in it.
+    set(multiline ? next : next.replace(/\s*\n\s*/g, ' '));
     saveSoon();
   };
+
+  /*
+   * A press selects the field. Craft's `connect` used to attach this; without
+   * it the element is ordinary markup and has to say so itself.
+   *
+   * `mousedown` rather than `click`, and NOT prevented: the browser places the
+   * caret where the candidate pressed, and this puts the field in the state
+   * where that caret is inside a real editable box.
+   */
+  const onMouseDown = editing ? () => select() : undefined;
 
   if (!selected) {
     /*
@@ -112,9 +112,7 @@ export function EditableText({
     const target = raw && isSafeLinkTarget(raw) ? raw : undefined;
     return (
       <span
-        ref={(ref) => {
-          if (ref) connect(ref);
-        }}
+        onMouseDown={onMouseDown}
         className={formatClass(format, 'tpl-text')}
         style={formatInk(format)}
         data-ink={inkAttr(format)}
@@ -156,9 +154,7 @@ export function EditableText({
 
   return (
     <span
-      ref={(ref) => {
-        if (ref) connect(ref);
-      }}
+      onMouseDown={onMouseDown}
       /*
        * A plain inline box, and nothing more. The field inside it flows and
        * wraps on its own now, so there is no mirror to measure it and no grid
@@ -179,8 +175,3 @@ export function EditableText({
     </span>
   );
 }
-
-EditableText.craft = {
-  displayName: 'EditableText',
-  rules: LOCKED_RULES,
-};

@@ -1,5 +1,4 @@
 import type { ComponentType, ReactNode } from 'react';
-import { Element } from '@craftjs/core';
 import { PLACEHOLDERS, type CustomEntry, type CustomSection } from '@cvgs/core';
 import { EditableText } from './EditableText.js';
 import {
@@ -64,9 +63,7 @@ function AuthoredSection({
   return (
     <section className={sectionClass}>
       <h2 className={headingClass} data-block data-keep-with-next>
-        <Element
-          id={`${base}.heading`}
-          is={EditableText}
+        <EditableText
           path={`${base}.heading`}
           value={section.heading}
           placeholder={PLACEHOLDERS['heading']}

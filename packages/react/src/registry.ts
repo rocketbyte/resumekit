@@ -1,5 +1,4 @@
 import type { ComponentType } from 'react';
-import type { Resolver } from '@craftjs/core';
 import type { ResumeObject, TemplateId } from '@cvgs/core';
 import { EditableText } from './nodes/EditableText.js';
 import { EditableBulletList } from './nodes/EditableBulletList.js';
@@ -31,36 +30,26 @@ export interface TemplateDocumentProps {
 
 export interface TemplateRenderer {
   Document: ComponentType<TemplateDocumentProps>;
-  resolver: Resolver;
 }
 
-/** The nodes every template edits with. Shared, because the overlay is shared. */
-const EDITABLE_NODES: Resolver = {
-  EditableText,
-  EditableBulletList,
-  EditableInlineList,
-};
-
 export const TEMPLATE_RENDERERS: Record<TemplateId, TemplateRenderer> = {
-  harvard: {
-    Document: HarvardDocument,
-    resolver: { ...EDITABLE_NODES, HarvardDocument },
-  },
-  executive: {
-    Document: ExecutiveDocument,
-    resolver: { ...EDITABLE_NODES, ExecutiveDocument },
-  },
-  meridian: {
-    Document: MeridianDocument,
-    resolver: { ...EDITABLE_NODES, MeridianDocument },
-  },
-  cobalt: {
-    Document: CobaltDocument,
-    resolver: { ...EDITABLE_NODES, CobaltDocument },
-  },
+  harvard: { Document: HarvardDocument },
+  executive: { Document: ExecutiveDocument },
+  meridian: { Document: MeridianDocument },
+  cobalt: { Document: CobaltDocument },
 };
 
-/** Every node component the registry can instantiate, for the lock test. */
-export const REGISTERED_NODES = Object.values(TEMPLATE_RENDERERS).flatMap(
-  (renderer) => Object.entries(renderer.resolver),
-);
+/**
+ * The editable field components, for the test that no field accepts a
+ * presentational prop.
+ *
+ * A list rather than a resolver: there is no library to resolve a name for any
+ * more (`retire-craftjs`), but the RULE those nodes are held to survives the
+ * mechanism — a field may carry `bold`, `align`, `ink` and `href` from the
+ * catalog, and never a style, a class or a dimension.
+ */
+export const REGISTERED_NODES: [string, unknown][] = [
+  ['EditableText', EditableText],
+  ['EditableBulletList', EditableBulletList],
+  ['EditableInlineList', EditableInlineList],
+];

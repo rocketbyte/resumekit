@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
-import { Element } from '@craftjs/core';
 import {
   PLACEHOLDERS,
   type CustomEntry,
@@ -49,35 +48,27 @@ export function HarvardExperienceEntry({
       {chrome}
       <div className="tpl-harvard__entry-head">
         <span className="tpl-harvard__org">
-          <Element
-            id={`${path}.company`}
-            is={EditableText}
+          <EditableText
             path={`${path}.company`}
             value={item.company}
             placeholder={PLACEHOLDERS['company']}
           />
         </span>
         <span className="tpl-harvard__dates">
-          <Element
-            id={`${path}.start`}
-            is={EditableText}
+          <EditableText
             path={`${path}.start`}
             value={item.start}
             placeholder={PLACEHOLDERS['start']}
           />
           {' – '}
-          <Element
-            id={`${path}.end`}
-            is={EditableText}
+          <EditableText
             path={`${path}.end`}
             value={item.end}
             placeholder={PLACEHOLDERS['end']}
           />
         </span>
         <span className="tpl-harvard__role">
-          <Element
-            id={`${path}.title`}
-            is={EditableText}
+          <EditableText
             path={`${path}.title`}
             value={item.title}
             placeholder={PLACEHOLDERS['title']}
@@ -85,12 +76,7 @@ export function HarvardExperienceEntry({
         </span>
         <span className="tpl-harvard__where" />
       </div>
-      <Element
-        id={`${path}.bullets`}
-        is={EditableBulletList}
-        path={`${path}.bullets`}
-        items={item.bullets}
-      />
+      <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
   );
 }
@@ -122,9 +108,7 @@ export function HarvardEducationEntry({
       {chrome}
       <div className="tpl-harvard__entry-head">
         <span className="tpl-harvard__org">
-          <Element
-            id={`${path}.school`}
-            is={EditableText}
+          <EditableText
             path={`${path}.school`}
             value={item.school}
             placeholder={PLACEHOLDERS['school']}
@@ -141,26 +125,20 @@ export function HarvardEducationEntry({
          * résumés use.
          */}
         <span className="tpl-harvard__where">
-          <Element
-            id={`${path}.location`}
-            is={EditableText}
+          <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
             placeholder={PLACEHOLDERS['location']}
           />
         </span>
         <span className="tpl-harvard__role">
-          <Element
-            id={`${path}.degree`}
-            is={EditableText}
+          <EditableText
             path={`${path}.degree`}
             value={item.degree ?? ''}
             placeholder={PLACEHOLDERS['degree']}
           />
           {item.degree && item.field ? ', ' : ''}
-          <Element
-            id={`${path}.field`}
-            is={EditableText}
+          <EditableText
             path={`${path}.field`}
             value={item.field ?? ''}
             placeholder={PLACEHOLDERS['field']}
@@ -174,9 +152,7 @@ export function HarvardEducationEntry({
          * fields here; this one was reading its own data and printing it.
          */}
         <span className="tpl-harvard__dates">
-          <Element
-            id={`${path}.start`}
-            is={EditableText}
+          <EditableText
             path={`${path}.start`}
             value={item.start ?? ''}
             placeholder={PLACEHOLDERS['start']}
@@ -189,9 +165,7 @@ export function HarvardEducationEntry({
            * fields either side of it run together without it.
            */}
           {authoring || (item.start && item.end) ? ' – ' : ''}
-          <Element
-            id={`${path}.end`}
-            is={EditableText}
+          <EditableText
             path={`${path}.end`}
             value={item.end ?? ''}
             placeholder={PLACEHOLDERS['end']}
@@ -217,9 +191,7 @@ export function HarvardSkillGroup({
     <li {...itemProps} className="tpl-harvard__skill-group">
       {chrome}
       <span className="tpl-harvard__skill-label">
-        <Element
-          id={`${path}.category`}
-          is={EditableText}
+        <EditableText
           path={`${path}.category`}
           value={item.category}
           placeholder={PLACEHOLDERS['category']}
@@ -235,9 +207,7 @@ export function HarvardSkillGroup({
        * machine first, so the separator between a category and its skills has
        * to be a character.
        */}
-      <Element
-        id={`${path}.items`}
-        is={EditableInlineList}
+      <EditableInlineList
         path={`${path}.items`}
         items={item.items}
         placeholder={PLACEHOLDERS['items']}
@@ -271,9 +241,7 @@ export function HarvardCustomEntry({
       {chrome}
       <div className="tpl-harvard__entry-head">
         <span className="tpl-harvard__org">
-          <Element
-            id={`${path}.title`}
-            is={EditableText}
+          <EditableText
             path={`${path}.title`}
             value={item.title}
             placeholder={PLACEHOLDERS['heading']}
@@ -281,9 +249,7 @@ export function HarvardCustomEntry({
         </span>
         <span className="tpl-harvard__dates" />
         <span className="tpl-harvard__role">
-          <Element
-            id={`${path}.detail`}
-            is={EditableText}
+          <EditableText
             path={`${path}.detail`}
             value={item.detail ?? ''}
             placeholder={PLACEHOLDERS['detail']}
@@ -292,12 +258,7 @@ export function HarvardCustomEntry({
         <span className="tpl-harvard__where" />
       </div>
       {item.bullets.length > 0 && (
-        <Element
-          id={`${path}.bullets`}
-          is={EditableBulletList}
-          path={`${path}.bullets`}
-          items={item.bullets}
-        />
+        <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
       )}
     </article>
   );

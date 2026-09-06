@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useNode } from '@craftjs/core';
-import { LOCKED_RULES } from './locked.js';
+import { useField } from '../fields/field-registry.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
 import { useAutosave } from '../autosave-context.js';
@@ -48,11 +47,7 @@ export function EditableInlineList({
   placeholder,
 }: EditableInlineListProps) {
   const format = useFieldFormat(path);
-  const {
-    connectors: { connect },
-    selected,
-    actions: { setProp },
-  } = useNode((node) => ({ selected: node.events.selected }));
+  const { value, editing, selected, select, set } = useField(path, items);
 
   /* Typing, so deferred — the same bargain `EditableText` makes. */
   const { saveSoon } = useAutosave();
@@ -67,21 +62,20 @@ export function EditableInlineList({
    */
   const [buffer, setBuffer] = useState<string | null>(null);
 
-  const text = buffer ?? items.join(SEPARATOR);
+  const text = buffer ?? value.join(SEPARATOR);
 
   const change = (next: string) => {
     setBuffer(next);
-    setProp((props: EditableInlineListProps) => {
-      props.items = split(next);
-    }, 500);
+    set(split(next));
     saveSoon();
   };
 
+  /* A press selects the field — Craft's `connect` used to attach this. */
+  const onMouseDown = editing ? () => select() : undefined;
+
   return (
     <span
-      ref={(ref) => {
-        if (ref) connect(ref);
-      }}
+      onMouseDown={onMouseDown}
       className={formatClass(format, 'tpl-text')}
       style={formatInk(format)}
       data-ink={inkAttr(format)}
@@ -111,8 +105,3 @@ export function EditableInlineList({
     </span>
   );
 }
-
-EditableInlineList.craft = {
-  displayName: 'EditableInlineList',
-  rules: LOCKED_RULES,
-};

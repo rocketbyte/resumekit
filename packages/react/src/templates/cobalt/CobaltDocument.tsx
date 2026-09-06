@@ -1,5 +1,4 @@
 import type { CSSProperties } from 'react';
-import { Element, useNode } from '@craftjs/core';
 import {
   DENSITIES,
   DOCUMENT_FONTS,
@@ -18,7 +17,6 @@ import {
   CobaltEducationEntry,
   CobaltExperienceEntry,
 } from './entries.js';
-import { LOCKED_RULES } from '../../nodes/locked.js';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { isLanguages } from '../skills.js';
 import './cobalt.css';
@@ -124,9 +122,6 @@ export interface CobaltDocumentProps {
 }
 
 export function CobaltDocument({ resume }: CobaltDocumentProps) {
-  const {
-    connectors: { connect },
-  } = useNode();
   const style = useDocumentStyle();
   /*
    * A section with nothing in it is omitted from the DOCUMENT and offered in
@@ -154,9 +149,6 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
 
   return (
     <article
-      ref={(ref) => {
-        if (ref) connect(ref);
-      }}
       className="tpl-cob"
       style={documentStyle(style)}
       aria-label="Resume document"
@@ -185,21 +177,14 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
         </div>
 
         <h1 className="tpl-cob__name">
-          <Element
-            id="name"
-            is={EditableText}
-            path="name"
-            value={resume.name}
-          />
+          <EditableText path="name" value={resume.name} />
         </h1>
 
         {contact.length > 0 && (
           <div className="tpl-cob__contact">
             {contact.map((path) => (
               <p key={path} className="tpl-cob__contact-item">
-                <Element
-                  id={path}
-                  is={EditableText}
+                <EditableText
                   path={path}
                   value={String(
                     resume.contact[
@@ -226,13 +211,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
                 Professional Summary
               </h2>
               <p className="tpl-cob__prose" data-block>
-                <Element
-                  id="summary"
-                  is={EditableText}
-                  path="summary"
-                  value={resume.summary}
-                  multiline
-                />
+                <EditableText path="summary" value={resume.summary} multiline />
               </p>
             </section>
           )}
@@ -246,10 +225,8 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
                   skills. As one block it is taller than the paper. */}
               <div data-block data-split>
                 {technical.map(({ group, index }) => (
-                  <Element
+                  <EditableBulletList
                     key={index}
-                    id={`skills.${index}.items`}
-                    is={EditableBulletList}
                     path={`skills.${index}.items`}
                     items={group.items}
                   />
@@ -282,9 +259,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
                 Certifications
               </h2>
               <div data-block data-split>
-                <Element
-                  id="certifications"
-                  is={EditableBulletList}
+                <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
                 />
@@ -322,10 +297,8 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
                 {languages.map((group) => {
                   const index = resume.skills.indexOf(group);
                   return (
-                    <Element
+                    <EditableBulletList
                       key={index}
-                      id={`skills.${index}.items`}
-                      is={EditableBulletList}
                       path={`skills.${index}.items`}
                       items={group.items}
                     />
@@ -342,12 +315,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
               </h2>
               <p className="tpl-cob__prose" data-block>
                 {'Title: '}
-                <Element
-                  id="headline"
-                  is={EditableText}
-                  path="headline"
-                  value={resume.headline}
-                />
+                <EditableText path="headline" value={resume.headline} />
               </p>
             </section>
           )}
@@ -398,8 +366,3 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
     </article>
   );
 }
-
-CobaltDocument.craft = {
-  displayName: 'CobaltDocument',
-  rules: LOCKED_RULES,
-};

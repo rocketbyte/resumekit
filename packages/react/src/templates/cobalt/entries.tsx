@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
-import { Element } from '@craftjs/core';
 import {
   PLACEHOLDERS,
   type CustomEntry,
@@ -45,12 +44,7 @@ export function CobaltExperienceEntry({
     <article {...itemProps} className="tpl-cob__entry" data-block>
       {chrome}
       <p className="tpl-cob__entry-lead">
-        <Element
-          id={`${path}.company`}
-          is={EditableText}
-          path={`${path}.company`}
-          value={item.company}
-        />
+        <EditableText path={`${path}.company`} value={item.company} />
       </p>
       {/*
        * The reference sets the role, a rule, the entry's location,
@@ -62,35 +56,15 @@ export function CobaltExperienceEntry({
        */}
       <p className="tpl-cob__entry-meta">
         <em className="tpl-cob__role">
-          <Element
-            id={`${path}.title`}
-            is={EditableText}
-            path={`${path}.title`}
-            value={item.title}
-          />
+          <EditableText path={`${path}.title`} value={item.title} />
         </em>
         <span className="tpl-cob__dates">
-          <Element
-            id={`${path}.start`}
-            is={EditableText}
-            path={`${path}.start`}
-            value={item.start}
-          />
+          <EditableText path={`${path}.start`} value={item.start} />
           {' - '}
-          <Element
-            id={`${path}.end`}
-            is={EditableText}
-            path={`${path}.end`}
-            value={item.end}
-          />
+          <EditableText path={`${path}.end`} value={item.end} />
         </span>
       </p>
-      <Element
-        id={`${path}.bullets`}
-        is={EditableBulletList}
-        path={`${path}.bullets`}
-        items={item.bullets}
-      />
+      <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
   );
 }
@@ -110,9 +84,7 @@ export function CobaltEducationEntry({
     <article {...itemProps} className="tpl-cob__entry" data-block>
       {chrome}
       <p className="tpl-cob__entry-lead">
-        <Element
-          id={`${path}.degree`}
-          is={EditableText}
+        <EditableText
           path={`${path}.degree`}
           value={item.degree ?? ''}
           placeholder="Degree"
@@ -122,32 +94,15 @@ export function CobaltEducationEntry({
           `EducationSchema` has no such field, so the school stands
           alone rather than a place being invented for it. */}
       <p className="tpl-cob__entry-org">
-        <Element
-          id={`${path}.school`}
-          is={EditableText}
-          path={`${path}.school`}
-          value={item.school}
-        />
+        <EditableText path={`${path}.school`} value={item.school} />
       </p>
       {(item.field || item.end) && (
         <p className="tpl-cob__entry-when">
           {item.field && (
-            <Element
-              id={`${path}.field`}
-              is={EditableText}
-              path={`${path}.field`}
-              value={item.field}
-            />
+            <EditableText path={`${path}.field`} value={item.field} />
           )}
           {item.field && item.end && ', '}
-          {item.end && (
-            <Element
-              id={`${path}.end`}
-              is={EditableText}
-              path={`${path}.end`}
-              value={item.end}
-            />
-          )}
+          {item.end && <EditableText path={`${path}.end`} value={item.end} />}
         </p>
       )}
     </article>
@@ -177,9 +132,7 @@ export function CobaltCustomEntry({
     <article {...itemProps} className="tpl-cob__entry" data-block>
       {chrome}
       <p className="tpl-cob__entry-lead">
-        <Element
-          id={`${path}.title`}
-          is={EditableText}
+        <EditableText
           path={`${path}.title`}
           value={item.title}
           placeholder={PLACEHOLDERS['heading']}
@@ -187,9 +140,7 @@ export function CobaltCustomEntry({
       </p>
       <p className="tpl-cob__entry-meta">
         <em className="tpl-cob__role">
-          <Element
-            id={`${path}.detail`}
-            is={EditableText}
+          <EditableText
             path={`${path}.detail`}
             value={item.detail ?? ''}
             placeholder={PLACEHOLDERS['detail']}
@@ -197,12 +148,7 @@ export function CobaltCustomEntry({
         </em>
       </p>
       {item.bullets.length > 0 && (
-        <Element
-          id={`${path}.bullets`}
-          is={EditableBulletList}
-          path={`${path}.bullets`}
-          items={item.bullets}
-        />
+        <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
       )}
     </article>
   );

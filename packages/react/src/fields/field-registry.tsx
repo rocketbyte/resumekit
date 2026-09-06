@@ -57,6 +57,42 @@ export interface SelectionStore {
   subscribe: (listener: () => void) => () => void;
 }
 
+/**
+ * "Something changed", as a number.
+ *
+ * The values are a ref, so nothing re-renders when one is written — which is
+ * the point, and also means the things that watch the DOCUMENT rather than a
+ * field need a signal of their own. The overlay reporter and the paginator both
+ * subscribe here: one rebuilds the overlay, the other re-measures, and neither
+ * should run because a pointer crossed a field.
+ *
+ * A counter rather than the map itself, because the map is mutated in place —
+ * its identity never changes, so it cannot be a dependency.
+ */
+export interface RevisionStore {
+  get: () => number;
+  bump: () => void;
+  subscribe: (listener: () => void) => () => void;
+}
+
+function createRevisionStore(): RevisionStore {
+  let revision = 0;
+  const listeners = new Set<() => void>();
+  return {
+    get: () => revision,
+    bump: () => {
+      revision += 1;
+      for (const listener of listeners) listener();
+    },
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
+}
+
 function createSelectionStore(): SelectionStore {
   let selected: string | null = null;
   const listeners = new Set<() => void>();
@@ -86,7 +122,25 @@ export interface FieldRegistry {
    * field per character is the cost this shape avoids.
    */
   values: MutableRefObject<Map<string, EditValue>>;
+  /** Each mounted field's setter, keyed by path. Read through {@link write}. */
+  setters: MutableRefObject<Map<string, (next: EditValue) => void>>;
   selection: SelectionStore;
+  /** Bumped whenever any value changes — see {@link RevisionStore}. */
+  revision: RevisionStore;
+  /**
+   * Set a field's value from OUTSIDE it, by path.
+   *
+   * One caller: a link's popover, which edits a field the candidate is not
+   * typing into. It replaces `setProp(nodeId, …)`, and the difference is the
+   * whole point of this change — a path is something a component already knows,
+   * where a node id had to be found by scanning the tree for the node carrying
+   * the path it wanted.
+   *
+   * Writes through the field's own setter rather than into the map, so the
+   * field re-renders. A write to the map alone would save correctly and show
+   * nothing, which is the worse of the two failures.
+   */
+  write: (path: string, next: EditValue) => void;
 }
 
 const FieldRegistryContext = createContext<FieldRegistry | null>(null);
@@ -103,13 +157,19 @@ export function FieldRegistryProvider({
 }: FieldRegistryProviderProps) {
   const values = useRef(new Map<string, EditValue>());
   const [selection] = useState(createSelectionStore);
+  const [revision] = useState(createRevisionStore);
+  /* Each mounted field's setter, so one field can be written by another. */
+  const setters = useRef(new Map<string, (next: EditValue) => void>());
+  const write = useCallback((path: string, next: EditValue) => {
+    setters.current.get(path)?.(next);
+  }, []);
 
   /* Stable, so a document being typed into never re-renders because its
      registry object is new. `values` is a ref and the store a fixed reference;
      only `enabled` can change it, and it does not change. */
   const registry = useMemo<FieldRegistry>(
-    () => ({ enabled, values, selection }),
-    [enabled, selection],
+    () => ({ enabled, values, setters, selection, revision, write }),
+    [enabled, selection, revision, write],
   );
 
   return (
@@ -130,16 +190,23 @@ export function FieldRegistryProvider({
 export const useFieldRegistry = (): FieldRegistry | null =>
   useContext(FieldRegistryContext);
 
-/** Everything one field needs. */
-export interface Field {
+/**
+ * Everything one field needs.
+ *
+ * Generic over what the field HOLDS, because `EditValue` is a union — a line of
+ * text or a list of them — and a field is only ever one of the two. Without it
+ * every caller would narrow a union it already knew the answer to, at each of
+ * the four places it reads the value.
+ */
+export interface Field<T extends EditValue> {
   /** The value now — local state, so a keystroke re-renders this field alone. */
-  value: EditValue;
+  value: T;
   /** Whether this document can be edited at all. */
   editing: boolean;
   /** Whether THIS field is the one being edited. */
   selected: boolean;
   select: () => void;
-  set: (next: EditValue) => void;
+  set: (next: T) => void;
 }
 
 /**
@@ -149,9 +216,12 @@ export interface Field {
  * switch, a reload, an entry inserted above this one. That is what ordinary
  * props give and Craft's frozen node props did not.
  */
-export function useField(path: string, initial: EditValue): Field {
+export function useField<T extends EditValue>(
+  path: string,
+  initial: T,
+): Field<T> {
   const registry = useFieldRegistry();
-  const [value, setValue] = useState(initial);
+  const [value, setValue] = useState<T>(initial);
 
   /*
    * Adopt an upstream change, and only an upstream change.
@@ -169,13 +239,18 @@ export function useField(path: string, initial: EditValue): Field {
   }
 
   const map = registry?.values;
+  const revision = registry?.revision;
   useEffect(() => {
     if (!map) return;
     map.current.set(path, value);
+    revision?.bump();
     return () => {
       map.current.delete(path);
+      /* A removed entry's fields must leave the overlay, so their going is a
+         change like any other. */
+      revision?.bump();
     };
-  }, [map, path, value]);
+  }, [map, revision, path, value]);
 
   const selection = registry?.selection;
   const subscribe = useCallback(
@@ -190,17 +265,33 @@ export function useField(path: string, initial: EditValue): Field {
   );
 
   const set = useCallback(
-    (next: EditValue) => {
+    (next: T) => {
       setValue(next);
       /* Written to the map synchronously as well as through state: the save
          reads the map, and a save racing a render must not read the previous
          character. */
       map?.current.set(path, next);
+      revision?.bump();
     },
-    [map, path],
+    [map, revision, path],
   );
 
   const select = useCallback(() => selection?.set(path), [selection, path]);
+
+  /*
+   * Publish this field's setter so another component can write it by path — see
+   * `FieldRegistry.write`. Registered for as long as the field is mounted, and
+   * withdrawn with it, so a write to a field that has gone is a no-op rather
+   * than a state update on an unmounted component.
+   */
+  const setters = registry?.setters;
+  useEffect(() => {
+    if (!setters) return;
+    setters.current.set(path, set as (next: EditValue) => void);
+    return () => {
+      setters.current.delete(path);
+    };
+  }, [setters, path, set]);
 
   return {
     value,
@@ -209,4 +300,32 @@ export function useField(path: string, initial: EditValue): Field {
     select,
     set,
   };
+}
+
+/**
+ * WATCH a field somebody else owns.
+ *
+ * `useField` REGISTERS a field: it holds the value in local state and publishes
+ * a setter. Calling it twice for one path is therefore two fields wearing one
+ * name — two pieces of state, one setter overwriting the other, and a write
+ * that updates a copy nobody renders. That is a real bug this hook exists to
+ * make unavailable: a link's popover edits the text its own document renders,
+ * so it must not be a second owner of it.
+ *
+ * So: read through the registry's map, re-render on the revision, and write
+ * through {@link FieldRegistry.write}, which reaches the field that does own it.
+ */
+export function useFieldValue(path: string): EditValue | undefined {
+  const registry = useFieldRegistry();
+  const revision = registry?.revision;
+  const subscribe = useCallback(
+    (listener: () => void) =>
+      revision?.subscribe(listener) ?? (() => undefined),
+    [revision],
+  );
+  return useSyncExternalStore(
+    subscribe,
+    () => registry?.values.current.get(path),
+    () => undefined,
+  );
 }

@@ -1,4 +1,3 @@
-import { Editor, Element, Frame } from '@craftjs/core';
 import {
   DEFAULT_TEMPLATE_ID,
   type ResumePresentation,
@@ -43,57 +42,55 @@ export function TemplateDocument({
   sheetGap,
 }: TemplateDocumentProps) {
   const templateId = presentation?.template_id ?? DEFAULT_TEMPLATE_ID;
-  const { Document, resolver } = TEMPLATE_RENDERERS[templateId];
+  const { Document } = TEMPLATE_RENDERERS[templateId];
   const presented = presentedResume(resume, presentation?.edits ?? []);
 
   return (
     <div className="tpl-editor tpl-editor--static">
-      <Editor resolver={resolver} enabled={false}>
-        {/* Same paged canvas and the same presentation path as the designer,
+      {/* No field registry, so every field renders as text and neither the
+          preview nor the export has to remember to turn anything off. */}
+      {/* Same paged canvas and the same presentation path as the designer,
             so a saved resume shows the same pages in the same places as the
             editor that produced it. */}
-        <DocumentPresentationProvider
-          style={presentation?.style}
-          formats={presentation?.formats}
+      <DocumentPresentationProvider
+        style={presentation?.style}
+        formats={presentation?.formats}
+      >
+        {/*
+         * The recorded space, with no way to change it.
+         *
+         * Mounted without an `onChange`, which is the whole of what makes
+         * this read-only: every gap renders the space its owner recorded and
+         * draws no handle, so the saved-résumé view and the PDF renderer
+         * carry the document and none of the workshop. The same rule the
+         * authoring context follows, stated the same way.
+         */}
+        {/*
+         * What this document was projected from, so its entries are addressed
+         * the same way the editor addressed them. Without it a reordered
+         * résumé numbered its entries by where they were DRAWN here, and
+         * every stored value on one — its space, its bolding, its link — was
+         * read at the wrong address.
+         */}
+        <DocumentOverlayProvider
+          base={resume}
+          edits={presentation?.edits ?? []}
         >
-          {/*
-           * The recorded space, with no way to change it.
-           *
-           * Mounted without an `onChange`, which is the whole of what makes
-           * this read-only: every gap renders the space its owner recorded and
-           * draws no handle, so the saved-résumé view and the PDF renderer
-           * carry the document and none of the workshop. The same rule the
-           * authoring context follows, stated the same way.
-           */}
-          {/*
-           * What this document was projected from, so its entries are addressed
-           * the same way the editor addressed them. Without it a reordered
-           * résumé numbered its entries by where they were DRAWN here, and
-           * every stored value on one — its space, its bolding, its link — was
-           * read at the wrong address.
-           */}
-          <DocumentOverlayProvider
-            base={resume}
-            edits={presentation?.edits ?? []}
+          <DocumentSpacingProvider
+            value={{ sections: presentation?.section_spacing }}
           >
-            <DocumentSpacingProvider
-              value={{ sections: presentation?.section_spacing }}
+            <PagedSheet
+              sheetGap={sheetGap}
+              measureKey={JSON.stringify([
+                presentation?.style,
+                presentation?.section_spacing,
+              ])}
             >
-              <PagedSheet
-                sheetGap={sheetGap}
-                measureKey={JSON.stringify([
-                  presentation?.style,
-                  presentation?.section_spacing,
-                ])}
-              >
-                <Frame>
-                  <Element is={Document} resume={presented} />
-                </Frame>
-              </PagedSheet>
-            </DocumentSpacingProvider>
-          </DocumentOverlayProvider>
-        </DocumentPresentationProvider>
-      </Editor>
+              <Document resume={presented} />
+            </PagedSheet>
+          </DocumentSpacingProvider>
+        </DocumentOverlayProvider>
+      </DocumentPresentationProvider>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { Suspense, lazy, useMemo } from 'react';
-import { useNode } from '@craftjs/core';
-import { LOCKED_RULES } from './locked.js';
+import { useField } from '../fields/field-registry.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
 import {
@@ -57,46 +56,40 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
    * What it owns is the one thing `useCollection` cannot see: a keystroke.
    */
   const { saveSoon } = useAutosave();
-  const {
-    connectors: { connect },
-    selected,
-    actions: { setProp },
-  } = useNode((node) => ({ selected: node.events.selected }));
+  const { value: live, editing, selected, select, set } = useField(path, items);
 
   /*
-   * `splice` inside `setProp` mutates an Immer draft, so the mutating call is
-   * the correct idiom here rather than a violation of one. Nothing outside
-   * `setProp` ever touches these props.
+   * COPIES, where this used to `splice` an Immer draft inside `setProp`.
+   *
+   * That draft was the one place Craft's Immer integration was load-bearing
+   * rather than incidental, and it is the line to read twice in this file: a
+   * mutating call was correct there because nothing outside `setProp` ever
+   * touched those props. Here the value is ordinary state, so a mutation would
+   * be a mutation — the array is rebuilt instead, which is what React expects
+   * and what makes an edit and a reorder the same kind of operation.
    */
   const store = useMemo<CollectionStore<string>>(
     () => ({
-      items,
+      items: live,
       insert: (index, item) =>
-        setProp((props: EditableBulletListProps) => {
-          props.items.splice(index, 0, item);
-        }),
-      removeAt: (index) =>
-        setProp((props: EditableBulletListProps) => {
-          props.items.splice(index, 1);
-        }),
-      reorder: (from, to) =>
-        setProp((props: EditableBulletListProps) => {
-          props.items = movedTo(props.items, from, to);
-        }),
+        set([...live.slice(0, index), item, ...live.slice(index)]),
+      removeAt: (index) => set(live.filter((_, at) => at !== index)),
+      reorder: (from, to) => set(movedTo([...live], from, to)),
     }),
-    [items, setProp],
+    [live, set],
   );
 
   const bullets = useCollection<string>('experience_bullets', store);
 
   const edit = (index: number, next: string) => {
-    setProp((props: EditableBulletListProps) => {
-      props.items[index] = next;
-    }, 500);
+    set(live.map((item, at) => (at === index ? next : item)));
     saveSoon();
   };
 
-  const plain = items.map((item, index) => (
+  /* A press selects the field — Craft's `connect` used to attach this. */
+  const onMouseDown = editing ? () => select() : undefined;
+
+  const plain = live.map((item, index) => (
     // Bullets have no identity of their own — they are strings the candidate
     // reorders and deletes — so the index is the only honest key.
     <li key={index} className="tpl-bullet">
@@ -106,9 +99,7 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
 
   return (
     <ul
-      ref={(ref) => {
-        if (ref) connect(ref);
-      }}
+      onMouseDown={onMouseDown}
       className={formatClass(format, 'tpl-bullets')}
       style={formatInk(format)}
       data-ink={inkAttr(format)}
@@ -124,7 +115,7 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
         <Suspense fallback={plain}>
           <AuthoredBullets
             path={path}
-            items={items}
+            items={live}
             bullets={bullets}
             editing={selected}
             onEdit={edit}
@@ -136,8 +127,3 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
     </ul>
   );
 }
-
-EditableBulletList.craft = {
-  displayName: 'EditableBulletList',
-  rules: LOCKED_RULES,
-};

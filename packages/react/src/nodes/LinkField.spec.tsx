@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { Editor, Element, Frame } from '@craftjs/core';
 import { describe, expect, it } from 'vitest';
 import type { ResumeObject, TemplateId } from '@cvgs/core';
 import { TEMPLATE_RENDERERS } from '../registry.js';
 import { DocumentPresentationProvider } from '../presentation-context.js';
+import { FieldRegistryProvider } from '../fields/field-registry.js';
 import { DocumentAuthoringProvider } from '../collections/authoring-context.js';
 
 /**
@@ -63,14 +63,12 @@ function renderIn(
   editing: boolean,
   authoring = editing,
 ) {
-  const { Document, resolver } = TEMPLATE_RENDERERS[id];
+  const { Document } = TEMPLATE_RENDERERS[id];
   const tree = (
     <DocumentPresentationProvider>
-      <Editor resolver={resolver} enabled={editing}>
-        <Frame>
-          <Element is={Document} resume={data} />
-        </Frame>
-      </Editor>
+      <FieldRegistryProvider enabled={editing}>
+        <Document resume={data} />
+      </FieldRegistryProvider>
     </DocumentPresentationProvider>
   );
   return render(
@@ -90,10 +88,8 @@ function renderIn(
 function withoutChrome(root: HTMLElement): string {
   const copy = root.cloneNode(true) as HTMLElement;
   for (const el of copy.querySelectorAll('[data-chrome]')) el.remove();
-  /*
-   * Craft marks the nodes it manages; the read-only tree marks them too but the
-   * ids differ per mount, so they are not part of what is being compared.
-   */
+  /* `data-editing` says which field is open, which is a fact about the session
+     rather than about the document. */
   for (const el of copy.querySelectorAll('*')) {
     el.removeAttribute('data-editing');
   }

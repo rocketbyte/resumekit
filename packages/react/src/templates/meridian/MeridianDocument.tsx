@@ -1,5 +1,4 @@
 import type { CSSProperties } from 'react';
-import { Element, useNode } from '@craftjs/core';
 import {
   DENSITIES,
   DOCUMENT_FONTS,
@@ -18,7 +17,6 @@ import {
   MeridianEducationEntry,
   MeridianExperienceEntry,
 } from './entries.js';
-import { LOCKED_RULES } from '../../nodes/locked.js';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { isLanguages } from '../skills.js';
 import './meridian.css';
@@ -94,9 +92,6 @@ export interface MeridianDocumentProps {
 }
 
 export function MeridianDocument({ resume }: MeridianDocumentProps) {
-  const {
-    connectors: { connect },
-  } = useNode();
   const style = useDocumentStyle();
   /*
    * A section with nothing in it is omitted from the DOCUMENT and offered in
@@ -123,9 +118,6 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
 
   return (
     <article
-      ref={(ref) => {
-        if (ref) connect(ref);
-      }}
       className="tpl-mer"
       style={documentStyle(style)}
       aria-label="Resume document"
@@ -139,12 +131,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
         </p>
 
         <h1 className="tpl-mer__name">
-          <Element
-            id="name"
-            is={EditableText}
-            path="name"
-            value={resume.name}
-          />
+          <EditableText path="name" value={resume.name} />
         </h1>
       </header>
 
@@ -153,9 +140,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
         <p className="tpl-mer__contact" data-block>
           {contact.map((path) => (
             <span key={path} className="tpl-mer__contact-item">
-              <Element
-                id={path}
-                is={EditableText}
+              <EditableText
                 path={path}
                 value={String(
                   resume.contact[
@@ -181,13 +166,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                 Professional Summary
               </h2>
               <p className="tpl-mer__prose" data-block>
-                <Element
-                  id="summary"
-                  is={EditableText}
-                  path="summary"
-                  value={resume.summary}
-                  multiline
-                />
+                <EditableText path="summary" value={resume.summary} multiline />
               </p>
             </section>
           )}
@@ -234,9 +213,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                 Certifications
               </h2>
               <div data-block>
-                <Element
-                  id="certifications"
-                  is={EditableBulletList}
+                <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
                 />
@@ -253,10 +230,8 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                 {languages.map((group) => {
                   const index = resume.skills.indexOf(group);
                   return (
-                    <Element
+                    <EditableBulletList
                       key={index}
-                      id={`skills.${index}.items`}
-                      is={EditableBulletList}
                       path={`skills.${index}.items`}
                       items={group.items}
                     />
@@ -273,12 +248,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
               </h2>
               <p className="tpl-mer__prose" data-block>
                 {'Title: '}
-                <Element
-                  id="headline"
-                  is={EditableText}
-                  path="headline"
-                  value={resume.headline}
-                />
+                <EditableText path="headline" value={resume.headline} />
               </p>
             </section>
           )}
@@ -312,10 +282,8 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                   skills. As one block it is taller than the paper. */}
               <div data-block data-split>
                 {technical.map(({ group, index }) => (
-                  <Element
+                  <EditableBulletList
                     key={index}
-                    id={`skills.${index}.items`}
-                    is={EditableBulletList}
                     path={`skills.${index}.items`}
                     items={group.items}
                   />
@@ -361,8 +329,3 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
     </article>
   );
 }
-
-MeridianDocument.craft = {
-  displayName: 'MeridianDocument',
-  rules: LOCKED_RULES,
-};

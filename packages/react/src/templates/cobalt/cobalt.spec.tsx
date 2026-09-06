@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { render, screen } from '@testing-library/react';
-import { Editor, Element, Frame } from '@craftjs/core';
 import { TEMPLATES, type ResumeObject } from '@cvgs/core';
 import { TEMPLATE_RENDERERS } from '../../registry.js';
+import { FieldRegistryProvider } from '../../fields/field-registry.js';
 import { DocumentPresentationProvider } from '../../presentation-context.js';
 
 /**
@@ -65,14 +65,12 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
 }
 
 function renderCobalt(data: ResumeObject) {
-  const { Document, resolver } = TEMPLATE_RENDERERS.cobalt;
+  const { Document } = TEMPLATE_RENDERERS.cobalt;
   return render(
     <DocumentPresentationProvider>
-      <Editor resolver={resolver}>
-        <Frame>
-          <Element is={Document} resume={data} />
-        </Frame>
-      </Editor>
+      <FieldRegistryProvider enabled>
+        <Document resume={data} />
+      </FieldRegistryProvider>
     </DocumentPresentationProvider>,
   );
 }

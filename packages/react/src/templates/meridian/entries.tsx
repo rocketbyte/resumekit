@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
-import { Element } from '@craftjs/core';
 import {
   PLACEHOLDERS,
   type CustomEntry,
@@ -46,47 +45,22 @@ export function MeridianExperienceEntry({
       {chrome}
       <p className="tpl-mer__entry-line">
         <strong className="tpl-mer__role">
-          <Element
-            id={`${path}.title`}
-            is={EditableText}
-            path={`${path}.title`}
-            value={item.title}
-          />
+          <EditableText path={`${path}.title`} value={item.title} />
         </strong>
         <span className="tpl-mer__dates">
           {', '}
-          <Element
-            id={`${path}.start`}
-            is={EditableText}
-            path={`${path}.start`}
-            value={item.start}
-          />
+          <EditableText path={`${path}.start`} value={item.start} />
           {' - '}
-          <Element
-            id={`${path}.end`}
-            is={EditableText}
-            path={`${path}.end`}
-            value={item.end}
-          />
+          <EditableText path={`${path}.end`} value={item.end} />
         </span>
       </p>
       {/* The reference prints an entry location after the employer.
           `ExperienceSchema` has no such field, so the employer stands
           alone rather than a place being invented for it. */}
       <p className="tpl-mer__entry-org">
-        <Element
-          id={`${path}.company`}
-          is={EditableText}
-          path={`${path}.company`}
-          value={item.company}
-        />
+        <EditableText path={`${path}.company`} value={item.company} />
       </p>
-      <Element
-        id={`${path}.bullets`}
-        is={EditableBulletList}
-        path={`${path}.bullets`}
-        items={item.bullets}
-      />
+      <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
   );
 }
@@ -107,19 +81,12 @@ export function MeridianEducationEntry({
       {chrome}
       {item.end && (
         <p className="tpl-mer__entry-when">
-          <Element
-            id={`${path}.end`}
-            is={EditableText}
-            path={`${path}.end`}
-            value={item.end}
-          />
+          <EditableText path={`${path}.end`} value={item.end} />
         </p>
       )}
       <p className="tpl-mer__entry-line">
         <strong className="tpl-mer__role">
-          <Element
-            id={`${path}.degree`}
-            is={EditableText}
+          <EditableText
             path={`${path}.degree`}
             value={item.degree ?? ''}
             placeholder="Degree"
@@ -128,22 +95,12 @@ export function MeridianEducationEntry({
         {item.field && (
           <>
             {', '}
-            <Element
-              id={`${path}.field`}
-              is={EditableText}
-              path={`${path}.field`}
-              value={item.field}
-            />
+            <EditableText path={`${path}.field`} value={item.field} />
           </>
         )}
       </p>
       <p className="tpl-mer__entry-org">
-        <Element
-          id={`${path}.school`}
-          is={EditableText}
-          path={`${path}.school`}
-          value={item.school}
-        />
+        <EditableText path={`${path}.school`} value={item.school} />
       </p>
     </article>
   );
@@ -173,18 +130,14 @@ export function MeridianCustomEntry({
       {chrome}
       <p className="tpl-mer__entry-line">
         <strong className="tpl-mer__role">
-          <Element
-            id={`${path}.title`}
-            is={EditableText}
+          <EditableText
             path={`${path}.title`}
             value={item.title}
             placeholder={PLACEHOLDERS['heading']}
           />
         </strong>
         <span className="tpl-mer__dates">
-          <Element
-            id={`${path}.detail`}
-            is={EditableText}
+          <EditableText
             path={`${path}.detail`}
             value={item.detail ?? ''}
             placeholder={PLACEHOLDERS['detail']}
@@ -192,12 +145,7 @@ export function MeridianCustomEntry({
         </span>
       </p>
       {item.bullets.length > 0 && (
-        <Element
-          id={`${path}.bullets`}
-          is={EditableBulletList}
-          path={`${path}.bullets`}
-          items={item.bullets}
-        />
+        <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
       )}
     </article>
   );

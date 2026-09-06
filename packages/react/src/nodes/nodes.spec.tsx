@@ -1,21 +1,23 @@
 import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { TEMPLATES, type TemplateId } from '@cvgs/core';
-import { REGISTERED_NODES, TEMPLATE_RENDERERS } from '../registry.js';
+import { TEMPLATE_RENDERERS } from '../registry.js';
 import { BOUNDED_NODE_PROPS, FORBIDDEN_NODE_PROPS } from './locked.js';
 
 /**
  * The lock.
  *
- * Craft.js is a page-builder library used here to forbid page building, so the
- * guarantee that the design cannot be altered has to be asserted, not assumed.
- * These tests walk the registry rather than naming components, so a node added
- * later cannot quietly skip them.
+ * The guarantee that a candidate cannot alter the DESIGN has to be asserted
+ * rather than assumed, and these walk the registry rather than naming
+ * components so a field added later cannot quietly skip them.
+ *
+ * It used to be asserted against Craft.js — a page-builder library used here to
+ * forbid page building, whose movement predicates every node answered `false`.
+ * `retire-craftjs` removed the library, so the assertions moved from "each node
+ * refuses" to "there is no capability to refuse", which is what they were
+ * reaching for: a refusal is configuration, and configuration is one upgrade
+ * away from meaning something else.
  */
-
-interface CraftConfig {
-  rules?: Record<string, () => boolean>;
-}
 
 // Vitest serves modules from the project root, so `import.meta.url` is not a
 // filesystem path here — resolve from the project's own root instead. That root
@@ -47,28 +49,73 @@ describe('the registry and the catalog agree', () => {
     );
   });
 
-  it('gives every template a document and a resolver that can build it', () => {
+  it('gives every template a document to render', () => {
+    // A resolver used to sit beside this, mapping component NAMES to components
+    // so a library could rebuild a tree from a serialized one. Nothing
+    // serializes a tree any more — the overlay is résumé paths — so a template
+    // is its document and nothing else.
     for (const [id, renderer] of Object.entries(TEMPLATE_RENDERERS)) {
       expect(renderer.Document, id).toBeTypeOf('function');
-      expect(Object.values(renderer.resolver)).toContain(renderer.Document);
     }
   });
 });
 
-describe('every registered node refuses movement', () => {
-  it.each(REGISTERED_NODES)(
-    '%s declares all four rules false',
-    (name, node) => {
-      const config = (node as unknown as { craft?: CraftConfig }).craft;
-      expect(config?.rules, `${name} declares no craft rules`).toBeDefined();
+describe('there is nothing that could move a part of the document', () => {
+  /**
+   * Every source file the editing surface is built from.
+   *
+   * This used to assert that each node declared four movement predicates
+   * answering `false`. That was configuration, and `locked.ts` said so itself:
+   * "rules are configuration, and configuration is one API change away from
+   * meaning something else". `retire-craftjs` removed the library that offered
+   * the capability, so the assertion becomes the stronger one it was reaching
+   * for — there is nothing to refuse.
+   */
+  const SURFACE = FEATURE_DIR;
 
-      const rules = config?.rules ?? {};
-      for (const rule of ['canDrag', 'canDrop', 'canMoveIn', 'canMoveOut']) {
-        expect(rules[rule], `${name}.${rule}`).toBeTypeOf('function');
-        expect(rules[rule]?.(), `${name}.${rule}`).toBe(false);
+  function sources(dir: string, hit: (path: string) => void): void {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) sources(path, hit);
+      else if (/\.tsx?$/.test(path) && !/\.spec\./.test(path)) hit(path);
+    }
+  }
+
+  it('depends on no page-builder library', () => {
+    const offenders: string[] = [];
+    sources(SURFACE, (path) => {
+      if (/@craftjs/.test(readFileSync(path, 'utf8'))) {
+        offenders.push(relative(SURFACE, path));
       }
-    },
-  );
+    });
+    expect(
+      offenders,
+      'a page builder brings drag, drop and layout manipulation with it, and ' +
+        'holding those back is configuration:\n  ' +
+        offenders.join('\n  '),
+    ).toEqual([]);
+  });
+
+  it('offers no drag, drop or re-nesting of its own', () => {
+    /*
+     * The other half: not importing one is no use if the surface grows its own.
+     * A `draggable` attribute or a drop handler in the DOCUMENT is a way to
+     * move a part of it, whatever library is or is not present.
+     *
+     * `@dnd-kit` is deliberately not searched for here. It reorders ENTRIES
+     * within a collection — a domain operation the overlay records — and lives
+     * in `collections/`, which is not this surface.
+     */
+    const offenders: string[] = [];
+    sources(SURFACE, (path) => {
+      const src = readFileSync(path, 'utf8');
+      for (const bad of ['onDrop', 'onDragOver', 'draggable=']) {
+        if (src.includes(bad))
+          offenders.push(`${relative(SURFACE, path)}: ${bad}`);
+      }
+    });
+    expect(offenders).toEqual([]);
+  });
 });
 
 describe('the design is not addressable', () => {
@@ -349,12 +396,18 @@ describe('authored content is as locked as written content', () => {
   it('gives an authored NODE no presentational property', () => {
     const source = readFileSync(join(NODE_DIR, 'CustomSections.tsx'), 'utf8');
     /*
-     * Scoped to `<Element …>` — the props that reach a Craft node — not to the
-     * whole file. The plain host elements around them carry `className` like
-     * every template document does; that is the template's own markup, and it
-     * is not a surface a candidate can express anything through.
+     * Scoped to the FIELD tags, not to the whole file. The plain host elements
+     * around them carry `className` like every template document does; that is
+     * the template's own markup, and not a surface a candidate can express
+     * anything through.
+     *
+     * These were `<Element is={EditableText} …>` before `retire-craftjs`; a
+     * field is now written as itself, so the tag name IS the component.
      */
-    const elements = source.match(/<Element[\s\S]*?\/>/g) ?? [];
+    const elements =
+      source.match(
+        /<(?:EditableText|EditableBulletList|EditableInlineList)[\s\S]*?\/>/g,
+      ) ?? [];
     expect(elements.length).toBeGreaterThan(0);
     for (const element of elements) {
       for (const banned of FORBIDDEN_NODE_PROPS) {
@@ -375,7 +428,7 @@ describe('authored content is as locked as written content', () => {
      * lock assertions above without naming it again.
      */
     expect(readFileSync(join(NODE_DIR, 'CustomSections.tsx'), 'utf8')).toMatch(
-      /is=\{EditableText\}/,
+      /<EditableText\b/,
     );
 
     const TEMPLATES = join(NODE_DIR, '..', 'templates');
@@ -390,10 +443,10 @@ describe('authored content is as locked as written content', () => {
         /CustomEntry\(/,
       );
       expect(source, `${template} uses the shared nodes`).toMatch(
-        /is=\{EditableText\}/,
+        /<EditableText\b/,
       );
       expect(source, `${template} uses the shared bullet list`).toMatch(
-        /is=\{EditableBulletList\}/,
+        /<EditableBulletList\b/,
       );
     }
   });

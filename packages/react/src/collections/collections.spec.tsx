@@ -7,7 +7,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
-import { Editor, Element, Frame } from '@craftjs/core';
+import { FieldRegistryProvider } from '../fields/field-registry.js';
 import {
   applyPresentation,
   isHideEdit,
@@ -101,15 +101,13 @@ function draw(
   onEditsChange: (next: ResumeEdits) => void = () => undefined,
   autosave?: AutosaveContextValue,
 ) {
-  const { Document, resolver } = TEMPLATE_RENDERERS.harvard;
+  const { Document } = TEMPLATE_RENDERERS.harvard;
   const presented = edits ? applyPresentation(base, edits) : base;
   const inner = (
     <DocumentPresentationProvider>
-      <Editor resolver={resolver}>
-        <Frame>
-          <Element is={Document} resume={presented} />
-        </Frame>
-      </Editor>
+      <FieldRegistryProvider enabled>
+        <Document resume={presented} />
+      </FieldRegistryProvider>
     </DocumentPresentationProvider>
   );
   const document = autosave ? (

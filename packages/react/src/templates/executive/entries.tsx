@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
-import { Element } from '@craftjs/core';
 import {
   PLACEHOLDERS,
   type CustomEntry,
@@ -47,43 +46,18 @@ export function ExecExperienceEntry({
       <div className="tpl-exec__entry-head">
         <span className="tpl-exec__role">
           <strong>
-            <Element
-              id={`${path}.title`}
-              is={EditableText}
-              path={`${path}.title`}
-              value={item.title}
-            />
+            <EditableText path={`${path}.title`} value={item.title} />
           </strong>
           <span className="tpl-exec__sep">/</span>
-          <Element
-            id={`${path}.company`}
-            is={EditableText}
-            path={`${path}.company`}
-            value={item.company}
-          />
+          <EditableText path={`${path}.company`} value={item.company} />
         </span>
         <span className="tpl-exec__dates">
-          <Element
-            id={`${path}.start`}
-            is={EditableText}
-            path={`${path}.start`}
-            value={item.start}
-          />
+          <EditableText path={`${path}.start`} value={item.start} />
           {' - '}
-          <Element
-            id={`${path}.end`}
-            is={EditableText}
-            path={`${path}.end`}
-            value={item.end}
-          />
+          <EditableText path={`${path}.end`} value={item.end} />
         </span>
       </div>
-      <Element
-        id={`${path}.bullets`}
-        is={EditableBulletList}
-        path={`${path}.bullets`}
-        items={item.bullets}
-      />
+      <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
   );
 }
@@ -105,9 +79,7 @@ export function ExecEducationEntry({
       <div className="tpl-exec__entry-head">
         <span className="tpl-exec__role">
           <strong>
-            <Element
-              id={`${path}.degree`}
-              is={EditableText}
+            <EditableText
               path={`${path}.degree`}
               value={item.degree ?? ''}
               placeholder="Degree"
@@ -116,19 +88,12 @@ export function ExecEducationEntry({
           {item.field && (
             <>
               {': '}
-              <Element
-                id={`${path}.field`}
-                is={EditableText}
-                path={`${path}.field`}
-                value={item.field}
-              />
+              <EditableText path={`${path}.field`} value={item.field} />
             </>
           )}
         </span>
         <span className="tpl-exec__dates">
-          <Element
-            id={`${path}.end`}
-            is={EditableText}
+          <EditableText
             path={`${path}.end`}
             value={item.end ?? ''}
             placeholder="—"
@@ -136,12 +101,7 @@ export function ExecEducationEntry({
         </span>
       </div>
       <p className="tpl-exec__school">
-        <Element
-          id={`${path}.school`}
-          is={EditableText}
-          path={`${path}.school`}
-          value={item.school}
-        />
+        <EditableText path={`${path}.school`} value={item.school} />
       </p>
     </article>
   );
@@ -172,9 +132,7 @@ export function ExecCustomEntry({
       <div className="tpl-exec__entry-head">
         <span className="tpl-exec__role">
           <strong>
-            <Element
-              id={`${path}.title`}
-              is={EditableText}
+            <EditableText
               path={`${path}.title`}
               value={item.title}
               placeholder={PLACEHOLDERS['heading']}
@@ -182,9 +140,7 @@ export function ExecCustomEntry({
           </strong>
         </span>
         <span className="tpl-exec__dates">
-          <Element
-            id={`${path}.detail`}
-            is={EditableText}
+          <EditableText
             path={`${path}.detail`}
             value={item.detail ?? ''}
             placeholder={PLACEHOLDERS['detail']}
@@ -192,12 +148,7 @@ export function ExecCustomEntry({
         </span>
       </div>
       {item.bullets.length > 0 && (
-        <Element
-          id={`${path}.bullets`}
-          is={EditableBulletList}
-          path={`${path}.bullets`}
-          items={item.bullets}
-        />
+        <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
       )}
     </article>
   );

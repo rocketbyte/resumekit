@@ -1,24 +1,17 @@
 /**
- * The rules every node in a template tree declares.
+ * What a template's editable fields may and may not carry.
  *
- * Craft.js is a page-builder library and this is deliberately the opposite of a
- * page builder, so every movement predicate answers `false`. That is necessary
- * and not sufficient — rules are configuration, and configuration is one API
- * change away from meaning something else. The guarantee that actually holds is
- * structural, and it is asserted in `nodes.spec.tsx`:
+ * This file used to open with `LOCKED_RULES` — four movement predicates every
+ * node answered `false`, because Craft.js is a page-builder library and this is
+ * deliberately the opposite of one. `retire-craftjs` removed the library, and
+ * with it the capability those predicates existed to refuse. The file's own
+ * argument is why they went rather than being kept for safety: "rules are
+ * configuration, and configuration is one API change away from meaning
+ * something else". A capability that does not exist cannot be re-enabled by
+ * accident, and `nodes.spec.tsx` now asserts the absence directly.
  *
- *   - no node accepts a presentational prop, so there is nothing to restyle;
- *   - no node is a canvas, so there is no drop target to drop into;
- *   - `connectors.drag` is never called, so there is no handle to grab.
- *
- * See `design.md`, decision 3.
+ * What remains is the rule that was never about Craft at all.
  */
-export const LOCKED_RULES = {
-  canDrag: () => false,
-  canDrop: () => false,
-  canMoveIn: () => false,
-  canMoveOut: () => false,
-} as const;
 
 /**
  * Prop names a template node may never accept.

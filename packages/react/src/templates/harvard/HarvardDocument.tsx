@@ -1,5 +1,4 @@
 import type { CSSProperties } from 'react';
-import { Element, useNode } from '@craftjs/core';
 import {
   DENSITIES,
   DOCUMENT_FONTS,
@@ -22,7 +21,6 @@ import {
   HarvardExperienceEntry,
   HarvardSkillGroup,
 } from './entries.js';
-import { LOCKED_RULES } from '../../nodes/locked.js';
 import './harvard.css';
 
 /**
@@ -70,9 +68,6 @@ function documentStyle(style: DocumentStyle | undefined): CSSProperties {
 }
 
 export function HarvardDocument({ resume }: HarvardDocumentProps) {
-  const {
-    connectors: { connect },
-  } = useNode();
   // Live, for the reason `presentation-context.tsx` explains: a node prop would
   // be frozen at mount and no style change would ever appear.
   const style = useDocumentStyle();
@@ -121,31 +116,18 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
 
   return (
     <article
-      ref={(ref) => {
-        if (ref) connect(ref);
-      }}
       className="tpl-harvard"
       style={documentStyle(style)}
       aria-label="Resume document"
     >
       <header className="tpl-harvard__head" data-block>
         <h1 className="tpl-harvard__name">
-          <Element
-            id="name"
-            is={EditableText}
-            path="name"
-            value={resume.name}
-          />
+          <EditableText path="name" value={resume.name} />
         </h1>
 
         {resume.headline && (
           <p className="tpl-harvard__headline">
-            <Element
-              id="headline"
-              is={EditableText}
-              path="headline"
-              value={resume.headline}
-            />
+            <EditableText path="headline" value={resume.headline} />
           </p>
         )}
 
@@ -155,9 +137,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
                 writer did not have cannot leave a stray bar behind it. */}
             {contact.map(({ path, field }) => (
               <span key={path} className="tpl-harvard__contact-item">
-                <Element
-                  id={path}
-                  is={EditableText}
+                <EditableText
                   path={path}
                   value={String(resume.contact[field] ?? '')}
                   placeholder={PLACEHOLDERS[field]}
@@ -214,13 +194,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
             Professional Summary
           </h2>
           <p className="tpl-harvard__summary" data-block>
-            <Element
-              id="summary"
-              is={EditableText}
-              path="summary"
-              value={resume.summary}
-              multiline
-            />
+            <EditableText path="summary" value={resume.summary} multiline />
           </p>
         </section>
       )}
@@ -319,9 +293,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
             Certifications
           </h2>
           <p className="tpl-harvard__inline-list" data-block>
-            <Element
-              id="certifications"
-              is={EditableInlineList}
+            <EditableInlineList
               path="certifications"
               items={resume.certifications}
               placeholder={PLACEHOLDERS['certifications']}
@@ -343,8 +315,3 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
     </article>
   );
 }
-
-HarvardDocument.craft = {
-  displayName: 'HarvardDocument',
-  rules: LOCKED_RULES,
-};

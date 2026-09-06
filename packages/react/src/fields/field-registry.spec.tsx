@@ -35,7 +35,10 @@ describe('the field registry', () => {
      * through state.
      */
     const { result } = renderHook(
-      () => ({ field: useField('name', 'Ada'), registry: useFieldRegistry() }),
+      () => ({
+        field: useField<string>('name', 'Ada'),
+        registry: useFieldRegistry(),
+      }),
       { wrapper: wrap() },
     );
     act(() => result.current.field.set('Grace'));

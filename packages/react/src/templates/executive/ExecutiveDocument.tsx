@@ -1,5 +1,4 @@
 import type { CSSProperties } from 'react';
-import { Element, useNode } from '@craftjs/core';
 import {
   DENSITIES,
   DOCUMENT_FONTS,
@@ -19,7 +18,6 @@ import {
   ExecEducationEntry,
   ExecExperienceEntry,
 } from './entries.js';
-import { LOCKED_RULES } from '../../nodes/locked.js';
 import { useDocumentStyle } from '../../presentation-context.js';
 import './executive.css';
 
@@ -80,9 +78,6 @@ export interface ExecutiveDocumentProps {
 }
 
 export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
-  const {
-    connectors: { connect },
-  } = useNode();
   const style = useDocumentStyle();
   /*
    * A section with nothing in it is omitted from the DOCUMENT and offered in
@@ -104,9 +99,6 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
 
   return (
     <article
-      ref={(ref) => {
-        if (ref) connect(ref);
-      }}
       className="tpl-exec"
       style={documentStyle(style)}
       aria-label="Resume document"
@@ -119,19 +111,12 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
 
         <div className="tpl-exec__identity">
           <h1 className="tpl-exec__name">
-            <Element
-              id="name"
-              is={EditableText}
-              path="name"
-              value={resume.name}
-            />
+            <EditableText path="name" value={resume.name} />
           </h1>
 
           {resume.contact.location && (
             <p className="tpl-exec__where">
-              <Element
-                id="contact.location"
-                is={EditableText}
+              <EditableText
                 path="contact.location"
                 value={resume.contact.location}
               />
@@ -142,9 +127,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
             <p className="tpl-exec__contact">
               {contact.map(({ path }) => (
                 <span key={path} className="tpl-exec__contact-item">
-                  <Element
-                    id={path}
-                    is={EditableText}
+                  <EditableText
                     path={path}
                     value={String(
                       resume.contact[
@@ -166,13 +149,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
               Professional Summary
             </h2>
             <p className="tpl-exec__prose" data-block>
-              <Element
-                id="summary"
-                is={EditableText}
-                path="summary"
-                value={resume.summary}
-                multiline
-              />
+              <EditableText path="summary" value={resume.summary} multiline />
             </p>
           </section>
         )}
@@ -189,10 +166,8 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
              */}
             <div className="tpl-exec__columns" data-block>
               {technical.map(({ group, index }) => (
-                <Element
+                <EditableBulletList
                   key={index}
-                  id={`skills.${index}.items`}
-                  is={EditableBulletList}
                   path={`skills.${index}.items`}
                   items={group.items}
                 />
@@ -246,10 +221,8 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
               {languages.map((group) => {
                 const index = resume.skills.indexOf(group);
                 return (
-                  <Element
+                  <EditableBulletList
                     key={index}
-                    id={`skills.${index}.items`}
-                    is={EditableBulletList}
                     path={`skills.${index}.items`}
                     items={group.items}
                   />
@@ -265,9 +238,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
               Certifications
             </h2>
             <div data-block>
-              <Element
-                id="certifications"
-                is={EditableBulletList}
+              <EditableBulletList
                 path="certifications"
                 items={resume.certifications}
               />
@@ -282,12 +253,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
             </h2>
             <p className="tpl-exec__prose" data-block>
               {'Title: '}
-              <Element
-                id="headline"
-                is={EditableText}
-                path="headline"
-                value={resume.headline}
-              />
+              <EditableText path="headline" value={resume.headline} />
             </p>
           </section>
         )}
@@ -337,8 +303,3 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
     </article>
   );
 }
-
-ExecutiveDocument.craft = {
-  displayName: 'ExecutiveDocument',
-  rules: LOCKED_RULES,
-};

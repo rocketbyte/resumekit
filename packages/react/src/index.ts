@@ -71,6 +71,13 @@ export {
  * renderer free of authoring by construction rather than by remembering.
  */
 export { DocumentAuthoringProvider } from './collections/authoring-context.js';
+export {
+  FieldRegistryProvider,
+  useField,
+  useFieldRegistry,
+  type Field,
+  type FieldRegistry,
+} from './fields/field-registry.js';
 
 /**
  * Autosave: the document tells the surface when it is worth storing.
@@ -106,9 +113,5 @@ export { EditableText } from './nodes/EditableText.js';
 export { EditableBulletList } from './nodes/EditableBulletList.js';
 export { EditableInlineList } from './nodes/EditableInlineList.js';
 export { CustomSections } from './nodes/CustomSections.js';
-export {
-  LOCKED_RULES,
-  BOUNDED_NODE_PROPS,
-  FORBIDDEN_NODE_PROPS,
-} from './nodes/locked.js';
+export { BOUNDED_NODE_PROPS, FORBIDDEN_NODE_PROPS } from './nodes/locked.js';
 export type { FieldFormatting, LinkTarget } from './nodes/formatting.js';
