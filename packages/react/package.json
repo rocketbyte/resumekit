@@ -10,6 +10,7 @@
       "default": "./src/index.ts"
     },
     "./document.css": "./src/document.css",
+    "./fonts.css": "./src/fonts/fonts.css",
     "./package.json": "./package.json"
   },
   "nx": {

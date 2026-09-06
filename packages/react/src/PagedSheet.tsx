@@ -483,6 +483,43 @@ export function PagedSheet({
   useLayoutEffect(paginate, [paginate, measureKey, children]);
 
   /*
+   * And again once the document's own faces have arrived.
+   *
+   * The screen/paper divergence this closes: the export waits for
+   * `document.fonts.ready` before it paginates, and this component did not — so
+   * the two halves of the one guarantee this file exists to make were measuring
+   * documents drawn in different typefaces.
+   *
+   * A résumé's face is a webfont. Until it loads the browser draws the fallback,
+   * and the fallback is not metrically equal to it — `TeX Gyre Heros` matches
+   * Helvetica, while a Mac's `Helvetica Neue` is a different set of advances. So
+   * the first pass can plan against line breaking that is about to change, and
+   * the plan outlives the layout it was made from. The measured symptom was one
+   * block: an education entry the exported file fitted on page one with 17px to
+   * spare, and the screen pushed onto page two.
+   *
+   * `document.fonts.ready` is the browser's own answer to "are the metrics
+   * final", so nothing here guesses at a delay. It is already resolved on a warm
+   * cache, which makes this a microtask and a second measuring pass that finds
+   * nothing to change.
+   *
+   * Feature-detected, because pagination is presentation: an environment with no
+   * font loading API must still paginate, not throw. `cancelled` because a
+   * promise that settles after unmount must not measure a document that is gone.
+   */
+  useEffect(() => {
+    const fonts = globalThis.document?.fonts;
+    if (!fonts?.ready) return;
+    let cancelled = false;
+    void fonts.ready.then(() => {
+      if (!cancelled) paginate();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [paginate]);
+
+  /*
    * Once the zoom has settled, measure once.
    *
    * A uniform scale cannot move a page break on its own — `pagination.spec.ts`

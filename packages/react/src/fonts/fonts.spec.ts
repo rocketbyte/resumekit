@@ -86,3 +86,36 @@ describe('the supplied typefaces', () => {
     expect(document).toMatch(/@import\s+'\.\/fonts\/fonts\.css';/);
   });
 });
+
+/**
+ * Both surfaces measure a document drawn in the SUPPLIED face, not a fallback.
+ *
+ * A résumé's typeface is a webfont, and until it loads the browser draws
+ * something else — `TeX Gyre Heros` matches Helvetica's metrics, while a Mac's
+ * `Helvetica Neue` is a different set of advances. So a paginator that measures
+ * before the face arrives plans against line breaking that is about to change,
+ * and the plan outlives the layout it was made from.
+ *
+ * That is not hypothetical. The export waited for the fonts and the screen did
+ * not, and the two disagreed by one block: an education entry the exported file
+ * fitted on page one with 17px to spare, which the screen pushed onto page two.
+ *
+ * Asserted against the source for the reason the rest of this feature's
+ * invariants are: jsdom loads no fonts and lays nothing out, so there is no
+ * measurable difference here to test, and the only thing that can observe one
+ * is a real browser behind a network call.
+ */
+describe('nothing is measured before the faces are ready', () => {
+  const read = (name: string) =>
+    readFileSync(join(here, '..', name), 'utf8').replace(
+      /\/\*[\s\S]*?\*\/|\/\/.*$/gm,
+      '',
+    );
+
+  it.each([
+    ['the screen', 'PagedSheet.tsx'],
+    ['the export', 'export/entry.tsx'],
+  ])('%s waits for document.fonts.ready', (_surface, file) => {
+    expect(read(file)).toMatch(/fonts\??\.ready|fonts\.ready/);
+  });
+});
