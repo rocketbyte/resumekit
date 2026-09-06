@@ -63,6 +63,38 @@
 }
 
 /*
+ * The gap belongs to the element that recorded it, and to NOTHING inside it.
+ *
+ * This is the whole reason the property is registered. A custom property
+ * inherits by default, and both `.tpl-harvard__section` and
+ * `.tpl-harvard__entry` add `var(--tpl-space-height)` into their own
+ * `margin-top` — so a section carrying a recorded gap handed the same figure
+ * down to every entry inside it, and each one added it again. Spacing Experience
+ * away from the section above it also pushed its roles apart from each other,
+ * by the same amount, for free.
+ *
+ * `inherits: false` makes an element that has not declared it compute the
+ * initial value instead of its parent's. Every consumer then reads only the gap
+ * it was given.
+ *
+ * Registered rather than reset on a marker attribute, because the marker is not
+ * always there: `useSpaceSlot` emits `data-gap` only where the document is
+ * adjustable, so in the preview and the export an unspaced entry carries no
+ * attribute at all and a reset keyed on one would have missed exactly the two
+ * surfaces where the extra space became a printed PDF.
+ *
+ * `<length>` is what the calc below resolves to at computed-value time — steps
+ * (a unitless number) times the template's unit (a length). A browser without
+ * `@property` ignores this block and inherits as before, which is the old
+ * behaviour rather than a broken one.
+ */
+@property --tpl-space-height {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+/*
  * CARRYING space. True of the document, so identically true in the editor, the
  * preview and the export — which is what stops the three from laying the same
  * résumé out differently.

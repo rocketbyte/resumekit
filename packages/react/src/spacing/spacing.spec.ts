@@ -150,3 +150,55 @@ describe('a gap is space ABOVE a block, not space around a line', () => {
     expect(css).toMatch(/@media print \{\s*\.tpl-space \{\s*display: none/);
   });
 });
+
+describe('a gap belongs to the element that recorded it', () => {
+  /**
+   * The `@property` block, with its comments stripped — same bargain as
+   * `rule()` above, and needed because this file explains inheritance at
+   * length before it turns it off.
+   */
+  const registration = () => {
+    const at = css.indexOf('@property --tpl-space-height');
+    expect(at, '--tpl-space-height is registered').toBeGreaterThan(-1);
+    return css.slice(at, css.indexOf('}', at)).replace(/\/\*[\s\S]*?\*\//g, '');
+  };
+
+  it('does not hand the recorded gap down to what is inside it', () => {
+    /*
+     * The bug this exists to stop, which shipped: a custom property inherits,
+     * and `.tpl-harvard__section` and `.tpl-harvard__entry` BOTH add
+     * `var(--tpl-space-height)` into their own `margin-top`. So a section
+     * carrying a gap handed the same figure to every entry inside it and each
+     * one added it again — spacing Experience away from what was above it also
+     * pushed its roles apart from each other, by exactly the same amount.
+     *
+     * Not testable as behaviour here: jsdom computes no cascade for a
+     * registered property and no layout to measure the difference in. The rule
+     * that produces the behaviour is what there is to assert.
+     */
+    expect(registration()).toMatch(/inherits:\s*false/);
+  });
+
+  it('starts every element at no gap rather than at nothing', () => {
+    /*
+     * `inherits: false` alone would leave an undeclared element with the
+     * guaranteed-invalid value, and `calc()` around that poisons the whole
+     * margin rather than contributing zero to it. The initial value is what
+     * makes an element with no gap lay out exactly as it did before spacing
+     * existed.
+     */
+    expect(registration()).toMatch(/initial-value:\s*0px/);
+    expect(registration()).toMatch(/syntax:\s*'<length>'/);
+  });
+
+  it('is the one place the figure is turned into a length', () => {
+    // Consumers add `var(--tpl-space-height)` and never rebuild it from steps;
+    // a second calc somewhere else would inherit the bug back in.
+    expect(rule('[data-spaced]')).toMatch(/--tpl-space-height:/);
+    const consumers = css.match(/--tpl-space-steps/g) ?? [];
+    expect(
+      consumers.length,
+      'steps are read once, where the length is made',
+    ).toBe(1);
+  });
+});
