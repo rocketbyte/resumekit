@@ -11,6 +11,7 @@ import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import {
   CobaltCustomEntry,
@@ -364,23 +365,20 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
             </section>
           )}
 
-          {resume.links.length > 0 && (
+          {(resume.links.length > 0 || authoring) && (
             <section className="tpl-cob__section">
               <h2 className="tpl-cob__heading" data-block data-keep-with-next>
                 Websites, Portfolios, Profiles
               </h2>
               <ul className="tpl-cob__links" data-block data-split>
-                {resume.links.map((link, i) => (
-                  <li key={i} className="tpl-cob__link">
-                    <Element
-                      id={`links.${i}.url`}
-                      is={EditableText}
-                      path={`links.${i}.url`}
-                      value={link.url}
-                      href={link.url}
-                    />
-                  </li>
-                ))}
+                <Collection section="links" items={resume.links} gap={false}>
+                  {({ item, path, chrome, itemProps }) => (
+                    <li {...itemProps} className="tpl-cob__link">
+                      {chrome}
+                      <LinkField item={item} path={path} />
+                    </li>
+                  )}
+                </Collection>
               </ul>
             </section>
           )}

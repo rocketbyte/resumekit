@@ -1,0 +1,104 @@
+/*
+ * A link's editing chrome, and the rule it exists to obey.
+ *
+ * Every element here is absolutely positioned and `data-chrome`: it contributes
+ * no width and no height, so the line the link sits in is the same length in the
+ * editor as it is in the preview and in the exported file. That is the contract
+ * `SpaceHandle` and `EntryOverlay` already meet, and the reason `spacing.css`
+ * gives for meeting it — a control that occupies the flow "is present in the
+ * editor and absent from the preview, so the same document measured differently
+ * in the two".
+ *
+ * The link's own text is NOT styled here. It is an ordinary `EditableText` in
+ * whatever the template makes of it, which is what keeps it pixel-identical to
+ * the document it prints as.
+ */
+
+/*
+ * `position: relative` with no offsets moves nothing — the same trick
+ * `[data-gap]` uses to host a handle. `display: contents` would be wrong: the
+ * popover needs a positioned ancestor, and the templates lay these out as
+ * inline items.
+ */
+.tpl-link {
+  position: relative;
+}
+
+/*
+ * The trigger, drawn ON the text rather than beside it.
+ *
+ * Beside it is the version that costs a space: an inline button in the contact
+ * line makes that line longer in the editor than in the file, which is the
+ * defect this whole change is about. So it is a positioned overlay across the
+ * link's own box — pressing the link opens its address.
+ */
+.tpl-link__trigger {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  /* Under the text, so a click still reaches the field for in-place editing and
+     the trigger only claims what the text does not. */
+  z-index: 0;
+}
+
+.tpl-link__trigger:hover,
+.tpl-link__trigger[aria-expanded='true'] {
+  background: var(--tpl-tint, rgb(0 0 0 / 4%));
+  border-radius: 3px;
+}
+
+/*
+ * The popover. Below the link and out of the flow entirely.
+ *
+ * `hidden` closes it rather than unmounting it: the address inside is a Craft
+ * node, and a node that is not in the tree is not collected when the document
+ * saves — so a popover that only existed while open would lose the address the
+ * moment it closed.
+ */
+.tpl-link__pop {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 6;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  width: max-content;
+  max-width: 22rem;
+  padding: 5px 8px;
+  font:
+    400 11px/1.5 system-ui,
+    sans-serif;
+  color: var(--tpl-chrome-ink, #333);
+  background: var(--tpl-chrome, #fff);
+  border: 1px solid var(--tpl-line-hover, #d4d4d8);
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 14%);
+}
+
+.tpl-link__pop[hidden] {
+  display: none;
+}
+
+.tpl-link__pop-label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* The address field itself, given room to be typed into without the popover
+   resizing under the cursor. */
+.tpl-link__pop-field {
+  min-width: 12rem;
+}
+
+/* On paper the document is the only thing on the page — the belt to the
+   editor's own `beforeprint` braces, asserted in `collections.spec.tsx`. */
+@media print {
+  .tpl-link__trigger,
+  .tpl-link__pop {
+    display: none !important;
+  }
+}

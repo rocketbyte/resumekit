@@ -11,6 +11,7 @@ import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import {
   MeridianCustomEntry,
@@ -323,7 +324,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
             </section>
           )}
 
-          {resume.links.length > 0 && (
+          {(resume.links.length > 0 || authoring) && (
             <section className="tpl-mer__section">
               <h2
                 className="tpl-mer__heading tpl-mer__heading--marked"
@@ -333,17 +334,14 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                 Websites, Portfolios, Profiles
               </h2>
               <ul className="tpl-mer__links" data-block data-split>
-                {resume.links.map((link, i) => (
-                  <li key={i} className="tpl-mer__link">
-                    <Element
-                      id={`links.${i}.url`}
-                      is={EditableText}
-                      path={`links.${i}.url`}
-                      value={link.url}
-                      href={link.url}
-                    />
-                  </li>
-                ))}
+                <Collection section="links" items={resume.links} gap={false}>
+                  {({ item, path, chrome, itemProps }) => (
+                    <li {...itemProps} className="tpl-mer__link">
+                      {chrome}
+                      <LinkField item={item} path={path} />
+                    </li>
+                  )}
+                </Collection>
               </ul>
             </section>
           )}

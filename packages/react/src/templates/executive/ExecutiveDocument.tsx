@@ -12,6 +12,7 @@ import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import {
   ExecCustomEntry,
@@ -304,23 +305,20 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           </section>
         )}
 
-        {resume.links.length > 0 && (
+        {(resume.links.length > 0 || authoring) && (
           <section className="tpl-exec__section">
             <h2 className="tpl-exec__heading" data-block data-keep-with-next>
               Websites, Portfolios, Profiles
             </h2>
             <ul className="tpl-exec__links" data-block>
-              {resume.links.map((link, i) => (
-                <li key={i} className="tpl-exec__link">
-                  <Element
-                    id={`links.${i}.url`}
-                    is={EditableText}
-                    path={`links.${i}.url`}
-                    value={link.url}
-                    href={link.url}
-                  />
-                </li>
-              ))}
+              <Collection section="links" items={resume.links} gap={false}>
+                {({ item, path, chrome, itemProps }) => (
+                  <li {...itemProps} className="tpl-exec__link">
+                    {chrome}
+                    <LinkField item={item} path={path} />
+                  </li>
+                )}
+              </Collection>
             </ul>
           </section>
         )}

@@ -15,6 +15,7 @@ import { EditableInlineList } from '../../nodes/EditableInlineList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { useSpaceSlot } from '../../spacing/SpaceHandle.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import {
   HarvardCustomEntry,
   HarvardEducationEntry,
@@ -176,20 +177,10 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
               {({ item, path, chrome, itemProps }) => (
                 <span {...itemProps} className="tpl-harvard__contact-item">
                   {chrome}
-                  <Element
-                    id={`${path}.label`}
-                    is={EditableText}
-                    path={`${path}.label`}
-                    value={item.label ?? item.url}
+                  <LinkField
+                    item={item}
+                    path={path}
                     placeholder={PLACEHOLDERS['label']}
-                    /*
-                     * `undefined` rather than `''` for a link with no address
-                     * yet. `href ?? format?.href` falls back only on nullish,
-                     * so an empty string SHADOWED the address the candidate
-                     * sets from the rail — a link they had just addressed still
-                     * printed as dead text.
-                     */
-                    href={item.url || undefined}
                   />
                 </span>
               )}

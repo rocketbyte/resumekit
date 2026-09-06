@@ -211,6 +211,11 @@ describe('the Cobalt document', () => {
       'data-placeholder',
       'data-value',
       'data-editing',
+      /* The shared marker for an element that is editing chrome: absolutely
+         positioned, taking no space, and hidden in print. `SpaceHandle` and
+         `EntryOverlay` have always carried it; a link's popover carries it too.
+         Not this template's vocabulary — the same category as `data-path`. */
+      'data-chrome',
     ]);
 
     const seen = new Set<string>();
