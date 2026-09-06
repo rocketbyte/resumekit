@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Element, useEditor } from '@craftjs/core';
 import type { Link } from '@cvgs/core';
 import { useAutosave } from '../autosave-context.js';
@@ -12,6 +13,15 @@ export interface LinkFieldProps {
   path: string;
   /** What the text field says when the writer produced no label. */
   placeholder?: string;
+  /**
+   * Add another link after this one. `null` in a document being read, and where
+   * the collection cannot grow.
+   *
+   * The control belongs on the ENTRY because this collection renders inside a
+   * line: once it has items there is nowhere else to put one that does not cost
+   * the document a line the preview has not got.
+   */
+  onAdd?: (() => void) | null;
 }
 
 /** A node's id, found by the résumé path it carries. */
@@ -74,7 +84,7 @@ function idOf(
  * does not is an element the two documents differ by — `position: relative` with
  * no offsets moves nothing, the same argument `[data-gap]` already makes.
  */
-export function LinkField({ item, path, placeholder }: LinkFieldProps) {
+export function LinkField({ item, path, placeholder, onAdd }: LinkFieldProps) {
   const labelPath = `${path}.label`;
   const urlPath = `${path}.url`;
 
@@ -102,8 +112,24 @@ export function LinkField({ item, path, placeholder }: LinkFieldProps) {
   const { actions } = useEditor();
   const { saveSoon } = useAutosave();
 
-  const [open, setOpen] = useState(false);
+  /*
+   * A link with neither half was just minted, and opening its popover is the
+   * only thing a candidate can usefully do with it — so pressing "Add links"
+   * lands them in the two fields rather than on an empty word they then have to
+   * find and press again.
+   *
+   * Sound because it cannot be mistaken for a stored link: `LinkSchema` requires
+   * `url` to be non-empty, so a saved résumé never carries a blank one. Only
+   * `collection.add()` produces `{ label: '', url: '' }`.
+   *
+   * Read ONCE, at mount. Reading it live would slam the popover shut the moment
+   * the first character arrived, and reopen it if the candidate cleared both
+   * fields while typing.
+   */
+  const [open, setOpen] = useState(() => editing && !item.label && !item.url);
   const root = useRef<HTMLSpanElement>(null);
+  const pop = useRef<HTMLSpanElement>(null);
+  const [at, setAt] = useState<{ top: number; left: number } | null>(null);
 
   /*
    * Close on an outside press or Escape. Written here rather than imported:
@@ -113,7 +139,12 @@ export function LinkField({ item, path, placeholder }: LinkFieldProps) {
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
-      if (!root.current?.contains(e.target as Node)) setOpen(false);
+      /* The panel is portalled out of the link, so "outside" is outside BOTH. */
+      const target = e.target as Node;
+      if (root.current?.contains(target) || pop.current?.contains(target)) {
+        return;
+      }
+      setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
@@ -178,16 +209,88 @@ export function LinkField({ item, path, placeholder }: LinkFieldProps) {
     />
   );
 
+  /*
+   * The whole link opens the popover, and the handler is on the WRAPPER rather
+   * than on an element drawn over the text.
+   *
+   * The overlay this replaces was `position: absolute; inset: 0` inside an
+   * inline `<span>`. That asks the browser to resolve a containing block from
+   * the bounding box of an inline's fragments, which is exactly the kind of
+   * geometry jsdom cannot model — so the suite proved the handler ran while
+   * saying nothing about whether a pointer could ever reach it. A handler is
+   * not an element: it has no box to get wrong, and it costs the document
+   * nothing, which is the same guarantee by a shorter route.
+   *
+   * `mousedown` is where the press is refused, not `click`. By click time the
+   * browser has already placed a caret in the text and Craft has already
+   * selected the field — so the popover would open on top of a field that had
+   * just become editable, and the two would fight over the keyboard.
+   */
+  const openPopover = (e: {
+    preventDefault: () => void;
+    stopPropagation: () => void;
+  }) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  /*
+   * Where the popover is drawn, measured when it opens.
+   *
+   * It is rendered into `document.body` through a portal and positioned
+   * `fixed`, and both halves of that are load-bearing.
+   *
+   * `position: absolute` inside `.tpl-link` is what it did before, and that
+   * asked the browser to resolve a containing block from the bounding box of an
+   * INLINE span's fragments — the same fragile geometry that made the old
+   * overlay trigger unreachable. A popover positioned against a degenerate box
+   * lands somewhere nobody can see, which looks exactly like a popover that
+   * never opened.
+   *
+   * And an ancestor clips it. `paged.css` masks `.tpl-pages__flow` on a
+   * multi-page document to hide the gutter between sheets, and a mask clips
+   * everything inside it: a panel hanging below a link would be cut off at the
+   * page edge, or vanish entirely in the gap between two.
+   *
+   * A portal has neither problem — nothing above it in the DOM can clip it, and
+   * nothing about an inline box decides where it goes. The React tree is
+   * unchanged by a portal, so the address's Craft node stays registered and the
+   * document still saves it.
+   */
+  useLayoutEffect(() => {
+    if (!open) return;
+    const box = root.current?.getBoundingClientRect();
+    if (box) setAt({ top: box.bottom + 4, left: box.left });
+  }, [open]);
+
+  const stop = (e: { stopPropagation: () => void }) => e.stopPropagation();
+
   return (
-    <span className="tpl-link" ref={root}>
+    <span
+      className="tpl-link"
+      ref={root}
+      {...(editing
+        ? {
+            onMouseDown: openPopover,
+            onClick: (e: {
+              preventDefault: () => void;
+              stopPropagation: () => void;
+            }) => {
+              openPopover(e);
+              setOpen((v) => !v);
+            },
+          }
+        : {})}
+    >
       {text}
       {editing && (
         <>
           {/*
-           * ON the text, not beside it. Beside it is the version that costs a
-           * space: an inline button in the contact line makes that line longer
-           * in the editor than in the file. Absolutely positioned across the
-           * link's own box, so pressing the link opens its two fields.
+           * The keyboard's way in, and the accessible name for what the pointer
+           * already does. Visually hidden rather than drawn: the affordance a
+           * mouse uses is the link itself, so a second visible control would be
+           * furniture — but a span with a click handler is reachable by nothing
+           * without this.
            */}
           <button
             type="button"
@@ -197,48 +300,87 @@ export function LinkField({ item, path, placeholder }: LinkFieldProps) {
             aria-expanded={open}
             aria-label={`Edit ${label || shownUrl || 'this link'}`}
             title="Edit this link"
-            onClick={() => setOpen((v) => !v)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen((v) => !v);
+            }}
           />
-          <span
-            className="tpl-link__pop"
-            data-chrome
-            contentEditable={false}
-            hidden={!open}
-          >
-            <label className="tpl-link__row">
-              <span className="tpl-link__label">Text</span>
-              <input
-                className="tpl-link__input"
-                type="text"
-                value={label ?? item.label ?? ''}
-                placeholder={placeholder ?? 'LinkedIn'}
-                onChange={(e) => write(labelId, e.target.value)}
-              />
-            </label>
-            <label className="tpl-link__row">
-              <span className="tpl-link__label">Link</span>
-              <input
-                className="tpl-link__input"
-                type="url"
-                value={shownUrl}
-                placeholder="https://"
-                onChange={(e) => writeUrl(e.target.value)}
-              />
-            </label>
-            {/*
-             * The address's node — the store the input above writes to, and the
-             * only reason the address survives a save. Hidden rather than
-             * unrendered: a node outside the tree is not collected.
-             */}
-            <span hidden>
-              <Element
-                id={urlPath}
-                is={EditableText}
-                path={urlPath}
-                value={item.url}
-              />
-            </span>
+
+          {/*
+           * Add another, once this one says something. Withheld while the link
+           * is still blank: a row of empty links is not what pressing add was
+           * for, and the first thing to do with a new one is fill it in.
+           */}
+          {onAdd && (label || shownUrl) ? (
+            <button
+              type="button"
+              className="tpl-link__add"
+              data-chrome
+              contentEditable={false}
+              aria-label="Add another link"
+              title="Add another link"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAdd();
+              }}
+              onMouseDown={stop}
+            >
+              +
+            </button>
+          ) : null}
+
+          {/*
+           * The address's node — the store the popover writes to, and the only
+           * reason the address survives a save.
+           *
+           * It stays HERE, in the document's own tree, rather than travelling
+           * to the portal with the panel: it is mounted whether or not the
+           * popover is open, because a node outside the React tree is not
+           * collected. Hidden, marked chrome, and taking no space.
+           */}
+          <span className="tpl-link__store" data-chrome hidden>
+            <Element
+              id={urlPath}
+              is={EditableText}
+              path={urlPath}
+              value={item.url}
+            />
           </span>
+
+          {open && at
+            ? createPortal(
+                <span
+                  className="tpl-link__pop"
+                  ref={pop}
+                  data-chrome
+                  style={{ top: at.top, left: at.left }}
+                  onMouseDown={stop}
+                  onClick={stop}
+                >
+                  <label className="tpl-link__row">
+                    <span className="tpl-link__label">Text</span>
+                    <input
+                      className="tpl-link__input"
+                      type="text"
+                      value={label ?? item.label ?? ''}
+                      placeholder={placeholder ?? 'LinkedIn'}
+                      onChange={(e) => write(labelId, e.target.value)}
+                    />
+                  </label>
+                  <label className="tpl-link__row">
+                    <span className="tpl-link__label">Link</span>
+                    <input
+                      className="tpl-link__input"
+                      type="url"
+                      value={shownUrl}
+                      placeholder="https://"
+                      onChange={(e) => writeUrl(e.target.value)}
+                    />
+                  </label>
+                </span>,
+                document.body,
+              )
+            : null}
         </>
       )}
     </span>

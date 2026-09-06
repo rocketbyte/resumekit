@@ -184,13 +184,14 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
               gap={false}
               emptyAdd="inline"
             >
-              {({ item, path, chrome, itemProps }) => (
+              {({ item, path, chrome, itemProps, onAdd }) => (
                 <span {...itemProps} className="tpl-harvard__contact-item">
                   {chrome}
                   <LinkField
                     item={item}
                     path={path}
                     placeholder={PLACEHOLDERS['label']}
+                    onAdd={onAdd}
                   />
                 </span>
               )}

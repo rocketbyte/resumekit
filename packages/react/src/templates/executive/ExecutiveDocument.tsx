@@ -312,10 +312,10 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
             </h2>
             <ul className="tpl-exec__links" data-block>
               <Collection section="links" items={resume.links} gap={false}>
-                {({ item, path, chrome, itemProps }) => (
+                {({ item, path, chrome, itemProps, onAdd }) => (
                   <li {...itemProps} className="tpl-exec__link">
                     {chrome}
-                    <LinkField item={item} path={path} />
+                    <LinkField item={item} path={path} onAdd={onAdd} />
                   </li>
                 )}
               </Collection>

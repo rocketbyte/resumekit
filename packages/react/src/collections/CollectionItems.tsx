@@ -58,6 +58,17 @@ export interface EntryRenderProps<T> {
   chrome: ReactNode;
   /** Spread onto the entry's root element. Opaque; see {@link ItemRootProps}. */
   itemProps: ItemRootProps;
+  /**
+   * Add another item after this one, or `null` where the collection cannot
+   * grow — a singular location, or a document being read.
+   *
+   * Offered to the ENTRY, and not only by the empty state, because a collection
+   * that renders inside a LINE has nowhere to put a control of its own once it
+   * has items: a block below the line is a line the preview does not have. The
+   * entry knows where its own text ends, so it is the only thing that can place
+   * one without moving the document.
+   */
+  onAdd: (() => void) | null;
 }
 
 export interface CollectionItemsProps<T> {
@@ -129,6 +140,8 @@ function ReadOnlyItem<T>({
     index,
     chrome: null,
     itemProps: gap ? { ...space.rootProps } : {},
+    /* A document being read grows nothing, so there is nothing to offer. */
+    onAdd: null,
   });
   return isValidElement(element) ? element : null;
 }
@@ -256,8 +269,8 @@ export function CollectionItems<T>({
             className="tpl-collection__add-inline"
             data-chrome
             contentEditable={false}
-            data-placeholder={`Add ${noun}`}
-            aria-label={`Add ${noun}`}
+            data-placeholder={`Add ${noun}s`}
+            aria-label={`Add a ${noun}`}
             onClick={() => collection.add()}
           />
         ) : (

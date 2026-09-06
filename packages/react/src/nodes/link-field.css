@@ -25,48 +25,110 @@
 }
 
 /*
- * The trigger, drawn ON the text rather than beside it.
- *
- * Beside it is the version that costs a space: an inline button in the contact
- * line makes that line longer in the editor than in the file, which is the
- * defect this whole change is about. So it is a positioned overlay across the
- * link's own box — pressing the link opens its two fields.
- *
- * ON TOP, and deliberately. A positioned element with `z-index: 0` paints above
- * its static siblings, so this covers the text and takes the click — which is
- * the behaviour wanted, because a link is edited in its popover rather than in
- * place. An earlier version of this rule claimed to sit UNDER the text; it did
- * not, and could not: `z-index: 0` is not below the flow, and at `-1` the
- * element would never receive a press at all.
+ * The link reads as pressable, because it is: the wrapper carries the handler.
  */
-.tpl-link__trigger {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  padding: 0;
-  background: none;
-  border: 0;
+.tpl-link {
   cursor: pointer;
 }
 
-.tpl-link__trigger:hover,
-.tpl-link__trigger[aria-expanded='true'] {
+/*
+ * The KEYBOARD's way in. Not an overlay.
+ *
+ * This was `position: absolute; inset: 0` drawn across the text, which asks the
+ * browser to resolve a containing block from the bounding box of an inline
+ * span's fragments — geometry jsdom cannot model, so the suite proved the
+ * handler ran while saying nothing about whether a pointer could reach it. The
+ * pointer now presses the link itself, and a handler has no box to get wrong.
+ *
+ * What is left is the part a click handler cannot do: give the affordance a
+ * name and a tab stop. Visually hidden, one pixel, taking no layout — a second
+ * VISIBLE control beside every link would be furniture the document did not ask
+ * for.
+ */
+.tpl-link__trigger {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  background: none;
+  border: 0;
+  opacity: 0;
+}
+
+/* Except under the keyboard, which must be able to see where it is. */
+.tpl-link__trigger:focus-visible {
+  width: auto;
+  height: auto;
+  opacity: 1;
+  outline: 2px solid var(--tpl-accent, #2563eb);
+}
+
+/* The link itself says it is pressable, and says which one is open. */
+.tpl-link:hover > .tpl-text,
+.tpl-link:has(.tpl-link__trigger[aria-expanded='true']) > .tpl-text {
   background: var(--tpl-tint, rgb(0 0 0 / 4%));
   border-radius: 3px;
 }
 
 /*
- * The popover. Below the link and out of the flow entirely.
+ * "Add another", past the end of the link's text.
  *
- * `hidden` closes it rather than unmounting it: the address inside is a Craft
- * node, and a node that is not in the tree is not collected when the document
- * saves — so a popover that only existed while open would lose the address the
- * moment it closed.
+ * Absolutely positioned, so the line is the same length with it and without it.
+ * `left: 100%` puts it immediately after the text it belongs to rather than at
+ * a fixed place in the row, which is what makes it read as this link's control
+ * and not the section's.
+ *
+ * Shown on hover or focus only. A finished contact line is three links, and
+ * three permanent plus signs in it is furniture the document did not ask for.
+ */
+.tpl-link__add {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 1.1em;
+  height: 1.1em;
+  margin-left: 0.15em;
+  font: inherit;
+  line-height: 1;
+  color: var(--tpl-accent-ink);
+  cursor: pointer;
+  background: var(--tpl-tint);
+  border: 0;
+  border-radius: 3px;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 120ms ease;
+}
+
+.tpl-link:hover .tpl-link__add,
+.tpl-link__add:focus-visible,
+.tpl-link__trigger:focus-visible ~ .tpl-link__add {
+  opacity: 1;
+}
+
+/*
+ * The popover, drawn in `document.body` through a portal and placed with
+ * coordinates measured from the link when it opens.
+ *
+ * `position: absolute` inside `.tpl-link` is what this was, and it did not
+ * work: it asked the browser to resolve a containing block from the bounding
+ * box of an INLINE span's fragments, and `paged.css` masks `.tpl-pages__flow`
+ * on a multi-page document — a mask clips everything inside it, so a panel
+ * hanging below a link was cut off at the page edge or lost in the gutter
+ * between two sheets. Either way it looked exactly like a popover that never
+ * opened.
+ *
+ * `fixed`, so it is placed against the viewport the coordinates were measured
+ * in. The component supplies `top` and `left`.
  */
 .tpl-link__pop {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
+  position: fixed;
   z-index: 6;
   display: grid;
   gap: 4px;
@@ -83,7 +145,10 @@
   box-shadow: 0 2px 10px rgb(0 0 0 / 14%);
 }
 
-.tpl-link__pop[hidden] {
+/* The address's node lives in the document's own tree, hidden and taking no
+   space: a node outside the React tree is not collected when the résumé
+   saves, so it cannot travel to the portal with the panel. */
+.tpl-link__store {
   display: none;
 }
 
@@ -125,6 +190,7 @@
    editor's own `beforeprint` braces, asserted in `collections.spec.tsx`. */
 @media print {
   .tpl-link__trigger,
+  .tpl-link__add,
   .tpl-link__pop {
     display: none !important;
   }

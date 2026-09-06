@@ -76,6 +76,9 @@ function AuthoredItem<T>({
         ) : null}
       </>
     ),
+    /* Insert AFTER this one, so pressing add beside the third link makes a
+       fourth rather than moving the candidate to the end of the list. */
+    onAdd: collection.canAdd ? () => collection.add(index) : null,
     itemProps: {
       /*
        * The marker every editing affordance hangs off: the outline that shows

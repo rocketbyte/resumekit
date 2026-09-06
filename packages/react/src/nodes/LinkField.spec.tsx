@@ -294,3 +294,191 @@ describe('a link is edited in its popover', () => {
     expect(screen.queryByRole('button', { name: /edit/i })).toBeNull();
   });
 });
+
+/**
+ * Adding a link, and adding another.
+ *
+ * The empty state used to mint an entry and stop there, leaving a blank word in
+ * the contact line that the candidate then had to find and press a second time.
+ * And once a résumé had one link there was no way to add a second at all: the
+ * collection offers its control only while it is empty, and a block control
+ * below a contact line is a line the preview does not have.
+ */
+describe('adding links', () => {
+  it('opens the two fields for a link that was just minted', () => {
+    /*
+     * Sound because it cannot be confused with a stored link: `LinkSchema`
+     * requires a non-empty `url`, so a saved résumé never carries a blank one.
+     * Only `collection.add()` produces `{ label: '', url: '' }`.
+     */
+    renderIn('harvard', resume({ links: [{ label: '', url: '' }] }), true);
+    expect(screen.getByRole('button', { name: /edit/i })).toHaveProperty(
+      'ariaExpanded',
+      'true',
+    );
+  });
+
+  it('leaves a stored link shut', () => {
+    // The document opens as a document, not as a page of open popovers.
+    renderIn('harvard', resume(), true);
+    expect(
+      screen
+        .getByRole('button', { name: /edit/i })
+        .getAttribute('aria-expanded'),
+    ).toBe('false');
+  });
+
+  it('offers to add another once a link says something', async () => {
+    renderIn('harvard', resume(), true);
+    expect(
+      await screen.findByRole('button', { name: /add another link/i }),
+    ).toBeTruthy();
+  });
+
+  it('offers no add beside a link that is still blank', () => {
+    // A row of empty links is not what pressing add was for.
+    renderIn('harvard', resume({ links: [{ label: '', url: '' }] }), true);
+    expect(
+      screen.queryByRole('button', { name: /add another link/i }),
+    ).toBeNull();
+  });
+
+  it('offers neither control in a document being read', () => {
+    renderIn('harvard', resume(), false);
+    expect(
+      screen.queryByRole('button', { name: /add another link/i }),
+    ).toBeNull();
+    expect(screen.queryByRole('button', { name: /edit/i })).toBeNull();
+  });
+
+  it('says "Add links" where a resume has none', () => {
+    const { container } = renderIn('harvard', resume({ links: [] }), true);
+    const add = container.querySelector('.tpl-collection__add-inline');
+    expect(add?.getAttribute('data-placeholder')).toBe('Add links');
+  });
+});
+
+/**
+ * Pressing the link is what opens it.
+ *
+ * The mechanism this replaced was a transparent button drawn across the text
+ * with `position: absolute; inset: 0`, inside an inline `<span>`. jsdom has no
+ * layout, so a test could click that button and prove the handler ran while
+ * saying nothing about whether a real pointer could ever reach it — which is
+ * the only question that mattered.
+ *
+ * A handler on the wrapper has no box to get wrong. These assert the parts
+ * jsdom CAN see: which element carries the press, that the press is refused
+ * before it reaches the text, and that presses inside the popover do not close
+ * it again.
+ */
+describe('pressing a link opens its fields', () => {
+  const linkEl = (container: HTMLElement) =>
+    container.querySelector('.tpl-link') as HTMLElement;
+  /*
+   * Whether the popover is SHOWING, not whether its fields exist. They always
+   * exist: the address is a Craft node and a node outside the tree is not
+   * collected when the document saves, so closing hides it rather than
+   * unmounting it.
+   */
+  const isOpen = (_container?: HTMLElement) =>
+    document.body.querySelector('.tpl-link__pop') !== null;
+
+  it('opens from a press on the link itself, not on a control over it', () => {
+    const { container } = renderIn('harvard', resume(), true);
+    expect(isOpen(container)).toBe(false);
+
+    fireEvent.click(linkEl(container));
+    expect(isOpen(container)).toBe(true);
+  });
+
+  it('refuses the press before it becomes a caret', () => {
+    /*
+     * `mousedown`, not `click`: by click time the browser has placed a caret in
+     * the text and Craft has selected the field, so the popover would open on
+     * top of something that had just become editable and the two would fight
+     * over the keyboard.
+     */
+    const { container } = renderIn('harvard', resume(), true);
+    const down = fireEvent.mouseDown(linkEl(container));
+    expect(down, 'the press is cancelled').toBe(false);
+  });
+
+  it('stays open while its own fields are being used', () => {
+    // The popover is inside the wrapper, so without stopping propagation every
+    // press in it would bubble into the toggle and shut it.
+    const { container } = renderIn('harvard', resume(), true);
+    fireEvent.click(linkEl(container));
+    expect(isOpen(container)).toBe(true);
+
+    fireEvent.mouseDown(screen.getByDisplayValue('LinkedIn'));
+    fireEvent.click(screen.getByDisplayValue('LinkedIn'));
+    expect(isOpen(container)).toBe(true);
+  });
+
+  it('adds another without opening the one it was pressed from', async () => {
+    const { container } = renderIn('harvard', resume(), true);
+    const add = await screen.findByRole('button', {
+      name: /add another link/i,
+    });
+    fireEvent.mouseDown(add);
+    fireEvent.click(add);
+    // The press belonged to the add control, not to the link under it.
+    expect(isOpen(container)).toBe(false);
+  });
+
+  it('presses nothing in a document being read', () => {
+    const { container } = renderIn('harvard', resume(), false);
+    fireEvent.click(linkEl(container));
+    expect(document.body.querySelector('.tpl-link__pop')).toBeNull();
+  });
+});
+
+/**
+ * The panel is drawn outside the document, and that is the fix rather than a
+ * detail.
+ *
+ * Inside `.tpl-link` it was `position: absolute` in an INLINE span — a
+ * containing block resolved from the bounding box of the inline's fragments —
+ * and `paged.css` masks `.tpl-pages__flow` on a multi-page document, which
+ * clips everything within it. A panel hanging below a link was therefore placed
+ * against a box that may be degenerate, inside an ancestor that may cut it off
+ * at a page edge. Both look identical from the outside: nothing appears.
+ *
+ * jsdom cannot see either hazard — no layout, no masks. What it CAN see is
+ * where the element is mounted, which is the property that makes both
+ * impossible.
+ */
+describe('the popover is drawn outside the document', () => {
+  it('mounts in the body, not inside the résumé', () => {
+    const { container } = renderIn('harvard', resume(), true);
+    fireEvent.click(container.querySelector('.tpl-link') as HTMLElement);
+
+    expect(document.body.querySelector('.tpl-link__pop')).toBeTruthy();
+    expect(
+      container.querySelector('.tpl-link__pop'),
+      'inside the document it can be clipped by the page mask',
+    ).toBeNull();
+  });
+
+  it('keeps the address in the document tree, where the save reads it', () => {
+    /*
+     * The panel travels; the NODE does not. A Craft node outside the React tree
+     * is not collected when the résumé saves, and it must be mounted whether or
+     * not the popover is open.
+     */
+    const { container } = renderIn('harvard', resume(), true);
+    expect(container.querySelector('[data-path="links.0.url"]')).toBeTruthy();
+    expect(document.body.querySelector('.tpl-link__pop')).toBeNull();
+  });
+
+  it('closes on a press outside both the link and the panel', () => {
+    const { container } = renderIn('harvard', resume(), true);
+    fireEvent.click(container.querySelector('.tpl-link') as HTMLElement);
+    expect(document.body.querySelector('.tpl-link__pop')).toBeTruthy();
+
+    // "Outside" has to mean outside BOTH, now that they are not nested.
+    fireEvent.mouseDown(document.body);
+    expect(document.body.querySelector('.tpl-link__pop')).toBeNull();
+  });
+});

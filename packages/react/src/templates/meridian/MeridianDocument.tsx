@@ -335,10 +335,10 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
               </h2>
               <ul className="tpl-mer__links" data-block data-split>
                 <Collection section="links" items={resume.links} gap={false}>
-                  {({ item, path, chrome, itemProps }) => (
+                  {({ item, path, chrome, itemProps, onAdd }) => (
                     <li {...itemProps} className="tpl-mer__link">
                       {chrome}
-                      <LinkField item={item} path={path} />
+                      <LinkField item={item} path={path} onAdd={onAdd} />
                     </li>
                   )}
                 </Collection>

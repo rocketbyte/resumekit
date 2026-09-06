@@ -372,10 +372,10 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
               </h2>
               <ul className="tpl-cob__links" data-block data-split>
                 <Collection section="links" items={resume.links} gap={false}>
-                  {({ item, path, chrome, itemProps }) => (
+                  {({ item, path, chrome, itemProps, onAdd }) => (
                     <li {...itemProps} className="tpl-cob__link">
                       {chrome}
-                      <LinkField item={item} path={path} />
+                      <LinkField item={item} path={path} onAdd={onAdd} />
                     </li>
                   )}
                 </Collection>
