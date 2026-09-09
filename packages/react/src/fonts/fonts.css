@@ -205,3 +205,135 @@
   font-display: swap;
   src: url('./tinos-700i.woff2') format('woff2');
 }
+
+/* ---------------------------------------------------------------------------
+ * The product's OWN faces.
+ *
+ * Everything above stands in for a typeface a reader might have installed, and
+ * is metrically compatible with it. These stand in for nothing: they are here
+ * because the six above are a neo-grotesque sans and a transitional serif three
+ * times each, so a candidate could change the name of the typeface without much
+ * changing how the document reads.
+ *
+ * Same pipeline, same four styles, same `latin` cut — see `README.md`.
+ * ------------------------------------------------------------------------ */
+
+/* --- Lato (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./lato-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./lato-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./lato-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./lato-700i.woff2') format('woff2');
+}
+
+/* --- Roboto Condensed (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./robotocondensed-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./robotocondensed-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./robotocondensed-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./robotocondensed-700i.woff2') format('woff2');
+}
+
+/* --- PT Serif (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'PT Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./ptserif-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'PT Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./ptserif-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'PT Serif';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./ptserif-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'PT Serif';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./ptserif-700i.woff2') format('woff2');
+}
+
+/* --- Bitter (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Bitter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./bitter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bitter';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./bitter-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bitter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./bitter-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bitter';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./bitter-700i.woff2') format('woff2');
+}

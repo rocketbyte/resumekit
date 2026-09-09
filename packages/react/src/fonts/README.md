@@ -7,6 +7,11 @@ displaying it.
 
 ## What ships, and why that face
 
+### The stand-ins
+
+Each answers "the candidate asked for Calibri", and is metrically compatible
+with that face wherever such a standard exists.
+
 | Catalog entry | Supplied face  | Metric compatibility                          | Licence                       |
 | ------------- | -------------- | --------------------------------------------- | ----------------------------- |
 | `helvetica`   | TeX Gyre Heros | Helvetica-metric                              | GUST Font License (LPPL 1.3c) |
@@ -15,6 +20,30 @@ displaying it.
 | `georgia`     | Gelasio        | Georgia-metric                                | SIL OFL 1.1                   |
 | `garamond`    | EB Garamond    | none — no metric standard for Garamond exists | SIL OFL 1.1                   |
 | `times`       | Tinos          | Times New Roman-metric                        | SIL OFL 1.1                   |
+
+### The product's own
+
+The six above are a neo-grotesque sans and a transitional serif three times
+each, so a candidate could change the typeface's NAME without much changing how
+the document reads. These four each cover a register none of the six reaches,
+stand in for nothing, and carry no metric obligation.
+
+| Catalog entry | Supplied face    | Register it adds                           | Licence     |
+| ------------- | ---------------- | ------------------------------------------ | ----------- |
+| `lato`        | Lato             | humanist sans — warmer than the grotesques | SIL OFL 1.1 |
+| `condensed`   | Roboto Condensed | condensed sans — fits more on the page     | SIL OFL 1.1 |
+| `ptserif`     | PT Serif         | screen serif — sturdier than Georgia       | SIL OFL 1.1 |
+| `bitter`      | Bitter           | slab serif — the one non-book voice        | SIL OFL 1.1 |
+
+**Merriweather was measured and rejected.** It fills the same "screen serif"
+slot as PT Serif and cuts to 184KB a family against PT Serif's 61KB — 99KB of
+that is `GPOS` alone, a kern table three times the size of any other family's
+whole file. Pruning it would mean shipping a Merriweather that does not kern
+like Merriweather. Do not re-propose it without new numbers.
+
+**Roboto Slab was named for the slab slot and is not shipped.** It has no true
+italic, and every entry here ships 400, 400 italic, 700 and 700 italic because
+that is what the templates set. Bitter is the same register with real italics.
 
 `design.md` decision 4 named **Nimbus Sans** for `helvetica`. It is not shipped.
 Nimbus Sans is distributed under the AGPL v3 with an exception that covers
@@ -31,16 +60,33 @@ Liberation Sans and Arimo are the same Arial design.
 
 - Arimo, Carlito, Gelasio, EB Garamond, Tinos — Google Fonts, upstream TTFs.
 - TeX Gyre Heros — CTAN, `fonts/tex-gyre/opentype`, version 2.004.
+- Lato, PT Serif — Google Fonts, upstream static TTFs.
+- Bitter, Roboto Condensed — Google Fonts, upstream VARIABLE TTFs, instanced to
+  400 and 700 before subsetting, so what ships is a static face rather than a
+  variable font pinned at render time. Instanced with `updateFontNames`, without
+  which the instance inherits the variable font's default name — `Bitter Thin`
+  on a file that is a 400 — and the render container installs it under that.
 
 Each family's licence, with its copyright notice, is in `licenses/`.
 
 ## What was changed
 
 The files are **subsets**, not the originals: reduced to Google Fonts' `latin`
-and `latin-ext` ranges unioned, hinting dropped, converted to WOFF2. Layout
-features are limited to `kern, liga, clig, calt, ccmp, locl, mark, mkmk, rlig`.
-No outline, no metric and no family name was altered. Four styles per family —
-400, 400 italic, 700, 700 italic — which is what the templates set.
+range, hinting dropped, converted to WOFF2.
+
+> This line used to say "`latin` and `latin-ext` ranges unioned". It was wrong,
+> and measurably so: `arimo-400.woff2` carries 230 codepoints — 193 of Latin-1,
+> 18 of General Punctuation, and the three strays (`ı`, `Œ`, `œ`) that are in
+> Google's `latin` range — and none at all from `U+0100-017F`, `U+1E00-1EFF` or
+> `U+A720-A7FF`. The four added later are cut to match what actually shipped,
+> not to what this file claimed. A character outside the range falls through to
+> the next family in the stack by the browser's own per-glyph fallback, which is
+> what `fonts.css` already says.
+
+Layout features are limited to `kern, liga, clig, calt, ccmp, locl, mark, mkmk,
+rlig`. No outline, no metric and no family name was altered. Four styles per
+family — 400, 400 italic, 700, 700 italic — which is what the templates set, and
+what `fonts.spec.ts` refuses to let an entry ship without.
 
 ## The shift this causes
 

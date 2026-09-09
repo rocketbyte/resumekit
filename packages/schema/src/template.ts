@@ -692,6 +692,42 @@ export const DOCUMENT_FONTS = {
     supplied: 'Tinos',
     stack: "Tinos, 'Times New Roman', Times, Georgia, serif",
   },
+  /*
+   * The four below are the product's OWN choices rather than stand-ins for a
+   * typeface a reader might have installed.
+   *
+   * The six above answer "the candidate asked for Calibri": each is metrically
+   * compatible with a named face, so a résumé keeps the line breaks that face
+   * would have produced. These answer a different question — the six cover two
+   * registers, a neo-grotesque sans and a transitional serif, three times each,
+   * so "more fonts" was really "more than two ways for a résumé to look".
+   *
+   * `supplied` is the face's own name here, because there is nothing to stand
+   * in for. Each still leads a stack that degrades to something of its own
+   * register if the file fails to load.
+   */
+  lato: {
+    name: 'Lato',
+    supplied: 'Lato',
+    stack: "Lato, 'Segoe UI', Candara, Optima, Calibri, sans-serif",
+  },
+  condensed: {
+    name: 'Roboto Condensed',
+    supplied: 'Roboto Condensed',
+    stack:
+      "'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue Condensed', 'Liberation Sans Narrow', sans-serif",
+  },
+  ptserif: {
+    name: 'PT Serif',
+    supplied: 'PT Serif',
+    stack: "'PT Serif', Charter, Cambria, Georgia, 'Times New Roman', serif",
+  },
+  bitter: {
+    name: 'Bitter',
+    supplied: 'Bitter',
+    stack:
+      "Bitter, 'Roboto Slab', Rockwell, 'Courier New', Cambria, Georgia, serif",
+  },
 } as const;
 
 export type DocumentFontId = keyof typeof DOCUMENT_FONTS;
