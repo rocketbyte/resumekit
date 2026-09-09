@@ -27,6 +27,25 @@ export interface EditableTextProps {
    * résumé's own data and needs no candidate action.
    */
   href?: string;
+  /**
+   * Whether this text is typed into HERE.
+   *
+   * `false` — the default — is every ordinary field: pressing it places a caret
+   * in it. `true` registers the field and draws its text exactly as before, and
+   * refuses the caret, because the value is set by a control of its own.
+   *
+   * One caller: a link. A link is a text and an address, and only one of the
+   * two is on the page — so typing into the visible half would let a candidate
+   * write a label with no way to see or reach what it points at. The document
+   * still needs the text to BE a field, though: it is what the save collects
+   * and what carries the anchor, and a span outside the registry is neither.
+   *
+   * So it is not "an input that is disabled". It is the document's own text,
+   * which happens to be edited somewhere else — and pressing it is how a
+   * candidate gets to that somewhere else, which is the wrapper's business and
+   * not this component's.
+   */
+  readOnly?: boolean;
 }
 
 /**
@@ -47,6 +66,7 @@ export function EditableText({
   placeholder,
   multiline,
   href,
+  readOnly = false,
 }: EditableTextProps) {
   // Read live, so a formatting change shows the instant it is made — a field's
   // value is the text, and only the text.
@@ -86,9 +106,15 @@ export function EditableText({
    * caret where the candidate pressed, and this puts the field in the state
    * where that caret is inside a real editable box.
    */
-  const onMouseDown = editing ? () => select() : undefined;
+  const onMouseDown = editing && !readOnly ? () => select() : undefined;
 
-  if (!selected) {
+  /*
+   * A read-only field never enters the typing state, even if something else
+   * selected it. Checked here rather than trusted to the handler above: the
+   * selection is document-wide and settable by any caller, and "this text is
+   * not typed into" is a property of the field rather than of one press.
+   */
+  if (!selected || readOnly) {
     /*
      * The value, and ONLY the value.
      *

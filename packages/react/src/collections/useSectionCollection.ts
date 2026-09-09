@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   additionPaths,
   collectionOrder,
@@ -30,6 +30,19 @@ export interface SectionCollectionHandle<T> extends CollectionHandle<T> {
   /** A key that follows the ITEM, so a reorder moves elements, not remounts. */
   keyOf: (index: number) => string;
   /**
+   * Whether the item at a rendered position is the one the candidate has just
+   * ADDED — an act, in this session, rather than a property of its contents.
+   *
+   * The distinction is the whole point. `originOf` says an entry came from the
+   * overlay rather than from the writer, which stays true forever; this says
+   * the candidate pressed add a moment ago and is waiting for somewhere to
+   * type. A control that wants to open itself on arrival — a link's popover —
+   * needs the second question, and answering it with the first, or with "is
+   * this entry still empty", opens EVERY empty entry in the document every time
+   * it is drawn.
+   */
+  justAdded: (index: number) => boolean;
+  /**
    * The path prefix that addresses the item at a rendered position.
    *
    * Built from the slot's BASE index, never from where it is drawn. A reordered
@@ -58,6 +71,12 @@ export function useSectionCollection<T>(
   items: readonly T[],
 ): SectionCollectionHandle<T> {
   const authoring = useAuthoring();
+  /*
+   * The ref minted by the most recent `insert`, and nothing else. Held here
+   * because `insert` is where the act happens; a component downstream can only
+   * see the result of it.
+   */
+  const [addedRef, setAddedRef] = useState<string | null>(null);
   /*
    * Where each entry SITS, taken from the projection rather than from the
    * authoring capability — because a document that cannot be edited still has
@@ -117,6 +136,7 @@ export function useSectionCollection<T>(
 
       insert: (index, item) => {
         const ref = mintRef();
+        setAddedRef(ref);
         const next: ResumeEdits = [
           ...liveEdits(),
           {
@@ -179,6 +199,10 @@ export function useSectionCollection<T>(
       slots,
       originOf: (index) =>
         slots[index] && 'ref' in slots[index] ? 'added' : 'written',
+      justAdded: (index) => {
+        const slot = slots[index];
+        return Boolean(slot && 'ref' in slot && slot.ref === addedRef);
+      },
       /*
        * Scoped by SECTION, because a slot key is only unique within its own
        * collection — `b0` is the writer's first entry in experience and in
@@ -203,7 +227,7 @@ export function useSectionCollection<T>(
         return path ?? `${section}.${index}`;
       },
     }),
-    [handle, slots, section, additions],
+    [handle, slots, section, additions, addedRef],
   );
 }
 

@@ -1,4 +1,5 @@
 import { isValidElement } from 'react';
+import { COLLECTIONS } from '@cvgs/core';
 import { EntryOverlay } from './EntryOverlay.js';
 import { SortableItems, useDragHandle } from './SortableItems.js';
 import { useEntrySelection } from './selection-context.js';
@@ -76,9 +77,9 @@ function AuthoredItem<T>({
         ) : null}
       </>
     ),
-    /* Insert AFTER this one, so pressing add beside the third link makes a
-       fourth rather than moving the candidate to the end of the list. */
-    onAdd: collection.canAdd ? () => collection.add(index) : null,
+    /* Whether this is the entry the candidate just asked for — see
+       `SectionCollectionHandle.justAdded`. */
+    justAdded: collection.justAdded?.(index) ?? false,
     itemProps: {
       /*
        * The marker every editing affordance hangs off: the outline that shows
@@ -86,8 +87,17 @@ function AuthoredItem<T>({
        * and the name the guide label reads. Written for every authored item —
        * not only a draggable one — so an entry in a collection of one is still
        * visibly an entry.
+       *
+       * Its VALUE is the collection's own shape, because how much room the ring
+       * may take beside an item is a property of what the item is. A block
+       * entry has a page margin to spend and nothing to collide with, which is
+       * what the 24px default is for; an item that sits INSIDE a line of the
+       * document has the rest of that line on both sides of it, and the same
+       * ring reached across the separator and over the phone number next to it.
+       * Every rule that already existed matches on the attribute's presence, so
+       * naming it costs nothing and `collection.css` gains one rule.
        */
-      'data-entry': '',
+      'data-entry': COLLECTIONS[collection.id].shape,
       'data-entry-label': `${noun} ${index + 1}`,
       ...(selected ? { 'data-selected': '' } : {}),
       /*
