@@ -22,9 +22,11 @@ export interface EditableTextProps {
    *
    * The résumé already carries `links[]` — a label and a URL — and the templates
    * rendered the label as dead text, so "GitHub" reached an employer as a word
-   * they had to retype. This is that URL. A target the candidate attaches to an
-   * arbitrary field still arrives through the per-path format; this one is the
-   * résumé's own data and needs no candidate action.
+   * they had to retype. This is that URL, and it is now the only way a link is
+   * MADE: the rail's per-field `href` control is gone, because a link is content
+   * and two homes for one fact is what the ranking below exists to paper over.
+   * A stored `format.href` is still read, for a document formatted while that
+   * control existed.
    */
   href?: string;
   /**
