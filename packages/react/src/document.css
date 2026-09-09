@@ -83,6 +83,30 @@
    */
   --tpl-paper-muted: #9a9a9a;
 
+  /*
+   * Selection on the paper, and the second colour here that deliberately does
+   * NOT follow the theme — for the same reason as the one above it.
+   *
+   * The app's `::selection` pairs its wash with `--color-text`, which is
+   * near-white in dark mode. Correct on a dark surface; on this one it painted
+   * selected résumé text white on a pale wash, so dragging across a paragraph
+   * in dark mode made the words disappear as they were selected. Both halves
+   * are fixed here, because the surface under them is fixed.
+   *
+   * The INK is a literal near-black rather than `inherit`. `inherit` would keep
+   * each run's own colour, which sounds better and is not: `meridian` and
+   * `executive` both draw white text on a dark band, and white on this wash is
+   * the bug this rule exists to fix. A dark ink is legible on the wash whatever
+   * the run was coloured before it.
+   *
+   * The wash is the accent's hue at a fixed lightness — 1.58:1 on white, the
+   * register a native selection sits in, with the ink at 11.0:1 on it. A
+   * rebrand changes the hue here, in the same place `--tpl-paper-muted` is
+   * changed, rather than following a token that is allowed to go light.
+   */
+  --tpl-paper-selection: oklch(0.85 0.08 256);
+  --tpl-paper-selection-ink: #1a1a1a;
+
   --tpl-danger: var(--color-danger, #b3261e);
   --tpl-danger-tint: color-mix(in oklab, var(--tpl-danger) 12%, transparent);
 
@@ -101,4 +125,17 @@
    * than found already there.
    */
   --tpl-reveal-ms: 140ms;
+}
+
+/*
+ * Both forms: the descendant one covers every run inside the document, and the
+ * bare one covers a selection that starts on the root itself. `.tpl-editor`
+ * wraps the résumé on EVERY surface that draws one — `TemplateDocument` for the
+ * preview and the static renderer, `TemplateEditor` for the workbench — so this
+ * is one rule rather than one per screen.
+ */
+.tpl-editor ::selection,
+.tpl-editor::selection {
+  background: var(--tpl-paper-selection);
+  color: var(--tpl-paper-selection-ink);
 }
