@@ -3,6 +3,7 @@ import {
   COLLECTIONS,
   PresentedResumeSchema,
   TOP_LEVEL_COLLECTIONS,
+  isUnfilled,
   type CollectionId,
   type PresentedResume,
 } from './collections.js';
@@ -519,6 +520,61 @@ export const isReorderEdit = (edit: ResumeEdit): edit is ReorderEdit =>
   edit.kind === 'reorder';
 export const isHideEdit = (edit: ResumeEdit): edit is HideEdit =>
   edit.kind === 'hide';
+
+/**
+ * The overlay with additions nobody ever typed into taken out of it.
+ *
+ * An overlay records what the candidate DECIDED. An addition whose entry is
+ * still entirely empty records no decision: there is nothing in it, `renderText`
+ * already omits it from the text export, and the document being read draws no
+ * item for it. What it does do is persist — so pressing add and walking away
+ * leaves a permanent, invisible entry behind, and a control that appeared not to
+ * work left one per press.
+ *
+ * Applied when a stored overlay is ADOPTED, and deliberately nowhere else. As a
+ * filter on the projection it would delete the entry the candidate has this
+ * second pressed add for, before they could type a character into it; as a rule
+ * of the save it would race the typing. At load the question is unambiguous:
+ * this addition survived a reload with nothing in it, so nothing is lost by
+ * dropping it, and one press brings back an identical one.
+ *
+ * `drop` edits naming a removed addition go with it — there is nothing left to
+ * drop — and the refs are taken out of any ordering, since a slot pointing at an
+ * addition that no longer exists is a slot `collectionOrder` would skip anyway.
+ *
+ * Additions the candidate has typed into are untouched: `presentationEdits`
+ * folds typed values INTO the addition's own entry, so an entry with a word in
+ * it is not unfilled.
+ */
+export function withoutUnfilledAdditions(edits: ResumeEdits): ResumeEdits {
+  const empty = new Set(
+    edits
+      .filter((edit) => isAppendEdit(edit) && isUnfilled(edit.entry))
+      .map((edit) => (edit as AppendEdit).ref),
+  );
+  if (empty.size === 0) return edits;
+
+  const kept: ResumeEdits = [];
+  for (const edit of edits) {
+    if (
+      (isAppendEdit(edit) || isDropEdit(edit)) &&
+      empty.has((edit as AppendEdit | DropEdit).ref)
+    ) {
+      continue;
+    }
+    if (isReorderEdit(edit)) {
+      kept.push({
+        ...edit,
+        order: edit.order.filter(
+          (slot) => !('ref' in slot && empty.has(slot.ref)),
+        ),
+      });
+      continue;
+    }
+    kept.push(edit);
+  }
+  return kept;
+}
 
 /**
  * The overlay: only what actually changed.

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import type { Link } from '@cvgs/core';
+import { PLACEHOLDERS, type Link } from '@cvgs/core';
 import { useAutosave } from '../autosave-context.js';
 import { useFieldRegistry, useFieldValue } from '../fields/field-registry.js';
 import { EditableText } from './EditableText.js';
@@ -11,17 +11,35 @@ export interface LinkFieldProps {
   item: Link;
   /** Where the entry lives, e.g. `links.0`. Its fields hang off this. */
   path: string;
-  /** What the text field says when the writer produced no label. */
+  /**
+   * What the field says while the link is blank.
+   *
+   * Defaulted from the domain's own guidance rather than required of each
+   * template, because a template that passed none rendered an empty inline
+   * span: no text, no width, and nothing on the page to say a link belonged
+   * there. Three of the four did exactly that.
+   */
   placeholder?: string;
   /**
-   * Add another link after this one. `null` in a document being read, and where
-   * the collection cannot grow.
+   * Whether the candidate has just added this link, in this session.
    *
-   * The control belongs on the ENTRY because this collection renders inside a
-   * line: once it has items there is nowhere else to put one that does not cost
-   * the document a line the preview has not got.
+   * The only thing that opens the panel on its own. It used to open for any
+   * link with no text and no address — a property of the CONTENTS rather than
+   * an act — on the reasoning that only `collection.add()` produces a blank
+   * pair. That reasoning held for one press and not for a document: a résumé
+   * that had somehow acquired a hundred blank links drew a hundred panels
+   * stacked over the page, one per link, every time it was rendered.
+   *
+   * The act is what the popover actually wants, and the collection is the only
+   * thing that knows it — see `SectionCollectionHandle.justAdded`.
    */
-  onAdd?: (() => void) | null;
+  justAdded?: boolean;
+}
+
+/** Both halves of a link, while they are being typed and before they are set. */
+interface LinkDraft {
+  label: string;
+  url: string;
 }
 
 /**
@@ -39,53 +57,79 @@ export interface LinkFieldProps {
  * field and nothing around it, so Harvard keeps its contact line and the others
  * keep their websites list.
  *
- * ## The document holds the text; the popover holds both fields
+ * ## The field on the page is a way IN, not a place to type
  *
- * The visible text is an ordinary `EditableText` in the flow, which is what
- * keeps it pixel-identical to the document it prints as. Pressing it opens a
- * popover carrying BOTH the text and the address, because a link is one thing
- * with two parts and reading its address out of a panel on the other side of
- * the screen was two places for one fact.
+ * A link is one thing with two parts, and only one of them is on the page. So
+ * the visible text is a **read-only** field: it registers at `links.N.label`,
+ * draws that text in the document's own typography, and shows the collection's
+ * guidance while it is blank — an ordinary-looking field the candidate can see
+ * belongs there — but it refuses the caret. Pressing it opens the popover, and
+ * the popover is where both halves are typed.
  *
- * ## Why the fields are proxies rather than inputs of their own
+ * The alternative was tried and is what this replaced. With the text editable
+ * in place, one press did two things: `EditableText`'s own `mousedown` selected
+ * the field and turned it into a `contenteditable`, and this component's opened
+ * a popover over it. Two live editors for one value, fighting over the
+ * keyboard, and a candidate could still type a label with no way to see what it
+ * pointed at.
  *
- * A value survives in a Craft node or it does not survive. The save rebuilds
- * the overlay with `presentationEdits(base, valuesFromNodes(nodes), structural)`
- * — collecting nodes that carry a `path`, and filtering `structural` down to
- * its non-`set` operations — so a value written through the authoring context's
- * `onEditsChange` would show on screen and be dropped by the next save.
+ * ## Typed into a draft, set by Ok
  *
- * Two nodes cannot share one path either: both would be collected and the later
- * would win, which is a race rather than a design. So each field has exactly one
- * node, and the popover's inputs write to those nodes by id. The ids are found
- * by the path they carry rather than assumed from the element key, so this does
- * not depend on how Craft happens to allocate them.
+ * The popover's inputs hold a DRAFT — a copy of both halves — and nothing
+ * reaches the document until Ok. That is what makes an address a decision
+ * rather than a side effect of typing: a half-written `https://li` is not a
+ * link, and every keystroke of it used to land in the résumé and, at the end of
+ * the debounce, in storage. Escape and a press outside discard the draft, so
+ * backing out of a link leaves the document exactly as it was.
+ *
+ * Ok writes both fields through the registry, by path — see
+ * `FieldRegistry.write`. That is the only route that survives: the save rebuilds
+ * the overlay from the fields that carry a path, so a value written any other
+ * way would show on screen and be dropped by the next save. Two fields cannot
+ * share one path either, so each half has exactly one field and the popover
+ * writes to them rather than being a second owner of either.
+ *
+ * ## Adding and removing belong to the COLLECTION, not here
+ *
+ * This renders one link. It does not render a control to make another, and it
+ * did: a `+` sat past the end of every link, on the reasoning that a collection
+ * inside a line has nowhere else to put one. That reasoning was true only
+ * because a link could not be selected — the press was swallowed before it
+ * reached the item root, so the entry toolbar every other collection uses for
+ * add, remove and reorder never appeared on a link. With the press let through,
+ * links get the same controls as a role or a qualification, and a second, link-
+ * shaped way to add is one the candidate has to learn separately.
  *
  * ## The chrome costs the document nothing
  *
  * The trigger and the popover are `position: absolute`,
  * `contentEditable={false}`, `data-chrome`, and hidden in print — the contract
- * `SpaceHandle` and `EntryOverlay` already meet. The address node is mounted
- * whether or not the popover is open, because a node outside the tree is not
- * collected when the document saves; it is the store, and the input above it is
- * the control.
+ * `SpaceHandle` and `EntryOverlay` already meet. The address field is mounted
+ * whether or not the popover is open, because a field outside the tree is not
+ * collected when the document saves; it is the store, and the popover is the
+ * control.
  *
  * The wrapper renders in BOTH states. An element the editor adds and the preview
  * does not is an element the two documents differ by — `position: relative` with
  * no offsets moves nothing, the same argument `[data-gap]` already makes.
  */
-export function LinkField({ item, path, placeholder, onAdd }: LinkFieldProps) {
+export function LinkField({
+  item,
+  path,
+  placeholder = PLACEHOLDERS['label'],
+  justAdded = false,
+}: LinkFieldProps) {
   const labelPath = `${path}.label`;
   const urlPath = `${path}.url`;
 
   /*
    * Both halves of the link, read from the fields that hold them.
    *
-   * `useField` on a path this component does not RENDER is how it reads the
-   * address: the address's own field is mounted below, hidden, and this is the
-   * same value. It replaces a scan of Craft's node map for the node carrying
-   * this path — the indirection `retire-craftjs` removed, since the path was
-   * always the identity.
+   * `useFieldValue` on a path this component does not RENDER is how it reads
+   * the address: the address's own field is mounted below, hidden, and this is
+   * the same value. It replaces a scan of Craft's node map for the node
+   * carrying this path — the indirection `retire-craftjs` removed, since the
+   * path was always the identity.
    */
   const registry = useFieldRegistry();
   const label = String(
@@ -94,13 +138,58 @@ export function LinkField({ item, path, placeholder, onAdd }: LinkFieldProps) {
   const address = String(useFieldValue(urlPath) ?? item.url ?? '');
   const editing = registry?.enabled ?? false;
 
-  /* Typing, so deferred — the same bargain every other field makes. */
-  const { saveSoon } = useAutosave();
+  /* What the document shows: the text, falling back to the address so a link
+     with no label reads as something rather than as a gap. */
+  const shown = label || address;
 
-  const [open, setOpen] = useState(() => editing && !item.label && !item.url);
+  /*
+   * Setting a link is a discrete act with nothing still coming after it, so
+   * `saveNow` rather than the deferred request typing makes. The draft below is
+   * why: the popover writes once, on Ok, and not once per character.
+   */
+  const { saveNow } = useAutosave();
+
+  /*
+   * The draft IS the open state: a popover is open exactly while there is
+   * something being typed in it. Two flags for one fact is how they come apart.
+   *
+   * A link the candidate JUST ADDED opens straight away, because the address
+   * has nowhere else to be typed. Only that — never "this link is blank". The
+   * blank test reads as equivalent and is not: it is true of every empty link
+   * in the document at every render, so a résumé carrying a few of them opened
+   * a panel for each, stacked over the page.
+   */
+  const [draft, setDraft] = useState<LinkDraft | null>(() =>
+    editing && justAdded ? { label: '', url: '' } : null,
+  );
+  const open = draft !== null;
+
   const root = useRef<HTMLSpanElement>(null);
-  const pop = useRef<HTMLSpanElement>(null);
+  const pop = useRef<HTMLFormElement>(null);
+  const firstInput = useRef<HTMLInputElement>(null);
   const [at, setAt] = useState<{ top: number; left: number } | null>(null);
+
+  const openWith = () => setDraft({ label, url: address });
+  const discard = () => setDraft(null);
+
+  /*
+   * Ok, which is the only thing that writes.
+   *
+   * Trimmed, because an address is pasted far more often than it is typed and a
+   * leading space is enough to make `isSafeLinkTarget` refuse a perfectly good
+   * URL — a link that silently stops being followable in the export.
+   */
+  const set = () => {
+    if (!draft) return;
+    registry?.write(labelPath, draft.label.trim());
+    registry?.write(urlPath, draft.url.trim());
+    setDraft(null);
+    saveNow();
+  };
+
+  /* Nothing to set while both halves are blank, and a button that does nothing
+     should say so rather than pretend. */
+  const settable = Boolean(draft && (draft.label.trim() || draft.url.trim()));
 
   /*
    * Close on an outside press or Escape. Written here rather than imported:
@@ -115,10 +204,10 @@ export function LinkField({ item, path, placeholder, onAdd }: LinkFieldProps) {
       if (root.current?.contains(target) || pop.current?.contains(target)) {
         return;
       }
-      setOpen(false);
+      setDraft(null);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') setDraft(null);
     };
     document.addEventListener('mousedown', onDown);
     document.addEventListener('keydown', onKey);
@@ -129,42 +218,21 @@ export function LinkField({ item, path, placeholder, onAdd }: LinkFieldProps) {
   }, [open]);
 
   /*
-   * The address is written to TWO fields, and the second is not redundant.
-   *
-   * Its own field is the store — the one the save reads. The TEXT's field
-   * carries the same address as `href`, because that is what makes the document
-   * an anchor and therefore what makes the link followable in the exported PDF.
-   *
-   * Under Craft this needed `setProp` on two node ids found by scanning the
-   * tree, because a node's props were frozen at mount. They are ordinary props
-   * again, so the second write is a re-render and nothing more.
-   */
-  const writeUrl = (next: string) => {
-    registry?.write(urlPath, next);
-    saveSoon();
-  };
-
-  const writeLabel = (next: string) => {
-    registry?.write(labelPath, next);
-    saveSoon();
-  };
-
-  /*
-   * The text, in flow, exactly as every other field in the document: the label,
-   * falling back to the address so a link with no label reads as something
-   * rather than as a gap.
+   * The text, in flow, in the document's own typography — and read-only, so the
+   * press that opens the popover cannot also put a caret in it. See the note on
+   * `EditableText`'s `readOnly`.
    *
    * `undefined` rather than `''` for the address — `href ?? format?.href` falls
    * back only on nullish, so an empty string used to SHADOW an address set
    * elsewhere and the link printed dead.
    */
-  const shownUrl = address;
   const text = (
     <EditableText
       path={labelPath}
       value={item.label ?? item.url ?? ''}
       placeholder={placeholder}
-      href={shownUrl || undefined}
+      href={address || undefined}
+      readOnly={editing}
     />
   );
 
@@ -180,18 +248,21 @@ export function LinkField({ item, path, placeholder, onAdd }: LinkFieldProps) {
    * not an element: it has no box to get wrong, and it costs the document
    * nothing, which is the same guarantee by a shorter route.
    *
-   * `mousedown` is where the press is refused, not `click`. By click time the
-   * browser has already placed a caret in the text and Craft has already
-   * selected the field — so the popover would open on top of a field that had
-   * just become editable, and the two would fight over the keyboard.
+   * `mousedown` is where the caret is refused, not `click`. By click time the
+   * browser has already placed one in the text, so it has to be cancelled
+   * before the selection it would make.
+   *
+   * The press is NOT stopped from bubbling, and that is the fix for a control
+   * nobody could reach. An item's root carries `onClick: select(id)` — it is
+   * how every collection reveals the entry's own toolbar, and the toolbar is
+   * where remove and reorder live. Swallowing the press here meant a link was
+   * the one entry in the document that could never be selected, so a link the
+   * candidate did not want could not be got rid of. Selecting the entry and
+   * opening the panel are not rivals: the panel edits the link, the toolbar
+   * acts on the entry, which is the same division `AuthoredItem` already
+   * describes for a job title.
    */
-  const openPopover = (e: {
-    preventDefault: () => void;
-    stopPropagation: () => void;
-  }) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
+  const refuseCaret = (e: { preventDefault: () => void }) => e.preventDefault();
 
   /*
    * Where the popover is drawn, measured when it opens.
@@ -213,14 +284,31 @@ export function LinkField({ item, path, placeholder, onAdd }: LinkFieldProps) {
    *
    * A portal has neither problem — nothing above it in the DOM can clip it, and
    * nothing about an inline box decides where it goes. The React tree is
-   * unchanged by a portal, so the address's Craft node stays registered and the
+   * unchanged by a portal, so the address's field stays registered and the
    * document still saves it.
    */
   useLayoutEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setAt(null);
+      return;
+    }
     const box = root.current?.getBoundingClientRect();
     if (box) setAt({ top: box.bottom + 4, left: box.left });
   }, [open]);
+
+  /*
+   * The caret belongs in the panel that just appeared, not left behind in the
+   * document: the field on the page refuses it, so a press with no follow-up
+   * would leave the keyboard pointing at nothing.
+   *
+   * A second effect rather than a line in the one above, because the panel does
+   * not exist yet when that one runs — it renders on `draft && at`, and `at` is
+   * what that effect is measuring. Focusing there would reach for an input that
+   * mounts a render later, find `null`, and silently do nothing.
+   */
+  useEffect(() => {
+    if (open && at) firstInput.current?.focus({ preventScroll: true });
+  }, [open, at]);
 
   const stop = (e: { stopPropagation: () => void }) => e.stopPropagation();
 
@@ -230,13 +318,11 @@ export function LinkField({ item, path, placeholder, onAdd }: LinkFieldProps) {
       ref={root}
       {...(editing
         ? {
-            onMouseDown: openPopover,
-            onClick: (e: {
-              preventDefault: () => void;
-              stopPropagation: () => void;
-            }) => {
-              openPopover(e);
-              setOpen((v) => !v);
+            onMouseDown: refuseCaret,
+            onClick: (e: { preventDefault: () => void }) => {
+              refuseCaret(e);
+              if (open) discard();
+              else openWith();
             },
           }
         : {})}
@@ -256,69 +342,63 @@ export function LinkField({ item, path, placeholder, onAdd }: LinkFieldProps) {
             className="tpl-link__trigger"
             data-chrome
             contentEditable={false}
+            aria-haspopup="dialog"
             aria-expanded={open}
-            aria-label={`Edit ${label || shownUrl || 'this link'}`}
+            aria-label={`Edit ${shown || 'this link'}`}
             title="Edit this link"
             onClick={(e) => {
               e.stopPropagation();
-              setOpen((v) => !v);
+              if (open) discard();
+              else openWith();
             }}
           />
 
           {/*
-           * Add another, once this one says something. Withheld while the link
-           * is still blank: a row of empty links is not what pressing add was
-           * for, and the first thing to do with a new one is fill it in.
-           */}
-          {onAdd && (label || shownUrl) ? (
-            <button
-              type="button"
-              className="tpl-link__add"
-              data-chrome
-              contentEditable={false}
-              aria-label="Add another link"
-              title="Add another link"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAdd();
-              }}
-              onMouseDown={stop}
-            >
-              +
-            </button>
-          ) : null}
-
-          {/*
-           * The address's node — the store the popover writes to, and the only
+           * The address's field — the store the popover writes to, and the only
            * reason the address survives a save.
            *
            * It stays HERE, in the document's own tree, rather than travelling
            * to the portal with the panel: it is mounted whether or not the
-           * popover is open, because a node outside the React tree is not
+           * popover is open, because a field outside the React tree is not
            * collected. Hidden, marked chrome, and taking no space.
            */}
           <span className="tpl-link__store" data-chrome hidden>
-            <EditableText path={urlPath} value={item.url} />
+            <EditableText path={urlPath} value={item.url} readOnly />
           </span>
 
-          {open && at
+          {draft && at
             ? createPortal(
-                <span
+                /*
+                 * A FORM, so Enter sets the link the way it does in every other
+                 * two-field panel, and Ok is the submit button rather than a
+                 * button that happens to be pressed last. Portalled to the
+                 * body, so it nests inside nothing.
+                 */
+                <form
                   className="tpl-link__pop"
                   ref={pop}
                   data-chrome
+                  role="dialog"
+                  aria-label="Link"
                   style={{ top: at.top, left: at.left }}
                   onMouseDown={stop}
                   onClick={stop}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    set();
+                  }}
                 >
                   <label className="tpl-link__row">
                     <span className="tpl-link__label">Text</span>
                     <input
+                      ref={firstInput}
                       className="tpl-link__input"
                       type="text"
-                      value={label}
-                      placeholder={placeholder ?? 'LinkedIn'}
-                      onChange={(e) => writeLabel(e.target.value)}
+                      value={draft.label}
+                      placeholder={placeholder}
+                      onChange={(e) =>
+                        setDraft({ ...draft, label: e.target.value })
+                      }
                     />
                   </label>
                   <label className="tpl-link__row">
@@ -326,12 +406,23 @@ export function LinkField({ item, path, placeholder, onAdd }: LinkFieldProps) {
                     <input
                       className="tpl-link__input"
                       type="url"
-                      value={shownUrl}
-                      placeholder="https://"
-                      onChange={(e) => writeUrl(e.target.value)}
+                      value={draft.url}
+                      placeholder={PLACEHOLDERS['url']}
+                      onChange={(e) =>
+                        setDraft({ ...draft, url: e.target.value })
+                      }
                     />
                   </label>
-                </span>,
+                  <div className="tpl-link__actions">
+                    <button
+                      type="submit"
+                      className="tpl-link__ok"
+                      disabled={!settable}
+                    >
+                      Ok
+                    </button>
+                  </div>
+                </form>,
                 document.body,
               )
             : null}

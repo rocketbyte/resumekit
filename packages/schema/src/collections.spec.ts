@@ -15,6 +15,7 @@ import {
   applyPresentation,
   collectionOrder,
   presentationEdits,
+  withoutUnfilledAdditions,
   type ResumeEdits,
 } from './template.js';
 import { renderText } from './resume-text.js';
@@ -84,6 +85,37 @@ describe('the collections table', () => {
     // The guidance itself lives apart from the minted value, which is what
     // keeps it out of everything that reads the value.
     expect(Object.values(PLACEHOLDERS).every((p) => p.length > 0)).toBe(true);
+  });
+
+  it('mints an item its own schema accepts', () => {
+    /*
+     * The invariant that ties `mint` to `item`, and it did not hold.
+     *
+     * `links` carried the writer's `LinkSchema`, whose `url` is `.min(1)`, so
+     * the blank link `mint()` produces was refused by the schema every reader
+     * validates an addition against — `collectionOrder` and `applyEdits` both
+     * SKIP what does not parse, deliberately, so that a stored overlay
+     * outliving its code cannot stop a résumé opening. Here that leniency hid a
+     * defect: pressing "Add links" wrote an append edit that nothing would ever
+     * draw, and the candidate pressed a control and watched nothing happen.
+     *
+     * Asserted for the whole set rather than for links, because the next
+     * collection to gain a required field would fail the same way and just as
+     * quietly.
+     *
+     * Scoped to the APPENDABLE sections, which is exactly where a minted item
+     * meets a schema: `APPEND_SCHEMAS` is that same table, read at apply time.
+     * `custom_sections` is deliberately outside it — a candidate's section is
+     * DECLARED by a `section` edit that carries its own `ref` and author, so
+     * nothing ever appends one and its `mint` is not on this path.
+     */
+    for (const section of APPENDABLE_SECTIONS) {
+      const minted = COLLECTIONS[section].mint();
+      expect(
+        COLLECTIONS[section].item.safeParse(minted).success,
+        `${section} mints an item its own schema refuses, so adding one does nothing`,
+      ).toBe(true);
+    }
   });
 });
 
@@ -336,5 +368,94 @@ describe('reordering can contradict the rulebook, and says so', () => {
       appended('add-1', COLLECTIONS.experience.mint()),
     );
     expect(chronologyWarnings(drafting)).toEqual([]);
+  });
+});
+
+/**
+ * An addition nobody typed into does not survive a reload.
+ *
+ * An overlay records what the candidate DECIDED, and an entry with nothing in
+ * it records none. It also persists, which is how a control that appeared not to
+ * work — the links add, whose entries every reader silently skipped — left one
+ * invisible entry per press, and a résumé came to carry a hundred blank links
+ * that only became visible when the schema was fixed.
+ */
+describe('adopting a stored overlay', () => {
+  const blankLink = (ref: string): ResumeEdits => [
+    {
+      kind: 'append',
+      ref,
+      section: 'links',
+      author: 'candidate',
+      entry: { label: '', url: '' },
+    },
+  ];
+
+  it('drops an addition with nothing in it', () => {
+    expect(withoutUnfilledAdditions(blankLink('add-1'))).toEqual([]);
+  });
+
+  it('keeps one the candidate has typed into', () => {
+    /*
+     * `presentationEdits` folds typed values into the addition's own entry, so
+     * an entry with a word in it is not unfilled — which is what makes this
+     * safe to apply to a whole overlay rather than to blank links alone.
+     */
+    const typed: ResumeEdits = [
+      {
+        kind: 'append',
+        ref: 'add-1',
+        section: 'links',
+        author: 'candidate',
+        entry: { label: 'GitHub', url: 'https://github.com/example' },
+      },
+    ];
+    expect(withoutUnfilledAdditions(typed)).toEqual(typed);
+  });
+
+  it('takes the dropped refs out of the ordering with them', () => {
+    // A slot pointing at an addition that no longer exists is one
+    // `collectionOrder` would skip anyway; leaving it is leaving litter.
+    const edits: ResumeEdits = [
+      ...blankLink('add-1'),
+      {
+        kind: 'reorder',
+        section: 'links',
+        order: [{ base: 0 }, { ref: 'add-1' }],
+      },
+    ];
+    const kept = withoutUnfilledAdditions(edits);
+    expect(kept).toHaveLength(1);
+    expect(kept[0]).toEqual({
+      kind: 'reorder',
+      section: 'links',
+      order: [{ base: 0 }],
+    });
+  });
+
+  it('drops a `drop` that named one, since there is nothing left to drop', () => {
+    const edits: ResumeEdits = [
+      ...blankLink('add-1'),
+      { kind: 'drop', ref: 'add-1' },
+    ];
+    expect(withoutUnfilledAdditions(edits)).toEqual([]);
+  });
+
+  it('leaves an overlay with nothing to prune identical', () => {
+    // Same reference, not merely equal: adopting a clean overlay must not look
+    // to the editor like an unsaved change.
+    const edits: ResumeEdits = [
+      { kind: 'hide', section: 'experience', base: 0 },
+    ];
+    expect(withoutUnfilledAdditions(edits)).toBe(edits);
+  });
+
+  it('clears a page of them, and the document with it', () => {
+    const many = Array.from({ length: 100 }, (_, i) =>
+      blankLink(`add-${i}`),
+    ).flat();
+    const kept = withoutUnfilledAdditions(many);
+    expect(kept).toEqual([]);
+    expect(applyPresentation(base, kept).links).toEqual(base.links);
   });
 });

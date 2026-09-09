@@ -192,6 +192,24 @@ export const DraftCustomSectionSchema = CustomSectionSchema.extend({
 });
 
 /**
+ * A link whose address has not been typed yet.
+ *
+ * `LinkSchema` requires a non-empty `url`, and that is right for the writer: a
+ * link with no address is not a link. It was also the ONE item schema a minted
+ * item could not satisfy — every other collection already had a draft schema
+ * for exactly this — and the failure was silent in both places that read it.
+ * `collectionOrder` skips an append whose entry does not parse, and `applyEdits`
+ * skips it again, so pressing "Add links" appended an edit that nothing would
+ * ever draw. The candidate pressed a control and the document did not change.
+ *
+ * `collections.spec.ts` now asserts the general rule rather than this instance:
+ * what a collection mints, its own schema accepts.
+ */
+export const DraftLinkSchema = LinkSchema.extend({
+  url: z.string(),
+});
+
+/**
  * The résumé AS DRAWN: the writer's shape, tolerating the empty fields of an
  * entry the candidate has added and not yet filled in.
  *
@@ -201,6 +219,7 @@ export const DraftCustomSectionSchema = CustomSectionSchema.extend({
  * output degrade silently, which is the opposite of what this is for.
  */
 export const PresentedResumeSchema = ResumeObjectSchema.extend({
+  links: z.array(DraftLinkSchema).default([]),
   experience: z.array(DraftExperienceSchema),
   education: z.array(DraftEducationSchema).default([]),
   skills: z.array(DraftSkillGroupSchema).default([]),
@@ -238,7 +257,7 @@ export const COLLECTIONS = {
     reorderable: true,
     min: 0,
     mint: mintLink,
-    item: LinkSchema,
+    item: DraftLinkSchema,
   },
   experience: {
     path: 'experience',

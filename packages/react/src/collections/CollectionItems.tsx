@@ -6,6 +6,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
+import { isUnfilled } from '@cvgs/core';
 import { useAuthoring } from './authoring-context.js';
 import { useSpaceSlot } from '../spacing/SpaceHandle.js';
 import type { ItemOrigin } from './EntryOverlay.js';
@@ -59,21 +60,22 @@ export interface EntryRenderProps<T> {
   /** Spread onto the entry's root element. Opaque; see {@link ItemRootProps}. */
   itemProps: ItemRootProps;
   /**
-   * Add another item after this one, or `null` where the collection cannot
-   * grow — a singular location, or a document being read.
+   * Whether the candidate has just added THIS item, in this session.
    *
-   * Offered to the ENTRY, and not only by the empty state, because a collection
-   * that renders inside a LINE has nowhere to put a control of its own once it
-   * has items: a block below the line is a line the preview does not have. The
-   * entry knows where its own text ends, so it is the only thing that can place
-   * one without moving the document.
+   * For a control that opens itself on arrival — a link's popover, which has
+   * nowhere else to put the address. Deliberately an ACT and not a property of
+   * the item: keyed off "this entry is still empty" instead, every empty entry
+   * in the document opened one, every time it was drawn.
+   *
+   * `false` on a document being read, which adds nothing.
    */
-  onAdd: (() => void) | null;
+  justAdded: boolean;
 }
 
 export interface CollectionItemsProps<T> {
   collection: CollectionHandle<T> & {
     originOf?: (index: number) => ItemOrigin;
+    justAdded?: (index: number) => boolean;
     pathOf?: (index: number) => string;
     keyOf?: (index: number) => string;
   };
@@ -140,8 +142,7 @@ function ReadOnlyItem<T>({
     index,
     chrome: null,
     itemProps: gap ? { ...space.rootProps } : {},
-    /* A document being read grows nothing, so there is nothing to offer. */
-    onAdd: null,
+    justAdded: false,
   });
   return isValidElement(element) ? element : null;
 }
@@ -193,7 +194,28 @@ export function CollectionItems<T>({
   );
   const sortable = Boolean(authoring) && collection.canMove;
 
-  const rendered = collection.items.map((_, index) => (
+  /*
+   * An UNFILLED item is not drawn on a document being read.
+   *
+   * "A placeholder is an absence" is already the domain's rule — `renderText`
+   * omits an unfilled entry from the text export and reports it as omitted —
+   * and this is the same rule for the rendered document. In the editor an
+   * entry the candidate has added and not yet typed into is guidance they are
+   * about to fill in; in the preview, the printed page and the exported file it
+   * is nothing at all, and it must LOOK like nothing.
+   *
+   * That last part is why this is a filter and not a style. A blank item still
+   * has a separator: Harvard draws one between contact items with
+   * `.tpl-harvard__contact-item + .tpl-harvard__contact-item::before`, so a
+   * résumé carrying blank links printed a run of bare `|` bars with nothing
+   * between them. The separator belongs to the element, so the only way to
+   * remove it is not to render the element.
+   */
+  const drawn = collection.items
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => Boolean(authoring) || !isUnfilled(item));
+
+  const rendered = drawn.map(({ index }) => (
     <ReadOnlyItem
       key={ids[index]}
       collection={collection}

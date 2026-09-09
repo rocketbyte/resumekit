@@ -78,6 +78,27 @@
  * `pointer-events: none` because it sits outside the entry's box: without it the
  * ring would swallow clicks aimed at whatever is in the margin beside it.
  */
+/*
+ * An item that lives INSIDE a line of the document, where the ring has
+ * neighbours.
+ *
+ * The default room above is 24px on each side, and the reason given for it is
+ * that "sideways there is a page margin to spend and nothing to collide with".
+ * That is true of a block entry and false of an inline one: a link in a contact
+ * row has the phone number on its left and the next link on its right, so the
+ * ring crossed the separator and drew over both. The figure is a property of
+ * what the item IS, which the domain already declares as the collection's
+ * `shape` — so it is stated once here rather than guessed at by each template.
+ *
+ * Only the room changes. The geometry still comes from one rule, and no state
+ * rule states one of its own — see `collections.spec.tsx`.
+ */
+[data-entry='inline'] {
+  --tpl-ring-room: 4px;
+  --tpl-ring-y: 1px;
+  --tpl-ring-radius: 5px;
+}
+
 [data-entry]::after {
   content: '';
   position: absolute;

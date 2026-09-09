@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import {
   DndContext,
   KeyboardSensor,
@@ -92,7 +92,6 @@ export function SortableItems({
   children,
 }: SortableItemsProps) {
   const repaginate = useRepaginate();
-  const [dragging, setDragging] = useState(false);
 
   const sensors = useSensors(
     /*
@@ -108,7 +107,6 @@ export function SortableItems({
   );
 
   function onDragEnd(event: DragEndEvent) {
-    setDragging(false);
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     const from = ids.indexOf(String(active.id));
@@ -129,21 +127,39 @@ export function SortableItems({
       sensors={sensors}
       collisionDetection={closestCenter}
       modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-      onDragStart={() => setDragging(true)}
-      onDragCancel={() => setDragging(false)}
       onDragEnd={onDragEnd}
+      /*
+       * The library's own screen-reader markup, drawn in the BODY.
+       *
+       * `DndContext` renders two hidden `<div>`s of its own — the drag
+       * instructions and the live region that announces a move — as children,
+       * which is fine above a list of roles and invalid inside Harvard's
+       * contact `<p>`. A browser closes the paragraph at the first `<div>`, so
+       * a contact line with two or more links came apart on screen: the same
+       * defect the inline add control was fixed for, arriving from the drag
+       * layer. `container` is the library's own answer, and it portals them
+       * without touching what they say.
+       */
+      accessibility={{
+        container: typeof document === 'undefined' ? undefined : document.body,
+      }}
     >
       <SortableContext
         items={ids as string[]}
         strategy={verticalListSortingStrategy}
         disabled={disabled}
       >
-        <div
-          hidden
-          data-dragging={dragging || undefined}
-          aria-hidden="true"
-          style={{ display: 'none' }}
-        />
+        {/*
+         * No marker element here, and that is a fix rather than a tidy-up.
+         *
+         * This held a `<div hidden data-dragging>` that nothing read — no
+         * stylesheet, no test — and a `<div>` is not valid inside a `<p>`. A
+         * browser resolves that by CLOSING the paragraph, so an inline
+         * collection with two or more items tore Harvard's contact line in
+         * half: the exact defect the inline add control was fixed for, arriving
+         * from the drag layer instead. An element that does nothing cannot earn
+         * that.
+         */}
         {children}
       </SortableContext>
     </DndContext>

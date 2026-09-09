@@ -47,6 +47,8 @@
    */
   --tpl-accent: var(--color-accent, oklch(0.54 0.17 256));
   --tpl-accent-ink: var(--color-accent-hover, oklch(0.46 0.16 256));
+  /* What is legible ON the accent, for the rare control that FILLS with it. */
+  --tpl-on-accent: var(--color-on-accent, #ffffff);
 
   /*
    * The alphas, mixed once.

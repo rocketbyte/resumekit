@@ -26,8 +26,15 @@
 
 /*
  * The link reads as pressable, because it is: the wrapper carries the handler.
+ *
+ * Stated against the field INSIDE it as well, and at the same specificity the
+ * shared rule uses. `template-node.css` gives every hovered field `cursor: text`
+ * — right for a field that takes a caret, and a lie here, where the press opens
+ * a panel instead. A promise the pointer makes and the click does not keep is
+ * how a control comes to feel broken.
  */
-.tpl-link {
+.tpl-link,
+.tpl-editor:not(.tpl-editor--static) .tpl-link .tpl-text:hover {
   cursor: pointer;
 }
 
@@ -71,45 +78,6 @@
 .tpl-link:has(.tpl-link__trigger[aria-expanded='true']) > .tpl-text {
   background: var(--tpl-tint, rgb(0 0 0 / 4%));
   border-radius: 3px;
-}
-
-/*
- * "Add another", past the end of the link's text.
- *
- * Absolutely positioned, so the line is the same length with it and without it.
- * `left: 100%` puts it immediately after the text it belongs to rather than at
- * a fixed place in the row, which is what makes it read as this link's control
- * and not the section's.
- *
- * Shown on hover or focus only. A finished contact line is three links, and
- * three permanent plus signs in it is furniture the document did not ask for.
- */
-.tpl-link__add {
-  position: absolute;
-  top: 50%;
-  left: 100%;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  width: 1.1em;
-  height: 1.1em;
-  margin-left: 0.15em;
-  font: inherit;
-  line-height: 1;
-  color: var(--tpl-accent-ink);
-  cursor: pointer;
-  background: var(--tpl-tint);
-  border: 0;
-  border-radius: 3px;
-  opacity: 0;
-  transform: translateY(-50%);
-  transition: opacity 120ms ease;
-}
-
-.tpl-link:hover .tpl-link__add,
-.tpl-link__add:focus-visible,
-.tpl-link__trigger:focus-visible ~ .tpl-link__add {
-  opacity: 1;
 }
 
 /*
@@ -186,11 +154,46 @@
   outline-offset: -1px;
 }
 
+/*
+ * Ok, which is what SETS the link.
+ *
+ * The panel's inputs hold a draft and write nothing until this is pressed, so
+ * the button is the whole of "I meant this" — it is aligned to the trailing
+ * edge under both rows, where a two-field panel's confirm belongs, rather than
+ * sitting in a row of its own labels.
+ */
+.tpl-link__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.tpl-link__ok {
+  padding: 2px 12px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--tpl-on-accent, #fff);
+  cursor: pointer;
+  background: var(--tpl-accent, #2563eb);
+  border: 0;
+  border-radius: 4px;
+}
+
+.tpl-link__ok:focus-visible {
+  outline: 2px solid var(--tpl-accent, #2563eb);
+  outline-offset: 2px;
+}
+
+/* Nothing to set while both halves are blank — said rather than pretended. */
+.tpl-link__ok:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 /* On paper the document is the only thing on the page — the belt to the
    editor's own `beforeprint` braces, asserted in `collections.spec.tsx`. */
 @media print {
   .tpl-link__trigger,
-  .tpl-link__add,
   .tpl-link__pop {
     display: none !important;
   }

@@ -164,15 +164,30 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
               gap={false}
               emptyAdd="inline"
             >
-              {({ item, path, chrome, itemProps, onAdd }) => (
-                <span {...itemProps} className="tpl-harvard__contact-item">
-                  {chrome}
-                  <LinkField
-                    item={item}
-                    path={path}
-                    placeholder={PLACEHOLDERS['label']}
-                    onAdd={onAdd}
-                  />
+              {({ item, path, chrome, itemProps, justAdded }) => (
+                <span className="tpl-harvard__contact-item">
+                  {/*
+                   * Two spans, because the separator belongs to the LINE and
+                   * the ring belongs to the LINK.
+                   *
+                   * The bar between contact details is drawn by
+                   * `.tpl-harvard__contact-item + …::before`, which puts it
+                   * inside this element's box, at its leading edge. The editor
+                   * rings whichever element carries `itemProps` — so with both
+                   * on one span the ring enclosed the bar that divides this
+                   * link from the one before it, and reached back over the
+                   * phone number. One span in, and it is round the link alone.
+                   *
+                   * It renders in both states, so the edited document and the
+                   * read one still differ by nothing: an inline span with no
+                   * styles of its own occupies exactly what its content does.
+                   */}
+                  <span {...itemProps}>
+                    {chrome}
+                    {/* The guidance is the field's own default now, so all four
+                        templates read the same word. */}
+                    <LinkField item={item} path={path} justAdded={justAdded} />
+                  </span>
                 </span>
               )}
             </Collection>
