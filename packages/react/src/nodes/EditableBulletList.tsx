@@ -82,15 +82,38 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
 
   const bullets = useCollection<string>('experience_bullets', store);
 
+  /*
+   * One empty bullet, drawn but not STORED, for a list that has none.
+   *
+   * An entry with no bullets rendered an empty `<ul>`: nothing on the page, and
+   * every control that adds or edits a bullet hangs off a bullet ROW, so the
+   * list a candidate needed to start was the one thing they could not reach.
+   * A minted role carries a bullet for this reason; an entry the writer
+   * produced without one, or an authored section's first entry, does not.
+   *
+   * Drawn rather than stored, because storing it would put an empty bullet into
+   * every such entry the moment the editor opened — a change to the document
+   * that the candidate did not make and would have to undo. It becomes real on
+   * the first keystroke, which is the moment they meant it.
+   *
+   * Only while AUTHORING. A document being read has nothing to fill in, and an
+   * empty `<li>` under a role is a bullet in the exported file.
+   */
+  const guided = authoring !== null && live.length === 0;
+  const shown = guided ? [''] : live;
+
   const edit = (index: number, next: string) => {
-    set(live.map((item, at) => (at === index ? next : item)));
+    /* The guide row has no entry behind it yet, so typing into it CREATES the
+       list rather than replacing a member of an empty one — `map` over `[]`
+       yields `[]`, and the first thing typed would be dropped. */
+    set(guided ? [next] : live.map((item, at) => (at === index ? next : item)));
     saveSoon();
   };
 
   /* A press selects the field — Craft's `connect` used to attach this. */
   const onMouseDown = editing ? () => select() : undefined;
 
-  const plain = live.map((item, index) => (
+  const plain = shown.map((item, index) => (
     // Bullets have no identity of their own — they are strings the candidate
     // reorders and deletes — so the index is the only honest key.
     <li key={index} className="tpl-bullet">
@@ -132,7 +155,7 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
         <Suspense fallback={plain}>
           <AuthoredBullets
             path={path}
-            items={live}
+            items={shown}
             bullets={bullets}
             editing={selected}
             onEdit={edit}

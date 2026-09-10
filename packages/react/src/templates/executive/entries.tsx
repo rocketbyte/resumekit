@@ -147,9 +147,11 @@ export function ExecCustomEntry({
           />
         </span>
       </div>
-      {item.bullets.length > 0 && (
-        <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
-      )}
+      {/* The list renders itself empty while the document is being authored —
+          see `EditableBulletList`. Gating it here on having bullets was the
+          same defect one level up: an entry with none had no list, so there was
+          nowhere to put the first one. */}
+      <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
   );
 }
