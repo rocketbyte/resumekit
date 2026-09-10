@@ -87,6 +87,40 @@ describe('the collections table', () => {
     expect(Object.values(PLACEHOLDERS).every((p) => p.length > 0)).toBe(true);
   });
 
+  it('mints a parent with one of every collection inside it', () => {
+    /*
+     * A minted entry carries one of each repeatable thing it contains — a role
+     * arrives with one bullet, a skills group with one skill.
+     *
+     * Without it, adding a role would give a heading with nothing under it and
+     * no way to put anything there: the controls that type a bullet, add
+     * another and remove it all hang off a bullet ROW, so a list with no rows
+     * offers nothing to press. "Add one, then add its first child" is two acts
+     * for what a candidate means as one.
+     *
+     * Derived from the paths rather than listed: a nested collection declares
+     * itself with a `*` — `experience.*.bullets` is the bullets inside an
+     * experience entry — so the table already says which parent owns which
+     * child, and this reads it rather than repeating it.
+     */
+    for (const child of Object.values(COLLECTIONS)) {
+      const [parentPath, , field] = child.path.split('.');
+      if (!field) continue; // not nested; nothing to be inside.
+
+      const parent = Object.values(COLLECTIONS).find(
+        (c) => c.path === parentPath,
+      );
+      if (!parent) continue;
+
+      const minted = parent.mint() as Record<string, unknown>;
+      const seeded = minted[field];
+      expect(
+        Array.isArray(seeded) && seeded.length > 0,
+        `a minted ${parent.noun} carries no ${child.noun} to write in`,
+      ).toBe(true);
+    }
+  });
+
   it('mints an item its own schema accepts', () => {
     /*
      * The invariant that ties `mint` to `item`, and it did not hold.

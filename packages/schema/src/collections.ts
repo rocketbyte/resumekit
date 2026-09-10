@@ -108,6 +108,23 @@ export const PLACEHOLDERS: Record<string, string> = {
   label: 'Link text',
   url: 'https://',
   /*
+   * The two fields a résumé can be missing entirely, and therefore the two a
+   * candidate starting from scratch could not reach.
+   *
+   * A template omits a section it has no data for, so an empty `summary`
+   * rendered NOTHING — no heading, no field, nowhere to click — on a document
+   * whose whole purpose was to be typed into. The section renders while the
+   * document is being authored now, and this is what stands in it.
+   *
+   * Guidance, never an EXAMPLE. A specimen sentence in a field is something a
+   * candidate edits around rather than replaces, and the half they leave is a
+   * claim about their career that they did not make. These say what belongs
+   * there and nothing about whose career it is.
+   */
+  summary:
+    'Two or three lines: what you do, how long, and what you are best at.',
+  headline: 'The role you are applying for.',
+  /*
    * The LIST fields, guided by what the whole list is and how it is separated.
    *
    * Named for the field rather than for one of its items, because that is what

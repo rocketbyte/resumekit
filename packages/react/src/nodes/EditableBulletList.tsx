@@ -1,4 +1,5 @@
 import { Suspense, lazy, useMemo } from 'react';
+import { PLACEHOLDERS } from '@cvgs/core';
 import { useField } from '../fields/field-registry.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
@@ -93,7 +94,23 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
     // Bullets have no identity of their own — they are strings the candidate
     // reorders and deletes — so the index is the only honest key.
     <li key={index} className="tpl-bullet">
-      <span className="tpl-text">{item}</span>
+      {/*
+       * An empty bullet says what belongs in it, like every other empty field.
+       *
+       * Without this it was a span with no text and therefore no width: a role
+       * added to a blank résumé comes with one bullet, per its `mint`, and that
+       * bullet was invisible. Everything that types into it, adds another or
+       * removes it hangs off the row — so a candidate saw a marker with nothing
+       * beside it and had nothing to aim at. Drawn by CSS from the attribute,
+       * never a text node, so it stays out of the résumé's own text.
+       */}
+      <span
+        className="tpl-text"
+        data-empty={item.length === 0 || undefined}
+        data-placeholder={PLACEHOLDERS['bullet']}
+      >
+        {item}
+      </span>
     </li>
   ));
 

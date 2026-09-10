@@ -125,9 +125,13 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
           <EditableText path="name" value={resume.name} />
         </h1>
 
-        {resume.headline && (
+        {(resume.headline || authoring) && (
           <p className="tpl-harvard__headline">
-            <EditableText path="headline" value={resume.headline} />
+            <EditableText
+              path="headline"
+              value={resume.headline ?? ''}
+              placeholder={PLACEHOLDERS['headline']}
+            />
           </p>
         )}
 
@@ -195,7 +199,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         )}
       </header>
 
-      {resume.summary && (
+      {(resume.summary || authoring) && (
         <section
           className="tpl-harvard__section"
           {...sectionSpace.summary.rootProps}
@@ -209,7 +213,12 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
             Professional Summary
           </h2>
           <p className="tpl-harvard__summary" data-block>
-            <EditableText path="summary" value={resume.summary} multiline />
+            <EditableText
+              path="summary"
+              value={resume.summary ?? ''}
+              placeholder={PLACEHOLDERS['summary']}
+              multiline
+            />
           </p>
         </section>
       )}
