@@ -936,3 +936,55 @@ describe('an inline item says it is inline', () => {
     expect(body).not.toMatch(/--tpl-ring-x:/);
   });
 });
+
+/**
+ * The invitation to add the first link belongs to the LINE it sits in.
+ *
+ * It was the one blue, underlined thing in a row of italic grey placeholders —
+ * it read as a link somebody had pasted into the résumé rather than as the next
+ * empty field in the row. And it carried no separator, so it sat flush against
+ * the detail before it: "Phone numberAdd links".
+ */
+describe('the empty state reads as part of the contact line', () => {
+  const read = (name: string) =>
+    readFileSync(join(__dirname, '..', name), 'utf8');
+
+  it('is drawn in the same register as the empty fields beside it', () => {
+    /*
+     * jsdom applies no stylesheet, so the register is asserted against the
+     * source: the same two declarations `template-node.css` gives an empty
+     * field, because the two are the same thing to a candidate — somewhere with
+     * nothing in it yet.
+     */
+    const css = read('collections/collection.css');
+    const rule = css.slice(css.indexOf('.tpl-collection__add-inline::after {'));
+    const body = rule.slice(0, rule.indexOf('}'));
+    expect(body).toMatch(/color:\s*var\(--tpl-paper-muted\)/);
+    expect(body).toMatch(/font-style:\s*italic/);
+    /* Not a link. The accent and the rule under it belong to the hover state,
+       where the pointer has already asked what this is. */
+    expect(body).not.toMatch(/--tpl-accent-ink/);
+    expect(body).not.toMatch(/border-bottom/);
+  });
+
+  it('takes the separator its siblings take', () => {
+    /*
+     * The collection emits this control and cannot know what a template calls
+     * the things in its own contact row, so the rule that OWNS the separator
+     * names it rather than the collection learning a Harvard class.
+     */
+    const css = read('templates/harvard/harvard.css');
+    expect(css).toMatch(
+      /\.tpl-harvard__contact-item \+ \.tpl-collection__add-inline::before/,
+    );
+  });
+
+  it('still puts no word into the résumé', () => {
+    // Drawn from `data-placeholder`, never a text node — it would otherwise
+    // ride along with a copy-and-paste and be read back by anything parsing it.
+    const { container } = renderIn('harvard', resume({ links: [] }), true);
+    const add = container.querySelector('.tpl-collection__add-inline');
+    expect(add?.textContent).toBe('');
+    expect(add?.getAttribute('data-placeholder')).toBe('Add links');
+  });
+});
