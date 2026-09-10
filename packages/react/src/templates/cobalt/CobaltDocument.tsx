@@ -5,6 +5,7 @@ import {
   INK_COLORS,
   type DocumentStyle,
   type ResumeObject,
+  PLACEHOLDERS,
 } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
@@ -205,13 +206,18 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
          * ordering that may be swapped for a visual reason later.
          */}
         <div className="tpl-cob__rail" data-flow>
-          {resume.summary && (
+          {(resume.summary || authoring) && (
             <section className="tpl-cob__section">
               <h2 className="tpl-cob__heading" data-block data-keep-with-next>
                 Professional Summary
               </h2>
               <p className="tpl-cob__prose" data-block>
-                <EditableText path="summary" value={resume.summary} multiline />
+                <EditableText
+                  path="summary"
+                  value={resume.summary ?? ''}
+                  placeholder={PLACEHOLDERS['summary']}
+                  multiline
+                />
               </p>
             </section>
           )}
@@ -308,14 +314,18 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
             </section>
           )}
 
-          {resume.headline && (
+          {(resume.headline || authoring) && (
             <section className="tpl-cob__section">
               <h2 className="tpl-cob__heading" data-block data-keep-with-next>
                 Personal Information
               </h2>
               <p className="tpl-cob__prose" data-block>
                 {'Title: '}
-                <EditableText path="headline" value={resume.headline} />
+                <EditableText
+                  path="headline"
+                  value={resume.headline ?? ''}
+                  placeholder={PLACEHOLDERS['headline']}
+                />
               </p>
             </section>
           )}

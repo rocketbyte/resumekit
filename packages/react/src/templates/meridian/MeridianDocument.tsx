@@ -5,6 +5,7 @@ import {
   INK_COLORS,
   type DocumentStyle,
   type ResumeObject,
+  PLACEHOLDERS,
 } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
@@ -160,13 +161,18 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
          * visual reason later.
          */}
         <div className="tpl-mer__main" data-flow>
-          {resume.summary && (
+          {(resume.summary || authoring) && (
             <section className="tpl-mer__section">
               <h2 className="tpl-mer__heading" data-block data-keep-with-next>
                 Professional Summary
               </h2>
               <p className="tpl-mer__prose" data-block>
-                <EditableText path="summary" value={resume.summary} multiline />
+                <EditableText
+                  path="summary"
+                  value={resume.summary ?? ''}
+                  placeholder={PLACEHOLDERS['summary']}
+                  multiline
+                />
               </p>
             </section>
           )}
@@ -241,14 +247,18 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
             </section>
           )}
 
-          {resume.headline && (
+          {(resume.headline || authoring) && (
             <section className="tpl-mer__section">
               <h2 className="tpl-mer__heading" data-block data-keep-with-next>
                 Personal Information
               </h2>
               <p className="tpl-mer__prose" data-block>
                 {'Title: '}
-                <EditableText path="headline" value={resume.headline} />
+                <EditableText
+                  path="headline"
+                  value={resume.headline ?? ''}
+                  placeholder={PLACEHOLDERS['headline']}
+                />
               </p>
             </section>
           )}

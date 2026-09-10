@@ -6,6 +6,7 @@ import {
   type DocumentStyle,
   type ResumeObject,
   type SkillGroup,
+  PLACEHOLDERS,
 } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
@@ -143,13 +144,18 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
       </header>
 
       <div className="tpl-exec__body">
-        {resume.summary && (
+        {(resume.summary || authoring) && (
           <section className="tpl-exec__section">
             <h2 className="tpl-exec__heading" data-block data-keep-with-next>
               Professional Summary
             </h2>
             <p className="tpl-exec__prose" data-block>
-              <EditableText path="summary" value={resume.summary} multiline />
+              <EditableText
+                path="summary"
+                value={resume.summary ?? ''}
+                placeholder={PLACEHOLDERS['summary']}
+                multiline
+              />
             </p>
           </section>
         )}
@@ -246,14 +252,18 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           </section>
         )}
 
-        {resume.headline && (
+        {(resume.headline || authoring) && (
           <section className="tpl-exec__section">
             <h2 className="tpl-exec__heading" data-block data-keep-with-next>
               Personal Information
             </h2>
             <p className="tpl-exec__prose" data-block>
               {'Title: '}
-              <EditableText path="headline" value={resume.headline} />
+              <EditableText
+                path="headline"
+                value={resume.headline ?? ''}
+                placeholder={PLACEHOLDERS['headline']}
+              />
             </p>
           </section>
         )}

@@ -171,7 +171,16 @@
 
 /* The separator is drawn, not typed, so a missing detail cannot leave a stray
    bar behind it. */
-.tpl-harvard__contact-item + .tpl-harvard__contact-item::before {
+.tpl-harvard__contact-item + .tpl-harvard__contact-item::before,
+/*
+ * …including before the control that ADDS the first link, which is a sibling in
+ * this line but not a contact item — it is emitted by the collection, which
+ * cannot know what this template calls the things in its own contact row. So
+ * the rule that owns the separator names it, rather than the collection
+ * learning a Harvard class. Without this the invitation sat flush against the
+ * phone number: "Phone numberAdd links".
+ */
+.tpl-harvard__contact-item + .tpl-collection__add-inline::before {
   content: '|';
   margin: 0 calc(6pt * var(--h-scale));
 }

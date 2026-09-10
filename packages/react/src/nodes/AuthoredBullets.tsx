@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { PLACEHOLDERS } from '@cvgs/core';
 import { GripIcon, PlusIcon, TrashIcon } from '../collections/icons.js';
 import type { CollectionHandle } from '../collections/useCollection.js';
 import { SortableItems, useDragHandle } from '../collections/SortableItems.js';
@@ -109,11 +110,33 @@ function Bullet({
             value={item}
             rows={1}
             aria-label={`${path}.${index}`}
+            /*
+             * The guidance survives the click into the field.
+             *
+             * The row draws it while the bullet is at rest, and this is the
+             * same sentence for the state where that drawing is replaced by a
+             * control — otherwise clicking an empty bullet to find out what
+             * goes in it removes the only thing that said. A textarea's own
+             * `placeholder` is painted by the browser and is never part of the
+             * value, so it stays out of the résumé exactly as the drawn one
+             * does.
+             */
+            placeholder={PLACEHOLDERS['bullet']}
             onChange={(e) => onEdit(index, e.target.value)}
           />
         </span>
       ) : (
-        <span className="tpl-text">{item}</span>
+        /* Not being typed into, so it says what belongs in it — the same
+           guidance the read-only list draws, and for the same reason: an empty
+           bullet with no text has no width, and the row's controls hang off a
+           row a candidate cannot see. */
+        <span
+          className="tpl-text"
+          data-empty={item.length === 0 || undefined}
+          data-placeholder={PLACEHOLDERS['bullet']}
+        >
+          {item}
+        </span>
       )}
 
       <span className="tpl-bullet__tools" data-chrome contentEditable={false}>

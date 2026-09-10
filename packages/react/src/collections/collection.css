@@ -382,20 +382,37 @@
 .tpl-collection__add-inline {
   padding: 0;
   font: inherit;
-  color: var(--tpl-accent-ink);
   cursor: pointer;
   background: none;
   border: 0;
 }
 
+/*
+ * Drawn as the GUIDANCE it is, matching the empty fields it stands among.
+ *
+ * It was the accent ink with a dashed rule under it, which made it the one
+ * blue, underlined thing in a line of italic grey placeholders — it read as a
+ * link somebody had pasted into the résumé rather than as the next empty field
+ * in the row. `template-node.css` sets that register once for
+ * `.tpl-text[data-empty]`; this is the same two declarations, because the two
+ * are the same thing to a candidate: somewhere with nothing in it yet.
+ */
 .tpl-collection__add-inline::after {
   content: attr(data-placeholder);
-  border-bottom: 1px dashed var(--tpl-line-hover);
+  color: var(--tpl-paper-muted);
+  font-style: italic;
 }
 
+/*
+ * And it says it is pressable when a pointer is on it, which the fields beside
+ * it do not — they take a caret, this one adds something. The underline is the
+ * affordance, so it appears on approach rather than sitting in the document at
+ * rest.
+ */
 .tpl-collection__add-inline:hover::after,
 .tpl-collection__add-inline:focus-visible::after {
-  border-bottom-style: solid;
+  color: var(--tpl-accent-ink);
+  border-bottom: 1px solid var(--tpl-line-hover);
 }
 
 /* ---------------------------------------------------------------------------
