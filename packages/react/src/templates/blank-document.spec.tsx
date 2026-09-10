@@ -226,3 +226,98 @@ describe('a section added to a blank resume can be written in', () => {
     ).toBeTruthy();
   });
 });
+
+/**
+ * An entry with no bullets still offers one to write.
+ *
+ * A minted role carries a bullet, so ADDING one was fine — but an entry the
+ * writer produced without any, or the first entry of a candidate's own section,
+ * rendered an empty `<ul>`. Nothing on the page, and every control that adds or
+ * edits a bullet hangs off a bullet ROW, so the list a candidate needed to
+ * start was the one thing they could not reach.
+ */
+describe('a role whose bullets are missing', () => {
+  const withRole = (bullets: string[]) => ({
+    ...blank(),
+    experience: [
+      {
+        company: 'Acme',
+        title: 'Engineer',
+        start: '2024-01',
+        end: 'Present',
+        bullets,
+        tech: [],
+      },
+    ],
+  });
+
+  function drawResume(resume: ResumeObject, authoring: boolean) {
+    const { Document } = TEMPLATE_RENDERERS.harvard;
+    const tree = (
+      <DocumentPresentationProvider>
+        <FieldRegistryProvider enabled={authoring}>
+          <Document resume={resume} />
+        </FieldRegistryProvider>
+      </DocumentPresentationProvider>
+    );
+    return render(
+      authoring ? (
+        <DocumentAuthoringProvider
+          value={{ base: resume, edits: [], onEditsChange: () => undefined }}
+        >
+          {tree}
+        </DocumentAuthoringProvider>
+      ) : (
+        tree
+      ),
+    );
+  }
+
+  it('draws one to write in', () => {
+    const { container } = drawResume(withRole([]), true);
+    const bullets = container.querySelectorAll('.tpl-bullet');
+    expect(bullets).toHaveLength(1);
+    expect(
+      bullets[0]?.querySelector('.tpl-text')?.getAttribute('data-placeholder'),
+    ).toBe(PLACEHOLDERS['bullet']);
+  });
+
+  it('draws none at all in a document being read', () => {
+    /*
+     * Drawn for the candidate filling it in and for nobody else. An empty
+     * `<li>` under a role is a bullet in the exported file.
+     */
+    const { container } = drawResume(withRole([]), false);
+    expect(container.querySelectorAll('.tpl-bullet')).toHaveLength(0);
+  });
+
+  it('keeps the first thing typed into it', async () => {
+    /*
+     * The row is drawn, not stored — so there is no entry behind it, and the
+     * obvious implementation loses the first keystroke: `map` over an empty
+     * array yields an empty array. Typing CREATES the list.
+     */
+    const { container } = drawResume(withRole([]), true);
+    fireEvent.mouseDown(
+      container.querySelector(
+        '[data-path="experience.0.bullets"]',
+      ) as HTMLElement,
+    );
+    await waitFor(() =>
+      expect(container.querySelector('textarea')).toBeTruthy(),
+    );
+
+    const field = container.querySelector('textarea') as HTMLTextAreaElement;
+    fireEvent.change(field, { target: { value: 'Cut deploy time in half.' } });
+
+    expect(
+      (container.querySelector('textarea') as HTMLTextAreaElement).value,
+    ).toBe('Cut deploy time in half.');
+  });
+
+  it('leaves a role that has bullets alone', () => {
+    const { container } = drawResume(withRole(['Shipped the thing.']), true);
+    expect(container.querySelectorAll('.tpl-bullet')).toHaveLength(1);
+    expect(container.textContent).toContain('Shipped the thing.');
+  });
+});
