@@ -45,8 +45,8 @@
    * What it correctly rules out is following a token that goes near-white in
    * dark mode, which this one does not.
    */
-  --tpl-accent: var(--color-accent, oklch(0.54 0.17 256));
-  --tpl-accent-ink: var(--color-accent-hover, oklch(0.46 0.16 256));
+  --tpl-accent: var(--color-accent, oklch(0.545 0.195 258));
+  --tpl-accent-ink: var(--color-accent-hover, oklch(0.47 0.175 258));
   /* What is legible ON the accent, for the rare control that FILLS with it. */
   --tpl-on-accent: var(--color-on-accent, #ffffff);
 
