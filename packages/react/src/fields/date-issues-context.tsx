@@ -5,8 +5,18 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from 'react';
-import { dateIssuesByFieldFromValues, type DateIssueKind } from '@cvgs/core';
+import {
+  additionPaths,
+  collectionOrder,
+  dateIssuesInDrawnOrder,
+  type AppendableSection,
+  type DateIssueKind,
+} from '@cvgs/core';
 import { useFieldRegistry } from './field-registry.js';
+import { useDocumentOverlay } from '../collections/overlay-context.js';
+
+/** The sections whose entries carry a start and an end to compare. */
+const DATED: AppendableSection[] = ['experience', 'education'];
 
 /**
  * Which fields disagree with the résumé's chronological order, by PATH.
@@ -43,6 +53,7 @@ const noSubscribe = () => () => undefined;
  */
 export function DateIssuesProvider({ children }: DateIssuesProviderProps) {
   const registry = useFieldRegistry();
+  const { base, edits } = useDocumentOverlay();
   const revision = useSyncExternalStore(
     registry?.revision.subscribe ?? noSubscribe,
     () => registry?.revision.get() ?? 0,
@@ -53,9 +64,33 @@ export function DateIssuesProvider({ children }: DateIssuesProviderProps) {
     /* Read on the revision, which is the whole reason it is a dependency —
        the values live in a ref and are mutated in place. */
     void revision;
-    if (!registry) return new Map<string, DateIssueKind>();
-    return dateIssuesByFieldFromValues(registry.values.current);
-  }, [registry, revision]);
+    if (!registry || !base) return new Map<string, DateIssueKind>();
+
+    /*
+     * The order the document is DRAWN in, from the same `collectionOrder` the
+     * document lays itself out with — never the order the paths are numbered
+     * in. A path follows the job: a reordered résumé renders `experience.2`
+     * first and its fields keep saying `experience.2.*`, so the index says
+     * where an entry STARTED and the check is about where it is NOW. Deriving
+     * the order here from the same source is what stops the check and the page
+     * disagreeing about which entry is above which.
+     */
+    const overlay = edits ?? [];
+    const additions = additionPaths(base, overlay);
+    const sections = DATED.map((section) =>
+      collectionOrder(base, overlay, section)
+        .map((slot) =>
+          'base' in slot ? `${section}.${slot.base}` : additions.get(slot.ref),
+        )
+        .filter((path): path is string => path !== undefined),
+    );
+
+    const values = registry.values.current;
+    return dateIssuesInDrawnOrder(sections, (path) => {
+      const value = values.get(path);
+      return typeof value === 'string' ? value : undefined;
+    });
+  }, [registry, revision, base, edits]);
 
   return (
     <DateIssuesContext.Provider value={issues}>

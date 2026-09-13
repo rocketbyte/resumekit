@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   dateIssuesByField,
+  dateIssuesInDrawnOrder,
   dateOrder,
   resumeDateIssues,
 } from './resume-dates.js';
@@ -208,5 +209,95 @@ describe('addressing an issue by the field it marks', () => {
       }),
     );
     expect(byField.get('experience.1.start')).toBe('ends-before-start');
+  });
+});
+
+describe('judging the order the document is DRAWN in', () => {
+  /*
+   * The case the index walk got wrong, and the one the feature exists for.
+   *
+   * A path follows the JOB, not the position: a résumé the candidate has
+   * reordered renders `experience.2` in first place and its fields keep saying
+   * `experience.2.*`. So the index says where an entry STARTED and the check is
+   * a claim about where it is NOW — walking by index compared entries in an
+   * order nobody was looking at, and said nothing about a document just dragged
+   * into the wrong order.
+   */
+  const at =
+    (map: Record<string, string>) =>
+    (path: string): string | undefined =>
+      map[path];
+
+  it('reports the drawn order, not the numbered one', () => {
+    // Drawn: experience.2 (2022) above experience.0 (2024) — oldest first.
+    const issues = dateIssuesInDrawnOrder(
+      [['experience.2', 'experience.0']],
+      at({
+        'experience.2.start': '2022-02',
+        'experience.2.end': '2023-03',
+        'experience.0.start': '2024-01',
+        'experience.0.end': 'Present',
+      }),
+    );
+    expect([...issues]).toEqual([['experience.0.start', 'out-of-order']]);
+  });
+
+  it('says nothing when the drawn order is right but the indices are not', () => {
+    /*
+     * The same résumé dragged the correct way round. Numbered 0 then 2, drawn
+     * 2 first — an index walk would have reported this CORRECT document as
+     * wrong, which is the same bug pointing the other way.
+     */
+    const issues = dateIssuesInDrawnOrder(
+      [['experience.2', 'experience.0']],
+      at({
+        'experience.2.start': '2024-01',
+        'experience.2.end': 'Present',
+        'experience.0.start': '2022-02',
+        'experience.0.end': '2023-03',
+      }),
+    );
+    expect([...issues]).toEqual([]);
+  });
+
+  it('marks an added entry by the path it was addressed with', () => {
+    // An addition is addressed past the end of the writer's array, never by
+    // where it is drawn.
+    const issues = dateIssuesInDrawnOrder(
+      [['experience.0', 'experience.5']],
+      at({
+        'experience.0.start': '2020-01',
+        'experience.0.end': '2021-01',
+        'experience.5.start': '2024-01',
+        'experience.5.end': 'Present',
+      }),
+    );
+    expect([...issues]).toEqual([['experience.5.start', 'out-of-order']]);
+  });
+
+  it('still catches an inverted range', () => {
+    const issues = dateIssuesInDrawnOrder(
+      [['experience.1']],
+      at({ 'experience.1.start': '2024-06', 'experience.1.end': '2024-01' }),
+    );
+    expect([...issues]).toEqual([
+      ['experience.1.start', 'ends-before-start'],
+      ['experience.1.end', 'ends-before-start'],
+    ]);
+  });
+
+  it('keeps the sections apart', () => {
+    const issues = dateIssuesInDrawnOrder(
+      [['experience.0'], ['education.0', 'education.1']],
+      at({
+        'experience.0.start': '2024-01',
+        'experience.0.end': 'Present',
+        'education.0.start': '2013',
+        'education.0.end': '2017',
+        'education.1.start': '2018',
+        'education.1.end': '2019',
+      }),
+    );
+    expect([...issues]).toEqual([['education.1.start', 'out-of-order']]);
   });
 });

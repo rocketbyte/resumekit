@@ -133,48 +133,57 @@ export function resumeDateIssues(resume: ResumeObject): DateIssue[] {
 }
 
 /**
- * The same check, over the editor's LIVE field values.
+ * The same check, over the order the document is actually DRAWN in.
  *
- * The editor does not hold a `ResumeObject` while it is being typed into: it
- * holds the résumé it mounted with, plus a map of every field's current value
- * keyed by path. Reading that map is what makes the marking clear the moment a
- * date is corrected — computing from the mounted copy would leave a warning
- * standing on a date the candidate has already fixed, which is worse than not
- * warning at all.
+ * This replaces a version that scanned `experience.<n>.start` keys and walked
+ * them by `n`, and that was wrong in the one case the feature exists for.
  *
- * Entries are discovered FROM THE KEYS rather than from a count passed in, so
- * adding and removing entries needs nothing else to be told.
+ * A path follows the JOB, not the position: a résumé the candidate has
+ * reordered renders `experience.2` in first place, and its fields keep saying
+ * `experience.2.*` so a stored edit follows the role rather than the slot. So
+ * the path index says where an entry STARTED, and reverse-chronological order
+ * is a claim about where it is NOW. Walking by index compared entries in an
+ * order nobody was looking at — and reported nothing on the very document a
+ * candidate had just dragged into the wrong order, which is exactly when they
+ * need telling.
+ *
+ * The caller passes the prefixes in drawn order, taken from the same
+ * `collectionOrder` the document lays itself out with, so the check and the
+ * page cannot disagree about which entry is above which.
+ *
+ * @param sections one array of entry path prefixes per section, each in the
+ * order the section is drawn — e.g. `[['experience.2', 'experience.0']]`.
+ * @param valueAt reads a field's current value, live from the editor.
  */
-export function dateIssuesByFieldFromValues(
-  values: ReadonlyMap<string, unknown>,
+export function dateIssuesInDrawnOrder(
+  sections: readonly (readonly string[])[],
+  valueAt: (path: string) => string | undefined,
 ): Map<string, DateIssueKind> {
-  const sections: Record<string, Map<number, Dated>> = {
-    experience: new Map(),
-    education: new Map(),
-  };
-
-  for (const [path, value] of values) {
-    const m = /^(experience|education)\.(\d+)\.(start|end)$/.exec(path);
-    if (!m || typeof value !== 'string') continue;
-    const bucket = sections[m[1]];
-    const i = Number(m[2]);
-    bucket.set(i, { ...(bucket.get(i) ?? {}), [m[3]]: value });
-  }
-
   const byField = new Map<string, DateIssueKind>();
-  for (const [name, bucket] of Object.entries(sections)) {
-    if (bucket.size === 0) continue;
-    /* Dense, and in index order: a gap would shift every entry below it and
-       report an ordering that is not on screen. */
-    const highest = Math.max(...bucket.keys());
-    const entries: Dated[] = [];
-    for (let i = 0; i <= highest; i++) entries.push(bucket.get(i) ?? {});
-    for (const issue of sectionIssues(entries, name)) {
-      for (const field of issue.fields) {
-        if (!byField.has(field)) byField.set(field, issue.kind);
+
+  for (const prefixes of sections) {
+    let previousStart: number | null = null;
+
+    for (const prefix of prefixes) {
+      const start = dateOrder(valueAt(`${prefix}.start`));
+      const end = dateOrder(valueAt(`${prefix}.end`));
+
+      if (start !== null && end !== null && end < start) {
+        if (!byField.has(`${prefix}.start`))
+          byField.set(`${prefix}.start`, 'ends-before-start');
+        if (!byField.has(`${prefix}.end`))
+          byField.set(`${prefix}.end`, 'ends-before-start');
       }
+
+      if (start === null) continue;
+      if (previousStart !== null && start > previousStart) {
+        if (!byField.has(`${prefix}.start`))
+          byField.set(`${prefix}.start`, 'out-of-order');
+      }
+      previousStart = start;
     }
   }
+
   return byField;
 }
 
