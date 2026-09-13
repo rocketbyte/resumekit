@@ -142,6 +142,7 @@ export const PLACEHOLDERS: Record<string, string> = {
 const mintExperience = () => ({
   company: '',
   title: '',
+  location: '',
   start: '',
   end: '',
   bullets: [''],

@@ -54,6 +54,37 @@ export function HarvardExperienceEntry({
             placeholder={PLACEHOLDERS['company']}
           />
         </span>
+        {/*
+         * WHERE on the employer's line, WHEN on the role's — the order the grid
+         * places them in is the order they are written here, and the same order
+         * the education entry below uses.
+         *
+         * This slot was `<span className="tpl-harvard__where" />`: drawn, sized
+         * by the grid, and permanently empty, because `Experience` had no
+         * `location` to put in it. Every résumé printed a blank quarter beside
+         * every job and no candidate could type there.
+         *
+         * The two entries used to be deliberately opposite, on the argument
+         * that a role is identified by its dates where a degree is identified
+         * by its institution. Checked against a real résumé, that is not how
+         * they are set: `Doral Health & Wellness  New York, NY` over
+         * `Senior Software Engineer  Feb 2024 – Present`. Place beside the
+         * organisation, dates beside what you did there, in both.
+         */}
+        <span className="tpl-harvard__where">
+          <EditableText
+            path={`${path}.location`}
+            value={item.location ?? ''}
+            placeholder={PLACEHOLDERS['location']}
+          />
+        </span>
+        <span className="tpl-harvard__role">
+          <EditableText
+            path={`${path}.title`}
+            value={item.title}
+            placeholder={PLACEHOLDERS['title']}
+          />
+        </span>
         <span className="tpl-harvard__dates">
           <EditableText
             path={`${path}.start`}
@@ -67,14 +98,6 @@ export function HarvardExperienceEntry({
             placeholder={PLACEHOLDERS['end']}
           />
         </span>
-        <span className="tpl-harvard__role">
-          <EditableText
-            path={`${path}.title`}
-            value={item.title}
-            placeholder={PLACEHOLDERS['title']}
-          />
-        </span>
-        <span className="tpl-harvard__where" />
       </div>
       <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
@@ -118,11 +141,10 @@ export function HarvardEducationEntry({
          * WHERE on the school's line, WHEN on the qualification's — the order
          * the grid places them in is the order they are written here.
          *
-         * The opposite of the experience entry above, and deliberately: a
-         * degree is identified by its institution and the place is part of
-         * naming it, where a role is identified by what you did and the dates
-         * are what a reader scans for. It is also the order the reference
-         * résumés use.
+         * The same order the experience entry above now uses. It used to be the
+         * opposite there, on the argument that a role is identified by its
+         * dates; the reference résumé sets both the same way, so both are set
+         * the same way here.
          */}
         <span className="tpl-harvard__where">
           <EditableText

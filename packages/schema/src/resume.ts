@@ -159,6 +159,22 @@ export const ExperienceSchema = z.object({
     .min(1)
     .describe('Employer name exactly as in the resume.'),
   title: z.string().min(1).describe('Job title exactly as in the resume.'),
+  /*
+   * Where the job was, which the résumé had nowhere to put.
+   *
+   * The same gap `Education.location` closed, in the sibling entry: Harvard has
+   * drawn an empty slot beside the employer since it was written, so every
+   * résumé printed a blank there and no candidate could type into it. A real
+   * résumé states it — `Doral Health & Wellness  New York, NY` — and a recruiter
+   * filtering by place is reading exactly this line.
+   *
+   * Optional, because remote roles and plenty of résumés state none, and
+   * inventing a city is worse than omitting one.
+   */
+  location: z
+    .string()
+    .optional()
+    .describe("Where the job was, e.g. 'New York, NY'. Omit if not stated."),
   start: z
     .string()
     .min(1)
