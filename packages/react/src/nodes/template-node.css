@@ -606,3 +606,92 @@ span.tpl-input[data-empty]::before {
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
+
+/*
+ * A date that disagrees with the résumé's chronological order.
+ *
+ * EDITOR CHROME. The attribute is set only where `DateIssuesProvider` is
+ * mounted, which is the editor and nowhere else — the read-only preview and the
+ * render container never see it, so the exported PDF is byte-identical to what
+ * it was. Drawn by CSS from an attribute for the same reason the placeholders
+ * are: a message that were a text node would print into the file and be read by
+ * a parser as the candidate's own words.
+ *
+ * A WARM mark, not a red one. Nothing here is refused and nothing is broken —
+ * the candidate may have a genuine overlap or a deliberate ordering, and the
+ * product is pointing something out, not rejecting a form.
+ */
+.tpl-text[data-issue] {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--tpl-warn);
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.18em;
+}
+
+/*
+ * The message, on hover AND on focus.
+ *
+ * Focus is the half that matters: `title` alone is a pointer affordance, so a
+ * candidate moving through the document by keyboard would see a marked date and
+ * have no way to find out what was noticed about it. `:focus-within` covers the
+ * field once it is selected, which is exactly when they are looking at it.
+ */
+.tpl-text[data-issue]::after {
+  content: attr(title);
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  top: calc(100% + 6px);
+  width: max-content;
+  max-width: 22rem;
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: var(--tpl-chrome-ink);
+  color: var(--tpl-chrome);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-decoration: none;
+  text-align: left;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-out;
+}
+
+/*
+ * Out of the way while the sentence is being written.
+ *
+ * The same guard every hover-revealed control in this file carries: a note that
+ * appeared over the document while the candidate was typing would be chrome
+ * covering the very words they are looking at. The marker itself stays — it is
+ * part of the text's own decoration, not a control — so nothing is hidden, only
+ * the explanation waits.
+ *
+ * Reaching it without a pointer is `aria-description` on the field, which is
+ * read whether or not anything is hovered.
+ */
+.tpl-editor:not(:has(.tpl-input:focus)) .tpl-text[data-issue]:hover::after {
+  opacity: 1;
+}
+
+/* The note is positioned against the field, so the field has to be a containing
+   block — and only when it carries one, so no other field's layout moves. */
+.tpl-text[data-issue] {
+  position: relative;
+}
+
+@media print {
+  /* Belt and braces. The attribute is not set on the print path at all, but a
+     résumé must never carry a note about itself onto paper. */
+  .tpl-text[data-issue] {
+    text-decoration: none;
+  }
+  .tpl-text[data-issue]::after {
+    content: none;
+  }
+}

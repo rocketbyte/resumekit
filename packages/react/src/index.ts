@@ -79,6 +79,14 @@ export {
   type FieldRegistry,
 } from './fields/field-registry.js';
 
+// Dates that disagree with the résumé's chronological order, marked where they
+// are. Editor-only: the preview and the export renderer mount no provider.
+export {
+  DateIssuesProvider,
+  useDateIssue,
+  type DateIssuesProviderProps,
+} from './fields/date-issues-context.js';
+
 /**
  * Autosave: the document tells the surface when it is worth storing.
  *

@@ -1,9 +1,10 @@
-import { isSafeLinkTarget } from '@cvgs/core';
+import { DATE_ISSUE_MESSAGE, isSafeLinkTarget } from '@cvgs/core';
 import { useField } from '../fields/field-registry.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
 import { PlainTextField } from './PlainTextField.js';
 import { useAutosave } from '../autosave-context.js';
+import { useDateIssue } from '../fields/date-issues-context.js';
 
 export interface EditableTextProps {
   /** Where this text lives in the `ResumeObject` — e.g. `experience.0.title`. */
@@ -93,6 +94,17 @@ export function EditableText({
    */
   const { saveSoon } = useAutosave();
 
+  /*
+   * Whether this field's date disagrees with the résumé's chronological order.
+   *
+   * Asked BY PATH, which is the address the field already knows itself by — so
+   * no template passes anything, and a template added later is covered without
+   * being told. Undefined everywhere the provider is not mounted, which is the
+   * read-only preview and the export renderer: the marker is editor chrome and
+   * must never print.
+   */
+  const dateIssue = useDateIssue(path);
+
   const change = (next: string) => {
     // A line stays a line. Pasting three lines of a signature block into a job
     // title should give a job title, not a résumé with a hole in it.
@@ -147,6 +159,16 @@ export function EditableText({
         data-empty={value.length === 0 || undefined}
         data-placeholder={placeholder}
         data-path={path}
+        /*
+         * What was noticed about this date, as an attribute the stylesheet
+         * draws and a reader can hear. Never a text node: a message painted
+         * into the document would print into the PDF and be read by a parser as
+         * the candidate's own words — the mistake `data-placeholder` exists to
+         * avoid, made a second time.
+         */
+        data-issue={dateIssue}
+        title={dateIssue ? DATE_ISSUE_MESSAGE[dateIssue] : undefined}
+        aria-description={dateIssue ? DATE_ISSUE_MESSAGE[dateIssue] : undefined}
       >
         {/*
          * An ANCHOR when the field points somewhere.

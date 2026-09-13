@@ -109,6 +109,18 @@
   --tpl-paper-selection: oklch(0.85 0.08 256);
   --tpl-paper-selection-ink: #1a1a1a;
 
+  /*
+   * "Worth a look", as distinct from "wrong".
+   *
+   * The mark on a date that disagrees with the résumé's chronological order.
+   * Fixed rather than following `--color-warning`, for the reason
+   * `--tpl-paper-muted` above is fixed: this is drawn on the PAPER, which is
+   * white in both themes, and the app's warning token is a FILL that measures
+   * about 2.2:1 as small text. This is the marketing site's `--m-gap`, 5.56:1
+   * on white — the page's only warm colour, which is why it still reads as the
+   * thing wanting attention without reading as an error.
+   */
+  --tpl-warn: #9a5b09;
   --tpl-danger: var(--color-danger, #b3261e);
   --tpl-danger-tint: color-mix(in oklab, var(--tpl-danger) 12%, transparent);
 
