@@ -48,7 +48,21 @@
   --c-density: 1;
 
   --c-accent: #1f58bc;
-  --c-ink: #252525;
+  /*
+   * TRUE BLACK, because this is a document rather than a screen.
+   *
+   * It was #111111 — 93% black, the near-black a UI uses to take the harshness
+   * off a large light surface. A résumé is not that surface: it is printed, it
+   * is scanned by an ATS, and it is read beside other résumés that ARE set in
+   * black. Measured against a candidate's own PDF, the difference reads as a
+   * washed-out page rather than as a softer one.
+   *
+   * Safe to state absolutely here: this token colours TEXT and nothing else —
+   * one `color` declaration in this file. `meridian` deliberately keeps its
+   * near-black, because there the same token also FILLS a band, and pure black
+   * behind white text is a redesign of that template rather than a fidelity fix.
+   */
+  --c-ink: #000000;
   /* Light on purpose — the reference's own value. The rules separate sections
      that an accent-coloured heading already separates, so nothing is lost if a
      printer drops them. See `design.md`, risks. */

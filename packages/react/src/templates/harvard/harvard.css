@@ -27,7 +27,21 @@
   /* Overridden per document by the style object; these are the defaults, which
      is what a resume nobody has styled renders in. */
   --h-scale: 1;
-  --h-ink: #111111;
+  /*
+   * TRUE BLACK, because this is a document rather than a screen.
+   *
+   * It was #111111 — 93% black, the near-black a UI uses to take the harshness
+   * off a large light surface. A résumé is not that surface: it is printed, it
+   * is scanned by an ATS, and it is read beside other résumés that ARE set in
+   * black. Measured against a candidate's own PDF, the difference reads as a
+   * washed-out page rather than as a softer one.
+   *
+   * Safe to state absolutely here: this token colours TEXT and nothing else —
+   * one `color` declaration in this file. `meridian` deliberately keeps its
+   * near-black, because there the same token also FILLS a band, and pure black
+   * behind white text is a redesign of that template rather than a fidelity fix.
+   */
+  --h-ink: #000000;
   /*
    * The DEFAULT body face, and it must name the supplied one first.
    *
