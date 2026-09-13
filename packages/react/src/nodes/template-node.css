@@ -622,11 +622,31 @@ span.tpl-input[data-empty]::before {
  * product is pointing something out, not rejecting a form.
  */
 .tpl-text[data-issue] {
+  /*
+   * A TINT as well as a rule, and a rule thick enough to see.
+   *
+   * This shipped as a wavy underline at `from-font` thickness and was, at the
+   * ~12.8px a date is set in, a hairline you could only find by zooming — a
+   * marker nobody notices is the same as no marker, and it read as the feature
+   * being broken. "Friendly rather than alarming" is not "invisible".
+   *
+   * The tint is what carries it at a glance; the wave is what says "look at
+   * this" rather than "this is highlighted". Both are warm, and neither is red:
+   * nothing here is refused, and the candidate may have meant it.
+   */
+  background: color-mix(in oklab, var(--tpl-warn) 14%, transparent);
+  border-radius: 3px;
+  /* Drawn wider than the word without taking that width in the layout, so a
+     marked date cannot nudge the line it sits on. */
+  padding: 0.05em 0.22em;
+  margin-inline: -0.22em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   text-decoration: underline;
   text-decoration-style: wavy;
   text-decoration-color: var(--tpl-warn);
-  text-decoration-thickness: from-font;
-  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.2em;
 }
 
 /*
@@ -689,6 +709,9 @@ span.tpl-input[data-empty]::before {
   /* Belt and braces. The attribute is not set on the print path at all, but a
      résumé must never carry a note about itself onto paper. */
   .tpl-text[data-issue] {
+    background: none;
+    padding: 0;
+    margin-inline: 0;
     text-decoration: none;
   }
   .tpl-text[data-issue]::after {
