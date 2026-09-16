@@ -41,6 +41,7 @@ import {
   templateDetails,
   type EditValue,
   type TemplateId,
+  withUnshownReplacements,
 } from './template.js';
 import {
   isSafeLinkTarget,
@@ -952,5 +953,63 @@ describe('a link target is validated in the domain', () => {
         { path: 'summary', href: 'javascript:alert(1)' },
       ]).success,
     ).toBe(false);
+  });
+});
+
+describe('withUnshownReplacements', () => {
+  const set = (path: string, value: string) =>
+    ({ kind: 'set', path, value }) as const;
+
+  it('keeps a replacement whose field this template does not draw', () => {
+    // Typed under Harvard, which draws a role's location, then reported by a
+    // template that does not draw one at all.
+    const previous = [set('experience.0.location', 'New York, NY')];
+    const next = [set('experience.0.title', 'Lead')];
+    const shown = new Set(['experience.0.title', 'experience.0.company']);
+    expect(withUnshownReplacements(previous, next, shown)).toEqual([
+      set('experience.0.location', 'New York, NY'),
+      set('experience.0.title', 'Lead'),
+    ]);
+  });
+
+  it('respects a revert of a field that is drawn', () => {
+    const previous = [set('experience.0.location', 'New York, NY')];
+    const shown = new Set(['experience.0.location']);
+    expect(withUnshownReplacements(previous, [], shown)).toEqual([]);
+  });
+
+  it('prefers what the surface reported over what it held before', () => {
+    const previous = [set('summary', 'old')];
+    const next = [set('summary', 'new')];
+    expect(withUnshownReplacements(previous, next, new Set())).toEqual(next);
+  });
+
+  it('treats a drawn parent or child path as drawn', () => {
+    const previous = [set('contact.location', 'Berlin')];
+    expect(withUnshownReplacements(previous, [], new Set(['contact']))).toEqual(
+      [],
+    );
+  });
+
+  it('leaves structural operations first and untouched', () => {
+    const append = {
+      kind: 'append',
+      ref: 'r1',
+      section: 'experience',
+      entry: {},
+      author: 'candidate',
+    } as const;
+    const previous = [set('headline', 'Engineer')];
+    const result = withUnshownReplacements(
+      previous,
+      [append] as never,
+      new Set(),
+    );
+    expect(result).toEqual([append, set('headline', 'Engineer')]);
+  });
+
+  it('returns the reported overlay itself when nothing is carried', () => {
+    const next = [set('summary', 'x')];
+    expect(withUnshownReplacements([], next, new Set())).toBe(next);
   });
 });

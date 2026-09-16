@@ -1686,6 +1686,56 @@ export function presentationEdits(
 }
 
 /**
+ * A surface's new overlay, keeping the replacements it could not see.
+ *
+ * An editing surface reports its overlay from the fields it DRAWS. A template
+ * that draws no location for a role therefore reported no replacement for one,
+ * and a location the candidate typed under another template was deleted by
+ * merely switching to this one and back. The résumé's data must not depend on
+ * which template happens to be drawing it.
+ *
+ * So a replacement in `previous` survives when its field is not among `shown`
+ * and `next` says nothing about it. A field that IS shown is reported by the
+ * surface, so its absence from `next` is a real revert and is respected.
+ *
+ * Safe to carry because a replacement only ever addresses the writer's own
+ * entries, and those are hidden rather than deleted. A hidden entry keeps its
+ * corrections for when it is shown again. An addition's words live inside its
+ * own `append` edit and never arrive here.
+ */
+export function withUnshownReplacements(
+  previous: ResumeEdits,
+  next: ResumeEdits,
+  shown: ReadonlySet<string>,
+): ResumeEdits {
+  const overlaps = (path: string) => {
+    if (shown.has(path)) return true;
+    for (const field of shown) {
+      if (field.startsWith(`${path}.`) || path.startsWith(`${field}.`)) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const reported = new Set(next.filter(isSetEdit).map((edit) => edit.path));
+  const carried = previous
+    .filter(isSetEdit)
+    .filter((edit) => !reported.has(edit.path) && !overlaps(edit.path));
+  if (carried.length === 0) return next;
+
+  // Same order `presentationEdits` writes: structural first, then
+  // replacements by path, so the same document still saves the same bytes.
+  const sets = [...next.filter(isSetEdit), ...carried]
+    .map((edit) => ({
+      kind: 'set' as const,
+      path: edit.path,
+      value: edit.value,
+    }))
+    .sort((a, b) => a.path.localeCompare(b.path));
+  return [...next.filter((edit) => !isSetEdit(edit)), ...sets];
+}
+
+/**
  * Whether a path addresses a location in the WRITER's résumé.
  *
  * Distinguishes an out-of-range array index (not addressable — that entry does
