@@ -59,6 +59,72 @@ describe('planPagination', () => {
     expect(plan.pages).toBe(2);
   });
 
+  describe('space the candidate recorded above a block', () => {
+    /**
+     * A second block that carries `lead` pixels of recorded space, laid out
+     * the way a browser lays it: the space sits above it, so its natural top
+     * is further down by exactly that much.
+     */
+    function spaced(lead: number, first = USABLE - 40, second = 100) {
+      const blocks = column('main', [first, second]);
+      blocks[1] = { ...blocks[1], top: blocks[1].top + lead, lead };
+      return blocks;
+    }
+
+    it('spends the space that fitted on the sheet the block came from', () => {
+      // The block fits with up to 50px of space above it. At 60 it crosses,
+      // and only the 10px beyond what fitted goes above it on the new sheet.
+      const plan = planPagination(spaced(60, USABLE - 150, 100));
+      expect(plan.targets.get(1)).toBe(TEXT_TOP(1) + 10);
+    });
+
+    it('starts on the first line just after crossing, then moves one step at a time', () => {
+      const just = planPagination(spaced(50.5, USABLE - 150, 100));
+      expect(just.targets.get(1)).toBe(TEXT_TOP(1) + 0.5);
+      const more = planPagination(spaced(70, USABLE - 150, 100));
+      expect(more.targets.get(1)).toBe(TEXT_TOP(1) + 20);
+    });
+
+    it('does not move a block whose space still fits', () => {
+      const plan = planPagination(spaced(50, USABLE - 150, 100));
+      expect(plan.pushes.has(1)).toBe(false);
+    });
+
+    it('keeps all the space of a block that would not have fitted anyway', () => {
+      const plan = planPagination(spaced(60));
+      expect(plan.targets.get(1)).toBe(TEXT_TOP(1) + 60);
+      expect(plan.leads.get(1)).toBe(60);
+    });
+
+    it('moves the block further down as the space grows', () => {
+      // The reported bug: every extra step of space shortened the push by
+      // the same amount, so the block never moved on its new sheet.
+      const small = planPagination(spaced(60));
+      const large = planPagination(spaced(200));
+      expect(large.targets.get(1)).toBe((small.targets.get(1) ?? 0) + 140);
+    });
+
+    it('caps the space so the block still fits on its new sheet', () => {
+      const plan = planPagination(spaced(5000, USABLE - 40, 300));
+      expect(plan.targets.get(1)).toBe(TEXT_TOP(1) + USABLE - 300);
+      expect(plan.pages).toBe(2);
+    });
+
+    it('adds nothing for a block that stays where it is', () => {
+      const blocks = column('main', [100, 100]);
+      blocks[1] = { ...blocks[1], top: blocks[1].top + 50, lead: 50 };
+      const plan = planPagination(blocks);
+      expect(plan.pushes.size).toBe(0);
+      expect(plan.leads.size).toBe(0);
+    });
+
+    it('still starts an unspaced block on the first line', () => {
+      const plan = planPagination(column('main', [USABLE - 40, 100]));
+      expect(plan.targets.get(1)).toBe(TEXT_TOP(1));
+      expect(plan.leads.has(1)).toBe(false);
+    });
+  });
+
   it('does not move a heading for a block that cannot fit anywhere', () => {
     /*
      * The bug that emptied Meridian's rail on its own first page. The keyword

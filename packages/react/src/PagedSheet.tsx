@@ -275,10 +275,36 @@ export function PagedSheet({
      * property this loop does not clear.
      */
     for (const block of blocks) {
+      /*
+       * A block this component moved is held still while it is put back, so
+       * the read below sees its natural margin rather than the first frame of
+       * an animation back to it. See `still` below.
+       */
+      if (block.style.marginTop) block.style.transition = 'none';
       block.style.marginTop = '';
       block.style.breakBefore = '';
       block.style.paddingTop = '';
     }
+
+    /*
+     * Hands animation back to every block this pass did not move.
+     *
+     * A spaced block eases its `margin-top` (`spacing.css`), and a push IS a
+     * `margin-top`. Left to ease, a push had not moved the block when the
+     * correction loop measured it, so the loop read the whole push as missing
+     * and added it again, three times over. The saved résumé showed the entry
+     * far down its new page, with space the candidate never asked for. The
+     * editor hid it only because a drag switches the easing off.
+     *
+     * So a moved block never animates. The layout is read first, so handing a
+     * block its easing back starts no animation of its own.
+     */
+    const still = (moved: ReadonlySet<Element>) => {
+      void root.getBoundingClientRect();
+      for (const block of blocks) {
+        if (!moved.has(block)) block.style.transition = '';
+      }
+    };
 
     /*
      * Each block's OWN top margin, read once the inline ones are cleared.
@@ -300,7 +326,40 @@ export function PagedSheet({
       (block) => Number.parseFloat(getComputedStyle(block).marginTop) || 0,
     );
 
-    const measured: MeasuredBlock<Element>[] = blocks.map((block) => {
+    /*
+     * The space the candidate recorded above each block. The planner decides
+     * how much of it a block keeps when it is moved onto a new sheet.
+     *
+     * A gap belongs to the FIRST block inside the element that carries it: a
+     * spaced entry is itself a block, but a spaced section holds its gap above
+     * its heading. Blocks come in document order, so the first one found inside
+     * a spaced element is the one that claims its gap, and no gap is counted
+     * twice.
+     *
+     * Read as `--tpl-space-height`, which is registered as a `<length>` and so
+     * computes to pixels. A browser that cannot register it answers with the
+     * unresolved `calc()`, which parses as nothing: such a block keeps no space
+     * at the top of a sheet, which is how every block behaved before.
+     */
+    const claimed = new Set<Element>();
+    const leads = blocks.map((block) => {
+      let lead = 0;
+      for (
+        let el: Element | null = block;
+        el && el !== root;
+        el = el.parentElement
+      ) {
+        if (!el.hasAttribute('data-spaced') || claimed.has(el)) continue;
+        claimed.add(el);
+        lead +=
+          Number.parseFloat(
+            getComputedStyle(el).getPropertyValue('--tpl-space-height'),
+          ) || 0;
+      }
+      return lead;
+    });
+
+    const measured: MeasuredBlock<Element>[] = blocks.map((block, index) => {
       const rect = block.getBoundingClientRect();
       return {
         /*
@@ -315,6 +374,7 @@ export function PagedSheet({
         top: rect.top / scale - origin,
         height: rect.height / scale,
         keepWithNext: block.hasAttribute('data-keep-with-next'),
+        lead: leads[index],
       };
     });
 
@@ -350,10 +410,16 @@ export function PagedSheet({
          * that is not space between sections, it is space above the first line
          * of the page. It measured as 1.31in where the first page reads 0.59in.
          */
+        el.style.transition = 'none';
         el.style.marginTop = '0px';
         el.style.breakBefore = 'page';
-        el.style.paddingTop = `${PAGE_MARGIN}px`;
+        /*
+         * Plus the space the candidate recorded above this block, as padding
+         * for the same reason: a margin at the start of a page does not print.
+         */
+        el.style.paddingTop = `${PAGE_MARGIN + (plan.leads.get(index) ?? 0)}px`;
       }
+      still(new Set([...plan.pushes.keys()].map((index) => blocks[index])));
       setPages((current) => (current === plan.pages ? current : plan.pages));
       return [...plan.pushes.keys()].join(',');
     }
@@ -367,6 +433,7 @@ export function PagedSheet({
     for (const [index, offset] of plan.pushes) {
       const applied = (own[index] ?? 0) + offset;
       pushes.set(blocks[index], applied);
+      blocks[index].style.transition = 'none';
       blocks[index].style.marginTop = `${applied}px`;
     }
     for (const [index, target] of plan.targets) {
@@ -406,6 +473,7 @@ export function PagedSheet({
       }
       if (worst === 0) break;
     }
+    still(new Set(pushes.keys()));
 
     // Only when it actually changed: this runs on every content change, and a
     // needless state write would re-render the whole document.

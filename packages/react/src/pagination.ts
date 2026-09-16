@@ -38,6 +38,24 @@ export interface MeasuredBlock<TFlow> {
   height: number;
   /** A heading, which must not be the last thing on a sheet. */
   keepWithNext: boolean;
+  /**
+   * Space the candidate recorded above this block. Absent means none.
+   *
+   * When the block is moved to a new sheet it keeps only the part of this
+   * space that was NOT needed to move it there. The space that fitted on the
+   * sheet it came from is spent. So a block starts its new sheet on the first
+   * line, and each further step moves it down from there.
+   *
+   * Without it a moved block was placed with its top edge on the sheet's first
+   * line, whatever gap it carried: the push is measured from the block's
+   * natural position, which already includes that gap, so every extra step of
+   * space shortened the push by exactly as much. The spacer's number rose and
+   * nothing on the page moved.
+   *
+   * Only the RECORDED space. The template's own rhythm above a block is space
+   * between two things, and at the top of a sheet there is nothing above it.
+   */
+  lead?: number;
 }
 
 export interface PaginationPlan {
@@ -45,6 +63,12 @@ export interface PaginationPlan {
   pushes: Map<number, number>;
   /** Block index → where a pushed block is SUPPOSED to start. */
   targets: Map<number, number>;
+  /**
+   * Block index → the recorded space a pushed block keeps above it on its new
+   * sheet, after capping. Absent means none. Printing needs it on its own,
+   * because it places the block with a page break rather than by position.
+   */
+  leads: Map<number, number>;
   /** How many sheets the document occupies. Never below one. */
   pages: number;
 }
@@ -96,7 +120,8 @@ export function planPagination<TFlow>(
   const { pitch, textTop, textBottom, usable } = geometry(sheetGap);
   const pushes = new Map<number, number>();
   const targets = new Map<number, number>();
-  if (blocks.length === 0) return { pushes, targets, pages: 1 };
+  const leads = new Map<number, number>();
+  if (blocks.length === 0) return { pushes, targets, leads, pages: 1 };
 
   /*
    * The next block in the SAME flow, for `keepWithNext`.
@@ -153,12 +178,38 @@ export function planPagination<TFlow>(
 
     if (top + block.height + withNext > textBottom(sheet)) {
       sheet += 1;
-      const push = textTop(sheet) - top;
+      /*
+       * How much of the recorded space carries over to the new sheet.
+       *
+       * `room` is the space the block could have had and still stayed on the
+       * sheet it came from. That much is spent there, so only the remainder
+       * goes above the block on its new sheet. A block that crosses because of
+       * its space therefore lands on the first line and moves down one step at
+       * a time from there, rather than arriving with the whole gap again.
+       *
+       * A block that would not have fitted even with no space spent none of
+       * it, so it keeps all of it.
+       *
+       * Capped so the block, and whatever it is kept with, still fits on its
+       * new sheet. A gap taller than that would only push it off again.
+       */
+      const recorded = Math.max(0, block.lead ?? 0);
+      const room = Math.max(
+        0,
+        textBottom(sheet - 1) - (top - recorded) - block.height - withNext,
+      );
+      const lead = Math.min(
+        Math.max(0, recorded - room),
+        Math.max(0, usable - block.height - withNext),
+      );
+      const target = textTop(sheet) + lead;
+      const push = target - top;
       pushes.set(index, push);
-      targets.set(index, textTop(sheet));
+      targets.set(index, target);
+      if (lead > 0) leads.set(index, lead);
       shifts.set(block.flow, shift + push);
       sheets.set(block.flow, sheet);
-      top = textTop(sheet);
+      top = target;
     }
 
     // Accumulated as the loop goes, with the offset that was in force for THIS
@@ -181,6 +232,7 @@ export function planPagination<TFlow>(
   return {
     pushes,
     targets,
+    leads,
     pages: Math.max(deepest + 1, Math.ceil(bottom / pitch) || 1),
   };
 }
