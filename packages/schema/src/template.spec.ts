@@ -699,7 +699,7 @@ describe('document styling — bounded spacing, accent and themes', () => {
     // Off either end lands on the end, rather than being refused: a control
     // that stopped answering under the hand reads as broken.
     expect(spaceAtStep(-4)).toBe('none');
-    expect(spaceAtStep(99)).toBe(SPACE_SCALE[SPACE_SCALE.length - 1]);
+    expect(spaceAtStep(999)).toBe(SPACE_SCALE[SPACE_SCALE.length - 1]);
     // A drag position resolves to the nearest FIFTH of a unit, which is the
     // accuracy the scale offers — not to the nearest whole one.
     expect(spaceAtStep(2.4)).toBe('s2_4');
@@ -721,7 +721,7 @@ describe('document styling — bounded spacing, accent and themes', () => {
     expect(SPACE_SCALE.length).toBeGreaterThanOrEqual(6);
     // Bounded, which is the condition on having a drag at all: the ATS
     // guarantee test walks this product, and it can only do that if it ends.
-    expect(SPACE_SCALE.length).toBeLessThanOrEqual(256);
+    expect(SPACE_SCALE.length).toBeLessThanOrEqual(1024);
     expect(SPACE_SCALE[0]).toBe('none');
     // Evenly spaced by the quantum, with no gap and no repeat.
     expect(SPACE_SCALE.map((id) => spaceSteps(id))).toEqual(

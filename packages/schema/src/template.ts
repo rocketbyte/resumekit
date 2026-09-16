@@ -803,7 +803,7 @@ export const DENSITY_DEFAULT: DensityId = 'normal';
  * will appear, and a drag with three stops reads as a switch: somebody closing
  * up a header is adjusting a distance, not choosing an adjective.
  *
- * So it is a fine scale with a ceiling: fifths of a unit, up to twenty. Fine
+ * So it is a fine scale with a ceiling: fifths of a unit, up to 200. Fine
  * enough that the drag tracks the hand and a gap can be nudged rather than
  * jumped, bounded so that the whole product of styling combinations is still
  * enumerable — which is what the ATS guarantee test walks, and the condition on
@@ -813,10 +813,10 @@ export const DENSITY_DEFAULT: DensityId = 'normal';
 /** The finest adjustment the scale can express, in template units. */
 export const SPACE_QUANTUM = 0.2;
 /** The most space a gap can hold, in template units. */
-export const SPACE_LIMIT = 20;
+export const SPACE_LIMIT = 200;
 
 /**
- * Built rather than written out, because a hundred named constants is a table
+ * Built rather than written out, because 1,000 named constants is a table
  * nobody reads and one that cannot drift from its own arithmetic. The id keeps
  * the number legible in a stored document — `s3_4` is three and two fifths of
  * the template's unit — and the tenths are underscored because a dot is a path
