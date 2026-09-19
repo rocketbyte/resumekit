@@ -244,15 +244,17 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
               {/* Split: a keyword rail is a list, and it breaks between two
                   skills. As one block it is taller than the paper. */}
               <div data-block data-split>
-                <Collection section="skills" items={resume.skills} gap={false}>
-                  {({ item, path, chrome, itemProps }) =>
+                {/* "skill", because this template prints no category: what a candidate
+                    adds here is a skill, and the group it lands in is storage. */}
+                <Collection
+                  section="skills"
+                  items={resume.skills}
+                  noun="skill"
+                  gap={false}
+                >
+                  {({ item, path }) =>
                     isLanguages(item) ? null : (
-                      <BulletSkillGroup
-                        item={item}
-                        path={path}
-                        chrome={chrome}
-                        itemProps={itemProps}
-                      />
+                      <BulletSkillGroup item={item} path={path} />
                     )
                   }
                 </Collection>

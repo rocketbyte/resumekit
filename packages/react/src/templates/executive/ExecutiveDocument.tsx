@@ -122,20 +122,22 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
             headingClassName="tpl-exec__heading"
           >
             {/*
-             * Two VISUAL columns over one list per group: CSS columns leave the
-             * DOM — and therefore the text a parser extracts — in document
-             * order. Structural columns would not.
+             * Two VISUAL columns over the lists, not structural ones: CSS
+             * columns leave the DOM — and therefore the text a parser extracts
+             * — in document order.
              */}
             <div className="tpl-exec__columns" data-block>
-              <Collection section="skills" items={resume.skills} gap={false}>
-                {({ item, path, chrome, itemProps }) =>
+              {/* "skill", because this template prints no category: what a candidate
+                    adds here is a skill, and the group it lands in is storage. */}
+              <Collection
+                section="skills"
+                items={resume.skills}
+                noun="skill"
+                gap={false}
+              >
+                {({ item, path }) =>
                   isLanguages(item) ? null : (
-                    <BulletSkillGroup
-                      item={item}
-                      path={path}
-                      chrome={chrome}
-                      itemProps={itemProps}
-                    />
+                    <BulletSkillGroup item={item} path={path} />
                   )
                 }
               </Collection>

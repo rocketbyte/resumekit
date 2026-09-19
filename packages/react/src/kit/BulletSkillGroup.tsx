@@ -1,30 +1,26 @@
-import type { ReactNode } from 'react';
 import type { SkillGroup } from '@cvgs/core';
-import type { ItemRootProps } from '../collections/CollectionItems.js';
 import { EditableBulletList } from '../nodes/EditableBulletList.js';
 
 /**
- * A skills group drawn as its bullets alone, for the templates whose keyword
- * lists print no category. Still an item of the skills collection, so it
- * carries the same rail — add, move, remove — as a group that shows one.
+ * A skills group as its bullets alone, for the templates that print no
+ * category.
+ *
+ * Deliberately NOT an addressable container: it carries no outline and no
+ * rail, because on these pages a group is not a thing a candidate can see. The
+ * skills are, and the bullet list edits, adds and removes them one by one.
+ * Drawing a box per group here put unlabelled boxes down the section that
+ * matched nothing on the page.
+ *
+ * The group still exists in the collection, so a section with none offers an
+ * add — which mints a group with no category, and the new skill simply joins
+ * the list.
  */
 export function BulletSkillGroup({
   item,
   path,
-  chrome,
-  itemProps,
-  className,
 }: {
   item: SkillGroup;
   path: string;
-  chrome: ReactNode;
-  itemProps: ItemRootProps;
-  className?: string;
 }) {
-  return (
-    <div {...itemProps} className={className}>
-      {chrome}
-      <EditableBulletList path={`${path}.items`} items={item.items} />
-    </div>
-  );
+  return <EditableBulletList path={`${path}.items`} items={item.items} />;
 }

@@ -222,6 +222,10 @@
  * document-ordered list into two tracks, so the DOM — and the text a parser
  * extracts — stays linear. A grid of cells would not, which is the thing that
  * makes multi-column résumés an ATS risk.
+ *
+ * Nothing inside carries an outline, which is what makes this safe: a box that
+ * spans a column break is fragmented, and a fragment can hold neither a ring
+ * nor a rail — the pill landed inside the page, between the columns.
  */
 .tpl-exec__columns {
   columns: 2;
