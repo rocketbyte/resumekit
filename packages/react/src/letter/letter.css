@@ -1,0 +1,70 @@
+@import '../fonts/fonts.css';
+
+/*
+ * A bundled face rather than the app's own serif, so the exported file is
+ * drawn in the same font as the page on screen instead of in whatever the
+ * render host has installed.
+ */
+.tpl-letter {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 11pt;
+  width: 8.5in;
+  min-height: 11in;
+  padding: 1in;
+  background: #fff;
+  color: #1f1f1f;
+  font-family: 'Gelasio', Georgia, 'Times New Roman', serif;
+  font-size: 11pt;
+  line-height: 1.45;
+}
+
+.tpl-letter p {
+  margin: 0;
+}
+
+.tpl-letter__sender {
+  font-size: 14pt;
+  font-weight: 700;
+}
+
+.tpl-letter__date,
+.tpl-letter__recipient {
+  margin-bottom: 11pt;
+}
+
+/* An address block keeps its lines. */
+.tpl-letter__recipient {
+  white-space: pre-line;
+}
+
+.tpl-letter__closing {
+  margin-top: 11pt;
+}
+
+.tpl-letter__signature {
+  margin-top: 22pt;
+}
+
+/*
+ * On paper the margins belong to the page, so a letter that runs to a second
+ * sheet has them there too. A padded box would give page two none.
+ */
+@page letter {
+  size: 8.5in 11in;
+  margin: 1in;
+}
+
+@media print {
+  .tpl-letter {
+    page: letter;
+    width: auto;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .tpl-letter p {
+    break-inside: avoid;
+  }
+}

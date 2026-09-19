@@ -28,11 +28,13 @@
  */
 import { createRoot } from 'react-dom/client';
 import { TemplateDocument } from '../TemplateDocument.js';
+import { LetterDocument } from '../letter/LetterDocument.js';
 import {
   EXPORT_PAGES_GLOBAL,
   EXPORT_PAYLOAD_GLOBAL,
   EXPORT_STATE_GLOBAL,
   PRINT_SHEET_GAP,
+  isLetterPayload,
   type ExportPayload,
   type ExportState,
 } from '@cvgs/core';
@@ -120,7 +122,21 @@ async function main(): Promise<void> {
    * doubling costs a second full pagination pass of a document whose whole job
    * is to be measured. The app mounts the same tree under StrictMode, so
    * anything it would catch is already caught where it can be acted on.
+   *
+   * A letter is one flowing column the browser breaks by itself — it has no
+   * paginator to wait for, only its fonts.
    */
+  if (isLetterPayload(payload)) {
+    createRoot(host).render(
+      <LetterDocument letter={payload.letter} date={payload.date} />,
+    );
+    await document.fonts.ready;
+    await frame();
+    window[EXPORT_PAGES_GLOBAL] = 1;
+    setState('ready');
+    return;
+  }
+
   createRoot(host).render(
     <TemplateDocument
       resume={payload.resume}

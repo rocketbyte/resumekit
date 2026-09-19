@@ -8,6 +8,7 @@
  * and ships the bundle as an opaque asset; it imports no template, no component
  * and no React, so no `scope:api → scope:templates` edge exists.
  */
+import type { CoverLetter } from './cover-letter.js';
 import type { ResumeObject } from './resume.js';
 import type { ResumePresentation } from './template.js';
 
@@ -29,10 +30,28 @@ export const EXPORT_PAGES_GLOBAL = '__CVGS_EXPORT_PAGES__';
  */
 export type ExportState = 'pending' | 'ready' | 'failed';
 
-/** Everything the browser needs to draw the document, and nothing else. */
-export interface ExportPayload {
+/** Everything the browser needs to draw a resume, and nothing else. */
+export interface ResumeExportPayload {
   resume: ResumeObject;
   presentation?: ResumePresentation;
+}
+
+/**
+ * Everything the browser needs to draw a cover letter. The date line arrives
+ * already written, so the file does not depend on the renderer's locale or
+ * clock.
+ */
+export interface LetterExportPayload {
+  letter: CoverLetter;
+  date: string;
+}
+
+export type ExportPayload = ResumeExportPayload | LetterExportPayload;
+
+export function isLetterPayload(
+  payload: ExportPayload,
+): payload is LetterExportPayload {
+  return 'letter' in payload;
 }
 
 /**

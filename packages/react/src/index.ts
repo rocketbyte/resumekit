@@ -26,6 +26,7 @@ export {
 
 /** A résumé drawn read-only, with a presentation applied. */
 export { TemplateDocument } from './TemplateDocument.js';
+export { LetterDocument } from './letter/LetterDocument.js';
 
 /**
  * The résumé as it should be drawn — the writer's output plus the candidate's
