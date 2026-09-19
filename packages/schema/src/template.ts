@@ -46,7 +46,7 @@ export const TEMPLATES = {
   harvard: {
     name: 'Harvard',
     description:
-      'The classic single-column résumé: centred name block, rule-underlined ' +
+      'The classic single-column resume: centred name block, rule-underlined ' +
       'section headings, and two-column experience entries.',
     page: 'letter',
     columns: 1,
@@ -105,7 +105,7 @@ export const TEMPLATES = {
      * reading order, and `meridian.spec.tsx` holds the renderer to it.
      */
     ats: [
-      'Two columns — the résumé is written first, so extracted text reads it through before the sidebar',
+      'Two columns — the resume is written first, so extracted text reads it through before the sidebar',
       'No tables, images, or icon fonts carrying meaning',
       'Real selectable text, standard system typefaces',
       'Both bands are forced to print, so white-on-charcoal never vanishes',

@@ -142,7 +142,7 @@ export function EntryOverlay<T>({
           refusal ??
           (origin === 'added'
             ? `Remove this ${noun}`
-            : `Hide this ${noun} — it stays in your tailored résumé and can be brought back`)
+            : `Hide this ${noun} — it stays in your tailored resume and can be brought back`)
         }
         aria-label={
           origin === 'added'
