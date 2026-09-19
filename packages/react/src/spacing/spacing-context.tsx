@@ -9,6 +9,7 @@ import {
   type SectionSpaceId,
 } from '@cvgs/core';
 import { useDocumentFormats } from '../presentation-context.js';
+import { RailProvider } from '../rail/rail-store.js';
 
 /**
  * Which gap is being talked about.
@@ -57,7 +58,8 @@ export function DocumentSpacingProvider({
   );
   return (
     <SpacingContext.Provider value={published}>
-      {children}
+      {/* Adjustable gaps are reached through their containers' rails. */}
+      {onChange ? <RailProvider>{children}</RailProvider> : children}
     </SpacingContext.Provider>
   );
 }

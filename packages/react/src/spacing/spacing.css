@@ -1,7 +1,7 @@
 /*
  * Structural spacing: the gap between two parts of the document, as a control.
  *
- * Four rules govern everything here.
+ * Three rules govern everything here.
  *
  * The space is the element's own MARGIN, and nothing is rendered to hold it.
  * Padding would have been the same distance and a different thing — a role's
@@ -10,28 +10,23 @@
  * and an only-child parent that broke the `:first-of-type` and `+` rules the
  * templates space their entries with.
  *
- * The knob lives OUTSIDE the paper. Spacing is structural — it belongs to the
- * document rather than to whichever component sits below it — so the capability
- * has to be visible, or nobody finds it; and a résumé with furniture drawn
- * between its parts reads as a form. Out on the canvas it is neither: a quiet
- * column down the edge of the page saying every one of these gaps can be moved.
- * All on the LEFT, so it reads as one column rather than as a search.
+ * The control lives OUTSIDE the paper, in the container's rail (`rail.css`),
+ * which appears when the container is pointed at, focused or selected. A
+ * résumé with furniture drawn between its parts reads as a form; the rail sits
+ * on the canvas, and the gap itself is shown only while the control is used.
  *
- * The line is drawn across the gap only under the pointer, out from the knob,
- * so the animation says which gap is about to move.
- *
- * It is CHROME. `data-chrome` and the print rule at the foot drop it from paper
- * and from the export; the space the wrapper holds is document, and stays.
+ * It is CHROME, and the space it records is document: the rail never prints,
+ * the margin always does.
  */
 
 /*
- * How far past the paper's edge a knob stands, and therefore how much room the
- * flow has to reserve beside itself. Declared only where the knobs exist: a
- * document being read draws none, and `paged.css` defaults this to zero so that
- * surface is laid out exactly as it was.
+ * How far past the paper's edge a container's rail reaches, and therefore how
+ * much room the flow reserves beside itself (see `rail.css`). Declared only in
+ * the editor: a document being read draws no rail, and `paged.css` defaults
+ * this to zero so that surface is laid out exactly as it was.
  */
 .tpl-editor:not(.tpl-editor--static) {
-  --tpl-space-bleed: 14px;
+  --tpl-space-bleed: 56px;
 }
 
 /* ── The space: the element's own margin, and no element of its own ──────── */
@@ -142,223 +137,13 @@
   transition: margin-top 140ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/*
- * Except under the hand. A drag is direct manipulation: the gap has to be where
- * the pointer is, not easing towards where it was 140ms ago. The easing is for
- * a keypress and for the settle at the end of a drag, which are the changes
- * that would otherwise arrive as a flinch.
- */
-[data-spaced]:has(> .tpl-space[data-dragging]) {
+/* A drag follows the hand: the margin must not ease behind it. */
+[data-spaced]:has(> .tpl-rail .tpl-rail__space[data-dragging]) {
   transition: none;
 }
 
-.tpl-space {
-  position: absolute;
-  left: 0;
-  right: 0;
-  /*
-   * The strip's BOTTOM edge is the top of the element, and the line is drawn
-   * along that edge — so everything a drag adds accumulates ABOVE the line and
-   * the block stays against it, which is what "space above this" means and what
-   * the pointer is doing. With the line centred, dragging down opened space
-   * above it and below it, and the block floated somewhere underneath.
-   *
-   * `bottom: 100%` puts it exactly there and nowhere else: the strip lives
-   * entirely in the margin, so it takes no clicks from the first line of the
-   * element and occupies none of its box.
-   */
-  bottom: 100%;
-  /*
-   * The reach. Taller than the line it draws, so the gap answers before the
-   * pointer is exactly on it — a 2px target is a target nobody hits — and never
-   * so tall that it reaches the text above. A gap already wider than that is
-   * grabbable along its whole height.
-   */
-  height: max(var(--tpl-space-height, 0px), var(--tpl-space-reach, 14px));
-  /*
-   * Above the text it sits over, below the entry overlay, which is the control
-   * for the thing rather than for the space above it.
-   */
-  z-index: 2;
-  display: block;
-  /* Nothing here is text. */
-  user-select: none;
-}
-
-/*
- * The grip reaches OUT OF THE PAGE on the left, so the knob on the canvas and
- * the gap on the paper are one target: the icon can be dragged, and so can the
- * space beside it.
- *
- * The distance is the page's own side margin plus a bleed past its edge, both
- * declared by the template — `spacing.css` cannot know how wide a given
- * template's margin is, and a fixed number would put the knob inside the text
- * on one template and off the canvas on another.
- */
-.tpl-space__grip {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(
-    -1 * (var(--tpl-space-margin, 24px) + var(--tpl-space-bleed, 14px))
-  );
-  right: 0;
-  cursor: ns-resize;
-  background: none;
-  border: 0;
-  padding: 0;
-}
-
-/* ── The knob ────────────────────────────────────────────────────────────── */
-
-/*
- * The one thing that is visible before anybody goes looking.
- *
- * OUTSIDE the paper, never over the text: it is the workshop's furniture rather
- * than the document's, and a résumé has to read as a résumé while it is being
- * written. Faint at rest, so a column of them is an invitation and not a ruler.
- *
- * Sitting ON the line, which is the top edge of the block below — so the knob is
- * where the boundary is, and dragging it moves that boundary.
- */
-.tpl-space__knob {
-  position: absolute;
-  /*
-   * At the far left of the grip, which reaches past the page's own margin and
-   * out onto the canvas — see `--tpl-space-bleed`.
-   */
-  left: 0;
-  bottom: 0;
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  background: var(--tpl-accent, currentColor);
-  /* A ring in the paper's own colour, so a knob that lands beside a rule or a
-     page edge still reads as a separate object. */
-  box-shadow: 0 0 0 2px var(--tpl-paper, #fff);
-  transform: translateY(50%) scale(0.8);
-  opacity: 0.32;
-  transition:
-    opacity 160ms ease,
-    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-/* ── The line ────────────────────────────────────────────────────────────── */
-
-/*
- * Drawn only under the pointer, and drawn OUT FROM THE KNOB, so the animation
- * says which boundary is about to move.
- *
- * Along the BOTTOM of the strip, which is the top of the block: the space a
- * drag adds opens above this line, and the block stays against it.
- */
-.tpl-space__line {
-  position: absolute;
-  bottom: 0;
-  /* From just inside the knob to the far edge of the text column. */
-  left: calc(var(--tpl-space-reach, 14px) + 4px);
-  right: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--tpl-line, currentColor);
-  opacity: 0;
-  transform: translateY(50%) scaleX(0);
-  transform-origin: left center;
-  transition:
-    opacity 160ms ease,
-    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-/* ── The readout ─────────────────────────────────────────────────────────── */
-
-/*
- * What this gap is worth, in the template's own steps.
- *
- * An ATTRIBUTE the stylesheet draws, never a text node: a handle sits in every
- * gap, so a word in one of these is a word in the résumé's own text — it would
- * ride along with a candidate's copy-and-paste and be read back by anything
- * parsing the page. The slider's accessible name says the same thing properly.
- */
-.tpl-space__readout::after {
-  content: attr(data-readout);
-}
-
-.tpl-space__readout {
-  position: absolute;
-  bottom: 0;
-  z-index: 1;
-  font:
-    600 10px/1 ui-sans-serif,
-    system-ui,
-    sans-serif;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-  color: var(--tpl-chrome-ink, currentColor);
-  background: var(--tpl-chrome, #fff);
-  box-shadow: 0 1px 3px rgb(var(--tpl-chrome-line, 0 0 0) / 0.16);
-  border-radius: 999px;
-  padding: 3px 7px;
-  opacity: 0;
-  transform: translateY(50%) scale(0.9);
-  transition:
-    opacity 160ms ease,
-    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-/* Beside its own knob, on whichever side that is. */
-/* ── Engaged ─────────────────────────────────────────────────────────────── */
-
-/* Approached, focused, or being dragged — the three ways it becomes real. */
-.tpl-space:hover .tpl-space__knob,
-.tpl-space__grip:focus-visible .tpl-space__knob,
-.tpl-space[data-dragging] .tpl-space__knob {
-  opacity: 1;
-  transform: translateY(50%) scale(1);
-}
-
-.tpl-space:hover .tpl-space__line,
-.tpl-space__grip:focus-visible .tpl-space__line,
-.tpl-space[data-dragging] .tpl-space__line {
-  opacity: 1;
-  transform: translateY(50%) scaleX(1);
-}
-
-.tpl-space:hover .tpl-space__readout,
-.tpl-space__grip:focus-visible .tpl-space__readout,
-.tpl-space[data-dragging] .tpl-space__readout {
-  opacity: 1;
-  transform: translateY(50%) scale(1);
-}
-
-/* A gap that already carries space says so without being hovered. */
-.tpl-space[data-set] .tpl-space__knob {
-  opacity: 0.75;
-  transform: translateY(50%) scale(1);
-}
-
-.tpl-space__grip:focus-visible {
-  outline: none;
-}
-
-.tpl-space__grip:focus-visible .tpl-space__knob {
-  box-shadow:
-    0 0 0 2px var(--tpl-paper, #fff),
-    0 0 0 4px var(--tpl-accent, currentColor);
-}
-
-/*
- * While dragging, the whole page keeps the resize cursor — otherwise it flicks
- * back to a text caret the moment the pointer leaves the strip it started in.
- */
-.tpl-space[data-dragging] {
-  cursor: ns-resize;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  [data-spaced],
-  .tpl-space__knob,
-  .tpl-space__line,
-  .tpl-space__readout {
+  [data-spaced] {
     transition: none;
   }
 }
@@ -372,8 +157,3 @@
  * happens from the EDITOR too — the PDF export is `window.print()` — so hiding
  * this on the read-only document would be only half the rule.
  */
-@media print {
-  .tpl-space {
-    display: none !important;
-  }
-}

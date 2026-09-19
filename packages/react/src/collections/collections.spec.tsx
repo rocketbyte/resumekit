@@ -652,9 +652,9 @@ describe('the chrome is chrome', () => {
     for (const entry of entries) {
       expect(entry.parentElement?.className).toContain('tpl-harvard__section');
     }
-    /* And the overlay sits INSIDE the entry it acts on, not in a wrapper. */
+    /* And its rail sits INSIDE the entry it acts on, not in a wrapper. */
     const selected = container.querySelector('[data-selected]');
-    expect(selected?.querySelector('.tpl-entry-overlay')).not.toBeNull();
+    expect(selected?.querySelector('.tpl-rail')).not.toBeNull();
   });
 
   /**

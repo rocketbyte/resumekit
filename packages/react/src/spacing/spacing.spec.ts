@@ -15,6 +15,8 @@ import { describe, expect, it } from 'vitest';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const css = readFileSync(join(HERE, 'spacing.css'), 'utf8');
+/* The control lives in the container's rail (builder-element-rail). */
+const railCss = readFileSync(join(HERE, '..', 'rail', 'rail.css'), 'utf8');
 
 /**
  * The body of one rule, with its comments stripped.
@@ -23,41 +25,31 @@ const css = readFileSync(join(HERE, 'spacing.css'), 'utf8');
  * explains at length why it does not use padding, and a naive search would
  * find the word and call it a padding.
  */
-function rule(selector: string): string {
-  const at = css.indexOf(`${selector} {`);
+function rule(selector: string, sheet = css): string {
+  const at = sheet.indexOf(`${selector} {`);
   expect(at, `${selector} exists`).toBeGreaterThan(-1);
-  return css.slice(at, css.indexOf('}', at)).replace(/\/\*[\s\S]*?\*\//g, '');
+  return sheet
+    .slice(at, sheet.indexOf('}', at))
+    .replace(/\/\*[\s\S]*?\*\//g, '');
 }
 
 describe('a gap is space ABOVE a block, not space around a line', () => {
-  it('anchors the strip so its bottom edge is the top of the block', () => {
+  it('shows the gap entirely above the block it belongs to', () => {
     /*
-     * The bug this replaced: with the strip centred on the gap, dragging down
-     * opened space above the line AND below it, so the block floated somewhere
-     * under the line the candidate was moving instead of sitting against it.
-     *
-     * `bottom: 100%` puts the strip entirely in the margin above the element,
-     * so it takes no clicks from the first line of it either.
+     * The bug this guards: a highlight centred on the boundary opened space
+     * above the line AND below it, so the block floated under the line the
+     * candidate was moving. `bottom: 100%` puts it wholly in the margin above.
      */
-    expect(rule('.tpl-space')).toMatch(/bottom:\s*100%/);
-    // And never the other anchoring, which is what centring needs.
-    expect(rule('.tpl-space')).not.toMatch(/\btop:\s/);
+    expect(rule('.tpl-rail-gap', railCss)).toMatch(/bottom:\s*100%/);
+    expect(rule('.tpl-rail-gap', railCss)).not.toMatch(/(?:^|[\s;{])top:\s/m);
   });
 
-  it('draws the line, the knob and the readout on that bottom edge', () => {
-    // All three mark the same boundary, so all three sit on it.
-    for (const selector of [
-      '.tpl-space__line',
-      '.tpl-space__knob',
-      '.tpl-space__readout',
-    ]) {
-      expect(rule(selector), `${selector} sits on the boundary`).toMatch(
-        /bottom:\s*0/,
-      );
-      expect(rule(selector), `${selector} is not centred`).not.toMatch(
-        /top:\s*50%/,
-      );
-    }
+  it('centres the rail on the container it acts on', () => {
+    // Beside the sheet, on the container's vertical middle.
+    const rail = rule('.tpl-rail', railCss);
+    expect(rail).toMatch(/top:\s*50%/);
+    expect(rail).toMatch(/transform:\s*translateY\(-50%\)/);
+    expect(rail).toMatch(/right:\s*calc\(100%/);
   });
 
   it('renders no element to hold the space', () => {
@@ -79,7 +71,9 @@ describe('a gap is space ABOVE a block, not space around a line', () => {
     expect(rule('[data-spaced]')).not.toMatch(
       /(^|[\s;])(padding|border|height)\s*:/,
     );
-    expect(rule('.tpl-space')).toMatch(/position:\s*absolute/);
+    // The control and the gap it shows occupy no layout.
+    expect(rule('.tpl-rail', railCss)).toMatch(/position:\s*absolute/);
+    expect(rule('.tpl-rail-gap', railCss)).toMatch(/position:\s*absolute/);
   });
 
   it('keeps a gap from swallowing a page break', () => {
@@ -146,8 +140,12 @@ describe('a gap is space ABOVE a block, not space around a line', () => {
   });
 
   it('leaves the control off the printed page and the space on it', () => {
-    // The split the whole design rests on.
-    expect(css).toMatch(/@media print \{\s*\.tpl-space \{\s*display: none/);
+    // The split the whole design rests on: the rail and the gap it shows are
+    // chrome, and the margin that holds the space is not.
+    expect(railCss).toMatch(
+      /@media print \{\s*\.tpl-rail,\s*\.tpl-rail-gap \{\s*display: none/,
+    );
+    expect(css).not.toMatch(/@media print[\s\S]*\[data-spaced\]/);
   });
 });
 

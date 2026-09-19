@@ -9,6 +9,7 @@ import {
 import { documentShapeKey } from '@cvgs/core';
 import type { ResumeEdits, ResumeObject } from '@cvgs/core';
 import { EntrySelectionProvider } from './selection-context.js';
+import { RailProvider } from '../rail/rail-store.js';
 import { DocumentOverlayProvider } from './overlay-context.js';
 
 /**
@@ -111,7 +112,9 @@ export function DocumentAuthoringProvider({
          * the whole document, so choosing a qualification puts away the role's
          * overlay.
          */}
-        <EntrySelectionProvider>{children}</EntrySelectionProvider>
+        <RailProvider>
+          <EntrySelectionProvider>{children}</EntrySelectionProvider>
+        </RailProvider>
       </DocumentOverlayProvider>
     </AuthoringContext.Provider>
   );

@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { isUnfilled } from '@cvgs/core';
 import { useAuthoring } from './authoring-context.js';
-import { useSpaceSlot } from '../spacing/SpaceHandle.js';
+import { useSpaceSlot } from '../spacing/useSpaceSlot.js';
 import type { ItemOrigin } from './EntryOverlay.js';
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';

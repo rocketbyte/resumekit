@@ -3,7 +3,10 @@ import { COLLECTIONS } from '@cvgs/core';
 import { EntryOverlay } from './EntryOverlay.js';
 import { SortableItems, useDragHandle } from './SortableItems.js';
 import { useEntrySelection } from './selection-context.js';
-import { useSpaceSlot } from '../spacing/SpaceHandle.js';
+import { useSpaceSlot } from '../spacing/useSpaceSlot.js';
+import { ContainerRail } from '../rail/ContainerRail.js';
+import { EntryActions } from '../rail/EntryActions.js';
+import { RAIL_KEY } from '../rail/rail-store.js';
 import type {
   CollectionItemsProps,
   ItemProps,
@@ -47,36 +50,49 @@ function AuthoredItem<T>({
    */
   const space = useSpaceSlot({ path }, `${noun} ${index + 1}`);
 
+  /*
+   * A CONTAINER — a role, a school, a skills group, a custom section — carries
+   * one rail beside the sheet with the space above it and its own actions. A
+   * bullet or an inline item sits inside a line of the document, where a rail in
+   * the margin could not point at it, so it keeps its compact toolbar.
+   */
+  const shape = COLLECTIONS[collection.id].shape;
+  const container = shape === 'entry' || shape === 'section';
+  const railKey = `e:${id}`;
+  const itemLabel = `${label} · ${noun.charAt(0).toUpperCase()}${noun.slice(1)} ${index + 1}`;
+
   const element = children({
     item: collection.items[index] as T,
     path,
     index,
     /*
-     * The overlay is rendered only for the selected entry. Every entry is
-     * outlined at rest — that is what says the document can be edited — but the
-     * actions belong to the one region the candidate is working on, or the page
-     * would be a wall of toolbars.
+     * Chrome, absolutely positioned, no layout. A container's rail exists only
+     * while it is pointed at, focused or selected; a line item's toolbar only
+     * while it is selected — or the page would be a wall of controls.
      */
-    /*
-     * The gap's handle rides in the same slot the entry's own controls do:
-     * chrome, absolutely positioned, no layout. Unlike the overlay it is always
-     * present — an entry does not have to be selected before the gap above it
-     * can be moved, because the gap is what the candidate is pointing at.
-     */
-    chrome: (
-      <>
-        {gap ? space.handle : null}
-        {selected ? (
-          <EntryOverlay
-            collection={collection}
-            index={index}
-            noun={noun}
-            label={label}
-            handleProps={sortable ? handleProps : undefined}
-          />
-        ) : null}
-      </>
-    ),
+    chrome: container ? (
+      <ContainerRail
+        railKey={railKey}
+        toolbarLabel={`${itemLabel} — editing actions`}
+        selected={selected}
+        space={gap ? { target: { path }, label: `${noun} ${index + 1}` } : null}
+      >
+        <EntryActions
+          collection={collection}
+          index={index}
+          noun={noun}
+          handleProps={sortable ? handleProps : undefined}
+        />
+      </ContainerRail>
+    ) : selected ? (
+      <EntryOverlay
+        collection={collection}
+        index={index}
+        noun={noun}
+        label={label}
+        handleProps={sortable ? handleProps : undefined}
+      />
+    ) : null,
     /* Whether this is the entry the candidate just asked for — see
        `SectionCollectionHandle.justAdded`. */
     justAdded: collection.justAdded?.(index) ?? false,
@@ -99,6 +115,7 @@ function AuthoredItem<T>({
        */
       'data-entry': COLLECTIONS[collection.id].shape,
       'data-entry-label': `${noun} ${index + 1}`,
+      ...(container ? { [RAIL_KEY]: railKey } : {}),
       ...(selected ? { 'data-selected': '' } : {}),
       /*
        * Selecting on click and NOT stopping the event. A click on a job title

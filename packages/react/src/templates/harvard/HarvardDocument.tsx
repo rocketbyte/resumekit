@@ -13,7 +13,7 @@ import { EditableText } from '../../nodes/EditableText.js';
 import { EditableInlineList } from '../../nodes/EditableInlineList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
-import { useSpaceSlot } from '../../spacing/SpaceHandle.js';
+import { useSpaceSlot } from '../../spacing/useSpaceSlot.js';
 import { LinkField } from '../../nodes/LinkField.js';
 import {
   HarvardCustomEntry,
