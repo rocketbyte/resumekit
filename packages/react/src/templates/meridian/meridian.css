@@ -231,14 +231,23 @@
 
 .tpl-mer__aside {
   min-width: 0;
+  /* Against the page's right edge, so its rails stand in the right margin. */
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
   padding-left: calc(21pt * var(--m-scale));
   border-left: 0.75pt solid var(--m-ink);
 }
 
 /* ── Sections ───────────────────────────────────────────────────────────── */
 
+.tpl-mer__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
 .tpl-mer__section + .tpl-mer__section {
-  margin-top: calc(20pt * var(--m-scale) * var(--m-density));
+  margin-top: calc(
+    20pt * var(--m-scale) * var(--m-density) + var(--tpl-space-height, 0px)
+  );
 }
 
 .tpl-mer__heading {
@@ -281,7 +290,9 @@
 /* ── Entries ────────────────────────────────────────────────────────────── */
 
 .tpl-mer__entry {
-  margin-top: calc(11pt * var(--m-scale) * var(--m-density));
+  margin-top: calc(
+    11pt * var(--m-scale) * var(--m-density) + var(--tpl-space-height, 0px)
+  );
   break-inside: avoid;
 
   /*
@@ -294,8 +305,10 @@
   --tpl-ring-room: 15px;
 }
 
+/* The heading's own margin, restated: the two collapse, so the gap is added
+   to it rather than lost inside it. */
 .tpl-mer__entry:first-of-type {
-  margin-top: 0;
+  margin-top: calc(8pt * var(--m-scale) + var(--tpl-space-height, 0px));
 }
 
 .tpl-mer__entry-line,

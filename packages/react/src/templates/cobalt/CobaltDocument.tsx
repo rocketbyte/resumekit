@@ -1,25 +1,22 @@
-import type { CSSProperties } from 'react';
-import {
-  DENSITIES,
-  DOCUMENT_FONTS,
-  INK_COLORS,
-  type DocumentStyle,
-  type ResumeObject,
-  PLACEHOLDERS,
-} from '@cvgs/core';
+import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { LinkField } from '../../nodes/LinkField.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
+import { useDocumentStyle } from '../../presentation-context.js';
+import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
+import { DocumentSection } from '../../kit/DocumentSection.js';
+import { contactLines } from '../../kit/contact.js';
+import { documentStyle } from '../../kit/documentStyle.js';
+import { monogram } from '../../kit/monogram.js';
+import { isLanguages } from '../skills.js';
 import {
   CobaltCustomEntry,
   CobaltEducationEntry,
   CobaltExperienceEntry,
 } from './entries.js';
-import { useDocumentStyle } from '../../presentation-context.js';
-import { isLanguages } from '../skills.js';
 import './cobalt.css';
 
 /**
@@ -59,21 +56,6 @@ import './cobalt.css';
  */
 
 /**
- * The crest's initials, derived from the name rather than stored.
- *
- * Not separately editable, for the reason Executive and Meridian both give: a
- * monogram that can disagree with the name beside it is a defect waiting to be
- * shipped.
- */
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '';
-  const first = parts[0][0] ?? '';
-  const last = parts.length > 1 ? (parts[parts.length - 1][0] ?? '') : '';
-  return (first + last).toUpperCase();
-}
-
-/**
  * The crest: a regular hexagon, flat top and bottom, 107 × 93pt — measured off
  * the reference, where its top edge runs 53pt and its left and right vertices
  * are 107pt apart.
@@ -91,33 +73,6 @@ function initials(name: string): string {
 const CREST_POLYGON =
   '27.18,0.92 79.82,0.92 106.13,46.5 79.82,92.08 27.18,92.08 0.87,46.5';
 
-/**
- * The document style reaches the page as custom properties on the template
- * root, which every rule in `cobalt.css` already reads.
- *
- * `--c-font` is the BODY face only. The display face is the template's own
- * serif and is not written here, because the serif-over-sans pairing is the
- * design rather than a default — see `design.md`, decision 4.
- *
- * `accent` and `density` are resolved here from the start rather than
- * retrofitted: `document-styling` (#36) requires a template to resolve them
- * through its own stylesheet, and because #36 is ordered first it can only name
- * the templates that existed when it was written. Absent means the template's
- * own values, which is what every stored document carries today.
- */
-function documentStyle(style: DocumentStyle | undefined): CSSProperties {
-  if (!style) return {};
-  return {
-    '--c-font': DOCUMENT_FONTS[style.font].stack,
-    '--c-ink': INK_COLORS[style.ink].hex,
-    '--c-scale': String(style.scale),
-    ...(style.accent ? { '--c-accent': INK_COLORS[style.accent].hex } : {}),
-    ...(style.density
-      ? { '--c-density': String(DENSITIES[style.density].factor) }
-      : {}),
-  } as CSSProperties;
-}
-
 export interface CobaltDocumentProps {
   resume: ResumeObject;
 }
@@ -133,25 +88,18 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
   const authoring = useAuthoring() !== null;
 
   const languages = resume.skills.filter(isLanguages);
-  const technical = resume.skills
-    .map((group, index) => ({ group, index }))
-    .filter(({ group }) => !isLanguages(group));
 
   // The reference stacks email, phone, location, in that order.
-  const contact = (
-    [
-      resume.contact.email && ('contact.email' as const),
-      resume.contact.phone && ('contact.phone' as const),
-      resume.contact.location && ('contact.location' as const),
-    ] as const
-  ).filter(Boolean) as (
-    'contact.email' | 'contact.phone' | 'contact.location'
-  )[];
+  const contact = contactLines(
+    resume.contact,
+    ['email', 'phone', 'location'],
+    authoring,
+  );
 
   return (
     <article
       className="tpl-cob"
-      style={documentStyle(style)}
+      style={documentStyle('c', style)}
       aria-label="Resume document"
     >
       {/* ── Header: crest, name, contact ─────────────────────────────────── */}
@@ -173,7 +121,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
           {/* Real HTML text over the outline, not `<text>` inside it — so the
               initials are selectable and extract with the rest of the page. */}
           <p className="tpl-cob__initials" aria-hidden="true">
-            {initials(resume.name)}
+            {monogram(resume.name)}
           </p>
         </div>
 
@@ -183,15 +131,12 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
 
         {contact.length > 0 && (
           <div className="tpl-cob__contact">
-            {contact.map((path) => (
+            {contact.map(({ path, value, placeholder }) => (
               <p key={path} className="tpl-cob__contact-item">
                 <EditableText
                   path={path}
-                  value={String(
-                    resume.contact[
-                      path.split('.')[1] as keyof typeof resume.contact
-                    ] ?? '',
-                  )}
+                  value={value}
+                  placeholder={placeholder}
                 />
               </p>
             ))}
@@ -207,10 +152,12 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
          */}
         <div className="tpl-cob__rail" data-flow>
           {(resume.summary || authoring) && (
-            <section className="tpl-cob__section">
-              <h2 className="tpl-cob__heading" data-block data-keep-with-next>
-                Professional Summary
-              </h2>
+            <DocumentSection
+              id="summary"
+              title="Professional Summary"
+              className="tpl-cob__section"
+              headingClassName="tpl-cob__heading"
+            >
               <p className="tpl-cob__prose" data-block>
                 <EditableText
                   path="summary"
@@ -219,33 +166,42 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
                   multiline
                 />
               </p>
-            </section>
+            </DocumentSection>
           )}
 
-          {technical.length > 0 && (
-            <section className="tpl-cob__section">
-              <h2 className="tpl-cob__heading" data-block data-keep-with-next>
-                Technical Skills
-              </h2>
+          {(resume.skills.length > languages.length || authoring) && (
+            <DocumentSection
+              id="skills"
+              title="Technical Skills"
+              className="tpl-cob__section"
+              headingClassName="tpl-cob__heading"
+            >
               {/* Split: a keyword rail is a list, and it breaks between two
                   skills. As one block it is taller than the paper. */}
               <div data-block data-split>
-                {technical.map(({ group, index }) => (
-                  <EditableBulletList
-                    key={index}
-                    path={`skills.${index}.items`}
-                    items={group.items}
-                  />
-                ))}
+                <Collection section="skills" items={resume.skills} gap={false}>
+                  {({ item, path, chrome, itemProps }) =>
+                    isLanguages(item) ? null : (
+                      <BulletSkillGroup
+                        item={item}
+                        path={path}
+                        chrome={chrome}
+                        itemProps={itemProps}
+                      />
+                    )
+                  }
+                </Collection>
               </div>
-            </section>
+            </DocumentSection>
           )}
 
           {(resume.education.length > 0 || authoring) && (
-            <section className="tpl-cob__section">
-              <h2 className="tpl-cob__heading" data-block data-keep-with-next>
-                Education
-              </h2>
+            <DocumentSection
+              id="education"
+              title="Education"
+              className="tpl-cob__section"
+              headingClassName="tpl-cob__heading"
+            >
               <Collection section="education" items={resume.education}>
                 {({ item, path, chrome, itemProps }) => (
                   <CobaltEducationEntry
@@ -256,31 +212,35 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
                   />
                 )}
               </Collection>
-            </section>
+            </DocumentSection>
           )}
 
           {resume.certifications.length > 0 && (
-            <section className="tpl-cob__section">
-              <h2 className="tpl-cob__heading" data-block data-keep-with-next>
-                Certifications
-              </h2>
+            <DocumentSection
+              id="certifications"
+              title="Certifications"
+              className="tpl-cob__section"
+              headingClassName="tpl-cob__heading"
+            >
               <div data-block data-split>
                 <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
                 />
               </div>
-            </section>
+            </DocumentSection>
           )}
         </div>
 
         {/* ── The wide column ──────────────────────────────────────────── */}
         <div className="tpl-cob__main" data-flow>
           {(resume.experience.length > 0 || authoring) && (
-            <section className="tpl-cob__section">
-              <h2 className="tpl-cob__heading" data-block data-keep-with-next>
-                Experience
-              </h2>
+            <DocumentSection
+              id="experience"
+              title="Experience"
+              className="tpl-cob__section"
+              headingClassName="tpl-cob__heading"
+            >
               <Collection section="experience" items={resume.experience}>
                 {({ item, path, chrome, itemProps }) => (
                   <CobaltExperienceEntry
@@ -291,7 +251,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
                   />
                 )}
               </Collection>
-            </section>
+            </DocumentSection>
           )}
 
           {languages.length > 0 && (

@@ -19,6 +19,8 @@
    * against does.
    */
   --tpl-space-unit: calc(2pt * var(--e-scale) * var(--e-density, 1));
+  /* This template's own side margin — see `rail.css`. */
+  --tpl-space-margin: calc(30pt * var(--e-scale));
 
   --e-scale: 1;
   /*
@@ -175,13 +177,23 @@
     calc(24pt * var(--e-scale));
 }
 
+/*
+ * The rhythm is a TOP margin between sections, so the space a candidate records
+ * above one adds to it. As a bottom margin it collapsed with the recorded one
+ * and nothing moved until the gap outgrew it.
+ */
 .tpl-exec__section {
   padding-bottom: calc(10pt * var(--e-scale));
-  margin-bottom: calc(10pt * var(--e-scale));
+  margin-top: var(--tpl-space-height, 0px);
   border-bottom: 0.6pt solid var(--e-rule);
 }
 
+.tpl-exec__section + .tpl-exec__section {
+  margin-top: calc(10pt * var(--e-scale) + var(--tpl-space-height, 0px));
+}
+
 .tpl-exec__section:last-child {
+  margin-bottom: calc(10pt * var(--e-scale));
   border-bottom: 0;
 }
 
@@ -225,7 +237,9 @@
 /* ── Entries ────────────────────────────────────────────────────────────── */
 
 .tpl-exec__entry {
-  margin-top: calc(8pt * var(--e-scale) * var(--e-density));
+  margin-top: calc(
+    8pt * var(--e-scale) * var(--e-density) + var(--tpl-space-height, 0px)
+  );
 
   /*
    * The narrowest page margin of the four — 30pt, and it scales with the
@@ -237,8 +251,10 @@
   break-inside: avoid;
 }
 
+/* The heading's own margin, restated: the two collapse, so the gap is added
+   to it rather than lost inside it. */
 .tpl-exec__entry:first-of-type {
-  margin-top: 0;
+  margin-top: calc(7pt * var(--e-scale) + var(--tpl-space-height, 0px));
 }
 
 .tpl-exec__entry-head {

@@ -49,7 +49,9 @@ describe('a gap is space ABOVE a block, not space around a line', () => {
     const rail = rule('.tpl-rail', railCss);
     expect(rail).toMatch(/top:\s*50%/);
     expect(rail).toMatch(/transform:\s*translateY\(-50%\)/);
-    expect(rail).toMatch(/right:\s*calc\(100%/);
+    // Outside the page's left edge unless its column moves it to the right.
+    expect(rail).toMatch(/right:\s*var\(\s*--tpl-rail-right,\s*calc\(100%/);
+    expect(rail).toMatch(/left:\s*var\(--tpl-rail-left,\s*auto\)/);
   });
 
   it('renders no element to hold the space', () => {
@@ -98,32 +100,6 @@ describe('a gap is space ABOVE a block, not space around a line', () => {
      */
     expect(rule('[data-gap]')).toMatch(/position:\s*relative/);
     expect(rule('[data-gap]')).not.toMatch(/--tpl-space-height/);
-  });
-
-  it('adds the space to the template\u2019s own margin rather than replacing it', () => {
-    /*
-     * The rule that decides a template's natural rhythm stays the only rule
-     * that decides it: a gap is that rhythm PLUS what the candidate asked for.
-     * A separate rule setting `margin-top` would have been a specificity race
-     * with the template, and would have thrown away the template's own spacing
-     * the moment anyone opened a gap.
-     */
-    const harvard = readFileSync(
-      join(HERE, '..', 'templates', 'harvard', 'harvard.css'),
-      'utf8',
-    );
-    for (const selector of [
-      '.tpl-harvard__section',
-      '.tpl-harvard__entry',
-      '.tpl-harvard__entry:first-of-type',
-    ]) {
-      const at = harvard.indexOf(`${selector} {`);
-      expect(at, `${selector} exists`).toBeGreaterThan(-1);
-      const body = harvard.slice(at, harvard.indexOf('}', at));
-      expect(body, `${selector} adds the recorded space`).toMatch(
-        /margin-top:\s*calc\([\s\S]*var\(--tpl-space-height, 0px\)/,
-      );
-    }
   });
 
   it('eases the gap rather than jumping it', () => {

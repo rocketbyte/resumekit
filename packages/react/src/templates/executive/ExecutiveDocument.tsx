@@ -1,25 +1,22 @@
-import type { CSSProperties } from 'react';
-import {
-  DENSITIES,
-  DOCUMENT_FONTS,
-  INK_COLORS,
-  type DocumentStyle,
-  type ResumeObject,
-  type SkillGroup,
-  PLACEHOLDERS,
-} from '@cvgs/core';
+import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { LinkField } from '../../nodes/LinkField.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
+import { useDocumentStyle } from '../../presentation-context.js';
+import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
+import { DocumentSection } from '../../kit/DocumentSection.js';
+import { contactLines } from '../../kit/contact.js';
+import { documentStyle } from '../../kit/documentStyle.js';
+import { monogram } from '../../kit/monogram.js';
+import { isLanguages } from '../skills.js';
 import {
   ExecCustomEntry,
   ExecEducationEntry,
   ExecExperienceEntry,
 } from './entries.js';
-import { useDocumentStyle } from '../../presentation-context.js';
 import './executive.css';
 
 /**
@@ -37,43 +34,6 @@ import './executive.css';
  * that names them. See `design.md`, decision 1.
  */
 
-/** Which skills group, if any, is the languages one. */
-function isLanguages(group: SkillGroup): boolean {
-  return /^\s*languages?\b/i.test(group.category);
-}
-
-/**
- * The monogram, derived from the name rather than stored.
- *
- * Not separately editable on purpose: a monogram that can disagree with the name
- * printed beside it is a defect waiting to be shipped.
- */
-function monogram(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '';
-  const first = parts[0][0] ?? '';
-  const last = parts.length > 1 ? (parts[parts.length - 1][0] ?? '') : '';
-  return (first + last).toUpperCase();
-}
-
-function documentStyle(style: DocumentStyle | undefined): CSSProperties {
-  if (!style) return {};
-  return {
-    '--e-font': DOCUMENT_FONTS[style.font].stack,
-    '--e-ink': INK_COLORS[style.ink].hex,
-    '--e-scale': String(style.scale),
-    /*
-     * Absent means the template's own — `document-styling` (#36) requires a
-     * document that sets neither to render exactly as the template defines it,
-     * so these are written only when the candidate has chosen.
-     */
-    ...(style.accent ? { '--e-accent': INK_COLORS[style.accent].hex } : {}),
-    ...(style.density
-      ? { '--e-density': String(DENSITIES[style.density].factor) }
-      : {}),
-  } as CSSProperties;
-}
-
 export interface ExecutiveDocumentProps {
   resume: ResumeObject;
 }
@@ -89,19 +49,13 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
   const authoring = useAuthoring() !== null;
 
   const languages = resume.skills.filter(isLanguages);
-  const technical = resume.skills
-    .map((group, index) => ({ group, index }))
-    .filter(({ group }) => !isLanguages(group));
-
-  const contact = [
-    resume.contact.email && { path: 'contact.email' as const },
-    resume.contact.phone && { path: 'contact.phone' as const },
-  ].filter(Boolean) as { path: 'contact.email' | 'contact.phone' }[];
+  const [location] = contactLines(resume.contact, ['location'], authoring);
+  const contact = contactLines(resume.contact, ['email', 'phone'], authoring);
 
   return (
     <article
       className="tpl-exec"
-      style={documentStyle(style)}
+      style={documentStyle('e', style)}
       aria-label="Resume document"
     >
       {/* ── Header band ──────────────────────────────────────────────────── */}
@@ -115,26 +69,24 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
             <EditableText path="name" value={resume.name} />
           </h1>
 
-          {resume.contact.location && (
+          {location && (
             <p className="tpl-exec__where">
               <EditableText
-                path="contact.location"
-                value={resume.contact.location}
+                path={location.path}
+                value={location.value}
+                placeholder={location.placeholder}
               />
             </p>
           )}
 
           {contact.length > 0 && (
             <p className="tpl-exec__contact">
-              {contact.map(({ path }) => (
+              {contact.map(({ path, value, placeholder }) => (
                 <span key={path} className="tpl-exec__contact-item">
                   <EditableText
                     path={path}
-                    value={String(
-                      resume.contact[
-                        path.split('.')[1] as keyof typeof resume.contact
-                      ] ?? '',
-                    )}
+                    value={value}
+                    placeholder={placeholder}
                   />
                 </span>
               ))}
@@ -145,10 +97,12 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
 
       <div className="tpl-exec__body">
         {(resume.summary || authoring) && (
-          <section className="tpl-exec__section">
-            <h2 className="tpl-exec__heading" data-block data-keep-with-next>
-              Professional Summary
-            </h2>
+          <DocumentSection
+            id="summary"
+            title="Professional Summary"
+            className="tpl-exec__section"
+            headingClassName="tpl-exec__heading"
+          >
             <p className="tpl-exec__prose" data-block>
               <EditableText
                 path="summary"
@@ -157,36 +111,45 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
                 multiline
               />
             </p>
-          </section>
+          </DocumentSection>
         )}
 
-        {technical.length > 0 && (
-          <section className="tpl-exec__section">
-            <h2 className="tpl-exec__heading" data-block data-keep-with-next>
-              Technical Skills
-            </h2>
+        {(resume.skills.length > languages.length || authoring) && (
+          <DocumentSection
+            id="skills"
+            title="Technical Skills"
+            className="tpl-exec__section"
+            headingClassName="tpl-exec__heading"
+          >
             {/*
              * Two VISUAL columns over one list per group: CSS columns leave the
              * DOM — and therefore the text a parser extracts — in document
              * order. Structural columns would not.
              */}
             <div className="tpl-exec__columns" data-block>
-              {technical.map(({ group, index }) => (
-                <EditableBulletList
-                  key={index}
-                  path={`skills.${index}.items`}
-                  items={group.items}
-                />
-              ))}
+              <Collection section="skills" items={resume.skills} gap={false}>
+                {({ item, path, chrome, itemProps }) =>
+                  isLanguages(item) ? null : (
+                    <BulletSkillGroup
+                      item={item}
+                      path={path}
+                      chrome={chrome}
+                      itemProps={itemProps}
+                    />
+                  )
+                }
+              </Collection>
             </div>
-          </section>
+          </DocumentSection>
         )}
 
         {(resume.experience.length > 0 || authoring) && (
-          <section className="tpl-exec__section">
-            <h2 className="tpl-exec__heading" data-block data-keep-with-next>
-              Experience
-            </h2>
+          <DocumentSection
+            id="experience"
+            title="Experience"
+            className="tpl-exec__section"
+            headingClassName="tpl-exec__heading"
+          >
             <Collection section="experience" items={resume.experience}>
               {({ item, path, chrome, itemProps }) => (
                 <ExecExperienceEntry
@@ -197,14 +160,16 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
                 />
               )}
             </Collection>
-          </section>
+          </DocumentSection>
         )}
 
         {(resume.education.length > 0 || authoring) && (
-          <section className="tpl-exec__section">
-            <h2 className="tpl-exec__heading" data-block data-keep-with-next>
-              Education
-            </h2>
+          <DocumentSection
+            id="education"
+            title="Education"
+            className="tpl-exec__section"
+            headingClassName="tpl-exec__heading"
+          >
             <Collection section="education" items={resume.education}>
               {({ item, path, chrome, itemProps }) => (
                 <ExecEducationEntry
@@ -215,7 +180,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
                 />
               )}
             </Collection>
-          </section>
+          </DocumentSection>
         )}
 
         {languages.length > 0 && (
@@ -239,17 +204,19 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
         )}
 
         {resume.certifications.length > 0 && (
-          <section className="tpl-exec__section">
-            <h2 className="tpl-exec__heading" data-block data-keep-with-next>
-              Certifications
-            </h2>
+          <DocumentSection
+            id="certifications"
+            title="Certifications"
+            className="tpl-exec__section"
+            headingClassName="tpl-exec__heading"
+          >
             <div data-block>
               <EditableBulletList
                 path="certifications"
                 items={resume.certifications}
               />
             </div>
-          </section>
+          </DocumentSection>
         )}
 
         {(resume.headline || authoring) && (

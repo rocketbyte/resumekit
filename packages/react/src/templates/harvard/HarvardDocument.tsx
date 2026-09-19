@@ -1,19 +1,13 @@
-import type { CSSProperties } from 'react';
-import {
-  DENSITIES,
-  DOCUMENT_FONTS,
-  INK_COLORS,
-  PLACEHOLDERS,
-  type DocumentStyle,
-  type ResumeObject,
-} from '@cvgs/core';
+import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableInlineList } from '../../nodes/EditableInlineList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
-import { useSpaceSlot } from '../../spacing/useSpaceSlot.js';
+import { DocumentSection } from '../../kit/DocumentSection.js';
+import { contactLines } from '../../kit/contact.js';
+import { documentStyle } from '../../kit/documentStyle.js';
 import { LinkField } from '../../nodes/LinkField.js';
 import {
   HarvardCustomEntry,
@@ -43,30 +37,6 @@ export interface HarvardDocumentProps {
   resume: ResumeObject;
 }
 
-/**
- * The document style reaches the page as three custom properties on ONE element
- * — the template root — which every rule in `harvard.css` already reads. So the
- * stylesheet stays the only definition of how a Harvard resume looks, and no node
- * has to be handed a style to make a typeface change.
- */
-function documentStyle(style: DocumentStyle | undefined): CSSProperties {
-  if (!style) return {};
-  return {
-    '--h-font': DOCUMENT_FONTS[style.font].stack,
-    '--h-ink': INK_COLORS[style.ink].hex,
-    '--h-scale': String(style.scale),
-    /*
-     * Absent means the template's own — `document-styling` (#36) requires a
-     * document that sets neither to render exactly as the template defines it,
-     * so these are written only when the candidate has chosen.
-     */
-    ...(style.accent ? { '--h-accent': INK_COLORS[style.accent].hex } : {}),
-    ...(style.density
-      ? { '--h-density': String(DENSITIES[style.density].factor) }
-      : {}),
-  } as CSSProperties;
-}
-
 export function HarvardDocument({ resume }: HarvardDocumentProps) {
   // Live, for the reason `presentation-context.tsx` explains: a node prop would
   // be frozen at mount and no style change would ever appear.
@@ -79,45 +49,16 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
    */
   const authoring = useAuthoring() !== null;
 
-  /**
-   * The header's contact details.
-   *
-   * While the document is being AUTHORED all three are offered, filled or not,
-   * because an absent field is one a candidate cannot add: a résumé the writer
-   * produced without a phone number rendered no phone number, and there was
-   * nothing on the page saying one belonged there. Empty, each shows its
-   * placeholder — the same invitation an empty section gets.
-   *
-   * On paper only what was filled in survives, which is the same rule the
-   * sections follow and the reason the two lists are built separately rather
-   * than filtered at the point of rendering.
-   */
-  /*
-   * The gap above each section. Declared together and unconditionally, because
-   * a section is rendered only when it has something in it and a hook may not
-   * be called behind that condition. With no space recorded a slot is a marker
-   * and a handle that occupies no layout, so it costs nothing.
-   */
-  const sectionSpace = {
-    summary: useSpaceSlot({ section: 'summary' }, 'Professional Summary'),
-    experience: useSpaceSlot({ section: 'experience' }, 'Experience'),
-    education: useSpaceSlot({ section: 'education' }, 'Education'),
-    skills: useSpaceSlot({ section: 'skills' }, 'Technical Skills'),
-    certifications: useSpaceSlot(
-      { section: 'certifications' },
-      'Certifications',
-    ),
-  };
-
-  const CONTACT_FIELDS = ['location', 'email', 'phone'] as const;
-  const contact = CONTACT_FIELDS.filter(
-    (field) => authoring || resume.contact[field],
-  ).map((field) => ({ path: `contact.${field}`, field }));
+  const contact = contactLines(
+    resume.contact,
+    ['location', 'email', 'phone'],
+    authoring,
+  );
 
   return (
     <article
       className="tpl-harvard"
-      style={documentStyle(style)}
+      style={documentStyle('h', style)}
       aria-label="Resume document"
     >
       <header className="tpl-harvard__head" data-block>
@@ -139,12 +80,12 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
           <p className="tpl-harvard__contact">
             {/* The separator is drawn by CSS between siblings, so a detail the
                 writer did not have cannot leave a stray bar behind it. */}
-            {contact.map(({ path, field }) => (
+            {contact.map(({ path, value, placeholder }) => (
               <span key={path} className="tpl-harvard__contact-item">
                 <EditableText
                   path={path}
-                  value={String(resume.contact[field] ?? '')}
-                  placeholder={PLACEHOLDERS[field]}
+                  value={value}
+                  placeholder={placeholder}
                 />
               </span>
             ))}
@@ -200,18 +141,12 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
       </header>
 
       {(resume.summary || authoring) && (
-        <section
+        <DocumentSection
+          id="summary"
+          title="Professional Summary"
           className="tpl-harvard__section"
-          {...sectionSpace.summary.rootProps}
+          headingClassName="tpl-harvard__section-title"
         >
-          {sectionSpace.summary.handle}
-          <h2
-            className="tpl-harvard__section-title"
-            data-block
-            data-keep-with-next
-          >
-            Professional Summary
-          </h2>
           <p className="tpl-harvard__summary" data-block>
             <EditableText
               path="summary"
@@ -220,22 +155,16 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
               multiline
             />
           </p>
-        </section>
+        </DocumentSection>
       )}
 
       {(resume.experience.length > 0 || authoring) && (
-        <section
+        <DocumentSection
+          id="experience"
+          title="Experience"
           className="tpl-harvard__section"
-          {...sectionSpace.experience.rootProps}
+          headingClassName="tpl-harvard__section-title"
         >
-          {sectionSpace.experience.handle}
-          <h2
-            className="tpl-harvard__section-title"
-            data-block
-            data-keep-with-next
-          >
-            Experience
-          </h2>
           <Collection section="experience" items={resume.experience}>
             {({ item, path, chrome, itemProps }) => (
               <HarvardExperienceEntry
@@ -246,22 +175,16 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
               />
             )}
           </Collection>
-        </section>
+        </DocumentSection>
       )}
 
       {(resume.education.length > 0 || authoring) && (
-        <section
+        <DocumentSection
+          id="education"
+          title="Education"
           className="tpl-harvard__section"
-          {...sectionSpace.education.rootProps}
+          headingClassName="tpl-harvard__section-title"
         >
-          {sectionSpace.education.handle}
-          <h2
-            className="tpl-harvard__section-title"
-            data-block
-            data-keep-with-next
-          >
-            Education
-          </h2>
           <Collection section="education" items={resume.education}>
             {({ item, path, chrome, itemProps }) => (
               <HarvardEducationEntry
@@ -272,22 +195,16 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
               />
             )}
           </Collection>
-        </section>
+        </DocumentSection>
       )}
 
       {(resume.skills.length > 0 || authoring) && (
-        <section
+        <DocumentSection
+          id="skills"
+          title="Technical Skills"
           className="tpl-harvard__section"
-          {...sectionSpace.skills.rootProps}
+          headingClassName="tpl-harvard__section-title"
         >
-          {sectionSpace.skills.handle}
-          <h2
-            className="tpl-harvard__section-title"
-            data-block
-            data-keep-with-next
-          >
-            Technical Skills
-          </h2>
           <ul className="tpl-harvard__skills" data-block>
             <Collection section="skills" items={resume.skills} gap={false}>
               {({ item, path, chrome, itemProps }) => (
@@ -300,22 +217,16 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
               )}
             </Collection>
           </ul>
-        </section>
+        </DocumentSection>
       )}
 
       {resume.certifications.length > 0 && (
-        <section
+        <DocumentSection
+          id="certifications"
+          title="Certifications"
           className="tpl-harvard__section"
-          {...sectionSpace.certifications.rootProps}
+          headingClassName="tpl-harvard__section-title"
         >
-          {sectionSpace.certifications.handle}
-          <h2
-            className="tpl-harvard__section-title"
-            data-block
-            data-keep-with-next
-          >
-            Certifications
-          </h2>
           <p className="tpl-harvard__inline-list" data-block>
             <EditableInlineList
               path="certifications"
@@ -323,7 +234,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
               placeholder={PLACEHOLDERS['certifications']}
             />
           </p>
-        </section>
+        </DocumentSection>
       )}
       {/*
        * The candidate's own sections, after every section this template

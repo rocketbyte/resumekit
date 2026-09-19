@@ -12,8 +12,17 @@
   --tpl-rail-gutter: 12px;
   position: absolute;
   top: 50%;
-  /* Its right edge a gutter's width outside the page edge. */
-  right: calc(100% + var(--tpl-space-margin, 24px) + var(--tpl-rail-gutter));
+  /*
+   * A gutter's width outside the page's left edge. A column that sits against
+   * the page's RIGHT edge sets `--tpl-rail-left` and `--tpl-rail-right: auto`,
+   * so its rails stand in the right margin rather than over the column beside
+   * it.
+   */
+  right: var(
+    --tpl-rail-right,
+    calc(100% + var(--tpl-space-margin, 24px) + var(--tpl-rail-gutter))
+  );
+  left: var(--tpl-rail-left, auto);
   z-index: 4;
   display: flex;
   flex-direction: column;

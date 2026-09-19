@@ -276,10 +276,22 @@
   min-width: 0;
 }
 
+/* Against the page's right edge, so its rails stand in the right margin. */
+.tpl-cob__main {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
 /* ── Sections ───────────────────────────────────────────────────────────── */
 
+.tpl-cob__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
 .tpl-cob__section + .tpl-cob__section {
-  margin-top: calc(16.5pt * var(--c-scale) * var(--c-density));
+  margin-top: calc(
+    16.5pt * var(--c-scale) * var(--c-density) + var(--tpl-space-height, 0px)
+  );
 }
 
 /*
@@ -307,6 +319,11 @@
 /* ── Entries ────────────────────────────────────────────────────────────── */
 
 .tpl-cob__entry {
+  /* The heading's own margin, restated: the two collapse, so the gap is added
+     to it rather than lost inside it. */
+  margin-top: calc(
+    6.5pt * var(--c-scale) * var(--c-density) + var(--tpl-space-height, 0px)
+  );
   break-inside: avoid;
 
   /*
@@ -319,7 +336,9 @@
 }
 
 .tpl-cob__entry + .tpl-cob__entry {
-  margin-top: calc(16pt * var(--c-scale) * var(--c-density));
+  margin-top: calc(
+    16pt * var(--c-scale) * var(--c-density) + var(--tpl-space-height, 0px)
+  );
 }
 
 .tpl-cob__entry-lead,

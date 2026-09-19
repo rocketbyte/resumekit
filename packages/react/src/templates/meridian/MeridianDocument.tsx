@@ -1,25 +1,22 @@
-import type { CSSProperties } from 'react';
-import {
-  DENSITIES,
-  DOCUMENT_FONTS,
-  INK_COLORS,
-  type DocumentStyle,
-  type ResumeObject,
-  PLACEHOLDERS,
-} from '@cvgs/core';
+import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { LinkField } from '../../nodes/LinkField.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
+import { useDocumentStyle } from '../../presentation-context.js';
+import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
+import { DocumentSection } from '../../kit/DocumentSection.js';
+import { contactLines } from '../../kit/contact.js';
+import { documentStyle } from '../../kit/documentStyle.js';
+import { monogram } from '../../kit/monogram.js';
+import { isLanguages } from '../skills.js';
 import {
   MeridianCustomEntry,
   MeridianEducationEntry,
   MeridianExperienceEntry,
 } from './entries.js';
-import { useDocumentStyle } from '../../presentation-context.js';
-import { isLanguages } from '../skills.js';
 import './meridian.css';
 
 /**
@@ -48,46 +45,6 @@ import './meridian.css';
  * that names them. See #32's `design.md`, decision 1.
  */
 
-/**
- * The monogram, derived from the name rather than stored.
- *
- * Not separately editable, for the reason Executive gives: a monogram that can
- * disagree with the name printed below it is a defect waiting to be shipped.
- */
-function monogram(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '';
-  const first = parts[0][0] ?? '';
-  const last = parts.length > 1 ? (parts[parts.length - 1][0] ?? '') : '';
-  return (first + last).toUpperCase();
-}
-
-/**
- * The document style reaches the page as three custom properties on the template
- * root, which every rule in `meridian.css` already reads.
- *
- * `--m-font` is the BODY face only. The display face is the template's own serif
- * and is not written here, because the serif-over-sans pairing is the design
- * rather than a default — see `design.md`, decision 4.
- */
-function documentStyle(style: DocumentStyle | undefined): CSSProperties {
-  if (!style) return {};
-  return {
-    '--m-font': DOCUMENT_FONTS[style.font].stack,
-    '--m-ink': INK_COLORS[style.ink].hex,
-    '--m-scale': String(style.scale),
-    /*
-     * Absent means the template's own — `document-styling` (#36) requires a
-     * document that sets neither to render exactly as the template defines it,
-     * so these are written only when the candidate has chosen.
-     */
-    ...(style.accent ? { '--m-accent': INK_COLORS[style.accent].hex } : {}),
-    ...(style.density
-      ? { '--m-density': String(DENSITIES[style.density].factor) }
-      : {}),
-  } as CSSProperties;
-}
-
 export interface MeridianDocumentProps {
   resume: ResumeObject;
 }
@@ -103,24 +60,17 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
   const authoring = useAuthoring() !== null;
 
   const languages = resume.skills.filter(isLanguages);
-  const technical = resume.skills
-    .map((group, index) => ({ group, index }))
-    .filter(({ group }) => !isLanguages(group));
 
-  const contact = (
-    [
-      resume.contact.location && ('contact.location' as const),
-      resume.contact.phone && ('contact.phone' as const),
-      resume.contact.email && ('contact.email' as const),
-    ] as const
-  ).filter(Boolean) as (
-    'contact.location' | 'contact.phone' | 'contact.email'
-  )[];
+  const contact = contactLines(
+    resume.contact,
+    ['location', 'phone', 'email'],
+    authoring,
+  );
 
   return (
     <article
       className="tpl-mer"
-      style={documentStyle(style)}
+      style={documentStyle('m', style)}
       aria-label="Resume document"
     >
       {/* ── Crown band ───────────────────────────────────────────────────── */}
@@ -139,15 +89,12 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
       {/* ── Contact rule ─────────────────────────────────────────────────── */}
       {contact.length > 0 && (
         <p className="tpl-mer__contact" data-block>
-          {contact.map((path) => (
+          {contact.map(({ path, value, placeholder }) => (
             <span key={path} className="tpl-mer__contact-item">
               <EditableText
                 path={path}
-                value={String(
-                  resume.contact[
-                    path.split('.')[1] as keyof typeof resume.contact
-                  ] ?? '',
-                )}
+                value={value}
+                placeholder={placeholder}
               />
             </span>
           ))}
@@ -162,10 +109,12 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
          */}
         <div className="tpl-mer__main" data-flow>
           {(resume.summary || authoring) && (
-            <section className="tpl-mer__section">
-              <h2 className="tpl-mer__heading" data-block data-keep-with-next>
-                Professional Summary
-              </h2>
+            <DocumentSection
+              id="summary"
+              title="Professional Summary"
+              className="tpl-mer__section"
+              headingClassName="tpl-mer__heading"
+            >
               <p className="tpl-mer__prose" data-block>
                 <EditableText
                   path="summary"
@@ -174,14 +123,16 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                   multiline
                 />
               </p>
-            </section>
+            </DocumentSection>
           )}
 
           {(resume.experience.length > 0 || authoring) && (
-            <section className="tpl-mer__section">
-              <h2 className="tpl-mer__heading" data-block data-keep-with-next>
-                Experience
-              </h2>
+            <DocumentSection
+              id="experience"
+              title="Experience"
+              className="tpl-mer__section"
+              headingClassName="tpl-mer__heading"
+            >
               <Collection section="experience" items={resume.experience}>
                 {({ item, path, chrome, itemProps }) => (
                   <MeridianExperienceEntry
@@ -192,14 +143,16 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                   />
                 )}
               </Collection>
-            </section>
+            </DocumentSection>
           )}
 
           {(resume.education.length > 0 || authoring) && (
-            <section className="tpl-mer__section">
-              <h2 className="tpl-mer__heading" data-block data-keep-with-next>
-                Education
-              </h2>
+            <DocumentSection
+              id="education"
+              title="Education"
+              className="tpl-mer__section"
+              headingClassName="tpl-mer__heading"
+            >
               <Collection section="education" items={resume.education}>
                 {({ item, path, chrome, itemProps }) => (
                   <MeridianEducationEntry
@@ -210,21 +163,23 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                   />
                 )}
               </Collection>
-            </section>
+            </DocumentSection>
           )}
 
           {resume.certifications.length > 0 && (
-            <section className="tpl-mer__section">
-              <h2 className="tpl-mer__heading" data-block data-keep-with-next>
-                Certifications
-              </h2>
+            <DocumentSection
+              id="certifications"
+              title="Certifications"
+              className="tpl-mer__section"
+              headingClassName="tpl-mer__heading"
+            >
               <div data-block>
                 <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
                 />
               </div>
-            </section>
+            </DocumentSection>
           )}
 
           {languages.length > 0 && (
@@ -279,27 +234,30 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
 
         {/* ── The rail ───────────────────────────────────────────────────── */}
         <aside className="tpl-mer__aside" data-flow>
-          {technical.length > 0 && (
-            <section className="tpl-mer__section">
-              <h2
-                className="tpl-mer__heading tpl-mer__heading--marked"
-                data-block
-                data-keep-with-next
-              >
-                Technical Skills
-              </h2>
+          {(resume.skills.length > languages.length || authoring) && (
+            <DocumentSection
+              id="skills"
+              title="Technical Skills"
+              className="tpl-mer__section"
+              headingClassName="tpl-mer__heading tpl-mer__heading--marked"
+            >
               {/* Split: a keyword rail is a list, and it breaks between two
                   skills. As one block it is taller than the paper. */}
               <div data-block data-split>
-                {technical.map(({ group, index }) => (
-                  <EditableBulletList
-                    key={index}
-                    path={`skills.${index}.items`}
-                    items={group.items}
-                  />
-                ))}
+                <Collection section="skills" items={resume.skills} gap={false}>
+                  {({ item, path, chrome, itemProps }) =>
+                    isLanguages(item) ? null : (
+                      <BulletSkillGroup
+                        item={item}
+                        path={path}
+                        chrome={chrome}
+                        itemProps={itemProps}
+                      />
+                    )
+                  }
+                </Collection>
               </div>
-            </section>
+            </DocumentSection>
           )}
 
           {(resume.links.length > 0 || authoring) && (
