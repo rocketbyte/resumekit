@@ -89,6 +89,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  compact: {
+    name: 'Compact',
+    description:
+      'Two dense columns with the resume in the wide one: the role on its ' +
+      'own line over employer, dates and place, and a rail carrying skills ' +
+      'as chips beside the candidate’s own sections.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns — the resume is written first, so extracted text reads the work history through before the rail',
+      'Skills are chips by appearance and a list by structure — one skill per extracted line',
+      'No tables, images, or icon fonts carrying meaning',
+      'Real selectable text, standard system typefaces',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:

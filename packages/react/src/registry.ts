@@ -6,6 +6,7 @@ import { EditableInlineList } from './nodes/EditableInlineList.js';
 import { HarvardDocument } from './templates/harvard/HarvardDocument.js';
 import { IvyDocument } from './templates/ivy/IvyDocument.js';
 import { ClassicDocument } from './templates/classic/ClassicDocument.js';
+import { CompactDocument } from './templates/compact/CompactDocument.js';
 import { ExecutiveDocument } from './templates/executive/ExecutiveDocument.js';
 import { MeridianDocument } from './templates/meridian/MeridianDocument.js';
 import { CobaltDocument } from './templates/cobalt/CobaltDocument.js';
@@ -38,6 +39,7 @@ export const TEMPLATE_RENDERERS: Record<TemplateId, TemplateRenderer> = {
   harvard: { Document: HarvardDocument },
   ivy: { Document: IvyDocument },
   classic: { Document: ClassicDocument },
+  compact: { Document: CompactDocument },
   executive: { Document: ExecutiveDocument },
   meridian: { Document: MeridianDocument },
   cobalt: { Document: CobaltDocument },

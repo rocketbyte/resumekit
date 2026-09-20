@@ -1,0 +1,215 @@
+/*
+ * The Compact template: two columns, the résumé in the wide one.
+ *
+ * Density is a property of the ENTRY here rather than of the type size — the
+ * role on its own line, then employer, dates and place sharing the next — so
+ * the page holds more without being harder to read.
+ */
+
+.tpl-compact {
+  --tpl-space-unit: calc(2.2pt * var(--cp-scale) * var(--cp-density));
+  --tpl-space-margin: var(--cp-margin);
+  --tpl-marker: calc(8pt * var(--cp-scale));
+
+  --cp-scale: 1;
+  --cp-ink: #1c1c1c;
+  --cp-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --cp-accent: #2f6df6;
+  --cp-density: 1;
+  --cp-margin: 0.5in;
+  --cp-muted: #565656;
+  --cp-quiet: #7b7b7b;
+  --cp-line: #dcdcdc;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.45in var(--cp-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--cp-ink);
+  font-family: var(--cp-font);
+  font-size: calc(8.8pt * var(--cp-scale));
+  line-height: 1.38;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-compact__name {
+  margin: 0;
+  font-size: calc(20pt * var(--cp-scale));
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.tpl-compact__headline {
+  margin: calc(1pt * var(--cp-scale)) 0 0;
+  font-size: calc(11pt * var(--cp-scale));
+  color: var(--cp-accent);
+}
+
+.tpl-compact__contact {
+  margin: calc(2pt * var(--cp-scale)) 0 0;
+  font-size: calc(8pt * var(--cp-scale));
+  color: var(--cp-muted);
+}
+
+.tpl-compact__contact-item + .tpl-compact__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: calc(9pt * var(--cp-scale));
+}
+
+/* ── Body: the résumé, then the rail ────────────────────────────────────── */
+
+.tpl-compact__body {
+  display: grid;
+  grid-template-columns: 62fr 38fr;
+  column-gap: calc(22pt * var(--cp-scale));
+  margin-top: calc(10pt * var(--cp-scale) * var(--cp-density));
+}
+
+.tpl-compact__main,
+.tpl-compact__aside {
+  min-width: 0;
+}
+
+/* The rail stands against the page's right edge, so its rails belong in the
+   right margin rather than over the column beside them. */
+.tpl-compact__aside {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-compact__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-compact__section + .tpl-compact__section {
+  margin-top: calc(
+    11pt * var(--cp-scale) * var(--cp-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-compact__heading {
+  margin: 0 0 calc(3.5pt * var(--cp-scale));
+  font-size: calc(7.4pt * var(--cp-scale));
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cp-quiet);
+}
+
+.tpl-compact__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-compact__entry {
+  margin-top: calc(
+    7pt * var(--cp-scale) * var(--cp-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-compact__entry:first-of-type {
+  margin-top: calc(3.5pt * var(--cp-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-compact__role {
+  margin: 0;
+  font-size: calc(10.5pt * var(--cp-scale));
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.tpl-compact__meta {
+  margin: 0;
+  font-size: calc(8pt * var(--cp-scale));
+  color: var(--cp-quiet);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-compact__org {
+  font-weight: 600;
+  color: var(--cp-accent);
+}
+
+/* A REAL space between the facts, not a gap made of CSS: a parser reading the
+   exported PDF extracts the characters, and a column gap is not one. */
+.tpl-compact__meta-item::before {
+  content: ' · ';
+  color: var(--cp-quiet);
+}
+
+.tpl-compact .tpl-bullets {
+  margin: calc(2.5pt * var(--cp-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-compact .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(8pt * var(--cp-scale)) 1fr;
+  margin-top: calc(1pt * var(--cp-scale));
+}
+
+.tpl-compact .tpl-bullet::before {
+  content: '·';
+  color: var(--cp-quiet);
+}
+
+/* ── The rail's notes and chips ─────────────────────────────────────────── */
+
+.tpl-compact__note {
+  margin-top: calc(
+    6pt * var(--cp-scale) * var(--cp-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+.tpl-compact__note:first-of-type {
+  margin-top: calc(3.5pt * var(--cp-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-compact__note-title,
+.tpl-compact__note-detail {
+  margin: 0;
+}
+
+.tpl-compact__note-title {
+  font-weight: 600;
+}
+
+.tpl-compact__note-detail {
+  color: var(--cp-muted);
+}
+
+/*
+ * Chips: a bordered box per skill, and each one is still a list ITEM — the
+ * look is CSS, the structure is a list, so the extracted text has one skill
+ * per line rather than a run of joined words.
+ */
+.tpl-compact__chips .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(3pt * var(--cp-scale));
+  margin-top: 0;
+}
+
+.tpl-compact__chips .tpl-bullet {
+  display: block;
+  margin-top: 0;
+  padding: calc(1.5pt * var(--cp-scale)) calc(4pt * var(--cp-scale));
+  border: 0.75pt solid var(--cp-line);
+  border-radius: calc(2pt * var(--cp-scale));
+}
+
+.tpl-compact__chips .tpl-bullet::before {
+  content: none;
+}
