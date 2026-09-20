@@ -9,6 +9,7 @@ import { ClassicDocument } from './templates/classic/ClassicDocument.js';
 import { CompactDocument } from './templates/compact/CompactDocument.js';
 import { TimelineDocument } from './templates/timeline/TimelineDocument.js';
 import { ModernDocument } from './templates/modern/ModernDocument.js';
+import { StylishDocument } from './templates/stylish/StylishDocument.js';
 import { ExecutiveDocument } from './templates/executive/ExecutiveDocument.js';
 import { MeridianDocument } from './templates/meridian/MeridianDocument.js';
 import { CobaltDocument } from './templates/cobalt/CobaltDocument.js';
@@ -44,6 +45,7 @@ export const TEMPLATE_RENDERERS: Record<TemplateId, TemplateRenderer> = {
   compact: { Document: CompactDocument },
   timeline: { Document: TimelineDocument },
   modern: { Document: ModernDocument },
+  stylish: { Document: StylishDocument },
   executive: { Document: ExecutiveDocument },
   meridian: { Document: MeridianDocument },
   cobalt: { Document: CobaltDocument },

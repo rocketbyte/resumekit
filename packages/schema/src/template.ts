@@ -137,6 +137,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  stylish: {
+    name: 'Stylish',
+    description:
+      'Two columns with the highlights rail on the left and the work history ' +
+      'beside it, headings ruled across their own column, and the ' +
+      'candidate’s initials beside the name.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns, written in the order they are read — the rail is on the left, so extracted text gives the highlights and skills before the work history',
+      'The initials are decoration with no text of their own to extract',
+      'Skills are chips by appearance and a list by structure — one skill per extracted line',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:

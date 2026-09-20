@@ -1,0 +1,253 @@
+/*
+ * The Modern template: a navy name over an accented headline, the candidate's
+ * initials where the reference shows a portrait, and two columns whose
+ * headings are ruled across their own column.
+ *
+ * The rule under each heading is what separates the columns — there is no
+ * divider between them, which keeps the page from reading as a form.
+ */
+
+.tpl-stylish {
+  --tpl-space-unit: calc(2.2pt * var(--st-scale) * var(--st-density));
+  --tpl-space-margin: var(--st-margin);
+  --tpl-marker: calc(8pt * var(--st-scale));
+  --tpl-avatar-size: calc(56pt * var(--st-scale));
+  --tpl-avatar-text: calc(18pt * var(--st-scale));
+
+  --st-scale: 1;
+  --st-ink: #14181d;
+  --st-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --st-accent: #2f80f0;
+  --st-density: 1;
+  --st-margin: 0.5in;
+  --st-body: #34404f;
+  --st-muted: #6c7787;
+  --st-line: #d3d8e0;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.45in var(--st-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--st-body);
+  font-family: var(--st-font);
+  font-size: calc(8.8pt * var(--st-scale));
+  line-height: 1.4;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-stylish__head-block {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(16pt * var(--st-scale));
+  align-items: center;
+}
+
+.tpl-stylish__name {
+  margin: 0;
+  font-size: calc(18pt * var(--st-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--st-ink);
+  text-transform: uppercase;
+}
+
+.tpl-stylish__headline {
+  margin: calc(1pt * var(--st-scale)) 0 0;
+  font-size: calc(11pt * var(--st-scale));
+  font-weight: 700;
+  color: var(--st-accent);
+}
+
+.tpl-stylish__contact {
+  margin: calc(3pt * var(--st-scale)) 0 0;
+  font-size: calc(8pt * var(--st-scale));
+  color: var(--st-muted);
+}
+
+.tpl-stylish__contact-item + .tpl-stylish__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: calc(10pt * var(--st-scale));
+}
+
+/* The initials, in the slot the design gives a portrait. */
+.tpl-stylish__avatar {
+  color: var(--st-ink);
+  border-color: var(--st-line);
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+/* The rail first, exactly as the document writes it. */
+.tpl-stylish__body {
+  display: grid;
+  grid-template-columns: 36fr 64fr;
+  column-gap: calc(20pt * var(--st-scale));
+  margin-top: calc(12pt * var(--st-scale) * var(--st-density));
+}
+
+.tpl-stylish__main,
+.tpl-stylish__aside {
+  min-width: 0;
+}
+
+/*
+ * The MAIN column stands against the page's right edge here, so its controls
+ * belong in the right margin. The rail keeps the default side, because it is
+ * the column against the left edge.
+ */
+.tpl-stylish__main {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-stylish__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-stylish__section + .tpl-stylish__section {
+  margin-top: calc(
+    11pt * var(--st-scale) * var(--st-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-stylish__heading {
+  margin: 0 0 calc(4pt * var(--st-scale));
+  padding-bottom: calc(2pt * var(--st-scale));
+  border-bottom: 0.75pt solid var(--st-line);
+  font-size: calc(7.6pt * var(--st-scale));
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--st-muted);
+}
+
+.tpl-stylish__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-stylish__entry {
+  margin-top: calc(
+    8pt * var(--st-scale) * var(--st-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-stylish__entry:first-of-type {
+  margin-top: calc(4pt * var(--st-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-stylish__role {
+  margin: 0;
+  font-size: calc(10.5pt * var(--st-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--st-ink);
+}
+
+.tpl-stylish__meta {
+  margin: 0;
+  font-size: calc(8pt * var(--st-scale));
+  color: var(--st-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-stylish__org {
+  font-weight: 700;
+  color: var(--st-accent);
+}
+
+/* A REAL character between the facts: a parser extracts characters, and a gap
+   made of CSS is not one. */
+.tpl-stylish__meta-item::before {
+  content: ' · ';
+  color: var(--st-muted);
+}
+
+.tpl-stylish .tpl-bullets {
+  margin: calc(2.5pt * var(--st-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-stylish .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(8pt * var(--st-scale)) 1fr;
+  margin-top: calc(1pt * var(--st-scale));
+}
+
+.tpl-stylish .tpl-bullet::before {
+  content: '·';
+  color: var(--st-muted);
+}
+
+/* ── The rail's notes and chips ─────────────────────────────────────────── */
+
+.tpl-stylish__note {
+  margin-top: calc(
+    6pt * var(--st-scale) * var(--st-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+.tpl-stylish__note:first-of-type {
+  margin-top: calc(3.5pt * var(--st-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-stylish__note-title,
+.tpl-stylish__note-detail {
+  margin: 0;
+}
+
+.tpl-stylish__note-title {
+  position: relative;
+  padding-left: calc(11pt * var(--st-scale));
+  font-weight: 700;
+  color: var(--st-ink);
+}
+
+/* The ring the reference puts beside each highlight, drawn rather than set in
+   an icon font: a border is foreground ink and carries no meaning to lose. */
+.tpl-stylish__note-title::before {
+  content: '';
+  position: absolute;
+  top: calc(2.5pt * var(--st-scale));
+  left: 0;
+  width: calc(6pt * var(--st-scale));
+  height: calc(6pt * var(--st-scale));
+  border: 1pt solid var(--st-accent);
+  border-radius: 50%;
+}
+
+.tpl-stylish__note-detail {
+  color: var(--st-body);
+}
+
+/* Chips: boxes by appearance, list items by structure. */
+.tpl-stylish__chips .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(3pt * var(--st-scale));
+  margin-top: 0;
+}
+
+.tpl-stylish__chips .tpl-bullet {
+  display: block;
+  margin-top: 0;
+  padding: calc(1.5pt * var(--st-scale)) calc(4pt * var(--st-scale));
+  border: 0.75pt solid var(--st-line);
+  border-radius: calc(2pt * var(--st-scale));
+}
+
+.tpl-stylish__chips .tpl-bullet::before {
+  content: none;
+}
