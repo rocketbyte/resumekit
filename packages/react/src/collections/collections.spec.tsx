@@ -385,6 +385,39 @@ describe('a bullet', () => {
     expect(grip?.getAttribute('aria-label')).toBe('Move bullet 1');
   });
 
+  /*
+   * Pointing at a bullet has to leave the CARET in it, and the defect this
+   * guards was a timing one: the click that revealed the field also selected
+   * the entry around it, the row was mounted a second time, and the focus
+   * placed on the first field went out with it. The candidate clicked a line,
+   * typed, and nothing happened.
+   */
+  it('takes the caret when it is pointed at, and keeps it', async () => {
+    const { container } = await drawBullets();
+    const row = container.querySelector(
+      '.tpl-bullet[data-authored]',
+    ) as HTMLElement;
+
+    fireEvent.pointerDown(row);
+    fireEvent.mouseDown(row.querySelector('.tpl-text') as HTMLElement);
+
+    const field = await waitFor(() => {
+      const el = row.querySelector('textarea.tpl-input');
+      expect(el, 'the bullet offers a field').not.toBeNull();
+      return el as HTMLTextAreaElement;
+    });
+    await waitFor(() => expect(document.activeElement).toBe(field));
+
+    /* And again after the row is rebuilt under it, which is what the selection
+       that follows the same click actually does. */
+    fireEvent.pointerDown(row);
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        row.querySelector('textarea.tpl-input'),
+      ),
+    );
+  });
+
   it('offers add and remove on the bullet itself', async () => {
     const { container } = await drawBullets();
     /* Scoped to one role: the fixture has two, and each has its own bullet 1. */

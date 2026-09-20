@@ -326,19 +326,20 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
               </ul>
             </section>
           )}
+          {/*
+           * The candidate's own sections, inside the column that carries the
+           * résumé — not after the body. A section outside it inherits none of
+           * the page's side padding, so it ran to the paper's edge and its
+           * rail fell outside the flow, where nothing can click it.
+           */}
+          <CustomSections
+            sections={resume.custom_sections}
+            sectionClass="tpl-cob__section"
+            headingClass="tpl-cob__heading"
+            Entry={CobaltCustomEntry}
+          />
         </div>
       </div>
-      {/*
-       * The candidate's own sections, after every section this template
-       * knows. Heading in the template's own style; entries in the shared
-       * neutral layout — see `CustomSections.tsx`.
-       */}
-      <CustomSections
-        sections={resume.custom_sections}
-        sectionClass="tpl-cob__section"
-        headingClass="tpl-cob__heading"
-        Entry={CobaltCustomEntry}
-      />
     </article>
   );
 }

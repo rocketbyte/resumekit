@@ -230,6 +230,18 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
               </p>
             </section>
           )}
+          {/*
+           * The candidate's own sections, inside the column that carries the
+           * résumé — not after the body. A section outside it inherits none of
+           * the page's side padding, so it ran to the paper's edge and its
+           * rail fell outside the flow, where nothing can click it.
+           */}
+          <CustomSections
+            sections={resume.custom_sections}
+            sectionClass="tpl-mer__section"
+            headingClass="tpl-mer__heading"
+            Entry={MeridianCustomEntry}
+          />
         </div>
 
         {/* ── The rail ───────────────────────────────────────────────────── */}
@@ -289,17 +301,6 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
           )}
         </aside>
       </div>
-      {/*
-       * The candidate's own sections, after every section this template
-       * knows. Heading in the template's own style; entries in the shared
-       * neutral layout — see `CustomSections.tsx`.
-       */}
-      <CustomSections
-        sections={resume.custom_sections}
-        sectionClass="tpl-mer__section"
-        headingClass="tpl-mer__heading"
-        Entry={MeridianCustomEntry}
-      />
     </article>
   );
 }

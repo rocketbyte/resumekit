@@ -13,6 +13,14 @@ import { useAutosave } from '../autosave-context.js';
 import type { AuthoredBulletsProps } from './AuthoredBullets.js';
 
 export interface EditableBulletListProps {
+  /**
+   * What an empty row says it wants.
+   *
+   * A list of achievements and a list of skills are the same control and not
+   * the same field: a skills row guided by "what you did, and what changed
+   * because of it" asks for a sentence where the page wants a keyword.
+   */
+  placeholder?: string;
   /** Where this list lives in the `ResumeObject` — e.g. `experience.0.bullets`. */
   path: string;
   items: string[];
@@ -47,7 +55,11 @@ export interface EditableBulletListProps {
 const AuthoredBullets = lazy(() => import('./AuthoredBullets.js')) as (
   props: AuthoredBulletsProps,
 ) => React.ReactElement;
-export function EditableBulletList({ path, items }: EditableBulletListProps) {
+export function EditableBulletList({
+  path,
+  items,
+  placeholder = PLACEHOLDERS['bullet'],
+}: EditableBulletListProps) {
   const format = useFieldFormat(path);
   const authoring = useAuthoring();
   /*
@@ -130,7 +142,7 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
       <span
         className="tpl-text"
         data-empty={item.length === 0 || undefined}
-        data-placeholder={PLACEHOLDERS['bullet']}
+        data-placeholder={placeholder}
       >
         {item}
       </span>
@@ -159,6 +171,7 @@ export function EditableBulletList({ path, items }: EditableBulletListProps) {
             bullets={bullets}
             editing={selected}
             onEdit={edit}
+            placeholder={placeholder}
           />
         </Suspense>
       ) : (

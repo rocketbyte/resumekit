@@ -12,6 +12,7 @@ import { useSpaceSlot } from '../spacing/useSpaceSlot.js';
 import type { ItemOrigin } from './EntryOverlay.js';
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';
+import { withArticle } from './article.js';
 
 /**
  * What a template's root element must carry for the item to be movable.
@@ -292,7 +293,7 @@ export function CollectionItems<T>({
             data-chrome
             contentEditable={false}
             data-placeholder={`Add ${noun}s`}
-            aria-label={`Add a ${noun}`}
+            aria-label={`Add ${withArticle(noun)}`}
             onClick={() => collection.add()}
           />
         ) : (

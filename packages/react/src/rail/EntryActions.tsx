@@ -7,6 +7,7 @@ import {
 } from '../collections/icons.js';
 import type { CollectionHandle } from '../collections/useCollection.js';
 import type { ItemOrigin } from '../collections/EntryOverlay.js';
+import { withArticle } from '../collections/article.js';
 
 /**
  * An entry's own actions in its rail — the same operations, names and rules as
@@ -68,8 +69,8 @@ export function EntryActions<T>({
         <button
           type="button"
           className="tpl-rail__btn"
-          title={`Add a ${noun} below`}
-          aria-label={`Add a ${noun} after ${index + 1}`}
+          title={`Add ${withArticle(noun)} below`}
+          aria-label={`Add ${withArticle(noun)} after ${index + 1}`}
           onClick={() => collection.add(index)}
         >
           <PlusIcon />

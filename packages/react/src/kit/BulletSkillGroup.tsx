@@ -1,4 +1,4 @@
-import type { SkillGroup } from '@cvgs/core';
+import { PLACEHOLDERS, type SkillGroup } from '@cvgs/core';
 import { EditableBulletList } from '../nodes/EditableBulletList.js';
 
 /**
@@ -22,5 +22,14 @@ export function BulletSkillGroup({
   item: SkillGroup;
   path: string;
 }) {
-  return <EditableBulletList path={`${path}.items`} items={item.items} />;
+  return (
+    <EditableBulletList
+      path={`${path}.items`}
+      items={item.items}
+      /* A skills row wants a KEYWORD. Guided as a bullet, an empty one asked
+         for "what you did, and what changed because of it" — a sentence, in a
+         list the page prints as single words. */
+      placeholder={PLACEHOLDERS['item']}
+    />
+  );
 }

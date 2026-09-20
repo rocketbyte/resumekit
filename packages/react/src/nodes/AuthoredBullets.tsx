@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { PLACEHOLDERS } from '@cvgs/core';
 import { GripIcon, PlusIcon, TrashIcon } from '../collections/icons.js';
 import type { CollectionHandle } from '../collections/useCollection.js';
 import { SortableItems, useDragHandle } from '../collections/SortableItems.js';
@@ -21,6 +20,8 @@ export interface AuthoredBulletsProps {
   /** Whether the list is the field being typed into. */
   editing: boolean;
   onEdit: (index: number, next: string) => void;
+  /** What an empty row says it wants — see `EditableBulletList`. */
+  placeholder: string;
 }
 
 /**
@@ -50,6 +51,7 @@ function Bullet({
   editing,
   onEdit,
   sortable,
+  placeholder,
   onActivate,
   fieldRef,
 }: {
@@ -60,6 +62,7 @@ function Bullet({
   editing: boolean;
   onEdit: (index: number, next: string) => void;
   sortable: boolean;
+  placeholder: string;
   onActivate: (index: number) => void;
   fieldRef: (index: number, el: HTMLTextAreaElement | null) => void;
 }) {
@@ -121,7 +124,7 @@ function Bullet({
              * value, so it stays out of the résumé exactly as the drawn one
              * does.
              */
-            placeholder={PLACEHOLDERS['bullet']}
+            placeholder={placeholder}
             onChange={(e) => onEdit(index, e.target.value)}
           />
         </span>
@@ -133,7 +136,7 @@ function Bullet({
         <span
           className="tpl-text"
           data-empty={item.length === 0 || undefined}
-          data-placeholder={PLACEHOLDERS['bullet']}
+          data-placeholder={placeholder}
         >
           {item}
         </span>
@@ -176,6 +179,7 @@ export default function AuthoredBullets({
   bullets,
   editing,
   onEdit,
+  placeholder,
 }: AuthoredBulletsProps) {
   const sortable = bullets.canMove;
   const ids = items.map((_, index) => `${path}:${index}`);
@@ -183,17 +187,24 @@ export default function AuthoredBullets({
   /* The bullet the candidate pointed at, and the fields to put the caret in. */
   const [caret, setCaret] = useState<number | null>(null);
   const fields = useRef<Record<number, HTMLTextAreaElement | null>>({});
+  /* Read by the ref callback below, which runs during a commit and would
+     otherwise close over the caret this render happened to start with. */
+  const wanted = useRef(caret);
+  wanted.current = caret;
+
+  /*
+   * `preventScroll`, for the reason `PlainTextField` gives: the bullet was
+   * pointed at, so it is already on screen, and focusing it must not move the
+   * page. Inside the sheet's `zoom` the browser's own idea of where it is
+   * scrolling to is wrong by a factor of it, so "reveal the focused element"
+   * threw the line the candidate had just clicked out of view.
+   */
+  const putCaretIn = (field: HTMLTextAreaElement | null | undefined) =>
+    field?.focus({ preventScroll: true });
 
   useEffect(() => {
     if (!editing || caret === null) return;
-    /*
-     * `preventScroll`, for the reason `PlainTextField` gives: the bullet was
-     * pointed at, so it is already on screen, and focusing it must not move the
-     * page. Inside the sheet's `zoom` the browser's own idea of where it is
-     * scrolling to is wrong by a factor of it, so "reveal the focused element"
-     * threw the line the candidate had just clicked out of view.
-     */
-    fields.current[caret]?.focus({ preventScroll: true });
+    putCaretIn(fields.current[caret]);
   }, [editing, caret]);
 
   const rows = items.map((item, index) => (
@@ -207,10 +218,24 @@ export default function AuthoredBullets({
       bullets={bullets}
       editing={editing}
       onEdit={onEdit}
+      placeholder={placeholder}
       sortable={sortable}
       onActivate={setCaret}
       fieldRef={(i, el) => {
         fields.current[i] = el;
+        /*
+         * And focused as it ARRIVES, not only when the caret moves.
+         *
+         * A click both selects the list and names the bullet, so the field is
+         * mounted by the same commit that sets the caret — but the row can be
+         * mounted again straight after, when the click that revealed it also
+         * selects the entry around it. The effect above does not run a second
+         * time (neither `editing` nor `caret` has changed), so the focus it
+         * placed went out with the old element and the candidate typed into
+         * nothing. Re-placing it here costs a call on a field that already has
+         * it and closes the gap the timing opened.
+         */
+        if (el && i === wanted.current) putCaretIn(el);
       }}
     />
   ));

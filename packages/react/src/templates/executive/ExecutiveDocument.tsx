@@ -267,18 +267,19 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
             </ul>
           </section>
         )}
+        {/*
+         * The candidate's own sections, inside the column that carries the
+         * résumé — not after the body. A section outside it inherits none of
+         * the page's side padding, so it ran to the paper's edge and its
+         * rail fell outside the flow, where nothing can click it.
+         */}
+        <CustomSections
+          sections={resume.custom_sections}
+          sectionClass="tpl-exec__section"
+          headingClass="tpl-exec__heading"
+          Entry={ExecCustomEntry}
+        />
       </div>
-      {/*
-       * The candidate's own sections, after every section this template
-       * knows. Heading in the template's own style; entries in the shared
-       * neutral layout — see `CustomSections.tsx`.
-       */}
-      <CustomSections
-        sections={resume.custom_sections}
-        sectionClass="tpl-exec__section"
-        headingClass="tpl-exec__heading"
-        Entry={ExecCustomEntry}
-      />
     </article>
   );
 }

@@ -7,6 +7,7 @@ import {
 } from './icons.js';
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';
+import { withArticle } from './article.js';
 
 /** Where an item came from, which decides what removing it means. */
 export type ItemOrigin = 'added' | 'written';
@@ -118,8 +119,8 @@ export function EntryOverlay<T>({
         <button
           type="button"
           className="tpl-entry-overlay__btn"
-          title={`Add a ${noun} below`}
-          aria-label={`Add a ${noun} after ${index + 1}`}
+          title={`Add ${withArticle(noun)} below`}
+          aria-label={`Add ${withArticle(noun)} after ${index + 1}`}
           onClick={() => collection.add(index)}
         >
           <PlusIcon />
