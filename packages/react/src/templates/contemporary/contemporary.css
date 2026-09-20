@@ -1,0 +1,289 @@
+/*
+ * The Modern template: a navy name over an accented headline, the candidate's
+ * initials where the reference shows a portrait, and two columns whose
+ * headings are ruled across their own column.
+ *
+ * The rule under each heading is what separates the columns — there is no
+ * divider between them, which keeps the page from reading as a form.
+ */
+
+.tpl-contemporary {
+  --tpl-space-unit: calc(2.2pt * var(--cn-scale) * var(--cn-density));
+  --tpl-space-margin: var(--cn-margin);
+  --tpl-marker: calc(8pt * var(--cn-scale));
+  --tpl-avatar-size: calc(56pt * var(--cn-scale));
+  --tpl-avatar-text: calc(18pt * var(--cn-scale));
+
+  --cn-scale: 1;
+  --cn-ink: #1d2b26;
+  --cn-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --cn-accent: #2f9e6b;
+  --cn-density: 1;
+  --cn-margin: 0.5in;
+  --cn-body: #34404f;
+  --cn-muted: #6c7787;
+  --cn-line: #d6ded9;
+  --cn-tint: #e4f2ea;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.45in var(--cn-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--cn-body);
+  font-family: var(--cn-font);
+  font-size: calc(8.8pt * var(--cn-scale));
+  line-height: 1.45;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-contemporary__head-block {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: calc(14pt * var(--cn-scale));
+  align-items: center;
+}
+
+/* The initials first, then the name — the order the reference reads in. */
+.tpl-contemporary__avatar {
+  order: -1;
+}
+
+.tpl-contemporary__name {
+  margin: 0;
+  font-size: calc(22pt * var(--cn-scale));
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--cn-ink);
+}
+
+/* The headline sits in a tinted pill, which is the reference's one flourish.
+   The words inside it are ordinary text, so nothing is lost when a reader —
+   or a parser — takes the colour away. */
+.tpl-contemporary__headline {
+  display: inline-block;
+  margin: calc(3pt * var(--cn-scale)) 0 0;
+  padding: calc(2pt * var(--cn-scale)) calc(7pt * var(--cn-scale));
+  font-size: calc(9.5pt * var(--cn-scale));
+  color: var(--cn-ink);
+  background: var(--cn-tint);
+  border-radius: 999px;
+}
+
+.tpl-contemporary__contact {
+  margin: calc(3pt * var(--cn-scale)) 0 0;
+  font-size: calc(8pt * var(--cn-scale));
+  color: var(--cn-muted);
+}
+
+.tpl-contemporary__contact-item + .tpl-contemporary__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: calc(10pt * var(--cn-scale));
+}
+
+/* The initials, in the slot the design gives a portrait. */
+.tpl-contemporary__avatar {
+  color: var(--cn-ink);
+  border-color: var(--cn-line);
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+/* The rail first, exactly as the document writes it. */
+.tpl-contemporary__body {
+  display: grid;
+  grid-template-columns: 36fr 64fr;
+  column-gap: calc(20pt * var(--cn-scale));
+  margin-top: calc(12pt * var(--cn-scale) * var(--cn-density));
+}
+
+.tpl-contemporary__main,
+.tpl-contemporary__aside {
+  min-width: 0;
+}
+
+/*
+ * The MAIN column stands against the page's right edge here, so its controls
+ * belong in the right margin. The rail keeps the default side, because it is
+ * the column against the left edge.
+ */
+.tpl-contemporary__main {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-contemporary__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-contemporary__section + .tpl-contemporary__section {
+  margin-top: calc(
+    11pt * var(--cn-scale) * var(--cn-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-contemporary__heading {
+  position: relative;
+  margin: 0 0 calc(6pt * var(--cn-scale));
+  padding-bottom: calc(4pt * var(--cn-scale));
+  font-size: calc(8pt * var(--cn-scale));
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--cn-ink);
+}
+
+/* A short rule in the accent rather than a line across the column: at this
+   weight a full rule would be the loudest thing on the page. */
+.tpl-contemporary__heading::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: calc(18pt * var(--cn-scale));
+  height: 1.5pt;
+  background: var(--cn-accent);
+}
+
+.tpl-contemporary__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-contemporary__entry {
+  margin-top: calc(
+    8pt * var(--cn-scale) * var(--cn-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-contemporary__entry:first-of-type {
+  margin-top: calc(4pt * var(--cn-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-contemporary__role {
+  margin: 0;
+  font-size: calc(10.5pt * var(--cn-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--cn-ink);
+}
+
+.tpl-contemporary__meta {
+  margin: 0;
+  font-size: calc(8pt * var(--cn-scale));
+  color: var(--cn-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-contemporary__org {
+  font-weight: 700;
+  color: var(--cn-accent);
+}
+
+/* A REAL character between the facts: a parser extracts characters, and a gap
+   made of CSS is not one. */
+.tpl-contemporary__meta-item::before {
+  content: ' · ';
+  color: var(--cn-muted);
+}
+
+.tpl-contemporary .tpl-bullets {
+  margin: calc(2.5pt * var(--cn-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-contemporary .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(8pt * var(--cn-scale)) 1fr;
+  margin-top: calc(1pt * var(--cn-scale));
+}
+
+.tpl-contemporary .tpl-bullet::before {
+  content: '·';
+  color: var(--cn-muted);
+}
+
+/* ── The rail's notes and chips ─────────────────────────────────────────── */
+
+.tpl-contemporary__note {
+  margin-top: calc(
+    6pt * var(--cn-scale) * var(--cn-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+.tpl-contemporary__note:first-of-type {
+  margin-top: calc(3.5pt * var(--cn-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-contemporary__note-title,
+.tpl-contemporary__note-detail {
+  margin: 0;
+}
+
+.tpl-contemporary__note-title {
+  position: relative;
+  padding-left: calc(11pt * var(--cn-scale));
+  font-weight: 700;
+  color: var(--cn-ink);
+}
+
+/* The ring the reference puts beside each highlight, drawn rather than set in
+   an icon font: a border is foreground ink and carries no meaning to lose. */
+.tpl-contemporary__note-title::before {
+  content: '';
+  position: absolute;
+  top: calc(2.5pt * var(--cn-scale));
+  left: 0;
+  width: calc(6pt * var(--cn-scale));
+  height: calc(6pt * var(--cn-scale));
+  border: 1pt solid var(--cn-accent);
+  border-radius: 50%;
+}
+
+.tpl-contemporary__note-detail {
+  color: var(--cn-body);
+}
+
+/* Chips: boxes by appearance, list items by structure. */
+.tpl-contemporary__chips .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(3pt * var(--cn-scale));
+  margin-top: 0;
+}
+
+.tpl-contemporary__chips .tpl-bullet {
+  display: block;
+  margin-top: 0;
+  padding: calc(1.5pt * var(--cn-scale)) calc(4pt * var(--cn-scale));
+  border: 0.75pt solid var(--cn-line);
+  border-radius: calc(2pt * var(--cn-scale));
+}
+
+.tpl-contemporary__chips .tpl-bullet::before {
+  content: none;
+}
+
+/* ── The contact details, as a section of the rail ──────────────────────── */
+
+.tpl-contemporary__contacts {
+  display: grid;
+  gap: calc(1.5pt * var(--cn-scale));
+}
+
+.tpl-contemporary__contact-item {
+  margin: 0;
+  font-size: calc(8.4pt * var(--cn-scale));
+  color: var(--cn-body);
+}

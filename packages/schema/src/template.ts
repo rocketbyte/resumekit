@@ -169,6 +169,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  contemporary: {
+    name: 'Contemporary',
+    description:
+      'The candidate’s initials beside their name and a headline set in a ' +
+      'tinted pill, over two columns whose left rail carries the contact ' +
+      'details as a section of their own.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns, written in the order they are read — the rail is on the left, so extracted text gives the contact details and highlights before the work history',
+      'The headline’s pill is a background behind ordinary text — nothing is lost when the colour is not printed',
+      'Skills are chips by appearance and a list by structure — one skill per extracted line',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:
