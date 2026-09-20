@@ -212,7 +212,6 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
                         item={item}
                         path={path}
                         first={index === 0}
-                        separator=" · "
                       />
                     )
                   }

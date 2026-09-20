@@ -228,7 +228,6 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
                         item={item}
                         path={path}
                         first={index === 0}
-                        separator=" · "
                       />
                     )
                   }

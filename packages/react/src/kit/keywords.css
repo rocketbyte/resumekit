@@ -72,4 +72,12 @@
   border: 0.75pt solid var(--tpl-keyword-line, currentcolor);
   border-radius: 2pt;
   font-weight: 400;
+
+  /*
+   * One keyword, one box. A box that wrapped would split a skill down the
+   * middle — "Sentr" over "y" — which reads as two skills and extracts as
+   * neither. A keyword too long for the column overhangs it instead, which is
+   * visible and fixable by the candidate; a broken word is neither.
+   */
+  white-space: nowrap;
 }

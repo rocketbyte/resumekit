@@ -169,7 +169,6 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
                         item={item}
                         path={path}
                         first={index === 0}
-                        separator=" · "
                       />
                     )
                   }

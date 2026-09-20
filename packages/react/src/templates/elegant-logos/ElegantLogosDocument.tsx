@@ -216,7 +216,6 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
                         item={item}
                         path={path}
                         first={index === 0}
-                        separator=" · "
                       />
                     )
                   }
