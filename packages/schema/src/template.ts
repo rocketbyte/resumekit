@@ -105,6 +105,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  timeline: {
+    name: 'Timeline',
+    description:
+      'One column with every entry hung off a dated spine: the dates and the ' +
+      'place at the left, a ruled line with a dot, then the role over the ' +
+      'employer in the accent.',
+    page: 'letter',
+    columns: 1,
+    ats: [
+      'Single column — the spine is a border, not a layout',
+      'Each entry extracts as its dates, its place, then the role and employer',
+      'Skills are chips by appearance and a list by structure — one skill per extracted line',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:

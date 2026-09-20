@@ -1,0 +1,243 @@
+/*
+ * The Timeline template: one column, with every entry hung off a dated spine.
+ *
+ * The spine is a BORDER on the entry's own middle column with a dot drawn on
+ * it, so the line exists exactly where an entry does. A rule positioned
+ * against the section's height would drift the first time a page broke.
+ */
+
+.tpl-timeline {
+  --tpl-space-unit: calc(2.4pt * var(--tl-scale) * var(--tl-density));
+  --tpl-space-margin: var(--tl-margin);
+  --tpl-marker: calc(9pt * var(--tl-scale));
+
+  --tl-scale: 1;
+  --tl-ink: #22303f;
+  --tl-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --tl-accent: #d99328;
+  --tl-density: 1;
+  --tl-margin: 0.55in;
+  --tl-muted: #55606c;
+  --tl-quiet: #7c8794;
+  --tl-line: #c9d0d8;
+  /* The dated column, named once: the entry's grid and the spine's dot both
+     measure from it, and two literals would disagree the first time it moved. */
+  --tl-when: calc(78pt * var(--tl-scale));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.5in var(--tl-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--tl-ink);
+  font-family: var(--tl-font);
+  font-size: calc(9pt * var(--tl-scale));
+  line-height: 1.38;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-timeline__name {
+  margin: 0;
+  font-size: calc(18pt * var(--tl-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.tpl-timeline__headline {
+  margin: calc(2pt * var(--tl-scale)) 0 0;
+  font-size: calc(11pt * var(--tl-scale));
+  font-weight: 700;
+  color: var(--tl-accent);
+}
+
+.tpl-timeline__contact {
+  margin: calc(3pt * var(--tl-scale)) 0 0;
+  font-size: calc(8pt * var(--tl-scale));
+  color: var(--tl-muted);
+}
+
+.tpl-timeline__contact-item + .tpl-timeline__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: calc(12pt * var(--tl-scale));
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-timeline__section {
+  margin-top: calc(
+    12pt * var(--tl-scale) * var(--tl-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-timeline__heading {
+  margin: 0 0 calc(5pt * var(--tl-scale));
+  font-size: calc(11pt * var(--tl-scale));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tpl-timeline__prose,
+.tpl-timeline__keywords {
+  margin: 0;
+  color: var(--tl-muted);
+}
+
+/* ── Entries: dates, spine, work ────────────────────────────────────────── */
+
+.tpl-timeline__entry {
+  display: grid;
+  grid-template-columns: var(--tl-when) calc(10pt * var(--tl-scale)) 1fr;
+  margin-top: calc(
+    9pt * var(--tl-scale) * var(--tl-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-timeline__entry:first-of-type {
+  margin-top: calc(5pt * var(--tl-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-timeline__when {
+  padding-right: calc(6pt * var(--tl-scale));
+}
+
+.tpl-timeline__dates,
+.tpl-timeline__place {
+  margin: 0;
+  font-size: calc(8.4pt * var(--tl-scale));
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-timeline__dates {
+  font-weight: 700;
+}
+
+.tpl-timeline__place {
+  color: var(--tl-quiet);
+}
+
+/*
+ * The spine, and the dot that marks this entry on it. Both are foreground ink
+ * — a border and a filled dot — so the page prints complete with the browser's
+ * background graphics switched off.
+ */
+.tpl-timeline__spine {
+  position: relative;
+  border-left: 1pt solid var(--tl-line);
+}
+
+.tpl-timeline__spine::before {
+  content: '';
+  position: absolute;
+  top: calc(3pt * var(--tl-scale));
+  left: calc(-2.5pt * var(--tl-scale));
+  width: calc(4pt * var(--tl-scale));
+  height: calc(4pt * var(--tl-scale));
+  background: var(--tl-ink);
+  border-radius: 50%;
+}
+
+.tpl-timeline__what {
+  padding-left: calc(9pt * var(--tl-scale));
+}
+
+.tpl-timeline__role {
+  margin: 0;
+  font-size: calc(11pt * var(--tl-scale));
+  line-height: 1.2;
+}
+
+.tpl-timeline__org {
+  margin: 0;
+  font-weight: 700;
+  color: var(--tl-accent);
+}
+
+.tpl-timeline .tpl-bullets {
+  margin: calc(2.5pt * var(--tl-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-timeline .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(9pt * var(--tl-scale)) 1fr;
+  margin-top: calc(1pt * var(--tl-scale));
+  color: var(--tl-muted);
+}
+
+.tpl-timeline .tpl-bullet::before {
+  content: '·';
+  color: var(--tl-quiet);
+}
+
+/* ── The candidate's own sections: two notes to a row ───────────────────── */
+
+/* A GRID rather than CSS columns: a note is an editable container, and a
+   container that spans a column break is fragmented. */
+.tpl-timeline__section:has(> .tpl-timeline__note) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: calc(22pt * var(--tl-scale));
+}
+
+.tpl-timeline__section:has(> .tpl-timeline__note) > .tpl-timeline__heading {
+  grid-column: 1 / -1;
+}
+
+.tpl-timeline__note {
+  margin-top: calc(
+    6pt * var(--tl-scale) * var(--tl-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The right-hand note stands against the page's right edge, so its rail
+   belongs in the right margin. */
+.tpl-timeline__note:nth-of-type(even) {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+.tpl-timeline__note-title,
+.tpl-timeline__note-detail {
+  margin: 0;
+}
+
+.tpl-timeline__note-title {
+  font-weight: 700;
+}
+
+.tpl-timeline__note-detail {
+  color: var(--tl-muted);
+}
+
+/* ── Skills as chips: boxes by appearance, a list by structure ──────────── */
+
+.tpl-timeline__chips .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(4pt * var(--tl-scale));
+  margin-top: 0;
+}
+
+.tpl-timeline__chips .tpl-bullet {
+  display: block;
+  margin-top: 0;
+  padding: calc(2pt * var(--tl-scale)) calc(5pt * var(--tl-scale));
+  color: var(--tl-ink);
+  border: 0.75pt solid var(--tl-line);
+  border-radius: calc(2pt * var(--tl-scale));
+}
+
+.tpl-timeline__chips .tpl-bullet::before {
+  content: none;
+}
