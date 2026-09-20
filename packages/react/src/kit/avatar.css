@@ -21,3 +21,22 @@
   letter-spacing: 0.02em;
   line-height: 1;
 }
+
+/*
+ * An employer's initials, where a design shows its logo. Square-ish rather
+ * than round, so it reads as a mark beside a name rather than as a second
+ * portrait, and sized by the template that draws it.
+ */
+.tpl-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--tpl-chip-size, 16pt);
+  height: var(--tpl-chip-size, 16pt);
+  border: 0.75pt solid currentcolor;
+  border-radius: calc(var(--tpl-chip-size, 16pt) * 0.22);
+  font-size: var(--tpl-chip-text, 7pt);
+  font-weight: 700;
+  line-height: 1;
+}

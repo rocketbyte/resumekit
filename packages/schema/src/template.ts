@@ -201,6 +201,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  'double-column-logos': {
+    name: 'Double Column with Logos',
+    description:
+      'Double Column’s page with a mark beside every employer, drawn from ' +
+      'the employer’s own initials — a resume stores no logos, and the ' +
+      'renderer fetches nothing.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns — the work history is written first, so extracted text reads it through before the rail',
+      'The marks are initials with no text of their own to extract, and no image is fetched',
+      'Skills are filled chips by appearance and a list by structure — one skill per extracted line',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:
