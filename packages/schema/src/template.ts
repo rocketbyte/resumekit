@@ -233,6 +233,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  'elegant-logos': {
+    name: 'Elegant with Logos',
+    description:
+      'Elegant’s painted rail with a mark beside every employer, drawn from ' +
+      'the employer’s own initials — a resume stores no logos, and the ' +
+      'renderer fetches nothing.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns — the work history is written first, so extracted text reads it through before the rail',
+      'Rail colour is forced to print, so white-on-navy never vanishes',
+      'The marks are initials with no text of their own to extract, and no image is fetched',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:
