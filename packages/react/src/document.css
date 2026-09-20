@@ -23,6 +23,7 @@
 @import './paged.css';
 @import './nodes/template-node.css';
 @import './templates/harvard/harvard.css';
+@import './templates/ivy/ivy.css';
 @import './templates/executive/executive.css';
 @import './templates/meridian/meridian.css';
 @import './templates/cobalt/cobalt.css';

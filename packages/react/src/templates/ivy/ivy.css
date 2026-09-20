@@ -1,0 +1,173 @@
+/*
+ * The Ivy League template: a centred academic page.
+ *
+ * Its display face is the template's own serif — the name and the section
+ * headings — over whatever body face the candidate chose. That pairing is the
+ * design rather than a default, which is why only the body face is written
+ * from `documentStyle`.
+ */
+
+.tpl-ivy {
+  /* What ONE STEP of recorded space is worth here — a fifth of the gap between
+     two sections, so a drag lands between positions rather than jumping one. */
+  --tpl-space-unit: calc(2.4pt * var(--i-scale) * var(--i-density));
+  /* This template's own side margin, so a rail stands just outside the paper. */
+  --tpl-space-margin: var(--i-margin);
+
+  --i-scale: 1;
+  --i-ink: #000000;
+  --i-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --i-display: 'Tinos', 'Times New Roman', Times, serif;
+  --i-accent: currentColor;
+  --i-density: 1;
+  --i-margin: 0.55in;
+  /* The bullet marker column, read by `template-node.css` so the drag handle
+     stands where the marker does rather than at a guessed offset. */
+  --tpl-marker: calc(10pt * var(--i-scale));
+  --i-muted: #4a4a4a;
+  --i-rule: #111111;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.5in var(--i-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--i-ink);
+  font-family: var(--i-font);
+  font-size: calc(9.4pt * var(--i-scale));
+  line-height: 1.34;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-ivy__head-block {
+  text-align: center;
+}
+
+.tpl-ivy__name {
+  margin: 0;
+  font-family: var(--i-display);
+  font-size: calc(17pt * var(--i-scale));
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.tpl-ivy__headline {
+  margin: calc(3pt * var(--i-scale)) 0 0;
+  font-size: calc(11pt * var(--i-scale));
+  color: var(--i-muted);
+}
+
+.tpl-ivy__contact {
+  margin: calc(3pt * var(--i-scale)) 0 0;
+  font-size: calc(8.2pt * var(--i-scale));
+  color: var(--i-muted);
+}
+
+/* The bullet between contact details is drawn BETWEEN siblings, so a detail
+   the writer did not have cannot leave one stranded. */
+.tpl-ivy__contact-item + .tpl-ivy__contact-item::before {
+  content: '•';
+  margin: 0 calc(4pt * var(--i-scale));
+  color: var(--i-muted);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-ivy__section {
+  /* The template's own rhythm, plus whatever space the candidate asked for
+     above this section — `spacing.css`. */
+  margin-top: calc(
+    11pt * var(--i-scale) * var(--i-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-ivy__heading {
+  margin: 0 0 calc(5pt * var(--i-scale));
+  padding-bottom: calc(2.5pt * var(--i-scale));
+  border-bottom: 0.75pt solid var(--i-rule);
+  font-family: var(--i-display);
+  font-size: calc(12pt * var(--i-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.tpl-ivy__prose {
+  margin: 0;
+  text-align: justify;
+}
+
+/* A summary the candidate aligned is aligned; justification is only the
+   default. */
+.tpl-ivy__prose:has(.is-left, .is-center, .is-right) {
+  text-align: unset;
+}
+
+.tpl-ivy__keywords {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-ivy__entry {
+  margin-top: calc(
+    7pt * var(--i-scale) * var(--i-density) + var(--tpl-space-height, 0px)
+  );
+  /* Never strand an entry's head at the foot of a page — the same rule the
+     on-screen paginator applies, so the two agree. */
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-ivy__entry:first-of-type {
+  margin-top: calc(5pt * var(--i-scale) + var(--tpl-space-height, 0px));
+}
+
+/*
+ * Four corners on two lines: organisation and place, role and dates. A grid
+ * rather than floats, so a long organisation name wraps inside its own cell
+ * instead of pushing the place off the line.
+ */
+.tpl-ivy__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(8pt * var(--i-scale));
+}
+
+.tpl-ivy__org {
+  font-size: calc(10.5pt * var(--i-scale));
+  color: var(--i-muted);
+}
+
+.tpl-ivy__role {
+  font-weight: 700;
+}
+
+.tpl-ivy__where,
+.tpl-ivy__dates {
+  text-align: right;
+  color: var(--i-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-ivy__where {
+  font-size: calc(10.5pt * var(--i-scale));
+}
+
+.tpl-ivy__role,
+.tpl-ivy__detail {
+  margin: 0;
+}
+
+.tpl-ivy__detail {
+  color: var(--i-muted);
+}
+
+.tpl-ivy .tpl-bullets {
+  margin: calc(2pt * var(--i-scale)) 0 0;
+}

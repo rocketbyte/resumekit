@@ -107,6 +107,21 @@ describe.each(IDS)('%s meets the editing contract', (id) => {
     }
   });
 
+  /*
+   * One rail per section. A template that drew a second section under a name
+   * already taken — Languages under the skills gap, say — would give one
+   * stored gap two controls, and pointing at either would light up both.
+   */
+  it('gives each named section exactly one rail', async () => {
+    const { container } = await author(id);
+    for (const section of RESUME_SECTIONS) {
+      expect(
+        container.querySelectorAll(`[data-rail-key="s:${section}"]`),
+        section,
+      ).toHaveLength(1);
+    }
+  });
+
   it('offers the space control when a section is pointed at', async () => {
     const { container } = await author(id);
     const experience = container.querySelector(

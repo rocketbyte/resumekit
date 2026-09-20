@@ -57,6 +57,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  ivy: {
+    name: 'Ivy League',
+    description:
+      'A centred academic page: the name over one contact line, section ' +
+      'headings ruled across the column, and every entry set as four corners ' +
+      '— organisation and place over role and dates.',
+    page: 'letter',
+    columns: 1,
+    ats: [
+      'Single column — no sidebar, no text boxes',
+      'Skills as one run of keywords, separated by real characters',
+      'No tables, images, or icon fonts carrying meaning',
+      'Real selectable text, standard system typefaces',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:
