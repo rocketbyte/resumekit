@@ -20,6 +20,7 @@
  * silently; that is why it went unnoticed.
  */
 @import './fonts/fonts.css';
+@import './kit/avatar.css';
 @import './paged.css';
 @import './nodes/template-node.css';
 @import './templates/harvard/harvard.css';
@@ -27,6 +28,7 @@
 @import './templates/classic/classic.css';
 @import './templates/compact/compact.css';
 @import './templates/timeline/timeline.css';
+@import './templates/modern/modern.css';
 @import './templates/executive/executive.css';
 @import './templates/meridian/meridian.css';
 @import './templates/cobalt/cobalt.css';

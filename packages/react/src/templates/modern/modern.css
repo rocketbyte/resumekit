@@ -1,0 +1,234 @@
+/*
+ * The Modern template: a navy name over an accented headline, the candidate's
+ * initials where the reference shows a portrait, and two columns whose
+ * headings are ruled across their own column.
+ *
+ * The rule under each heading is what separates the columns — there is no
+ * divider between them, which keeps the page from reading as a form.
+ */
+
+.tpl-modern {
+  --tpl-space-unit: calc(2.2pt * var(--md-scale) * var(--md-density));
+  --tpl-space-margin: var(--md-margin);
+  --tpl-marker: calc(8pt * var(--md-scale));
+  --tpl-avatar-size: calc(56pt * var(--md-scale));
+  --tpl-avatar-text: calc(18pt * var(--md-scale));
+
+  --md-scale: 1;
+  --md-ink: #1b2a52;
+  --md-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --md-accent: #f2682a;
+  --md-density: 1;
+  --md-margin: 0.5in;
+  --md-body: #34404f;
+  --md-muted: #6c7787;
+  --md-line: #d3d8e0;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.45in var(--md-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--md-body);
+  font-family: var(--md-font);
+  font-size: calc(8.8pt * var(--md-scale));
+  line-height: 1.4;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-modern__head-block {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(16pt * var(--md-scale));
+  align-items: center;
+}
+
+.tpl-modern__name {
+  margin: 0;
+  font-size: calc(18pt * var(--md-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--md-ink);
+  text-transform: uppercase;
+}
+
+.tpl-modern__headline {
+  margin: calc(1pt * var(--md-scale)) 0 0;
+  font-size: calc(11pt * var(--md-scale));
+  font-weight: 700;
+  color: var(--md-accent);
+}
+
+.tpl-modern__contact {
+  margin: calc(3pt * var(--md-scale)) 0 0;
+  font-size: calc(8pt * var(--md-scale));
+  color: var(--md-muted);
+}
+
+.tpl-modern__contact-item + .tpl-modern__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: calc(10pt * var(--md-scale));
+}
+
+/* The initials, in the slot the design gives a portrait. */
+.tpl-modern__avatar {
+  color: var(--md-ink);
+  border-color: var(--md-line);
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+.tpl-modern__body {
+  display: grid;
+  grid-template-columns: 60fr 40fr;
+  column-gap: calc(20pt * var(--md-scale));
+  margin-top: calc(12pt * var(--md-scale) * var(--md-density));
+}
+
+.tpl-modern__main,
+.tpl-modern__aside {
+  min-width: 0;
+}
+
+/* The rail stands against the page's right edge, so its controls belong in the
+   right margin rather than over the column beside them. */
+.tpl-modern__aside {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-modern__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-modern__section + .tpl-modern__section {
+  margin-top: calc(
+    11pt * var(--md-scale) * var(--md-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-modern__heading {
+  margin: 0 0 calc(4pt * var(--md-scale));
+  padding-bottom: calc(2pt * var(--md-scale));
+  border-bottom: 0.75pt solid var(--md-line);
+  font-size: calc(7.6pt * var(--md-scale));
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--md-muted);
+}
+
+.tpl-modern__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-modern__entry {
+  margin-top: calc(
+    8pt * var(--md-scale) * var(--md-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-modern__entry:first-of-type {
+  margin-top: calc(4pt * var(--md-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-modern__role {
+  margin: 0;
+  font-size: calc(10.5pt * var(--md-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--md-ink);
+}
+
+.tpl-modern__meta {
+  margin: 0;
+  font-size: calc(8pt * var(--md-scale));
+  color: var(--md-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-modern__org {
+  font-weight: 700;
+  color: var(--md-accent);
+}
+
+/* A REAL character between the facts: a parser extracts characters, and a gap
+   made of CSS is not one. */
+.tpl-modern__meta-item::before {
+  content: ' · ';
+  color: var(--md-muted);
+}
+
+.tpl-modern .tpl-bullets {
+  margin: calc(2.5pt * var(--md-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-modern .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(8pt * var(--md-scale)) 1fr;
+  margin-top: calc(1pt * var(--md-scale));
+}
+
+.tpl-modern .tpl-bullet::before {
+  content: '·';
+  color: var(--md-muted);
+}
+
+/* ── The rail's notes and chips ─────────────────────────────────────────── */
+
+.tpl-modern__note {
+  margin-top: calc(
+    6pt * var(--md-scale) * var(--md-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+.tpl-modern__note:first-of-type {
+  margin-top: calc(3.5pt * var(--md-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-modern__note-title,
+.tpl-modern__note-detail {
+  margin: 0;
+}
+
+.tpl-modern__note-title {
+  font-weight: 700;
+  color: var(--md-ink);
+}
+
+.tpl-modern__note-detail {
+  color: var(--md-body);
+}
+
+/* Chips: boxes by appearance, list items by structure. */
+.tpl-modern__chips .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(3pt * var(--md-scale));
+  margin-top: 0;
+}
+
+.tpl-modern__chips .tpl-bullet {
+  display: block;
+  margin-top: 0;
+  padding: calc(1.5pt * var(--md-scale)) calc(4pt * var(--md-scale));
+  border: 0.75pt solid var(--md-line);
+  border-radius: calc(2pt * var(--md-scale));
+}
+
+.tpl-modern__chips .tpl-bullet::before {
+  content: none;
+}

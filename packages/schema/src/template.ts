@@ -121,6 +121,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  modern: {
+    name: 'Modern',
+    description:
+      'A navy name over an accented headline with the candidate’s initials ' +
+      'beside it, and two columns whose headings are ruled across their own ' +
+      'column rather than divided by a line.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns — the work history is written first, so extracted text reads it through before the rail',
+      'The initials are decoration with no text of their own to extract',
+      'Skills are chips by appearance and a list by structure — one skill per extracted line',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:

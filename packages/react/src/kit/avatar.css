@@ -1,0 +1,23 @@
+/*
+ * The initials a template draws where its reference shows a portrait.
+ *
+ * Every measurement is a template's to set — it is the template that knows how
+ * big the slot is — so this file holds only what is true of all of them: a
+ * circle of foreground ink with the initials centred in it, which prints with
+ * the browser's background graphics switched off.
+ */
+.tpl-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--tpl-avatar-size, 56pt);
+  height: var(--tpl-avatar-size, 56pt);
+  margin: 0;
+  border: 1pt solid currentcolor;
+  border-radius: 50%;
+  font-size: var(--tpl-avatar-text, 18pt);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
