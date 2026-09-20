@@ -1,0 +1,278 @@
+/*
+ * The Modern template: a navy name over an accented headline, the candidate's
+ * initials where the reference shows a portrait, and two columns whose
+ * headings are ruled across their own column.
+ *
+ * The rule under each heading is what separates the columns — there is no
+ * divider between them, which keeps the page from reading as a form.
+ */
+
+.tpl-polished {
+  --tpl-space-unit: calc(2.2pt * var(--po-scale) * var(--po-density));
+  --tpl-space-margin: var(--po-margin);
+  --tpl-marker: calc(8pt * var(--po-scale));
+  --tpl-avatar-size: calc(56pt * var(--po-scale));
+  --tpl-avatar-text: calc(18pt * var(--po-scale));
+
+  --po-scale: 1;
+  --po-ink: #1d2733;
+  --po-rail: #15514c;
+  --po-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --po-accent: #14746c;
+  --po-density: 1;
+  --po-margin: 0.5in;
+  --po-body: #34404f;
+  --po-muted: #6c7787;
+  --po-line: #d3d8e0;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  /* No padding on the root: the rail must reach the paper's edge, so each
+     column carries its own. */
+  padding: 0;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--po-body);
+  font-family: var(--po-font);
+  font-size: calc(8.8pt * var(--po-scale));
+  line-height: 1.4;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-polished__head-block {
+  margin-bottom: calc(12pt * var(--po-scale));
+}
+
+/* The name heads the rail, in the panel's own ink. */
+.tpl-polished__name {
+  margin: 0 0 calc(12pt * var(--po-scale));
+  font-size: calc(17pt * var(--po-scale));
+  font-weight: 700;
+  line-height: 1.15;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.tpl-polished__headline {
+  margin: calc(1pt * var(--po-scale)) 0 0;
+  font-size: calc(11pt * var(--po-scale));
+  font-weight: 700;
+  color: var(--po-accent);
+}
+
+.tpl-polished__contact {
+  margin: calc(3pt * var(--po-scale)) 0 0;
+  font-size: calc(8pt * var(--po-scale));
+  color: var(--po-muted);
+}
+
+.tpl-polished__contact-item + .tpl-polished__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: calc(10pt * var(--po-scale));
+}
+
+/* The initials, in the slot the design gives a portrait. */
+.tpl-polished__avatar {
+  margin: 0 0 calc(14pt * var(--po-scale));
+  color: #ffffff;
+  border-color: rgb(255 255 255 / 45%);
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+/* The rail first, exactly as the document writes it. */
+.tpl-polished__body {
+  display: grid;
+  grid-template-columns: 34fr 66fr;
+  /* A page's worth, so the rail reaches the foot of the sheet on a résumé
+     that does not fill one. Beyond that it grows with the document. */
+  min-height: 11in;
+}
+
+.tpl-polished__main,
+.tpl-polished__aside {
+  min-width: 0;
+}
+
+.tpl-polished__main {
+  padding: 0.45in var(--po-margin) 0.45in calc(22pt * var(--po-scale));
+}
+
+/*
+ * The rail: painted, reversed, and running the full height of the sheet
+ * because it is a grid item stretched by the row rather than a panel given a
+ * height of its own.
+ */
+.tpl-polished__aside {
+  padding: 0.45in calc(20pt * var(--po-scale)) 0.45in var(--po-margin);
+  background: var(--po-rail);
+  color: #ffffff;
+
+  /* Reversed type: unpainted, the words are not faint, they are absent. */
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/*
+ * The MAIN column is the one against the page's right edge here, so it is the
+ * one whose controls move to the right margin. The rail keeps the default
+ * side, because it stands against the left edge.
+ */
+.tpl-polished__main {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--po-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-polished__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-polished__section + .tpl-polished__section {
+  margin-top: calc(
+    11pt * var(--po-scale) * var(--po-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-polished__aside .tpl-polished__heading {
+  color: rgb(255 255 255 / 72%);
+  border-bottom-color: rgb(255 255 255 / 30%);
+}
+
+.tpl-polished__aside .tpl-polished__note-title {
+  color: #ffffff;
+}
+
+.tpl-polished__aside .tpl-polished__note-detail,
+.tpl-polished__aside .tpl-polished__prose {
+  color: rgb(255 255 255 / 86%);
+}
+
+.tpl-polished__aside .tpl-polished__chips .tpl-bullet {
+  border-color: rgb(255 255 255 / 40%);
+}
+
+.tpl-polished__heading {
+  margin: 0 0 calc(4pt * var(--po-scale));
+  padding-bottom: calc(2pt * var(--po-scale));
+  border-bottom: 0.75pt solid var(--po-line);
+  font-size: calc(7.6pt * var(--po-scale));
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--po-muted);
+}
+
+.tpl-polished__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-polished__entry {
+  margin-top: calc(
+    8pt * var(--po-scale) * var(--po-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-polished__entry:first-of-type {
+  margin-top: calc(4pt * var(--po-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-polished__role {
+  margin: 0;
+  font-size: calc(10.5pt * var(--po-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--po-ink);
+}
+
+.tpl-polished__meta {
+  margin: 0;
+  font-size: calc(8pt * var(--po-scale));
+  color: var(--po-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-polished__org {
+  font-weight: 700;
+  color: var(--po-accent);
+}
+
+/* A REAL character between the facts: a parser extracts characters, and a gap
+   made of CSS is not one. */
+.tpl-polished__meta-item::before {
+  content: ' · ';
+  color: var(--po-muted);
+}
+
+.tpl-polished .tpl-bullets {
+  margin: calc(2.5pt * var(--po-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-polished .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(8pt * var(--po-scale)) 1fr;
+  margin-top: calc(1pt * var(--po-scale));
+}
+
+.tpl-polished .tpl-bullet::before {
+  content: '·';
+  color: var(--po-muted);
+}
+
+/* ── The rail's notes and chips ─────────────────────────────────────────── */
+
+.tpl-polished__note {
+  margin-top: calc(
+    6pt * var(--po-scale) * var(--po-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+.tpl-polished__note:first-of-type {
+  margin-top: calc(3.5pt * var(--po-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-polished__note-title,
+.tpl-polished__note-detail {
+  margin: 0;
+}
+
+.tpl-polished__note-title {
+  font-weight: 700;
+  color: var(--po-ink);
+}
+
+.tpl-polished__note-detail {
+  color: var(--po-body);
+}
+
+/* Chips: boxes by appearance, list items by structure. */
+.tpl-polished__chips .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(3pt * var(--po-scale));
+  margin-top: 0;
+}
+
+.tpl-polished__chips .tpl-bullet {
+  display: block;
+  margin-top: 0;
+  padding: calc(1.5pt * var(--po-scale)) calc(4pt * var(--po-scale));
+  border: 0.75pt solid var(--po-line);
+  border-radius: calc(2pt * var(--po-scale));
+}
+
+.tpl-polished__chips .tpl-bullet::before {
+  content: none;
+}

@@ -249,6 +249,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  polished: {
+    name: 'Polished',
+    description:
+      'A painted rail down the left of every sheet carrying the name at its ' +
+      'head, with the headline, the contact details and the work history in ' +
+      'the wide column beside it.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns, written in the order they are read — the rail is on the left, so extracted text opens with the name and the highlights',
+      'Rail colour is forced to print, so white-on-teal never vanishes',
+      'The rail is a column with a background, not a box the text is placed inside',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:
