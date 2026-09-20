@@ -1,0 +1,246 @@
+/*
+ * The Modern template: a navy name over an accented headline, the candidate's
+ * initials where the reference shows a portrait, and two columns whose
+ * headings are ruled across their own column.
+ *
+ * The rule under each heading is what separates the columns — there is no
+ * divider between them, which keeps the page from reading as a form.
+ */
+
+.tpl-creative {
+  --tpl-space-unit: calc(2.2pt * var(--cr-scale) * var(--cr-density));
+  --tpl-space-margin: var(--cr-margin);
+  --tpl-marker: calc(8pt * var(--cr-scale));
+  --tpl-avatar-size: calc(56pt * var(--cr-scale));
+  --tpl-avatar-text: calc(18pt * var(--cr-scale));
+
+  --cr-scale: 1;
+  --cr-ink: #22394f;
+  --cr-band: #244059;
+  --cr-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --cr-accent: #3f7fb5;
+  --cr-density: 1;
+  --cr-margin: 0.5in;
+  --cr-body: #34404f;
+  --cr-muted: #6c7787;
+  --cr-line: #d3d8e0;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.45in var(--cr-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--cr-body);
+  font-family: var(--cr-font);
+  font-size: calc(8.8pt * var(--cr-scale));
+  line-height: 1.4;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-creative__band {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(16pt * var(--cr-scale));
+  align-items: center;
+  margin: calc(-0.45in) calc(-1 * var(--cr-margin)) 0;
+  padding: calc(22pt * var(--cr-scale)) var(--cr-margin);
+  background: var(--cr-band);
+  color: #ffffff;
+
+  /* Reversed type: if the ground is not printed the words are not there, so
+     the band asks to be painted. A hint, and the catalog says as much. */
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-creative__name {
+  margin: 0;
+  font-size: calc(18pt * var(--cr-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  color: inherit;
+  text-transform: uppercase;
+}
+
+.tpl-creative__headline {
+  margin: calc(1pt * var(--cr-scale)) 0 0;
+  font-size: calc(10.5pt * var(--cr-scale));
+  font-weight: 700;
+  color: inherit;
+}
+
+.tpl-creative__contact {
+  margin: calc(3pt * var(--cr-scale)) 0 0;
+  font-size: calc(8pt * var(--cr-scale));
+  color: inherit;
+  opacity: 0.92;
+}
+
+.tpl-creative__contact-item + .tpl-creative__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: calc(10pt * var(--cr-scale));
+}
+
+/* The initials, in the slot the design gives a portrait — on the band, so
+   they are drawn in the band's own ink. */
+.tpl-creative__avatar {
+  color: inherit;
+  border-color: currentcolor;
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+.tpl-creative__body {
+  display: grid;
+  grid-template-columns: 60fr 40fr;
+  column-gap: calc(20pt * var(--cr-scale));
+  margin-top: calc(14pt * var(--cr-scale) * var(--cr-density));
+}
+
+.tpl-creative__main,
+.tpl-creative__aside {
+  min-width: 0;
+}
+
+/* The rail stands against the page's right edge, so its controls belong in the
+   right margin rather than over the column beside them. */
+.tpl-creative__aside {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-creative__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-creative__section + .tpl-creative__section {
+  margin-top: calc(
+    11pt * var(--cr-scale) * var(--cr-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-creative__heading {
+  margin: 0 0 calc(4pt * var(--cr-scale));
+  padding-bottom: calc(2pt * var(--cr-scale));
+  border-bottom: 0.75pt solid var(--cr-line);
+  font-size: calc(7.6pt * var(--cr-scale));
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cr-muted);
+}
+
+.tpl-creative__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-creative__entry {
+  margin-top: calc(
+    8pt * var(--cr-scale) * var(--cr-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-creative__entry:first-of-type {
+  margin-top: calc(4pt * var(--cr-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-creative__role {
+  margin: 0;
+  font-size: calc(10.5pt * var(--cr-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--cr-ink);
+}
+
+.tpl-creative__meta {
+  margin: 0;
+  font-size: calc(8pt * var(--cr-scale));
+  color: var(--cr-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-creative__org {
+  font-weight: 700;
+  color: var(--cr-accent);
+}
+
+/* A REAL character between the facts: a parser extracts characters, and a gap
+   made of CSS is not one. */
+.tpl-creative__meta-item::before {
+  content: ' · ';
+  color: var(--cr-muted);
+}
+
+.tpl-creative .tpl-bullets {
+  margin: calc(2.5pt * var(--cr-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-creative .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(8pt * var(--cr-scale)) 1fr;
+  margin-top: calc(1pt * var(--cr-scale));
+}
+
+.tpl-creative .tpl-bullet::before {
+  content: '·';
+  color: var(--cr-muted);
+}
+
+/* ── The rail's notes and chips ─────────────────────────────────────────── */
+
+.tpl-creative__note {
+  margin-top: calc(
+    6pt * var(--cr-scale) * var(--cr-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+.tpl-creative__note:first-of-type {
+  margin-top: calc(3.5pt * var(--cr-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-creative__note-title,
+.tpl-creative__note-detail {
+  margin: 0;
+}
+
+.tpl-creative__note-title {
+  font-weight: 700;
+  color: var(--cr-ink);
+}
+
+.tpl-creative__note-detail {
+  color: var(--cr-body);
+}
+
+/* Chips: boxes by appearance, list items by structure. */
+.tpl-creative__chips .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(3pt * var(--cr-scale));
+  margin-top: 0;
+}
+
+.tpl-creative__chips .tpl-bullet {
+  display: block;
+  margin-top: 0;
+  padding: calc(1.5pt * var(--cr-scale)) calc(4pt * var(--cr-scale));
+  border: 0.75pt solid var(--cr-line);
+  border-radius: calc(2pt * var(--cr-scale));
+}
+
+.tpl-creative__chips .tpl-bullet::before {
+  content: none;
+}

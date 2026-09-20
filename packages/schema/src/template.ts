@@ -153,6 +153,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  creative: {
+    name: 'Creative',
+    description:
+      'A full-width band carrying the name, the headline, the contact details ' +
+      'and the candidate’s initials, over two columns with the work history ' +
+      'in the wide one.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns — the work history is written first, so extracted text reads it through before the rail',
+      'Band colour is forced to print, so white-on-navy never vanishes',
+      'Skills are chips by appearance and a list by structure — one skill per extracted line',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:
