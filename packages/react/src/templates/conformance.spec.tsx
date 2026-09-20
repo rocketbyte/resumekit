@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -95,6 +95,23 @@ function addsSpace(css: string, className: string): boolean {
       /margin-top:[^;]*var\(--tpl-space-height/.test(body ?? ''),
   );
 }
+
+/*
+ * A template's document must import ITS OWN stylesheet.
+ *
+ * TypeScript does not check a CSS import, so a template written from another
+ * one's file keeps pointing at that one's styles and typechecks clean. It
+ * fails at build time in the export bundle — which is a long way from where
+ * the mistake was made, and only if somebody builds it.
+ */
+it.each(IDS)('%s imports its own stylesheet', (id) => {
+  const dir = join(HERE, id);
+  const document = readdirSync(dir).find((f) => /Document\.tsx$/.test(f));
+  expect(document, `${id} has a document`).toBeTruthy();
+  expect(readFileSync(join(dir, document as string), 'utf8')).toContain(
+    `import './${id}.css'`,
+  );
+});
 
 describe.each(IDS)('%s meets the editing contract', (id) => {
   it('gives every named section its own rail', async () => {

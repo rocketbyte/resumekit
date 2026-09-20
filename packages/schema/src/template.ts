@@ -185,6 +185,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  'double-column': {
+    name: 'Double Column',
+    description:
+      'The plainest two-column page in the catalog, and the loudest headings: ' +
+      'set at reading size over a heavy rule, with the work history in the ' +
+      'wide column and the highlights in a rail.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns — the work history is written first, so extracted text reads it through before the rail',
+      'Skills are filled chips by appearance and a list by structure — one skill per extracted line',
+      'Nothing on the page depends on a printed background',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:

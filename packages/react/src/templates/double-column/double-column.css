@@ -1,0 +1,244 @@
+/*
+ * The Double Column template: the plainest two-column page in the catalog, and
+ * the loudest headings — set at reading size over a heavy rule.
+ *
+ * Nothing here is tinted except the skill chips, and those are a fill behind
+ * ordinary list items: the page reads the same in grey.
+ */
+
+.tpl-dc {
+  --tpl-space-unit: calc(2.2pt * var(--dc-scale) * var(--dc-density));
+  --tpl-space-margin: var(--dc-margin);
+  --tpl-marker: calc(8pt * var(--dc-scale));
+  --tpl-avatar-size: calc(56pt * var(--dc-scale));
+  --tpl-avatar-text: calc(18pt * var(--dc-scale));
+
+  --dc-scale: 1;
+  --dc-ink: #22262b;
+  --dc-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --dc-accent: #2f6df6;
+  --dc-density: 1;
+  --dc-margin: 0.5in;
+  --dc-body: #34404f;
+  --dc-muted: #6c7787;
+  --dc-line: #cdd2d9;
+  --dc-fill: #eef1f5;
+  --dc-rule: #3a4048;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.45in var(--dc-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--dc-body);
+  font-family: var(--dc-font);
+  font-size: calc(8.8pt * var(--dc-scale));
+  line-height: 1.4;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-dc__head-block {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(16pt * var(--dc-scale));
+  align-items: center;
+}
+
+.tpl-dc__name {
+  margin: 0;
+  font-size: calc(18pt * var(--dc-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--dc-ink);
+  text-transform: uppercase;
+}
+
+.tpl-dc__headline {
+  margin: calc(1pt * var(--dc-scale)) 0 0;
+  font-size: calc(11pt * var(--dc-scale));
+  font-weight: 700;
+  color: var(--dc-accent);
+}
+
+.tpl-dc__contact {
+  margin: calc(3pt * var(--dc-scale)) 0 0;
+  font-size: calc(8pt * var(--dc-scale));
+  color: var(--dc-muted);
+}
+
+.tpl-dc__contact-item + .tpl-dc__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: calc(10pt * var(--dc-scale));
+}
+
+/* The initials, in the slot the design gives a portrait. */
+.tpl-dc__avatar {
+  color: var(--dc-ink);
+  border-color: var(--dc-line);
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+.tpl-dc__body {
+  display: grid;
+  grid-template-columns: 60fr 40fr;
+  column-gap: calc(20pt * var(--dc-scale));
+  margin-top: calc(12pt * var(--dc-scale) * var(--dc-density));
+}
+
+.tpl-dc__main,
+.tpl-dc__aside {
+  min-width: 0;
+}
+
+/* The rail stands against the page's right edge, so its controls belong in the
+   right margin rather than over the column beside them. */
+.tpl-dc__aside {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-dc__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-dc__section + .tpl-dc__section {
+  margin-top: calc(
+    11pt * var(--dc-scale) * var(--dc-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-dc__heading {
+  margin: 0 0 calc(5pt * var(--dc-scale));
+  padding-bottom: calc(2.5pt * var(--dc-scale));
+  border-bottom: 1.25pt solid var(--dc-rule);
+  font-size: calc(11pt * var(--dc-scale));
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--dc-ink);
+}
+
+.tpl-dc__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-dc__entry {
+  margin-top: calc(
+    8pt * var(--dc-scale) * var(--dc-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-dc__entry:first-of-type {
+  margin-top: calc(4pt * var(--dc-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-dc__role {
+  margin: 0;
+  font-size: calc(10.5pt * var(--dc-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--dc-ink);
+}
+
+.tpl-dc__meta {
+  margin: 0;
+  font-size: calc(8pt * var(--dc-scale));
+  color: var(--dc-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-dc__org {
+  font-weight: 700;
+  color: var(--dc-accent);
+}
+
+/* A REAL character between the facts: a parser extracts characters, and a gap
+   made of CSS is not one. */
+.tpl-dc__meta-item::before {
+  content: ' · ';
+  color: var(--dc-muted);
+}
+
+.tpl-dc .tpl-bullets {
+  margin: calc(2.5pt * var(--dc-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-dc .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(8pt * var(--dc-scale)) 1fr;
+  margin-top: calc(1pt * var(--dc-scale));
+}
+
+.tpl-dc .tpl-bullet::before {
+  content: '·';
+  color: var(--dc-muted);
+}
+
+/* ── The rail's notes and chips ─────────────────────────────────────────── */
+
+.tpl-dc__note {
+  margin-top: calc(
+    5pt * var(--dc-scale) * var(--dc-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* A dotted rule between one highlight and the next, so the rail can stay
+   dense without the notes running together. */
+.tpl-dc__note + .tpl-dc__note {
+  padding-top: calc(5pt * var(--dc-scale));
+  border-top: 0.75pt dotted var(--dc-line);
+}
+
+.tpl-dc__note:first-of-type {
+  margin-top: calc(3.5pt * var(--dc-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-dc__note-title,
+.tpl-dc__note-detail {
+  margin: 0;
+}
+
+.tpl-dc__note-title {
+  font-weight: 700;
+  color: var(--dc-ink);
+}
+
+.tpl-dc__note-detail {
+  color: var(--dc-body);
+}
+
+/* Chips: boxes by appearance, list items by structure. */
+.tpl-dc__chips .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(3pt * var(--dc-scale));
+  margin-top: 0;
+}
+
+/* A FILL rather than an outline, and a fill is decoration: the chips are list
+   items, so the page reads the same when the colour is not printed. */
+.tpl-dc__chips .tpl-bullet {
+  display: block;
+  margin-top: 0;
+  padding: calc(1.5pt * var(--dc-scale)) calc(5pt * var(--dc-scale));
+  background: var(--dc-fill);
+  border-radius: calc(2pt * var(--dc-scale));
+}
+
+.tpl-dc__chips .tpl-bullet::before {
+  content: none;
+}
