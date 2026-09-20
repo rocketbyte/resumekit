@@ -110,6 +110,23 @@ export function DoubleColumnLogosDocument({
 
       <div className="tpl-dcl__body">
         <div className="tpl-dcl__main" data-flow>
+          {(resume.summary || authoring) && (
+            <DocumentSection
+              id="summary"
+              title="Summary"
+              className="tpl-dcl__section"
+              headingClassName="tpl-dcl__heading"
+            >
+              <p className="tpl-dcl__prose" data-block>
+                <EditableText
+                  path="summary"
+                  value={resume.summary ?? ''}
+                  placeholder={PLACEHOLDERS['summary']}
+                  multiline
+                />
+              </p>
+            </DocumentSection>
+          )}
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"
@@ -176,24 +193,6 @@ export function DoubleColumnLogosDocument({
 
         {/* ── The rail: what a reader scans ─────────────────────────────── */}
         <aside className="tpl-dcl__aside" data-flow>
-          {(resume.summary || authoring) && (
-            <DocumentSection
-              id="summary"
-              title="Summary"
-              className="tpl-dcl__section"
-              headingClassName="tpl-dcl__heading"
-            >
-              <p className="tpl-dcl__prose" data-block>
-                <EditableText
-                  path="summary"
-                  value={resume.summary ?? ''}
-                  placeholder={PLACEHOLDERS['summary']}
-                  multiline
-                />
-              </p>
-            </DocumentSection>
-          )}
-
           <CustomSections
             sections={resume.custom_sections}
             sectionClass="tpl-dcl__section"
@@ -208,9 +207,13 @@ export function DoubleColumnLogosDocument({
               className="tpl-dcl__section"
               headingClassName="tpl-dcl__heading"
             >
-              {/* Chips, and every chip is a list ITEM: a parser reads them one
-                  per line rather than as one run of joined words. */}
-              <div className="tpl-dcl__chips" data-block data-split>
+              {/* Keywords in boxes, as this reference draws them — and every one a
+                  list ITEM, so a parser still reads one skill per line. */}
+              <div
+                className="tpl-keywords tpl-keywords--boxed"
+                data-block
+                data-split
+              >
                 <Collection
                   section="skills"
                   items={resume.skills}

@@ -12,7 +12,7 @@
   --tpl-space-unit: calc(2.4pt * var(--cl-scale) * var(--cl-density));
   --tpl-space-margin: var(--cl-margin);
   /* The bullet marker column, read by `template-node.css`. */
-  --tpl-marker: calc(10pt * var(--cl-scale));
+  --tpl-marker: calc(9pt * var(--cl-scale));
 
   --cl-scale: 1;
   --cl-ink: #1f1f1f;
@@ -21,26 +21,26 @@
   /* The accent names the employer, and nothing else on the page carries it. */
   --cl-accent: #2fa36a;
   --cl-density: 1;
-  --cl-margin: 0.6in;
+  --cl-margin: 0.5in;
   --cl-muted: #5c5c5c;
   --cl-quiet: #767676;
 
   box-sizing: border-box;
   width: 8.5in;
-  padding: 0.55in var(--cl-margin);
+  padding: 0.45in var(--cl-margin);
   margin: 0 auto;
   background: #ffffff;
   color: var(--cl-ink);
   font-family: var(--cl-font);
-  font-size: calc(9.2pt * var(--cl-scale));
-  line-height: 1.4;
+  font-size: calc(8.4pt * var(--cl-scale));
+  line-height: 1.35;
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
 
 .tpl-classic__name {
   margin: 0;
-  font-size: calc(19pt * var(--cl-scale));
+  font-size: calc(17pt * var(--cl-scale));
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.01em;
@@ -48,13 +48,13 @@
 
 .tpl-classic__headline {
   margin: calc(2pt * var(--cl-scale)) 0 0;
-  font-size: calc(11pt * var(--cl-scale));
+  font-size: calc(10pt * var(--cl-scale));
   color: var(--cl-muted);
 }
 
 .tpl-classic__contact {
   margin: calc(3pt * var(--cl-scale)) 0 0;
-  font-size: calc(8pt * var(--cl-scale));
+  font-size: calc(7.6pt * var(--cl-scale));
   color: var(--cl-quiet);
 }
 
@@ -70,13 +70,13 @@
 
 .tpl-classic__section {
   margin-top: calc(
-    12pt * var(--cl-scale) * var(--cl-density) + var(--tpl-space-height, 0px)
+    10pt * var(--cl-scale) * var(--cl-density) + var(--tpl-space-height, 0px)
   );
 }
 
 .tpl-classic__heading {
-  margin: 0 0 calc(4pt * var(--cl-scale));
-  font-size: calc(8.4pt * var(--cl-scale));
+  margin: 0 0 calc(3pt * var(--cl-scale));
+  font-size: calc(7.8pt * var(--cl-scale));
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -92,7 +92,7 @@
 
 .tpl-classic__entry {
   margin-top: calc(
-    8pt * var(--cl-scale) * var(--cl-density) + var(--tpl-space-height, 0px)
+    7pt * var(--cl-scale) * var(--cl-density) + var(--tpl-space-height, 0px)
   );
   break-inside: avoid;
 }
@@ -118,7 +118,7 @@
 }
 
 .tpl-classic__lead {
-  font-size: calc(11.5pt * var(--cl-scale));
+  font-size: calc(10.5pt * var(--cl-scale));
   line-height: 1.25;
 }
 
@@ -129,13 +129,32 @@
 
 .tpl-classic__aside {
   text-align: right;
-  font-size: calc(8pt * var(--cl-scale));
+  font-size: calc(7.6pt * var(--cl-scale));
   color: var(--cl-quiet);
   font-variant-numeric: tabular-nums;
 }
 
 .tpl-classic .tpl-bullets {
-  margin: calc(3pt * var(--cl-scale)) 0 0;
+  margin: calc(2.5pt * var(--cl-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * The bullet and its hanging indent, stated here because only this stylesheet
+ * knows how wide its marker column is — `template-node.css` centres the drag
+ * handle on the figure below, and a template that left it out drew whatever
+ * the shared default happened to be.
+ */
+.tpl-classic .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(9pt * var(--cl-scale)) 1fr;
+  margin-top: calc(1pt * var(--cl-scale));
+}
+
+.tpl-classic .tpl-bullet::before {
+  content: '·';
+  color: var(--cl-quiet);
 }
 
 /* ── The candidate's own sections: two notes to a row ───────────────────── */

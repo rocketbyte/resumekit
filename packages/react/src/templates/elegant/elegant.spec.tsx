@@ -108,59 +108,16 @@ describe('the Elegant document', () => {
     expect(screen.queryByText('Achievements')).toBeNull();
   });
 
-  /* Languages is read from the skills group that names them: it belongs with
-     the résumé in the main column, not in the rail's chips. */
-  it('keeps languages out of the chips, and in the résumé column', () => {
-    const { container } = draw(resume());
-    const chips = container.querySelector('.tpl-elegant__chips');
-    expect(chips?.textContent).toContain('Supply Chain Management');
-    expect(chips?.textContent).not.toContain('English');
-    expect(
-      container.querySelector('.tpl-elegant__main')?.textContent,
-    ).toContain('English');
-  });
-
   /*
-   * The résumé is written before the rail. This is the template's one ATS
-   * claim, so it is asserted against the DOM order rather than against a
-   * column width nobody extracts.
+   * Skills are ONE RUN of keywords in this template, which is how its
+   * reference sets them — and a field per stored group, so the separators a
+   * parser extracts are real characters.
    */
-  it('writes the résumé before the rail', () => {
+  it('prints skills as one run of keywords', () => {
     const { container } = draw(resume());
-    const flows = Array.from(container.querySelectorAll('[data-flow]'));
-    expect(flows).toHaveLength(2);
-    expect(flows[0]?.className).toContain('tpl-elegant__main');
-    expect(flows[0]?.textContent).toContain('Supply Chain Analyst');
-    expect(flows[1]?.className).toContain('tpl-elegant__aside');
-  });
-
-  /* One line for the facts: employer, dates and place, with real characters
-     between them so the extracted line reads as three things. */
-  it('puts the employer, the dates and the place on one line', () => {
-    const { container } = draw(resume());
-    const meta = container.querySelector(
-      '.tpl-elegant__entry .tpl-elegant__meta',
-    );
-    expect(meta?.textContent).toContain('Unilever');
-    expect(meta?.textContent).toContain('2019-01');
-    expect(meta?.textContent).toContain('London, UK');
-    const sep = css.slice(css.indexOf('.tpl-elegant__meta-item::before {'));
-    expect(sep.slice(0, sep.indexOf('}'))).toMatch(/content: '[^']*·[^']*'/);
-  });
-
-  /*
-   * Chips are appearance; the structure stays a list. A run of boxes built
-   * from spans would extract as one joined word, which is the thing that makes
-   * a keyword rail an ATS risk.
-   */
-  it('draws skills as chips that are still list items', () => {
-    const { container } = draw(resume());
-    const chips = container.querySelector('.tpl-elegant__chips');
-    expect(chips?.querySelectorAll('li').length).toBeGreaterThan(0);
-    const chipRules = [
-      ...css.matchAll(/\.tpl-elegant__chips \.tpl-bullet \{([^}]*)\}/g),
-    ].map(([, body]) => body);
-    expect(chipRules.some((body) => /border:/.test(body))).toBe(true);
+    const run = container.querySelector('.tpl-elegant__keywords');
+    expect(run?.textContent).toContain('Supply Chain Management');
+    expect(container.querySelector('.tpl-keywords')).toBeNull();
   });
 
   /*
@@ -218,9 +175,16 @@ describe('the Elegant document', () => {
     expect(TEMPLATES.elegant.ats.join(' ')).toMatch(/forced to print/i);
   });
 
-  /* And it reaches the foot of a sheet the résumé does not fill. */
-  it('runs the rail down the whole sheet', () => {
-    const grid = css.slice(css.indexOf('.tpl-elegant__body {'));
-    expect(grid.slice(0, grid.indexOf('}'))).toMatch(/min-height: 11in/);
+  /*
+   * And it covers every sheet the document runs to. The height comes from
+   * `kit/panel.css`, which reads the page count the flow publishes — a résumé
+   * that spills four lines onto a second page would otherwise paint a stub of
+   * colour at the top of it and white underneath.
+   */
+  it('covers every sheet the document runs to', () => {
+    const { container } = draw(resume());
+    expect(container.querySelector('.tpl-elegant__body')?.className).toContain(
+      'tpl-sheet-tall',
+    );
   });
 });

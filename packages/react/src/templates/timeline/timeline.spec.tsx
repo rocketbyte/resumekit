@@ -113,7 +113,7 @@ describe('the Timeline document', () => {
      as its own section rather than among the skill chips. */
   it('keeps languages out of the chips', () => {
     const { container } = draw(resume());
-    const chips = container.querySelector('.tpl-timeline__chips');
+    const chips = container.querySelector('.tpl-keywords');
     expect(chips?.textContent).toContain('Supply Chain Management');
     expect(chips?.textContent).not.toContain('English');
     expect(container.textContent).toContain('English');
@@ -151,15 +151,16 @@ describe('the Timeline document', () => {
     expect(css).not.toMatch(/background-image:/);
   });
 
-  /* Chips are appearance; the structure stays a list, so a parser reads one
-     skill per line rather than a run of joined words. */
-  it('draws skills as chips that are still list items', () => {
+  /*
+   * Skills are keywords over a RULE, one to a line — the shape every
+   * reference in this catalog sets them in — and still list items, so a
+   * parser reads one skill per line rather than a run of joined words.
+   */
+  it('draws skills as keywords over a rule, and keeps them a list', () => {
     const { container } = draw(resume());
-    expect(
-      container.querySelectorAll('.tpl-timeline__chips li').length,
-    ).toBeGreaterThan(0);
-    const chip = css.slice(css.indexOf('.tpl-timeline__chips .tpl-bullet {'));
-    expect(chip.slice(0, chip.indexOf('}'))).toMatch(/border:/);
+    const keywords = container.querySelector('.tpl-keywords');
+    expect(keywords?.querySelectorAll('li').length).toBeGreaterThan(0);
+    expect(keywords?.querySelector('[class*="__chips"]')).toBeNull();
   });
 
   it('honours the guarantees its catalog entry makes', () => {

@@ -203,9 +203,9 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
               className="tpl-compact__section"
               headingClassName="tpl-compact__heading"
             >
-              {/* Chips, and every chip is a list ITEM: a parser reads them one
-                  per line rather than as one run of joined words. */}
-              <div className="tpl-compact__chips" data-block data-split>
+              {/* Keywords over a rule, one to a line, and every one a list ITEM:
+                  a parser reads them one per line rather than as a run. */}
+              <div className="tpl-keywords" data-block data-split>
                 <Collection
                   section="skills"
                   items={resume.skills}

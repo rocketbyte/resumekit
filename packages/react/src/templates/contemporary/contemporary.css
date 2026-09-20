@@ -33,7 +33,7 @@
   background: #ffffff;
   color: var(--cn-body);
   font-family: var(--cn-font);
-  font-size: calc(8.8pt * var(--cn-scale));
+  font-size: calc(8.2pt * var(--cn-scale));
   line-height: 1.45;
 }
 
@@ -95,7 +95,7 @@
 /* The rail first, exactly as the document writes it. */
 .tpl-contemporary__body {
   display: grid;
-  grid-template-columns: 36fr 64fr;
+  grid-template-columns: 31fr 69fr;
   column-gap: calc(20pt * var(--cn-scale));
   margin-top: calc(12pt * var(--cn-scale) * var(--cn-density));
 }
@@ -169,31 +169,32 @@
   margin-top: calc(4pt * var(--cn-scale) + var(--tpl-space-height, 0px));
 }
 
-.tpl-contemporary__role {
-  margin: 0;
-  font-size: calc(10.5pt * var(--cn-scale));
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--cn-ink);
-}
-
-.tpl-contemporary__meta {
-  margin: 0;
-  font-size: calc(8pt * var(--cn-scale));
-  color: var(--cn-muted);
-  font-variant-numeric: tabular-nums;
+.tpl-contemporary__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(10pt * var(--cn-scale));
 }
 
 .tpl-contemporary__org {
   font-weight: 700;
-  color: var(--cn-accent);
+  color: var(--cn-ink);
 }
 
-/* A REAL character between the facts: a parser extracts characters, and a gap
-   made of CSS is not one. */
-.tpl-contemporary__meta-item::before {
-  content: ' · ';
+.tpl-contemporary__role {
+  color: var(--cn-body);
+}
+
+.tpl-contemporary__where,
+.tpl-contemporary__dates {
+  text-align: right;
+  font-size: calc(7.6pt * var(--cn-scale));
   color: var(--cn-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-contemporary__detail {
+  margin: 0;
+  color: var(--cn-body);
 }
 
 .tpl-contemporary .tpl-bullets {
@@ -255,26 +256,11 @@
   color: var(--cn-body);
 }
 
-/* Chips: boxes by appearance, list items by structure. */
-.tpl-contemporary__chips .tpl-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: calc(3pt * var(--cn-scale));
-  margin-top: 0;
+/* Skills as one run of keywords, as this template's reference sets them. */
+.tpl-contemporary__keywords {
+  margin: 0;
+  font-weight: 600;
 }
-
-.tpl-contemporary__chips .tpl-bullet {
-  display: block;
-  margin-top: 0;
-  padding: calc(1.5pt * var(--cn-scale)) calc(4pt * var(--cn-scale));
-  border: 0.75pt solid var(--cn-line);
-  border-radius: calc(2pt * var(--cn-scale));
-}
-
-.tpl-contemporary__chips .tpl-bullet::before {
-  content: none;
-}
-
 /* ── The contact details, as a section of the rail ──────────────────────── */
 
 .tpl-contemporary__contacts {

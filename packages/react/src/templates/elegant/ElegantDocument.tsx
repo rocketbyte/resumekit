@@ -6,7 +6,7 @@ import { EditableInlineList } from '../../nodes/EditableInlineList.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
-import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
+import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
 import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { contactLines } from '../../kit/contact.js';
@@ -55,7 +55,7 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
       style={documentStyle('el', style)}
       aria-label="Resume document"
     >
-      <div className="tpl-elegant__body">
+      <div className="tpl-elegant__body tpl-sheet-tall">
         <div className="tpl-elegant__main" data-flow>
           <header className="tpl-elegant__head-block" data-block>
             <div className="tpl-elegant__identity">
@@ -108,6 +108,23 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
             </div>
           </header>
 
+          {(resume.summary || authoring) && (
+            <DocumentSection
+              id="summary"
+              title="Summary"
+              className="tpl-elegant__section"
+              headingClassName="tpl-elegant__heading"
+            >
+              <p className="tpl-elegant__prose" data-block>
+                <EditableText
+                  path="summary"
+                  value={resume.summary ?? ''}
+                  placeholder={PLACEHOLDERS['summary']}
+                  multiline
+                />
+              </p>
+            </DocumentSection>
+          )}
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"
@@ -181,23 +198,6 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
           {/* No photograph is stored, and none is invented: the initials ride
               the top of the rail, where the reference puts a portrait. */}
           <InitialsAvatar name={resume.name} className="tpl-elegant__avatar" />
-          {(resume.summary || authoring) && (
-            <DocumentSection
-              id="summary"
-              title="Summary"
-              className="tpl-elegant__section"
-              headingClassName="tpl-elegant__heading"
-            >
-              <p className="tpl-elegant__prose" data-block>
-                <EditableText
-                  path="summary"
-                  value={resume.summary ?? ''}
-                  placeholder={PLACEHOLDERS['summary']}
-                  multiline
-                />
-              </p>
-            </DocumentSection>
-          )}
 
           <CustomSections
             sections={resume.custom_sections}
@@ -213,22 +213,27 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
               className="tpl-elegant__section"
               headingClassName="tpl-elegant__heading"
             >
-              {/* Chips, and every chip is a list ITEM: a parser reads them one
-                  per line rather than as one run of joined words. */}
-              <div className="tpl-elegant__chips" data-block data-split>
+              {/* One run of keywords, as this reference sets them — and still a
+                  field per group, so a parser reads the separators as characters. */}
+              <p className="tpl-elegant__keywords" data-block>
                 <Collection
                   section="skills"
                   items={resume.skills}
                   noun="skill"
                   gap={false}
                 >
-                  {({ item, path }) =>
+                  {({ item, path, index }) =>
                     isLanguages(item) ? null : (
-                      <BulletSkillGroup item={item} path={path} />
+                      <InlineSkillGroup
+                        item={item}
+                        path={path}
+                        first={index === 0}
+                        separator=" · "
+                      />
                     )
                   }
                 </Collection>
-              </div>
+              </p>
             </DocumentSection>
           )}
 

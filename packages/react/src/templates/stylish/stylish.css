@@ -32,7 +32,7 @@
   background: #ffffff;
   color: var(--st-body);
   font-family: var(--st-font);
-  font-size: calc(8.8pt * var(--st-scale));
+  font-size: calc(8pt * var(--st-scale));
   line-height: 1.4;
 }
 
@@ -47,7 +47,7 @@
 
 .tpl-stylish__name {
   margin: 0;
-  font-size: calc(18pt * var(--st-scale));
+  font-size: calc(16pt * var(--st-scale));
   font-weight: 700;
   line-height: 1.1;
   color: var(--st-ink);
@@ -148,7 +148,7 @@
 
 .tpl-stylish__role {
   margin: 0;
-  font-size: calc(10.5pt * var(--st-scale));
+  font-size: calc(9.6pt * var(--st-scale));
   font-weight: 700;
   line-height: 1.2;
   color: var(--st-ink);
@@ -232,22 +232,10 @@
   color: var(--st-body);
 }
 
-/* Chips: boxes by appearance, list items by structure. */
-.tpl-stylish__chips .tpl-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: calc(3pt * var(--st-scale));
-  margin-top: 0;
-}
-
-.tpl-stylish__chips .tpl-bullet {
-  display: block;
-  margin-top: 0;
-  padding: calc(1.5pt * var(--st-scale)) calc(4pt * var(--st-scale));
-  border: 0.75pt solid var(--st-line);
-  border-radius: calc(2pt * var(--st-scale));
-}
-
-.tpl-stylish__chips .tpl-bullet::before {
-  content: none;
+/* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
+   template states only its colour and its rhythm. */
+.tpl-keywords {
+  --tpl-keyword-line: var(--st-line);
+  --tpl-keyword-gap: calc(5pt * var(--st-scale));
+  --tpl-keyword-lead: calc(1.5pt * var(--st-scale));
 }

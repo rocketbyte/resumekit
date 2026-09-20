@@ -24,7 +24,7 @@
   --i-margin: 0.55in;
   /* The bullet marker column, read by `template-node.css` so the drag handle
      stands where the marker does rather than at a guessed offset. */
-  --tpl-marker: calc(10pt * var(--i-scale));
+  --tpl-marker: calc(8pt * var(--i-scale));
   --i-muted: #4a4a4a;
   --i-rule: #111111;
 
@@ -35,8 +35,8 @@
   background: #ffffff;
   color: var(--i-ink);
   font-family: var(--i-font);
-  font-size: calc(9.4pt * var(--i-scale));
-  line-height: 1.34;
+  font-size: calc(8pt * var(--i-scale));
+  line-height: 1.3;
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
@@ -48,7 +48,7 @@
 .tpl-ivy__name {
   margin: 0;
   font-family: var(--i-display);
-  font-size: calc(17pt * var(--i-scale));
+  font-size: calc(14pt * var(--i-scale));
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: 0.02em;
@@ -57,13 +57,13 @@
 
 .tpl-ivy__headline {
   margin: calc(3pt * var(--i-scale)) 0 0;
-  font-size: calc(11pt * var(--i-scale));
+  font-size: calc(9.5pt * var(--i-scale));
   color: var(--i-muted);
 }
 
 .tpl-ivy__contact {
   margin: calc(3pt * var(--i-scale)) 0 0;
-  font-size: calc(8.2pt * var(--i-scale));
+  font-size: calc(7.2pt * var(--i-scale));
   color: var(--i-muted);
 }
 
@@ -90,7 +90,7 @@
   padding-bottom: calc(2.5pt * var(--i-scale));
   border-bottom: 0.75pt solid var(--i-rule);
   font-family: var(--i-display);
-  font-size: calc(12pt * var(--i-scale));
+  font-size: calc(10.5pt * var(--i-scale));
   font-weight: 700;
   line-height: 1.2;
   text-align: center;
@@ -140,7 +140,7 @@
 }
 
 .tpl-ivy__org {
-  font-size: calc(10.5pt * var(--i-scale));
+  font-size: calc(9pt * var(--i-scale));
   color: var(--i-muted);
 }
 
@@ -156,7 +156,7 @@
 }
 
 .tpl-ivy__where {
-  font-size: calc(10.5pt * var(--i-scale));
+  font-size: calc(9pt * var(--i-scale));
 }
 
 .tpl-ivy__role,
@@ -170,4 +170,47 @@
 
 .tpl-ivy .tpl-bullets {
   margin: calc(2pt * var(--i-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * The bullet and its hanging indent. Stated here because only this stylesheet
+ * knows how wide its marker column is, and `template-node.css` measures the
+ * drag handle against that figure.
+ */
+.tpl-ivy .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(8pt * var(--i-scale)) 1fr;
+  margin-top: calc(1pt * var(--i-scale));
+}
+
+.tpl-ivy .tpl-bullet::before {
+  content: '·';
+  color: var(--i-muted);
+}
+
+/* ── The candidate's own sections: three notes to a row ─────────────────── */
+
+/*
+ * A GRID rather than CSS columns: a note is an editable container, and a
+ * container that spans a column break is fragmented, which leaves it unable to
+ * carry its outline or hold its rail.
+ */
+.tpl-ivy__section:has(> .tpl-ivy__entry .tpl-ivy__detail) {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: calc(14pt * var(--i-scale));
+}
+
+.tpl-ivy__section:has(> .tpl-ivy__entry .tpl-ivy__detail) > .tpl-ivy__heading {
+  grid-column: 1 / -1;
+}
+
+/* The two right-hand notes stand away from the page's left edge, so their
+   rails would fall inside the page — they take the right margin instead. */
+.tpl-ivy__section:has(> .tpl-ivy__entry .tpl-ivy__detail)
+  > .tpl-ivy__entry:not(:nth-of-type(3n + 1)) {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--i-margin) + 12px);
 }

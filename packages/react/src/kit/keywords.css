@@ -1,0 +1,75 @@
+/*
+ * Skills as KEYWORDS OVER A RULE — one to a line, which is how every
+ * reference in this catalog sets them.
+ *
+ * They were boxes, and boxes were wrong twice: the references draw a rule
+ * under a keyword rather than a border around it, and a row of boxes invites a
+ * reader to skim them as tags, which is the opposite of what a résumé's skills
+ * section is for.
+ *
+ * The structure is still a LIST — each keyword is an `li` — so a parser reads
+ * one skill per line rather than a run of joined words, which is the property
+ * that makes a keyword rail safe to print at all. The rule is a border on that
+ * item, so it is foreground ink and survives a page that prints no
+ * backgrounds.
+ *
+ * A template sets the two variables and nothing else: this file decides the
+ * shape, the template decides its colour and its rhythm.
+ */
+.tpl-keywords .tpl-bullets {
+  display: grid;
+  gap: var(--tpl-keyword-gap, 5pt);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-keywords .tpl-bullets .tpl-bullet {
+  display: block;
+  margin: 0;
+  padding-bottom: var(--tpl-keyword-lead, 2pt);
+  border-bottom: 0.75pt solid var(--tpl-keyword-line, currentcolor);
+  font-weight: 600;
+}
+
+/*
+ * The marker belongs to a bullet list, not to a keyword.
+ *
+ * Named one level deeper than a template's own `.tpl-x .tpl-bullet::before`,
+ * which carries the same specificity and is imported after this file — so
+ * without the extra step the dot would win and every keyword would wear one.
+ */
+.tpl-keywords .tpl-bullets .tpl-bullet::before {
+  content: none;
+}
+
+/*
+ * The same keywords on ONE line, for a template whose skills run across the
+ * page rather than down a rail. Each still carries its own rule, so the run
+ * reads as separate words rather than as a sentence.
+ */
+.tpl-keywords--inline .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tpl-keyword-gap, 5pt) var(--tpl-keyword-span, 14pt);
+}
+
+/*
+ * The same keywords in BOXES, for the templates whose references draw one
+ * around each rather than a rule under it.
+ *
+ * Still list items, and the box is still a border — foreground ink, so a page
+ * that prints no backgrounds loses nothing but the outline's colour.
+ */
+.tpl-keywords--boxed .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tpl-keyword-gap, 4pt);
+}
+
+.tpl-keywords--boxed .tpl-bullets .tpl-bullet {
+  padding: var(--tpl-keyword-lead, 2pt) calc(var(--tpl-keyword-lead, 2pt) * 2.5);
+  border: 0.75pt solid var(--tpl-keyword-line, currentcolor);
+  border-radius: 2pt;
+  font-weight: 400;
+}

@@ -10,29 +10,32 @@ import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 
 /**
- * Contemporary's entries.
+ * Contemporary League's entries: the markup for one item of each shape.
  *
- * The role leads, the employer follows in the accent, and the dates and the
- * place close the line in grey — three weights on two lines, which is how the
- * reference tells them apart without drawing anything.
+ * Two lines per entry, each a pair — the organisation over the role, the place
+ * over the dates. That is the reference's whole structure, and it is why every
+ * entry here shares one head: an education entry differs from a job only in
+ * which fields fill the four corners.
  */
-function MetaLine({
-  org,
+
+function EntryHead({
+  lead,
+  trailing,
+  role,
   dates,
-  place,
 }: {
-  org: ReactNode;
+  lead: ReactNode;
+  trailing: ReactNode;
+  role: ReactNode;
   dates: ReactNode;
-  place: ReactNode;
 }) {
   return (
-    <p className="tpl-contemporary__meta">
-      <span className="tpl-contemporary__org">{org}</span>
-      {/* Real characters between the facts, so the extracted line reads as
-          three things rather than as one run-on. */}
-      <span className="tpl-contemporary__meta-item">{dates}</span>
-      <span className="tpl-contemporary__meta-item">{place}</span>
-    </p>
+    <div className="tpl-contemporary__head">
+      <span className="tpl-contemporary__org">{lead}</span>
+      <span className="tpl-contemporary__where">{trailing}</span>
+      <span className="tpl-contemporary__role">{role}</span>
+      <span className="tpl-contemporary__dates">{dates}</span>
+    </div>
   );
 }
 
@@ -50,19 +53,26 @@ export function ContemporaryExperienceEntry({
   return (
     <article {...itemProps} className="tpl-contemporary__entry" data-block>
       {chrome}
-      <p className="tpl-contemporary__role">
-        <EditableText
-          path={`${path}.title`}
-          value={item.title}
-          placeholder={PLACEHOLDERS['title']}
-        />
-      </p>
-      <MetaLine
-        org={
+      <EntryHead
+        lead={
           <EditableText
             path={`${path}.company`}
             value={item.company}
             placeholder={PLACEHOLDERS['company']}
+          />
+        }
+        trailing={
+          <EditableText
+            path={`${path}.location`}
+            value={item.location ?? ''}
+            placeholder={PLACEHOLDERS['location']}
+          />
+        }
+        role={
+          <EditableText
+            path={`${path}.title`}
+            value={item.title}
+            placeholder={PLACEHOLDERS['title']}
           />
         }
         dates={
@@ -79,13 +89,6 @@ export function ContemporaryExperienceEntry({
               placeholder={PLACEHOLDERS['end']}
             />
           </>
-        }
-        place={
-          <EditableText
-            path={`${path}.location`}
-            value={item.location ?? ''}
-            placeholder={PLACEHOLDERS['location']}
-          />
         }
       />
       <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
@@ -107,26 +110,35 @@ export function ContemporaryEducationEntry({
   return (
     <article {...itemProps} className="tpl-contemporary__entry" data-block>
       {chrome}
-      <p className="tpl-contemporary__role">
-        <EditableText
-          path={`${path}.degree`}
-          value={item.degree ?? ''}
-          placeholder={PLACEHOLDERS['degree']}
-        />
-        {item.degree && item.field ? ' in ' : ''}
-        <EditableText
-          path={`${path}.field`}
-          value={item.field ?? ''}
-          placeholder={PLACEHOLDERS['field']}
-        />
-      </p>
-      <MetaLine
-        org={
+      <EntryHead
+        lead={
           <EditableText
             path={`${path}.school`}
             value={item.school}
             placeholder={PLACEHOLDERS['school']}
           />
+        }
+        trailing={
+          <EditableText
+            path={`${path}.location`}
+            value={item.location ?? ''}
+            placeholder={PLACEHOLDERS['location']}
+          />
+        }
+        role={
+          <>
+            <EditableText
+              path={`${path}.degree`}
+              value={item.degree ?? ''}
+              placeholder={PLACEHOLDERS['degree']}
+            />
+            {item.degree && item.field ? ', ' : ''}
+            <EditableText
+              path={`${path}.field`}
+              value={item.field ?? ''}
+              placeholder={PLACEHOLDERS['field']}
+            />
+          </>
         }
         dates={
           <>
@@ -143,19 +155,15 @@ export function ContemporaryEducationEntry({
             />
           </>
         }
-        place={
-          <EditableText
-            path={`${path}.location`}
-            value={item.location ?? ''}
-            placeholder={PLACEHOLDERS['location']}
-          />
-        }
       />
     </article>
   );
 }
 
-/** A section the candidate declared: a titled note, as the rail sets them. */
+/**
+ * A section the candidate declared, as the rail sets them: a titled note with
+ * its detail beneath, marked by a ring.
+ */
 export function ContemporaryCustomEntry({
   item,
   path,

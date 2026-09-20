@@ -33,7 +33,7 @@
   background: #ffffff;
   color: var(--dcl-body);
   font-family: var(--dcl-font);
-  font-size: calc(8.8pt * var(--dcl-scale));
+  font-size: calc(8pt * var(--dcl-scale));
   line-height: 1.4;
 }
 
@@ -48,7 +48,7 @@
 
 .tpl-dcl__name {
   margin: 0;
-  font-size: calc(18pt * var(--dcl-scale));
+  font-size: calc(16pt * var(--dcl-scale));
   font-weight: 700;
   line-height: 1.1;
   color: var(--dcl-ink);
@@ -163,7 +163,7 @@
 
 .tpl-dcl__role {
   margin: 0;
-  font-size: calc(10.5pt * var(--dcl-scale));
+  font-size: calc(9.6pt * var(--dcl-scale));
   font-weight: 700;
   line-height: 1.2;
   color: var(--dcl-ink);
@@ -239,24 +239,10 @@
   color: var(--dcl-body);
 }
 
-/* Chips: boxes by appearance, list items by structure. */
-.tpl-dcl__chips .tpl-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: calc(3pt * var(--dcl-scale));
-  margin-top: 0;
-}
-
-/* A FILL rather than an outline, and a fill is decoration: the chips are list
-   items, so the page reads the same when the colour is not printed. */
-.tpl-dcl__chips .tpl-bullet {
-  display: block;
-  margin-top: 0;
-  padding: calc(1.5pt * var(--dcl-scale)) calc(5pt * var(--dcl-scale));
-  background: var(--dcl-fill);
-  border-radius: calc(2pt * var(--dcl-scale));
-}
-
-.tpl-dcl__chips .tpl-bullet::before {
-  content: none;
+/* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
+   template states only its colour and its rhythm. */
+.tpl-keywords {
+  --tpl-keyword-line: var(--dcl-line);
+  --tpl-keyword-gap: calc(5pt * var(--dcl-scale));
+  --tpl-keyword-lead: calc(1.5pt * var(--dcl-scale));
 }

@@ -32,7 +32,7 @@
   background: #ffffff;
   color: var(--tl-ink);
   font-family: var(--tl-font);
-  font-size: calc(9pt * var(--tl-scale));
+  font-size: calc(8.2pt * var(--tl-scale));
   line-height: 1.38;
 }
 
@@ -40,7 +40,7 @@
 
 .tpl-timeline__name {
   margin: 0;
-  font-size: calc(18pt * var(--tl-scale));
+  font-size: calc(16pt * var(--tl-scale));
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: 0.01em;
@@ -134,6 +134,15 @@
   border-left: 1pt solid var(--tl-line);
 }
 
+/*
+ * The line runs THROUGH the gap to the next entry, so the spine reads as one
+ * line down the column rather than as a dash beside each job. The last entry
+ * stops at its own foot, because there is nothing below it to reach.
+ */
+.tpl-timeline__entry:not(:last-of-type) .tpl-timeline__spine {
+  margin-bottom: calc(-9pt * var(--tl-scale) * var(--tl-density));
+}
+
 .tpl-timeline__spine::before {
   content: '';
   position: absolute;
@@ -220,24 +229,10 @@
   color: var(--tl-muted);
 }
 
-/* ── Skills as chips: boxes by appearance, a list by structure ──────────── */
-
-.tpl-timeline__chips .tpl-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: calc(4pt * var(--tl-scale));
-  margin-top: 0;
-}
-
-.tpl-timeline__chips .tpl-bullet {
-  display: block;
-  margin-top: 0;
-  padding: calc(2pt * var(--tl-scale)) calc(5pt * var(--tl-scale));
-  color: var(--tl-ink);
-  border: 0.75pt solid var(--tl-line);
-  border-radius: calc(2pt * var(--tl-scale));
-}
-
-.tpl-timeline__chips .tpl-bullet::before {
-  content: none;
+/* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
+   template states only its colour and its rhythm. */
+.tpl-keywords {
+  --tpl-keyword-line: var(--tl-line);
+  --tpl-keyword-gap: calc(5pt * var(--tl-scale));
+  --tpl-keyword-lead: calc(1.5pt * var(--tl-scale));
 }

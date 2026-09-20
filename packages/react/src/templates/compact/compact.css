@@ -17,19 +17,19 @@
     'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   --cp-accent: #2f6df6;
   --cp-density: 1;
-  --cp-margin: 0.5in;
+  --cp-margin: 0.45in;
   --cp-muted: #565656;
   --cp-quiet: #7b7b7b;
   --cp-line: #dcdcdc;
 
   box-sizing: border-box;
   width: 8.5in;
-  padding: 0.45in var(--cp-margin);
+  padding: 0.4in var(--cp-margin);
   margin: 0 auto;
   background: #ffffff;
   color: var(--cp-ink);
   font-family: var(--cp-font);
-  font-size: calc(8.8pt * var(--cp-scale));
+  font-size: calc(7.8pt * var(--cp-scale));
   line-height: 1.38;
 }
 
@@ -37,7 +37,7 @@
 
 .tpl-compact__name {
   margin: 0;
-  font-size: calc(20pt * var(--cp-scale));
+  font-size: calc(17pt * var(--cp-scale));
   font-weight: 600;
   line-height: 1.1;
 }
@@ -64,7 +64,7 @@
 
 .tpl-compact__body {
   display: grid;
-  grid-template-columns: 62fr 38fr;
+  grid-template-columns: 58fr 42fr;
   column-gap: calc(22pt * var(--cp-scale));
   margin-top: calc(10pt * var(--cp-scale) * var(--cp-density));
 }
@@ -123,7 +123,7 @@
 
 .tpl-compact__role {
   margin: 0;
-  font-size: calc(10.5pt * var(--cp-scale));
+  font-size: calc(9.6pt * var(--cp-scale));
   font-weight: 600;
   line-height: 1.2;
 }
@@ -190,26 +190,10 @@
   color: var(--cp-muted);
 }
 
-/*
- * Chips: a bordered box per skill, and each one is still a list ITEM — the
- * look is CSS, the structure is a list, so the extracted text has one skill
- * per line rather than a run of joined words.
- */
-.tpl-compact__chips .tpl-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: calc(3pt * var(--cp-scale));
-  margin-top: 0;
-}
-
-.tpl-compact__chips .tpl-bullet {
-  display: block;
-  margin-top: 0;
-  padding: calc(1.5pt * var(--cp-scale)) calc(4pt * var(--cp-scale));
-  border: 0.75pt solid var(--cp-line);
-  border-radius: calc(2pt * var(--cp-scale));
-}
-
-.tpl-compact__chips .tpl-bullet::before {
-  content: none;
+/* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
+   template states only its colour and its rhythm. */
+.tpl-keywords {
+  --tpl-keyword-line: var(--cp-line);
+  --tpl-keyword-gap: calc(5pt * var(--cp-scale));
+  --tpl-keyword-lead: calc(1.5pt * var(--cp-scale));
 }

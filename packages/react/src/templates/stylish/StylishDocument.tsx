@@ -123,9 +123,13 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
               className="tpl-stylish__section"
               headingClassName="tpl-stylish__heading"
             >
-              {/* Chips, and every chip is a list ITEM: a parser reads them one
-                  per line rather than as one run of joined words. */}
-              <div className="tpl-stylish__chips" data-block data-split>
+              {/* Keywords in boxes, as this reference draws them — and every one a
+                  list ITEM, so a parser still reads one skill per line. */}
+              <div
+                className="tpl-keywords tpl-keywords--boxed"
+                data-block
+                data-split
+              >
                 <Collection
                   section="skills"
                   items={resume.skills}

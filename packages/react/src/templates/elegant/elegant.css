@@ -35,7 +35,7 @@
   background: #ffffff;
   color: var(--el-body);
   font-family: var(--el-font);
-  font-size: calc(8.8pt * var(--el-scale));
+  font-size: calc(8pt * var(--el-scale));
   line-height: 1.4;
 }
 
@@ -47,7 +47,7 @@
 
 .tpl-elegant__name {
   margin: 0;
-  font-size: calc(18pt * var(--el-scale));
+  font-size: calc(16pt * var(--el-scale));
   font-weight: 700;
   line-height: 1.1;
   color: var(--el-ink);
@@ -85,9 +85,8 @@
 .tpl-elegant__body {
   display: grid;
   grid-template-columns: 64fr 36fr;
-  /* A page's worth, so the rail reaches the foot of the sheet on a résumé
-     that does not fill one. Beyond that it grows with the document. */
-  min-height: 11in;
+  /* The rail covers every sheet the document runs to — `kit/panel.css` adds
+     the height, because the arithmetic belongs with the sheets it measures. */
 }
 
 .tpl-elegant__main,
@@ -148,8 +147,9 @@
   color: rgb(255 255 255 / 86%);
 }
 
-.tpl-elegant__aside .tpl-elegant__chips .tpl-bullet {
-  border-color: rgb(255 255 255 / 40%);
+/* On the painted rail the keyword's rule is drawn in the panel's own ink. */
+.tpl-elegant__aside .tpl-keywords {
+  --tpl-keyword-line: rgb(255 255 255 / 45%);
 }
 
 .tpl-elegant__heading {
@@ -184,7 +184,7 @@
 
 .tpl-elegant__role {
   margin: 0;
-  font-size: calc(10.5pt * var(--el-scale));
+  font-size: calc(9.6pt * var(--el-scale));
   font-weight: 700;
   line-height: 1.2;
   color: var(--el-ink);
@@ -253,22 +253,8 @@
   color: var(--el-body);
 }
 
-/* Chips: boxes by appearance, list items by structure. */
-.tpl-elegant__chips .tpl-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: calc(3pt * var(--el-scale));
-  margin-top: 0;
-}
-
-.tpl-elegant__chips .tpl-bullet {
-  display: block;
-  margin-top: 0;
-  padding: calc(1.5pt * var(--el-scale)) calc(4pt * var(--el-scale));
-  border: 0.75pt solid var(--el-line);
-  border-radius: calc(2pt * var(--el-scale));
-}
-
-.tpl-elegant__chips .tpl-bullet::before {
-  content: none;
+/* Skills as one run of keywords, as this template's reference sets them. */
+.tpl-elegant__keywords {
+  margin: 0;
+  font-weight: 600;
 }

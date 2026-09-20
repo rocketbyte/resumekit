@@ -33,7 +33,7 @@
   background: #ffffff;
   color: var(--cr-body);
   font-family: var(--cr-font);
-  font-size: calc(8.8pt * var(--cr-scale));
+  font-size: calc(8pt * var(--cr-scale));
   line-height: 1.4;
 }
 
@@ -57,7 +57,7 @@
 
 .tpl-creative__name {
   margin: 0;
-  font-size: calc(18pt * var(--cr-scale));
+  font-size: calc(16pt * var(--cr-scale));
   font-weight: 700;
   line-height: 1.1;
   color: inherit;
@@ -156,7 +156,7 @@
 
 .tpl-creative__role {
   margin: 0;
-  font-size: calc(10.5pt * var(--cr-scale));
+  font-size: calc(9.6pt * var(--cr-scale));
   font-weight: 700;
   line-height: 1.2;
   color: var(--cr-ink);
@@ -225,22 +225,10 @@
   color: var(--cr-body);
 }
 
-/* Chips: boxes by appearance, list items by structure. */
-.tpl-creative__chips .tpl-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: calc(3pt * var(--cr-scale));
-  margin-top: 0;
-}
-
-.tpl-creative__chips .tpl-bullet {
-  display: block;
-  margin-top: 0;
-  padding: calc(1.5pt * var(--cr-scale)) calc(4pt * var(--cr-scale));
-  border: 0.75pt solid var(--cr-line);
-  border-radius: calc(2pt * var(--cr-scale));
-}
-
-.tpl-creative__chips .tpl-bullet::before {
-  content: none;
+/* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
+   template states only its colour and its rhythm. */
+.tpl-keywords {
+  --tpl-keyword-line: var(--cr-line);
+  --tpl-keyword-gap: calc(5pt * var(--cr-scale));
+  --tpl-keyword-lead: calc(1.5pt * var(--cr-scale));
 }

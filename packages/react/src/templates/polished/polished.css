@@ -35,7 +35,7 @@
   background: #ffffff;
   color: var(--po-body);
   font-family: var(--po-font);
-  font-size: calc(8.8pt * var(--po-scale));
+  font-size: calc(8pt * var(--po-scale));
   line-height: 1.4;
 }
 
@@ -86,10 +86,9 @@
 /* The rail first, exactly as the document writes it. */
 .tpl-polished__body {
   display: grid;
-  grid-template-columns: 34fr 66fr;
-  /* A page's worth, so the rail reaches the foot of the sheet on a résumé
-     that does not fill one. Beyond that it grows with the document. */
-  min-height: 11in;
+  grid-template-columns: 29fr 71fr;
+  /* The rail covers every sheet the document runs to — `kit/panel.css` adds
+     the height, because the arithmetic belongs with the sheets it measures. */
 }
 
 .tpl-polished__main,
@@ -152,8 +151,9 @@
   color: rgb(255 255 255 / 86%);
 }
 
-.tpl-polished__aside .tpl-polished__chips .tpl-bullet {
-  border-color: rgb(255 255 255 / 40%);
+/* On the painted rail the keyword's rule is drawn in the panel's own ink. */
+.tpl-polished__aside .tpl-keywords {
+  --tpl-keyword-line: rgb(255 255 255 / 45%);
 }
 
 .tpl-polished__heading {
@@ -188,7 +188,7 @@
 
 .tpl-polished__role {
   margin: 0;
-  font-size: calc(10.5pt * var(--po-scale));
+  font-size: calc(9.6pt * var(--po-scale));
   font-weight: 700;
   line-height: 1.2;
   color: var(--po-ink);
@@ -257,22 +257,8 @@
   color: var(--po-body);
 }
 
-/* Chips: boxes by appearance, list items by structure. */
-.tpl-polished__chips .tpl-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: calc(3pt * var(--po-scale));
-  margin-top: 0;
-}
-
-.tpl-polished__chips .tpl-bullet {
-  display: block;
-  margin-top: 0;
-  padding: calc(1.5pt * var(--po-scale)) calc(4pt * var(--po-scale));
-  border: 0.75pt solid var(--po-line);
-  border-radius: calc(2pt * var(--po-scale));
-}
-
-.tpl-polished__chips .tpl-bullet::before {
-  content: none;
+/* Skills as one run of keywords, as this template's reference sets them. */
+.tpl-polished__keywords {
+  margin: 0;
+  font-weight: 600;
 }

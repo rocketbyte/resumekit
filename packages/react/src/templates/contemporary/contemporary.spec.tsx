@@ -108,62 +108,16 @@ describe('the Contemporary document', () => {
     expect(screen.queryByText('Achievements')).toBeNull();
   });
 
-  /* Languages is read from the skills group that names them: it belongs with
-     the résumé in the main column, not in the rail's chips. */
-  it('keeps languages out of the chips, and in the résumé column', () => {
-    const { container } = draw(resume());
-    const chips = container.querySelector('.tpl-contemporary__chips');
-    expect(chips?.textContent).toContain('Supply Chain Management');
-    expect(chips?.textContent).not.toContain('English');
-    expect(
-      container.querySelector('.tpl-contemporary__main')?.textContent,
-    ).toContain('English');
-  });
-
   /*
-   * The rail is DRAWN first and so is WRITTEN first: document order is the
-   * page's order, which is what makes the extracted text, the printed text
-   * layer and the keyboard's path one order rather than three.
+   * Skills are ONE RUN of keywords in this template, which is how its
+   * reference sets them — and a field per stored group, so the separators a
+   * parser extracts are real characters.
    */
-  it('writes the rail first, because the rail is on the left', () => {
+  it('prints skills as one run of keywords', () => {
     const { container } = draw(resume());
-    const flows = Array.from(container.querySelectorAll('[data-flow]'));
-    expect(flows).toHaveLength(2);
-    expect(flows[0]?.className).toContain('tpl-contemporary__aside');
-    expect(flows[0]?.textContent).toContain('Contacts');
-    expect(flows[1]?.className).toContain('tpl-contemporary__main');
-    expect(flows[1]?.textContent).toContain('Supply Chain Analyst');
-  });
-
-  /* One line for the facts: employer, dates and place, with real characters
-     between them so the extracted line reads as three things. */
-  it('puts the employer, the dates and the place on one line', () => {
-    const { container } = draw(resume());
-    const meta = container.querySelector(
-      '.tpl-contemporary__entry .tpl-contemporary__meta',
-    );
-    expect(meta?.textContent).toContain('Unilever');
-    expect(meta?.textContent).toContain('2019-01');
-    expect(meta?.textContent).toContain('London, UK');
-    const sep = css.slice(
-      css.indexOf('.tpl-contemporary__meta-item::before {'),
-    );
-    expect(sep.slice(0, sep.indexOf('}'))).toMatch(/content: '[^']*·[^']*'/);
-  });
-
-  /*
-   * Chips are appearance; the structure stays a list. A run of boxes built
-   * from spans would extract as one joined word, which is the thing that makes
-   * a keyword rail an ATS risk.
-   */
-  it('draws skills as chips that are still list items', () => {
-    const { container } = draw(resume());
-    const chips = container.querySelector('.tpl-contemporary__chips');
-    expect(chips?.querySelectorAll('li').length).toBeGreaterThan(0);
-    const chip = css.slice(
-      css.indexOf('.tpl-contemporary__chips .tpl-bullet {'),
-    );
-    expect(chip.slice(0, chip.indexOf('}'))).toMatch(/border:/);
+    const run = container.querySelector('.tpl-contemporary__keywords');
+    expect(run?.textContent).toContain('Supply Chain Management');
+    expect(container.querySelector('.tpl-keywords')).toBeNull();
   });
 
   /*

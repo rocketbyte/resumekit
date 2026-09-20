@@ -32,7 +32,7 @@
   background: #ffffff;
   color: var(--md-body);
   font-family: var(--md-font);
-  font-size: calc(8.8pt * var(--md-scale));
+  font-size: calc(8pt * var(--md-scale));
   line-height: 1.4;
 }
 
@@ -47,7 +47,7 @@
 
 .tpl-modern__name {
   margin: 0;
-  font-size: calc(18pt * var(--md-scale));
+  font-size: calc(16pt * var(--md-scale));
   font-weight: 700;
   line-height: 1.1;
   color: var(--md-ink);
@@ -83,7 +83,7 @@
 
 .tpl-modern__body {
   display: grid;
-  grid-template-columns: 60fr 40fr;
+  grid-template-columns: 57fr 43fr;
   column-gap: calc(20pt * var(--md-scale));
   margin-top: calc(12pt * var(--md-scale) * var(--md-density));
 }
@@ -144,7 +144,7 @@
 
 .tpl-modern__role {
   margin: 0;
-  font-size: calc(10.5pt * var(--md-scale));
+  font-size: calc(9.6pt * var(--md-scale));
   font-weight: 700;
   line-height: 1.2;
   color: var(--md-ink);
@@ -213,22 +213,10 @@
   color: var(--md-body);
 }
 
-/* Chips: boxes by appearance, list items by structure. */
-.tpl-modern__chips .tpl-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: calc(3pt * var(--md-scale));
-  margin-top: 0;
-}
-
-.tpl-modern__chips .tpl-bullet {
-  display: block;
-  margin-top: 0;
-  padding: calc(1.5pt * var(--md-scale)) calc(4pt * var(--md-scale));
-  border: 0.75pt solid var(--md-line);
-  border-radius: calc(2pt * var(--md-scale));
-}
-
-.tpl-modern__chips .tpl-bullet::before {
-  content: none;
+/* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
+   template states only its colour and its rhythm. */
+.tpl-keywords {
+  --tpl-keyword-line: var(--md-line);
+  --tpl-keyword-gap: calc(5pt * var(--md-scale));
+  --tpl-keyword-lead: calc(1.5pt * var(--md-scale));
 }

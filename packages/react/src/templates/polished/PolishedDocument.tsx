@@ -6,8 +6,7 @@ import { EditableInlineList } from '../../nodes/EditableInlineList.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
-import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
-import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
+import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { contactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
@@ -55,32 +54,12 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
       style={documentStyle('po', style)}
       aria-label="Resume document"
     >
-      <div className="tpl-polished__body">
+      <div className="tpl-polished__body tpl-sheet-tall">
         {/* ── The rail: what a reader scans ─────────────────────────────── */}
         <aside className="tpl-polished__aside" data-flow>
           <h1 className="tpl-polished__name" data-block>
             <EditableText path="name" value={resume.name} />
           </h1>
-          {/* No photograph is stored, and none is invented: the initials ride
-              the rail under the name, where the reference puts a portrait. */}
-          <InitialsAvatar name={resume.name} className="tpl-polished__avatar" />
-          {(resume.summary || authoring) && (
-            <DocumentSection
-              id="summary"
-              title="Summary"
-              className="tpl-polished__section"
-              headingClassName="tpl-polished__heading"
-            >
-              <p className="tpl-polished__prose" data-block>
-                <EditableText
-                  path="summary"
-                  value={resume.summary ?? ''}
-                  placeholder={PLACEHOLDERS['summary']}
-                  multiline
-                />
-              </p>
-            </DocumentSection>
-          )}
 
           <CustomSections
             sections={resume.custom_sections}
@@ -88,32 +67,6 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
             headingClass="tpl-polished__heading"
             Entry={PolishedCustomEntry}
           />
-
-          {(resume.skills.length > languages.length || authoring) && (
-            <DocumentSection
-              id="skills"
-              title="Skills"
-              className="tpl-polished__section"
-              headingClassName="tpl-polished__heading"
-            >
-              {/* Chips, and every chip is a list ITEM: a parser reads them one
-                  per line rather than as one run of joined words. */}
-              <div className="tpl-polished__chips" data-block data-split>
-                <Collection
-                  section="skills"
-                  items={resume.skills}
-                  noun="skill"
-                  gap={false}
-                >
-                  {({ item, path }) =>
-                    isLanguages(item) ? null : (
-                      <BulletSkillGroup item={item} path={path} />
-                    )
-                  }
-                </Collection>
-              </div>
-            </DocumentSection>
-          )}
 
           {resume.certifications.length > 0 && (
             <DocumentSection
@@ -180,6 +133,23 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
             </div>
           </header>
 
+          {(resume.summary || authoring) && (
+            <DocumentSection
+              id="summary"
+              title="Summary"
+              className="tpl-polished__section"
+              headingClassName="tpl-polished__heading"
+            >
+              <p className="tpl-polished__prose" data-block>
+                <EditableText
+                  path="summary"
+                  value={resume.summary ?? ''}
+                  placeholder={PLACEHOLDERS['summary']}
+                  multiline
+                />
+              </p>
+            </DocumentSection>
+          )}
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"
@@ -220,6 +190,36 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
             </DocumentSection>
           )}
 
+          {(resume.skills.length > languages.length || authoring) && (
+            <DocumentSection
+              id="skills"
+              title="Skills"
+              className="tpl-polished__section"
+              headingClassName="tpl-polished__heading"
+            >
+              {/* One run of keywords, as this reference sets them — and still a
+                  field per group, so a parser reads the separators as characters. */}
+              <p className="tpl-polished__keywords" data-block>
+                <Collection
+                  section="skills"
+                  items={resume.skills}
+                  noun="skill"
+                  gap={false}
+                >
+                  {({ item, path, index }) =>
+                    isLanguages(item) ? null : (
+                      <InlineSkillGroup
+                        item={item}
+                        path={path}
+                        first={index === 0}
+                        separator=" · "
+                      />
+                    )
+                  }
+                </Collection>
+              </p>
+            </DocumentSection>
+          )}
           {/* A plain section: Languages is read from the skills group that
               names them, and has no stored gap of its own. */}
           {languages.length > 0 && (

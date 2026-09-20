@@ -167,9 +167,13 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
           className="tpl-timeline__section"
           headingClassName="tpl-timeline__heading"
         >
-          {/* Chips, and every chip is a list ITEM: a parser reads them one
-              per line rather than as one run of joined words. */}
-          <div className="tpl-timeline__chips" data-block data-split>
+          {/* Keywords over a rule, one to a line, and every one a list ITEM:
+              a parser reads them one per line rather than as a run. */}
+          <div
+            className="tpl-keywords tpl-keywords--inline"
+            data-block
+            data-split
+          >
             <Collection
               section="skills"
               items={resume.skills}

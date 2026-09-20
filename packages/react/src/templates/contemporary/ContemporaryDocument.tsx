@@ -6,7 +6,7 @@ import { EditableInlineList } from '../../nodes/EditableInlineList.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
-import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
+import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
 import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { contactLines } from '../../kit/contact.js';
@@ -123,6 +123,23 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             </section>
           )}
 
+          {(resume.summary || authoring) && (
+            <DocumentSection
+              id="summary"
+              title="Summary"
+              className="tpl-contemporary__section"
+              headingClassName="tpl-contemporary__heading"
+            >
+              <p className="tpl-contemporary__prose" data-block>
+                <EditableText
+                  path="summary"
+                  value={resume.summary ?? ''}
+                  placeholder={PLACEHOLDERS['summary']}
+                  multiline
+                />
+              </p>
+            </DocumentSection>
+          )}
           <CustomSections
             sections={resume.custom_sections}
             sectionClass="tpl-contemporary__section"
@@ -137,22 +154,27 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
             >
-              {/* Chips, and every chip is a list ITEM: a parser reads them one
-                  per line rather than as one run of joined words. */}
-              <div className="tpl-contemporary__chips" data-block data-split>
+              {/* One run of keywords, as this reference sets them — and still a
+                  field per group, so a parser reads the separators as characters. */}
+              <p className="tpl-contemporary__keywords" data-block>
                 <Collection
                   section="skills"
                   items={resume.skills}
                   noun="skill"
                   gap={false}
                 >
-                  {({ item, path }) =>
+                  {({ item, path, index }) =>
                     isLanguages(item) ? null : (
-                      <BulletSkillGroup item={item} path={path} />
+                      <InlineSkillGroup
+                        item={item}
+                        path={path}
+                        first={index === 0}
+                        separator=" · "
+                      />
                     )
                   }
                 </Collection>
-              </div>
+              </p>
             </DocumentSection>
           )}
 
@@ -174,24 +196,6 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
           )}
         </aside>
         <div className="tpl-contemporary__main" data-flow>
-          {(resume.summary || authoring) && (
-            <DocumentSection
-              id="summary"
-              title="Summary"
-              className="tpl-contemporary__section"
-              headingClassName="tpl-contemporary__heading"
-            >
-              <p className="tpl-contemporary__prose" data-block>
-                <EditableText
-                  path="summary"
-                  value={resume.summary ?? ''}
-                  placeholder={PLACEHOLDERS['summary']}
-                  multiline
-                />
-              </p>
-            </DocumentSection>
-          )}
-
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"

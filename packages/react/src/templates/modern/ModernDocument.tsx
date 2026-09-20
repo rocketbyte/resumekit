@@ -211,9 +211,9 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
               className="tpl-modern__section"
               headingClassName="tpl-modern__heading"
             >
-              {/* Chips, and every chip is a list ITEM: a parser reads them one
-                  per line rather than as one run of joined words. */}
-              <div className="tpl-modern__chips" data-block data-split>
+              {/* Keywords over a rule, one to a line, and every one a list ITEM:
+                  a parser reads them one per line rather than as a run. */}
+              <div className="tpl-keywords" data-block data-split>
                 <Collection
                   section="skills"
                   items={resume.skills}
