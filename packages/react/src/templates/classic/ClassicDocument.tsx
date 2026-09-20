@@ -7,10 +7,11 @@ import { EditableText } from '../../nodes/EditableText.js';
 import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
+import { DescribedEntries } from '../../kit/DescribedEntries.js';
+import { LanguageList } from '../../kit/LanguageList.js';
 import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
 import { contactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
-import { isLanguages } from '../skills.js';
 import {
   ClassicCustomEntry,
   ClassicEducationEntry,
@@ -36,7 +37,6 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const languages = resume.skills.filter(isLanguages);
   const contact = contactLines(
     resume.contact,
     ['phone', 'email', 'location'],
@@ -97,6 +97,7 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
       {(resume.summary || authoring) && (
         <DocumentSection
           id="summary"
+          heading={resume.section_headings?.summary}
           title="Summary"
           className="tpl-classic__section"
           headingClassName="tpl-classic__heading"
@@ -115,6 +116,7 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
       {(resume.experience.length > 0 || authoring) && (
         <DocumentSection
           id="experience"
+          heading={resume.section_headings?.experience}
           title="Experience"
           className="tpl-classic__section"
           headingClassName="tpl-classic__heading"
@@ -135,6 +137,7 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
       {(resume.education.length > 0 || authoring) && (
         <DocumentSection
           id="education"
+          heading={resume.section_headings?.education}
           title="Education"
           className="tpl-classic__section"
           headingClassName="tpl-classic__heading"
@@ -152,6 +155,15 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
         </DocumentSection>
       )}
 
+      <DescribedEntries
+        id="achievements"
+        heading={resume.section_headings?.achievements}
+        title="Achievements"
+        items={resume.achievements}
+        className="tpl-classic__section tpl-described--grid"
+        headingClassName="tpl-classic__heading"
+        entryClassName="tpl-classic__described"
+      />
       <CustomSections
         sections={resume.custom_sections}
         sectionClass="tpl-classic__section"
@@ -159,9 +171,10 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
         Entry={ClassicCustomEntry}
       />
 
-      {(resume.skills.length > languages.length || authoring) && (
+      {(resume.skills.length > 0 || authoring) && (
         <DocumentSection
           id="skills"
+          heading={resume.section_headings?.skills}
           title="Skills"
           className="tpl-classic__section"
           headingClassName="tpl-classic__heading"
@@ -173,15 +186,9 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
               noun="skill"
               gap={false}
             >
-              {({ item, path, index }) =>
-                isLanguages(item) ? null : (
-                  <InlineSkillGroup
-                    item={item}
-                    path={path}
-                    first={index === 0}
-                  />
-                )
-              }
+              {({ item, path, index }) => (
+                <InlineSkillGroup item={item} path={path} first={index === 0} />
+              )}
             </Collection>
           </p>
         </DocumentSection>
@@ -189,30 +196,27 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
 
       {/* A plain section: "the space above Languages" is not a stored gap, and
           reusing the skills key would give two sections one rail. */}
-      {languages.length > 0 && (
-        <section className="tpl-classic__section">
-          <h2 className="tpl-classic__heading" data-block data-keep-with-next>
-            Languages
-          </h2>
-          <p className="tpl-classic__keywords" data-block>
-            {languages.map((group) => {
-              const index = resume.skills.indexOf(group);
-              return (
-                <EditableInlineList
-                  key={index}
-                  path={`skills.${index}.items`}
-                  items={group.items}
-                  placeholder={PLACEHOLDERS['items']}
-                />
-              );
-            })}
-          </p>
-        </section>
-      )}
+      <DescribedEntries
+        id="courses"
+        heading={resume.section_headings?.courses}
+        title="Courses"
+        items={resume.courses}
+        className="tpl-classic__section"
+        headingClassName="tpl-classic__heading"
+        entryClassName="tpl-classic__described"
+      />
+      <LanguageList
+        items={resume.languages}
+        heading={resume.section_headings?.languages}
+        className="tpl-classic__section"
+        headingClassName="tpl-classic__heading"
+        rowClassName="tpl-classic__language"
+      />
 
       {resume.certifications.length > 0 && (
         <DocumentSection
           id="certifications"
+          heading={resume.section_headings?.certifications}
           title="Certifications"
           className="tpl-classic__section"
           headingClassName="tpl-classic__heading"
@@ -226,6 +230,15 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
           </p>
         </DocumentSection>
       )}
+      <DescribedEntries
+        id="passions"
+        heading={resume.section_headings?.passions}
+        title="Passions"
+        items={resume.passions}
+        className="tpl-classic__section"
+        headingClassName="tpl-classic__heading"
+        entryClassName="tpl-classic__described"
+      />
     </article>
   );
 }

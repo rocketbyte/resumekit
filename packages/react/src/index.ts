@@ -24,6 +24,19 @@ export {
   type TemplateDocumentProps,
 } from './registry.js';
 
+/**
+ * The supporting sections, shared rather than re-implemented per template.
+ *
+ * Three prose sections across seventeen templates is fifty-one copies of the
+ * same two fields; the contract says a template places and styles a shared
+ * capability and never re-implements it, and these are that capability.
+ */
+export {
+  DescribedEntries,
+  type DescribedSectionId,
+} from './kit/DescribedEntries.js';
+export { LanguageList } from './kit/LanguageList.js';
+
 /** A résumé drawn read-only, with a presentation applied. */
 export { TemplateDocument } from './TemplateDocument.js';
 export { LetterDocument } from './letter/LetterDocument.js';

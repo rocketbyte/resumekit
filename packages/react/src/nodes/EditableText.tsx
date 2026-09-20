@@ -49,6 +49,17 @@ export interface EditableTextProps {
    * not this component's.
    */
   readOnly?: boolean;
+  /**
+   * What this text says when the candidate has written nothing — the
+   * template's own word, not guidance.
+   *
+   * Distinct from `placeholder`, and the difference is the whole point: a
+   * placeholder is never stored, never exported and never extractable, while
+   * this PRINTS. A section heading is the case — "Experience" is on the page of
+   * a résumé nobody has renamed — and declaring it keeps merely opening the
+   * document from reading as an edit. See `FieldRegistry.defaults`.
+   */
+  defaultValue?: string;
 }
 
 /**
@@ -70,6 +81,7 @@ export function EditableText({
   multiline,
   href,
   readOnly = false,
+  defaultValue,
 }: EditableTextProps) {
   // Read live, so a formatting change shows the instant it is made — a field's
   // value is the text, and only the text.
@@ -84,7 +96,11 @@ export function EditableText({
    * way, which is what matters for the export: printing emits a Link annotation
    * from the markup, not from the click handler.
    */
-  const { value, editing, selected, select, set } = useField(path, given);
+  const { value, editing, selected, select, set } = useField(
+    path,
+    given,
+    defaultValue,
+  );
 
   /*
    * Typing, so the DEFERRED request: this fires per character, and a field that

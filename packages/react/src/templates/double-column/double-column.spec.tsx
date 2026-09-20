@@ -34,7 +34,6 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
     summary: 'Nine years in business analysis and logistics.',
     skills: [
       { category: 'Core', items: ['Supply Chain Management', 'Data Analysis'] },
-      { category: 'Languages', items: ['English, Native'] },
     ],
     experience: [
       {
@@ -58,10 +57,26 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
       },
     ],
     certifications: ['Certified Supply Chain Professional'],
+    achievements: [
+      {
+        title: 'Team Lead for Sustainability Project',
+        description: 'Targeted a 15% carbon footprint reduction.',
+      },
+    ],
+    courses: [
+      { title: 'Advanced Excel', description: 'Corporate Finance Institute.' },
+    ],
+    passions: [
+      { title: 'Marathon Running', description: 'Five national marathons.' },
+    ],
+    languages: [
+      { name: 'English', level: 'native' },
+      { name: 'French', level: 'advanced' },
+    ],
     custom_sections: [
       {
         id: 'ach',
-        heading: 'Achievements',
+        heading: 'Volunteering',
         author: 'candidate',
         entries: [
           {
@@ -72,6 +87,7 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
         ],
       },
     ],
+    section_headings: {},
     ...overrides,
   };
 }
@@ -97,17 +113,30 @@ describe('the Double Column document', () => {
       'Skills',
       'Languages',
       'Certifications',
-      'Achievements',
+      'Volunteering',
     ]) {
       expect(screen.getByText(heading), heading).toBeTruthy();
     }
   });
 
   it('omits a section it has no data for', () => {
-    draw(resume({ summary: '', certifications: [], custom_sections: [] }));
+    draw(
+      resume({
+        summary: '',
+        certifications: [],
+        custom_sections: [],
+        section_headings: {},
+        achievements: [],
+        courses: [],
+        passions: [],
+        languages: [],
+      }),
+    );
     expect(screen.queryByText('Summary')).toBeNull();
     expect(screen.queryByText('Certifications')).toBeNull();
     expect(screen.queryByText('Achievements')).toBeNull();
+    expect(screen.queryByText('Courses')).toBeNull();
+    expect(screen.queryByText('Languages')).toBeNull();
   });
 
   /* Languages is read from the skills group that names them: it belongs with

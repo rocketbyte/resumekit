@@ -124,6 +124,16 @@ export interface FieldRegistry {
   values: MutableRefObject<Map<string, EditValue>>;
   /** Each mounted field's setter, keyed by path. Read through {@link write}. */
   setters: MutableRefObject<Map<string, (next: EditValue) => void>>;
+  /**
+   * What a field holds because the TEMPLATE supplied it, by path.
+   *
+   * Only a field that HAS such a value registers one — today, a section
+   * heading, which prints "Experience" on a résumé nobody has renamed. The save
+   * hands this to `presentationEdits`, which refuses to record a value equal to
+   * its default, so opening a document does not look like nine edits and
+   * renaming a section back to its own name leaves no trace.
+   */
+  defaults: MutableRefObject<Map<string, string>>;
   selection: SelectionStore;
   /** Bumped whenever any value changes — see {@link RevisionStore}. */
   revision: RevisionStore;
@@ -160,6 +170,7 @@ export function FieldRegistryProvider({
   const [revision] = useState(createRevisionStore);
   /* Each mounted field's setter, so one field can be written by another. */
   const setters = useRef(new Map<string, (next: EditValue) => void>());
+  const defaults = useRef(new Map<string, string>());
   const write = useCallback((path: string, next: EditValue) => {
     setters.current.get(path)?.(next);
   }, []);
@@ -168,7 +179,7 @@ export function FieldRegistryProvider({
      registry object is new. `values` is a ref and the store a fixed reference;
      only `enabled` can change it, and it does not change. */
   const registry = useMemo<FieldRegistry>(
-    () => ({ enabled, values, setters, selection, revision, write }),
+    () => ({ enabled, values, setters, defaults, selection, revision, write }),
     [enabled, selection, revision, write],
   );
 
@@ -219,6 +230,11 @@ export interface Field<T extends EditValue> {
 export function useField<T extends EditValue>(
   path: string,
   initial: T,
+  /**
+   * What this field holds when the candidate has written nothing — the
+   * template's own word, not a placeholder. See `FieldRegistry.defaults`.
+   */
+  templateDefault?: string,
 ): Field<T> {
   const registry = useFieldRegistry();
   const [value, setValue] = useState<T>(initial);
@@ -240,6 +256,17 @@ export function useField<T extends EditValue>(
 
   const map = registry?.values;
   const revision = registry?.revision;
+
+  /* Published for as long as the field is mounted, and withdrawn with it, so a
+     default cannot outlive the template that supplied it. */
+  const defaults = registry?.defaults;
+  useEffect(() => {
+    if (!defaults || templateDefault === undefined) return;
+    defaults.current.set(path, templateDefault);
+    return () => {
+      defaults.current.delete(path);
+    };
+  }, [defaults, path, templateDefault]);
   useEffect(() => {
     if (!map) return;
     map.current.set(path, value);

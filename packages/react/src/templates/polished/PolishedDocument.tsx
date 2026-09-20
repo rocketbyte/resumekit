@@ -8,9 +8,10 @@ import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
+import { DescribedEntries } from '../../kit/DescribedEntries.js';
+import { LanguageList } from '../../kit/LanguageList.js';
 import { contactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
-import { isLanguages } from '../skills.js';
 import {
   PolishedCustomEntry,
   PolishedEducationEntry,
@@ -41,7 +42,6 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const languages = resume.skills.filter(isLanguages);
   const contact = contactLines(
     resume.contact,
     ['phone', 'email', 'location'],
@@ -61,6 +61,15 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
             <EditableText path="name" value={resume.name} />
           </h1>
 
+          <DescribedEntries
+            id="achievements"
+            heading={resume.section_headings?.achievements}
+            title="Achievements"
+            items={resume.achievements}
+            className="tpl-polished__section tpl-described--marked"
+            headingClassName="tpl-polished__heading"
+            entryClassName="tpl-polished__described"
+          />
           <CustomSections
             sections={resume.custom_sections}
             sectionClass="tpl-polished__section"
@@ -68,9 +77,19 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
             Entry={PolishedCustomEntry}
           />
 
+          <DescribedEntries
+            id="courses"
+            heading={resume.section_headings?.courses}
+            title="Courses"
+            items={resume.courses}
+            className="tpl-polished__section"
+            headingClassName="tpl-polished__heading"
+            entryClassName="tpl-polished__described"
+          />
           {resume.certifications.length > 0 && (
             <DocumentSection
               id="certifications"
+              heading={resume.section_headings?.certifications}
               title="Certifications"
               className="tpl-polished__section"
               headingClassName="tpl-polished__heading"
@@ -84,6 +103,15 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
               </p>
             </DocumentSection>
           )}
+          <DescribedEntries
+            id="passions"
+            heading={resume.section_headings?.passions}
+            title="Passions"
+            items={resume.passions}
+            className="tpl-polished__section tpl-described--marked"
+            headingClassName="tpl-polished__heading"
+            entryClassName="tpl-polished__described"
+          />
         </aside>
         <div className="tpl-polished__main" data-flow>
           <header className="tpl-polished__head-block" data-block>
@@ -136,6 +164,7 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
           {(resume.summary || authoring) && (
             <DocumentSection
               id="summary"
+              heading={resume.section_headings?.summary}
               title="Summary"
               className="tpl-polished__section"
               headingClassName="tpl-polished__heading"
@@ -153,6 +182,7 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"
+              heading={resume.section_headings?.experience}
               title="Experience"
               className="tpl-polished__section"
               headingClassName="tpl-polished__heading"
@@ -173,6 +203,7 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
           {(resume.education.length > 0 || authoring) && (
             <DocumentSection
               id="education"
+              heading={resume.section_headings?.education}
               title="Education"
               className="tpl-polished__section"
               headingClassName="tpl-polished__heading"
@@ -190,9 +221,10 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
             </DocumentSection>
           )}
 
-          {(resume.skills.length > languages.length || authoring) && (
+          {(resume.skills.length > 0 || authoring) && (
             <DocumentSection
               id="skills"
+              heading={resume.section_headings?.skills}
               title="Skills"
               className="tpl-polished__section"
               headingClassName="tpl-polished__heading"
@@ -206,45 +238,26 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
                   noun="skill"
                   gap={false}
                 >
-                  {({ item, path, index }) =>
-                    isLanguages(item) ? null : (
-                      <InlineSkillGroup
-                        item={item}
-                        path={path}
-                        first={index === 0}
-                      />
-                    )
-                  }
+                  {({ item, path, index }) => (
+                    <InlineSkillGroup
+                      item={item}
+                      path={path}
+                      first={index === 0}
+                    />
+                  )}
                 </Collection>
               </p>
             </DocumentSection>
           )}
-          {/* A plain section: Languages is read from the skills group that
-              names them, and has no stored gap of its own. */}
-          {languages.length > 0 && (
-            <section className="tpl-polished__section">
-              <h2
-                className="tpl-polished__heading"
-                data-block
-                data-keep-with-next
-              >
-                Languages
-              </h2>
-              <p className="tpl-polished__prose" data-block>
-                {languages.map((group) => {
-                  const index = resume.skills.indexOf(group);
-                  return (
-                    <EditableInlineList
-                      key={index}
-                      path={`skills.${index}.items`}
-                      items={group.items}
-                      placeholder={PLACEHOLDERS['items']}
-                    />
-                  );
-                })}
-              </p>
-            </section>
-          )}
+          {/* Languages: read from `resume.languages`, so each one carries a level
+              and the section carries a gap of its own. */}
+          <LanguageList
+            items={resume.languages}
+            heading={resume.section_headings?.languages}
+            className="tpl-polished__section"
+            headingClassName="tpl-polished__heading"
+            rowClassName="tpl-polished__language"
+          />
         </div>
       </div>
     </article>

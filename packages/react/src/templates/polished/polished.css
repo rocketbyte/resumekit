@@ -142,13 +142,25 @@
   border-bottom-color: rgb(255 255 255 / 30%);
 }
 
-.tpl-polished__aside .tpl-polished__note-title {
+.tpl-polished__aside .tpl-polished__note-title,
+.tpl-polished__aside .tpl-described__title {
   color: #ffffff;
 }
 
 .tpl-polished__aside .tpl-polished__note-detail,
-.tpl-polished__aside .tpl-polished__prose {
+.tpl-polished__aside .tpl-polished__prose,
+.tpl-polished__aside .tpl-described__body,
+.tpl-polished__aside .tpl-language {
   color: rgb(255 255 255 / 86%);
+}
+
+/*
+ * On the painted rail the meter is drawn in the panel's own ink, like the
+ * keyword rule below. The accent the root sets is a dark-on-white colour and
+ * would all but vanish here.
+ */
+.tpl-polished__aside .tpl-languages {
+  --tpl-language-meter-ink: rgb(255 255 255 / 80%);
 }
 
 /* On the painted rail the keyword's rule is drawn in the panel's own ink. */
@@ -260,4 +272,30 @@
 /* Skills as one run of keywords, as this template's reference sets them. */
 .tpl-polished__keywords {
   margin: 0;
+}
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-polished {
+  --tpl-described-gap: calc(7pt * var(--po-scale));
+  --tpl-described-lead: calc(1.5pt * var(--po-scale));
+  --tpl-described-title-ink: var(--po-accent);
+  --tpl-described-span: calc(14pt * var(--po-scale));
+  --tpl-language-gap: calc(6pt * var(--po-scale));
+  --tpl-language-lead: calc(4pt * var(--po-scale));
+  --tpl-language-step: calc(4pt * var(--po-scale));
+  --tpl-language-meter-ink: var(--po-accent);
+}
+
+/* One repeated mark, never one per entry: nothing in the résumé says which
+   glyph an achievement deserves. */
+.tpl-polished .tpl-described--marked {
+  --tpl-described-mark: '\25C6';
+  --tpl-described-mark-gap: calc(4pt * var(--po-scale));
 }

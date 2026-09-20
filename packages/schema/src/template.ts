@@ -548,6 +548,10 @@ export const APPENDABLE_SECTIONS = [
   'skills',
   'certifications',
   'links',
+  'achievements',
+  'courses',
+  'passions',
+  'languages',
 ] as const;
 
 /**
@@ -624,6 +628,10 @@ const APPEND_SCHEMAS = {
   skills: COLLECTIONS.skills.item,
   certifications: COLLECTIONS.certifications.item,
   links: COLLECTIONS.links.item,
+  achievements: COLLECTIONS.achievements.item,
+  courses: COLLECTIONS.courses.item,
+  passions: COLLECTIONS.passions.item,
+  languages: COLLECTIONS.languages.item,
 } satisfies Record<AppendableSection, z.ZodTypeAny>;
 
 /**
@@ -1098,6 +1106,20 @@ export const RESUME_SECTIONS = [
   'experience',
   'education',
   'certifications',
+  /*
+   * The supporting sections. Members here rather than anywhere else because
+   * that is what gives each one the rail, the adjustable gap and the stored
+   * spacing record the five above already have — by construction, rather than
+   * by seventeen templates each remembering to wire four more.
+   *
+   * Still not a composition model: these are four more sections a `ResumeObject`
+   * HAS. Making sections addable, removable and orderable remains the larger
+   * change this enum has always declined to start.
+   */
+  'achievements',
+  'courses',
+  'passions',
+  'languages',
 ] as const;
 
 export type ResumeSectionId = (typeof RESUME_SECTIONS)[number];
@@ -1492,6 +1514,31 @@ export function applyPresentation(
   const draft = structuredClone(resume) as unknown as Container;
 
   /*
+   * `section_headings` is the one MAP a `set` edit writes into, and it has to
+   * exist before the replacements run.
+   *
+   * Every other path a `set` addresses lands in an array or an object the
+   * writer always emits. This one may be genuinely absent: the field was added
+   * after résumés were already stored, and `ResumeObjectSchema` only defaults it
+   * at the PARSE below — which happens after the replacements, not before. So a
+   * résumé written before the field existed would resolve no parent, every
+   * rename would be skipped as a stale path, and the candidate's headings would
+   * quietly stop saving.
+   *
+   * Seeded rather than defaulted, because the alternative is parsing the base
+   * here, which would refuse a draft entry the candidate has added and not yet
+   * filled in — the exact thing the presented schema exists to allow.
+   */
+  const headings = (draft as Record<string, unknown>)['section_headings'];
+  if (
+    typeof headings !== 'object' ||
+    headings === null ||
+    Array.isArray(headings)
+  ) {
+    (draft as Record<string, unknown>)['section_headings'] = {};
+  }
+
+  /*
    * Structural operations run FIRST, and replacements second.
    *
    * The order is load-bearing: an appended entry becomes an ordinary member of
@@ -1842,6 +1889,22 @@ export function presentationEdits(
    * Defaulted so every existing caller keeps its current behaviour.
    */
   structural: ResumeEdits = [],
+  /*
+   * The value a field holds because the TEMPLATE supplied it, by path.
+   *
+   * A section heading prints "Experience" on a résumé nobody has renamed, so
+   * the field's value is not blank and the base's `section_headings` is empty —
+   * which made merely opening a document look like nine edits and marked it
+   * dirty before the candidate touched anything. `sameValue` already refuses the
+   * blank case for exactly this reason ("a field the writer's résumé never
+   * carried, still blank, is not an edit"); this is the same rule where the
+   * template's own word, rather than emptiness, is what stands there.
+   *
+   * Equality with the default is enough on its own: typing a heading back to
+   * the template's word is how a candidate undoes a rename, and it must leave
+   * no trace, exactly as returning a space control to where it started does.
+   */
+  defaults: Readonly<Record<string, string>> = {},
 ): ResumeEdits {
   /*
    * The positions an addition occupies. Any value under one of these belongs to
@@ -1875,6 +1938,7 @@ export function presentationEdits(
          * addressed by path.
          */
         addressesBase(base, path) &&
+        !(typeof value === 'string' && value === defaults[path]) &&
         !sameValue(readAtPath(base, path), value),
     )
     .map(([path, value]) => ({ kind: 'set' as const, path, value }))

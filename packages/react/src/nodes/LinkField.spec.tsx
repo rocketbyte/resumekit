@@ -38,6 +38,11 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
     contact: { email: 'starlin@example.com' },
     links: [{ label: 'LinkedIn', url: 'https://linkedin.com/in/example' }],
     custom_sections: [],
+    section_headings: {},
+    achievements: [],
+    courses: [],
+    passions: [],
+    languages: [],
     headline: 'Senior Software Engineer',
     summary: 'Ten years building backend platforms.',
     skills: [{ category: 'Backend', items: ['Node.js'] }],
@@ -217,7 +222,17 @@ describe('an empty collection inside a line keeps the line', () => {
   it('offers a field, not a block button', () => {
     const { container } = renderIn('harvard', noLinks(), true);
     expect(container.querySelector('.tpl-collection__add-inline')).toBeTruthy();
-    expect(container.querySelector('.tpl-collection__add')).toBeNull();
+    /*
+     * Scoped to the contact line, which is what this is about. A block add
+     * control elsewhere in the document is correct — an empty Achievements or
+     * Languages section offers exactly one, because a section a candidate
+     * cannot see is a section a candidate cannot fill. What must not happen is
+     * a block control in THIS line, where it becomes a second row the preview
+     * and the file do not have.
+     */
+    const contact = container.querySelector('.tpl-harvard__contact');
+    expect(contact, 'the contact line is rendered').toBeTruthy();
+    expect(contact!.querySelector('.tpl-collection__add')).toBeNull();
   });
 
   it('puts no block element inside the contact paragraph', () => {

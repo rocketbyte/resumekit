@@ -201,3 +201,27 @@
 .tpl-classic__note-detail {
   color: var(--cl-muted);
 }
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-classic {
+  --tpl-described-gap: calc(7pt * var(--cl-scale));
+  --tpl-described-lead: calc(1.5pt * var(--cl-scale));
+  --tpl-described-title-ink: var(--cl-accent);
+  --tpl-described-span: calc(14pt * var(--cl-scale));
+  --tpl-language-gap: calc(6pt * var(--cl-scale));
+  --tpl-language-lead: calc(4pt * var(--cl-scale));
+  --tpl-language-step: calc(4pt * var(--cl-scale));
+  --tpl-language-meter-ink: var(--cl-accent);
+}
+
+/* The reference sets these 2 to a row. */
+.tpl-classic .tpl-described--grid {
+  --tpl-described-columns: 2;
+}

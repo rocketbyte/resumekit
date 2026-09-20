@@ -36,6 +36,14 @@ const FULL: ResumeObject = {
   },
   links: [{ label: 'GitHub', url: 'https://github.com/ada' }],
   custom_sections: [],
+  section_headings: {},
+  achievements: [{ title: 'Grant won', description: 'Secured £1.2M.' }],
+  courses: [{ title: 'Advanced Excel', description: 'Run by the CFI.' }],
+  passions: [{ title: 'Marathons', description: 'Five, so far.' }],
+  languages: [
+    { name: 'English', level: 'native' },
+    { name: 'French', level: 'advanced' },
+  ],
   headline: 'Engineer',
   summary: 'Builds engines.',
   skills: [
@@ -114,6 +122,84 @@ it.each(IDS)('%s imports its own stylesheet', (id) => {
 });
 
 describe.each(IDS)('%s meets the editing contract', (id) => {
+  /*
+   * What the four supporting sections owe every template, in ONE render.
+   *
+   * Together rather than three tests because each `author()` mounts the lazy
+   * editing layer and waits for it; seventeen templates times three renders
+   * made the suite slow and, under load, flaky. The assertions are independent
+   * of each other, so one document answers all three questions.
+   */
+  it('draws the supporting sections the way the contract requires', async () => {
+    const { container } = await author(id);
+
+    /*
+     * Prose, never bullets. Every reference sets these as a title over a
+     * paragraph, which is why `description` is a single string — and sixty-eight
+     * placements is exactly where a template would reach for a bullet list.
+     */
+    for (const section of ['achievements', 'courses', 'passions']) {
+      const el = container.querySelector(
+        `section[data-rail-key="s:${section}"]`,
+      );
+      expect(el, `${section} is drawn`).toBeTruthy();
+      expect(
+        el!.querySelector('.tpl-bullets'),
+        `${section} draws no bullet list`,
+      ).toBeNull();
+    }
+
+    /*
+     * A level is a WORD before it is a meter. This is the condition on which
+     * `docs/template-contract.md` allows the meter at all: the dots are
+     * decoration, and the section still means something to a parser, to a
+     * reader, and on a printer that drops them.
+     */
+    const languages = container.querySelector(
+      'section[data-rail-key="s:languages"]',
+    );
+    expect(languages, 'languages is drawn').toBeTruthy();
+    expect(languages!.textContent).toContain('English');
+    expect(languages!.textContent).toContain('Native');
+    expect(languages!.textContent).toContain('Advanced');
+
+    /* The meter carries nothing a reader has to be told about. */
+    for (const meter of container.querySelectorAll('.tpl-language__meter')) {
+      expect(meter.getAttribute('aria-hidden')).toBe('true');
+    }
+  });
+
+  /*
+   * Every section is renameable, in every template.
+   *
+   * The heading is an `EditableText` at `section_headings.<id>`, so a rename is
+   * an ordinary `set` edit. Asserted over the registry because a template that
+   * drew its own `<h2>` text instead of using `DocumentSection` would look
+   * identical and silently refuse the caret.
+   */
+  it('lets the candidate rename every section', async () => {
+    const { container } = await author(id);
+    for (const section of RESUME_SECTIONS) {
+      const heading = container.querySelector(
+        `section[data-rail-key="s:${section}"] h2 [data-path]`,
+      );
+      expect(heading, `${section}'s heading is a field`).toBeTruthy();
+      expect(heading!.getAttribute('data-path')).toBe(
+        `section_headings.${section}`,
+      );
+    }
+  });
+
+  /* A renamed section prints the candidate's word, not the template's. */
+  it('prints the name the candidate gave a section', async () => {
+    const { container } = await author(id, {
+      ...FULL,
+      section_headings: { passions: 'Interests' },
+    });
+    const el = container.querySelector('section[data-rail-key="s:passions"]');
+    expect(el!.querySelector('h2')!.textContent).toBe('Interests');
+  });
+
   it('gives every named section its own rail', async () => {
     const { container } = await author(id);
     for (const section of RESUME_SECTIONS) {

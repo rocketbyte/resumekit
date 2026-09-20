@@ -6,6 +6,8 @@ import { EditableInlineList } from '../../nodes/EditableInlineList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
+import { DescribedEntries } from '../../kit/DescribedEntries.js';
+import { LanguageList } from '../../kit/LanguageList.js';
 import { contactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import { LinkField } from '../../nodes/LinkField.js';
@@ -143,6 +145,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
       {(resume.summary || authoring) && (
         <DocumentSection
           id="summary"
+          heading={resume.section_headings?.summary}
           title="Professional Summary"
           className="tpl-harvard__section"
           headingClassName="tpl-harvard__section-title"
@@ -161,6 +164,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
       {(resume.experience.length > 0 || authoring) && (
         <DocumentSection
           id="experience"
+          heading={resume.section_headings?.experience}
           title="Experience"
           className="tpl-harvard__section"
           headingClassName="tpl-harvard__section-title"
@@ -181,6 +185,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
       {(resume.education.length > 0 || authoring) && (
         <DocumentSection
           id="education"
+          heading={resume.section_headings?.education}
           title="Education"
           className="tpl-harvard__section"
           headingClassName="tpl-harvard__section-title"
@@ -198,9 +203,19 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         </DocumentSection>
       )}
 
+      <DescribedEntries
+        id="achievements"
+        heading={resume.section_headings?.achievements}
+        title="Achievements"
+        items={resume.achievements}
+        className="tpl-harvard__section"
+        headingClassName="tpl-harvard__heading"
+        entryClassName="tpl-harvard__described"
+      />
       {(resume.skills.length > 0 || authoring) && (
         <DocumentSection
           id="skills"
+          heading={resume.section_headings?.skills}
           title="Technical Skills"
           className="tpl-harvard__section"
           headingClassName="tpl-harvard__section-title"
@@ -220,9 +235,26 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         </DocumentSection>
       )}
 
+      <DescribedEntries
+        id="courses"
+        heading={resume.section_headings?.courses}
+        title="Courses"
+        items={resume.courses}
+        className="tpl-harvard__section"
+        headingClassName="tpl-harvard__heading"
+        entryClassName="tpl-harvard__described"
+      />
+      <LanguageList
+        items={resume.languages}
+        heading={resume.section_headings?.languages}
+        className="tpl-harvard__section"
+        headingClassName="tpl-harvard__heading"
+        rowClassName="tpl-harvard__language"
+      />
       {resume.certifications.length > 0 && (
         <DocumentSection
           id="certifications"
+          heading={resume.section_headings?.certifications}
           title="Certifications"
           className="tpl-harvard__section"
           headingClassName="tpl-harvard__section-title"
@@ -236,6 +268,15 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
           </p>
         </DocumentSection>
       )}
+      <DescribedEntries
+        id="passions"
+        heading={resume.section_headings?.passions}
+        title="Passions"
+        items={resume.passions}
+        className="tpl-harvard__section"
+        headingClassName="tpl-harvard__heading"
+        entryClassName="tpl-harvard__described"
+      />
       {/*
        * The candidate's own sections, after every section this template
        * knows. Heading in the template's own style; entries in the shared

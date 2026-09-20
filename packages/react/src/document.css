@@ -23,6 +23,8 @@
 @import './kit/avatar.css';
 @import './kit/panel.css';
 @import './kit/keywords.css';
+@import './kit/described.css';
+@import './kit/language.css';
 @import './paged.css';
 @import './nodes/template-node.css';
 @import './templates/harvard/harvard.css';

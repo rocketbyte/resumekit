@@ -8,10 +8,11 @@ import { useAuthoring } from '../../collections/authoring-context.js';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
+import { DescribedEntries } from '../../kit/DescribedEntries.js';
+import { LanguageList } from '../../kit/LanguageList.js';
 import { contactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import { monogram } from '../../kit/monogram.js';
-import { isLanguages } from '../skills.js';
 import {
   CobaltCustomEntry,
   CobaltEducationEntry,
@@ -51,8 +52,7 @@ import './cobalt.css';
  *
  * The reference prints two things this résumé cannot hold — a location on every
  * entry, and languages as a first-class list. Neither is invented: entry
- * locations are omitted, and Languages is read from the skills group that names
- * them.
+ * locations are omitted. Languages is read from `resume.languages`.
  */
 
 /**
@@ -86,8 +86,6 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
    * context this is false and an empty section stays absent.
    */
   const authoring = useAuthoring() !== null;
-
-  const languages = resume.skills.filter(isLanguages);
 
   // The reference stacks email, phone, location, in that order.
   const contact = contactLines(
@@ -154,6 +152,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
           {(resume.summary || authoring) && (
             <DocumentSection
               id="summary"
+              heading={resume.section_headings?.summary}
               title="Professional Summary"
               className="tpl-cob__section"
               headingClassName="tpl-cob__heading"
@@ -169,9 +168,19 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
             </DocumentSection>
           )}
 
-          {(resume.skills.length > languages.length || authoring) && (
+          <DescribedEntries
+            id="achievements"
+            heading={resume.section_headings?.achievements}
+            title="Achievements"
+            items={resume.achievements}
+            className="tpl-cob__section tpl-described--marked"
+            headingClassName="tpl-cob__heading"
+            entryClassName="tpl-cob__described"
+          />
+          {(resume.skills.length > 0 || authoring) && (
             <DocumentSection
               id="skills"
+              heading={resume.section_headings?.skills}
               title="Technical Skills"
               className="tpl-cob__section"
               headingClassName="tpl-cob__heading"
@@ -187,11 +196,9 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
                   noun="skill"
                   gap={false}
                 >
-                  {({ item, path }) =>
-                    isLanguages(item) ? null : (
-                      <BulletSkillGroup item={item} path={path} />
-                    )
-                  }
+                  {({ item, path }) => (
+                    <BulletSkillGroup item={item} path={path} />
+                  )}
                 </Collection>
               </div>
             </DocumentSection>
@@ -200,6 +207,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
           {(resume.education.length > 0 || authoring) && (
             <DocumentSection
               id="education"
+              heading={resume.section_headings?.education}
               title="Education"
               className="tpl-cob__section"
               headingClassName="tpl-cob__heading"
@@ -217,9 +225,19 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
             </DocumentSection>
           )}
 
+          <DescribedEntries
+            id="courses"
+            heading={resume.section_headings?.courses}
+            title="Courses"
+            items={resume.courses}
+            className="tpl-cob__section"
+            headingClassName="tpl-cob__heading"
+            entryClassName="tpl-cob__described"
+          />
           {resume.certifications.length > 0 && (
             <DocumentSection
               id="certifications"
+              heading={resume.section_headings?.certifications}
               title="Certifications"
               className="tpl-cob__section"
               headingClassName="tpl-cob__heading"
@@ -232,6 +250,15 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
               </div>
             </DocumentSection>
           )}
+          <DescribedEntries
+            id="passions"
+            heading={resume.section_headings?.passions}
+            title="Passions"
+            items={resume.passions}
+            className="tpl-cob__section tpl-described--marked"
+            headingClassName="tpl-cob__heading"
+            entryClassName="tpl-cob__described"
+          />
         </div>
 
         {/* ── The wide column ──────────────────────────────────────────── */}
@@ -239,6 +266,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"
+              heading={resume.section_headings?.experience}
               title="Experience"
               className="tpl-cob__section"
               headingClassName="tpl-cob__heading"
@@ -256,25 +284,13 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
             </DocumentSection>
           )}
 
-          {languages.length > 0 && (
-            <section className="tpl-cob__section">
-              <h2 className="tpl-cob__heading" data-block data-keep-with-next>
-                Languages
-              </h2>
-              <div data-block>
-                {languages.map((group) => {
-                  const index = resume.skills.indexOf(group);
-                  return (
-                    <EditableBulletList
-                      key={index}
-                      path={`skills.${index}.items`}
-                      items={group.items}
-                    />
-                  );
-                })}
-              </div>
-            </section>
-          )}
+          <LanguageList
+            items={resume.languages}
+            heading={resume.section_headings?.languages}
+            className="tpl-cob__section"
+            headingClassName="tpl-cob__heading"
+            rowClassName="tpl-cob__language"
+          />
 
           {(resume.headline || authoring) && (
             <section className="tpl-cob__section">

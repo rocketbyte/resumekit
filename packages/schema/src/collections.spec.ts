@@ -8,7 +8,11 @@ import {
   isUnfilled,
   type CollectionId,
 } from './collections.js';
-import { ResumeObjectSchema, type ResumeObject } from './resume.js';
+import {
+  CANDIDATE_ONLY_FIELDS,
+  ResumeObjectSchema,
+  type ResumeObject,
+} from './resume.js';
 import {
   APPENDABLE_FROM_COLLECTIONS,
   APPENDABLE_SECTIONS,
@@ -491,5 +495,82 @@ describe('adopting a stored overlay', () => {
     const kept = withoutUnfilledAdditions(many);
     expect(kept).toEqual([]);
     expect(applyPresentation(base, kept).links).toEqual(base.links);
+  });
+});
+
+/**
+ * Renaming a section.
+ *
+ * The heading a template prints is a FIELD, addressed at
+ * `section_headings.<id>`, so a rename is an ordinary `set` edit and rides the
+ * save, undo and export path the rest of the document's text already uses.
+ */
+describe('a section can be renamed', () => {
+  const renamed = (path: string, value: string) =>
+    applyPresentation(base, [{ kind: 'set', path, value }]);
+
+  it('stores the candidate’s word for a section', () => {
+    const out = renamed('section_headings.passions', 'Interests');
+    expect(out.section_headings['passions']).toBe('Interests');
+  });
+
+  it('leaves every other section alone', () => {
+    const out = renamed('section_headings.passions', 'Interests');
+    expect(out.section_headings['experience']).toBeUndefined();
+  });
+
+  it('renames a resume stored before headings could be renamed', () => {
+    /*
+     * The field was added after résumés were already stored, and the schema
+     * only defaults it when the résumé is parsed — which happens after the
+     * replacements. Without the seed in `applyPresentation` the rename resolves
+     * no parent, is skipped as a stale path, and the candidate's heading
+     * quietly stops saving.
+     */
+    const { section_headings: _dropped, ...older } = base;
+    const out = applyPresentation(older as typeof base, [
+      { kind: 'set', path: 'section_headings.skills', value: 'Core Skills' },
+    ]);
+    expect(out.section_headings['skills']).toBe('Core Skills');
+  });
+
+  it('keeps a rename out of the writer’s reach', () => {
+    expect(CANDIDATE_ONLY_FIELDS).toContain('section_headings');
+  });
+
+  /*
+   * A heading the candidate has not touched is not an edit.
+   *
+   * The field's value is the template's own word — "Experience" is on the page
+   * of a résumé nobody renamed — so without the defaults the diff sees a value
+   * where the base has none, and merely OPENING a document reported one edit
+   * per section and marked it dirty. The same rule `sameValue` already applies
+   * to a blank field the writer never carried.
+   */
+  it('records nothing for a heading the candidate never touched', () => {
+    const values = { 'section_headings.experience': 'Experience' };
+    const defaults = { 'section_headings.experience': 'Experience' };
+    expect(presentationEdits(base, values, [], defaults)).toEqual([]);
+  });
+
+  it('records the heading once the candidate changes it', () => {
+    const values = { 'section_headings.experience': 'Work History' };
+    const defaults = { 'section_headings.experience': 'Experience' };
+    expect(presentationEdits(base, values, [], defaults)).toEqual([
+      {
+        kind: 'set',
+        path: 'section_headings.experience',
+        value: 'Work History',
+      },
+    ]);
+  });
+
+  it('forgets a rename typed back to the template’s own word', () => {
+    // Undoing a rename must leave no trace, exactly as returning a space
+    // control to where it started does.
+    const values = { 'section_headings.experience': 'Experience' };
+    const defaults = { 'section_headings.experience': 'Experience' };
+    const out = presentationEdits(base, values, [], defaults);
+    expect(out.some((e) => e.kind === 'set')).toBe(false);
   });
 });

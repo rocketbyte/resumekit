@@ -22,15 +22,10 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
     },
     links: [{ label: 'LinkedIn', url: 'https://linkedin.com/in/example' }],
     custom_sections: [],
+    section_headings: {},
     headline: 'Senior Software Engineer',
     summary: 'Ten years building backend platforms.',
-    skills: [
-      { category: 'Backend', items: ['Node.js', 'TypeScript'] },
-      {
-        category: 'Languages',
-        items: ['English, Professional', 'Spanish, Native'],
-      },
-    ],
+    skills: [{ category: 'Backend', items: ['Node.js', 'TypeScript'] }],
     experience: [
       {
         company: 'Doral Health & Wellness',
@@ -51,6 +46,22 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
       },
     ],
     certifications: [],
+    achievements: [
+      {
+        title: 'Team Lead for Sustainability Project',
+        description: 'Targeted a 15% carbon footprint reduction.',
+      },
+    ],
+    courses: [
+      { title: 'Advanced Excel', description: 'Corporate Finance Institute.' },
+    ],
+    passions: [
+      { title: 'Marathon Running', description: 'Five national marathons.' },
+    ],
+    languages: [
+      { name: 'English', level: 'native' },
+      { name: 'French', level: 'advanced' },
+    ],
     ...overrides,
   };
 }
@@ -106,14 +117,16 @@ describe('the Executive document', () => {
     const { container } = renderExec(resume());
     const columns = container.querySelector('.tpl-exec__columns');
     expect(columns?.textContent).toContain('Node.js');
-    expect(columns?.textContent).not.toContain('Spanish, Native');
-    expect(container.textContent).toContain('Spanish, Native');
+    expect(columns?.textContent).not.toContain('English');
+    // The level is a WORD, so the section means something without the meter.
+    expect(container.textContent).toContain('English');
+    expect(container.textContent).toContain('Native');
   });
 
   it('shows no Languages section when the resume names no languages', () => {
-    renderExec(
-      resume({ skills: [{ category: 'Backend', items: ['Node.js'] }] }),
-    );
+    // The résumé holds no languages. A skills group NAMED "Languages" no
+    // longer makes one — that stopgap is retired.
+    renderExec(resume({ languages: [] }));
     expect(screen.queryByText('Languages')).toBeNull();
   });
 

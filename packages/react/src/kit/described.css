@@ -1,0 +1,104 @@
+/*
+ * Achievements, Courses and Passions: a title over a paragraph.
+ *
+ * The SHAPE is here and the painting is the template's, on the same terms as
+ * `keywords.css` — a template sets the variables and its own classes, and never
+ * restates the structure. Three sections across seventeen templates is where a
+ * copied block would quietly come apart.
+ */
+
+.tpl-described__entry + .tpl-described__entry {
+  /*
+   * The recorded space is ADDED to the rhythm, never substituted for it, which
+   * is the rule every template's stylesheet follows. A template that wants a
+   * different rhythm sets the variable rather than redeclaring the margin.
+   */
+  margin-top: calc(
+    var(--tpl-described-gap, 7pt) + var(--tpl-space-height, 0px)
+  );
+}
+
+/*
+ * The type is the TEMPLATE'S, not this file's.
+ *
+ * Every template sets its body text once, on its root, and its own prose class
+ * is nothing but `margin: 0` — so a paragraph in a résumé is styled by
+ * inheriting, and these two must be drawn the same way. Naming a size or a
+ * line-height here would make the supporting sections the only text on the page
+ * set by the kit, and they would read as a foreign block in seventeen
+ * templates at once.
+ *
+ * So: inherit by default, and leave a variable where a template genuinely wants
+ * to differ. What IS stated is structure — the margins that space a title from
+ * its paragraph — because that is the shape this component owns.
+ */
+.tpl-described__title {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--tpl-described-title-size, inherit);
+  line-height: var(--tpl-described-title-leading, inherit);
+  font-weight: var(--tpl-described-title-weight, 700);
+  color: var(--tpl-described-title-ink, currentcolor);
+}
+
+.tpl-described__body {
+  margin: var(--tpl-described-lead, 1.5pt) 0 0;
+  font-family: inherit;
+  font-size: var(--tpl-described-body-size, inherit);
+  line-height: var(--tpl-described-body-leading, inherit);
+  color: var(--tpl-described-body-ink, currentcolor);
+}
+
+/*
+ * A repeated mark beside each title, for the references that glyph these
+ * entries.
+ *
+ * ONE mark, set by the template in `--tpl-described-mark`, repeated on every
+ * entry. Not a prop and not per-entry: nothing in the résumé says which glyph
+ * an achievement deserves, so a renderer that varied it would be inventing
+ * meaning. `aria-hidden` is implicit — generated content is not announced — and
+ * the mark carries none of the entry's information.
+ */
+.tpl-described--marked .tpl-described__title::before {
+  content: var(--tpl-described-mark, '');
+  margin-right: var(--tpl-described-mark-gap, 4pt);
+  color: var(
+    --tpl-described-mark-ink,
+    var(--tpl-described-title-ink, currentcolor)
+  );
+}
+
+/*
+ * The two-column variant, for the references that set these entries side by
+ * side — Classic and Timeline set achievements two to a row, Ivy three.
+ *
+ * A GRID rather than CSS `columns`. The contract states the reason and it is
+ * not stylistic: an editable container that spans a column break is fragmented,
+ * and a fragment can hold neither its outline nor its rail, so the control pill
+ * lands inside the page.
+ */
+.tpl-described--grid {
+  display: grid;
+  grid-template-columns: repeat(var(--tpl-described-columns, 2), 1fr);
+  gap: var(--tpl-described-gap, 7pt) var(--tpl-described-span, 14pt);
+}
+
+/*
+ * The heading spans the tracks; the entries fill them.
+ *
+ * The section itself is the grid because `Collection` renders its items as a
+ * fragment — there is no wrapper to grid, and adding one would put a box around
+ * every collection in the catalog to serve three sections in a handful of
+ * templates. The space handle is absolutely positioned, so it takes no cell.
+ */
+.tpl-described--grid > h2 {
+  grid-column: 1 / -1;
+}
+
+/*
+ * In a grid every entry is a first row, so the sibling margin above would
+ * double the gap the grid already sets.
+ */
+.tpl-described--grid .tpl-described__entry + .tpl-described__entry {
+  margin-top: var(--tpl-space-height, 0px);
+}

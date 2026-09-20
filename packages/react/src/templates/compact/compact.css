@@ -197,3 +197,29 @@
   --tpl-keyword-gap: calc(5pt * var(--cp-scale));
   --tpl-keyword-lead: calc(1.5pt * var(--cp-scale));
 }
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-compact {
+  --tpl-described-gap: calc(7pt * var(--cp-scale));
+  --tpl-described-lead: calc(1.5pt * var(--cp-scale));
+  --tpl-described-title-ink: var(--cp-accent);
+  --tpl-described-span: calc(14pt * var(--cp-scale));
+  --tpl-language-gap: calc(6pt * var(--cp-scale));
+  --tpl-language-lead: calc(4pt * var(--cp-scale));
+  --tpl-language-step: calc(4pt * var(--cp-scale));
+  --tpl-language-meter-ink: var(--cp-accent);
+}
+
+/* One repeated mark, never one per entry: nothing in the résumé says which
+   glyph an achievement deserves. */
+.tpl-compact .tpl-described--marked {
+  --tpl-described-mark: '\2713';
+  --tpl-described-mark-gap: calc(4pt * var(--cp-scale));
+}

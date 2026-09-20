@@ -9,9 +9,10 @@ import { useDocumentStyle } from '../../presentation-context.js';
 import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
 import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
+import { DescribedEntries } from '../../kit/DescribedEntries.js';
+import { LanguageList } from '../../kit/LanguageList.js';
 import { contactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
-import { isLanguages } from '../skills.js';
 import {
   ModernCustomEntry,
   ModernEducationEntry,
@@ -40,7 +41,6 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const languages = resume.skills.filter(isLanguages);
   const contact = contactLines(
     resume.contact,
     ['phone', 'email', 'location'],
@@ -112,6 +112,7 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"
+              heading={resume.section_headings?.experience}
               title="Experience"
               className="tpl-modern__section"
               headingClassName="tpl-modern__heading"
@@ -132,6 +133,7 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
           {(resume.education.length > 0 || authoring) && (
             <DocumentSection
               id="education"
+              heading={resume.section_headings?.education}
               title="Education"
               className="tpl-modern__section"
               headingClassName="tpl-modern__heading"
@@ -149,32 +151,15 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
             </DocumentSection>
           )}
 
-          {/* A plain section: Languages is read from the skills group that
-              names them, and has no stored gap of its own. */}
-          {languages.length > 0 && (
-            <section className="tpl-modern__section">
-              <h2
-                className="tpl-modern__heading"
-                data-block
-                data-keep-with-next
-              >
-                Languages
-              </h2>
-              <p className="tpl-modern__prose" data-block>
-                {languages.map((group) => {
-                  const index = resume.skills.indexOf(group);
-                  return (
-                    <EditableInlineList
-                      key={index}
-                      path={`skills.${index}.items`}
-                      items={group.items}
-                      placeholder={PLACEHOLDERS['items']}
-                    />
-                  );
-                })}
-              </p>
-            </section>
-          )}
+          {/* Languages: read from `resume.languages`, so each one carries a level
+              and the section carries a gap of its own. */}
+          <LanguageList
+            items={resume.languages}
+            heading={resume.section_headings?.languages}
+            className="tpl-modern__section"
+            headingClassName="tpl-modern__heading"
+            rowClassName="tpl-modern__language"
+          />
         </div>
 
         {/* ── The rail: what a reader scans ─────────────────────────────── */}
@@ -182,6 +167,7 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
           {(resume.summary || authoring) && (
             <DocumentSection
               id="summary"
+              heading={resume.section_headings?.summary}
               title="Summary"
               className="tpl-modern__section"
               headingClassName="tpl-modern__heading"
@@ -197,6 +183,15 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
             </DocumentSection>
           )}
 
+          <DescribedEntries
+            id="achievements"
+            heading={resume.section_headings?.achievements}
+            title="Achievements"
+            items={resume.achievements}
+            className="tpl-modern__section tpl-described--marked"
+            headingClassName="tpl-modern__heading"
+            entryClassName="tpl-modern__described"
+          />
           <CustomSections
             sections={resume.custom_sections}
             sectionClass="tpl-modern__section"
@@ -204,9 +199,10 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
             Entry={ModernCustomEntry}
           />
 
-          {(resume.skills.length > languages.length || authoring) && (
+          {(resume.skills.length > 0 || authoring) && (
             <DocumentSection
               id="skills"
+              heading={resume.section_headings?.skills}
               title="Skills"
               className="tpl-modern__section"
               headingClassName="tpl-modern__heading"
@@ -220,19 +216,27 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
                   noun="skill"
                   gap={false}
                 >
-                  {({ item, path }) =>
-                    isLanguages(item) ? null : (
-                      <BulletSkillGroup item={item} path={path} />
-                    )
-                  }
+                  {({ item, path }) => (
+                    <BulletSkillGroup item={item} path={path} />
+                  )}
                 </Collection>
               </div>
             </DocumentSection>
           )}
 
+          <DescribedEntries
+            id="courses"
+            heading={resume.section_headings?.courses}
+            title="Courses"
+            items={resume.courses}
+            className="tpl-modern__section"
+            headingClassName="tpl-modern__heading"
+            entryClassName="tpl-modern__described"
+          />
           {resume.certifications.length > 0 && (
             <DocumentSection
               id="certifications"
+              heading={resume.section_headings?.certifications}
               title="Certifications"
               className="tpl-modern__section"
               headingClassName="tpl-modern__heading"
@@ -246,6 +250,15 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
               </p>
             </DocumentSection>
           )}
+          <DescribedEntries
+            id="passions"
+            heading={resume.section_headings?.passions}
+            title="Passions"
+            items={resume.passions}
+            className="tpl-modern__section tpl-described--marked"
+            headingClassName="tpl-modern__heading"
+            entryClassName="tpl-modern__described"
+          />
         </aside>
       </div>
     </article>

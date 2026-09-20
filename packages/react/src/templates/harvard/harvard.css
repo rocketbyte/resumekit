@@ -377,3 +377,22 @@
     -webkit-print-color-adjust: exact;
   }
 }
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-harvard {
+  --tpl-described-gap: calc(7pt * var(--h-scale));
+  --tpl-described-lead: calc(1.5pt * var(--h-scale));
+  --tpl-described-title-ink: var(--h-accent);
+  --tpl-described-span: calc(14pt * var(--h-scale));
+  --tpl-language-gap: calc(6pt * var(--h-scale));
+  --tpl-language-lead: calc(4pt * var(--h-scale));
+  --tpl-language-step: calc(4pt * var(--h-scale));
+  --tpl-language-meter-ink: var(--h-accent);
+}

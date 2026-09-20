@@ -35,6 +35,16 @@
         "dependsOn": [
           "^build"
         ]
+      },
+      "gallery": {
+        "executor": "nx:run-commands",
+        "cache": false,
+        "options": {
+          "cwd": "{projectRoot}",
+          "commands": [
+            "vite --config gallery/vite.config.mts"
+          ]
+        }
       }
     }
   },

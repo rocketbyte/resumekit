@@ -7,10 +7,11 @@ import { EditableText } from '../../nodes/EditableText.js';
 import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
+import { DescribedEntries } from '../../kit/DescribedEntries.js';
+import { LanguageList } from '../../kit/LanguageList.js';
 import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
 import { contactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
-import { isLanguages } from '../skills.js';
 import {
   IvyCustomEntry,
   IvyEducationEntry,
@@ -37,7 +38,6 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const languages = resume.skills.filter(isLanguages);
   const contact = contactLines(
     resume.contact,
     ['phone', 'email', 'location'],
@@ -102,6 +102,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
       {(resume.summary || authoring) && (
         <DocumentSection
           id="summary"
+          heading={resume.section_headings?.summary}
           title="Summary"
           className="tpl-ivy__section"
           headingClassName="tpl-ivy__heading"
@@ -120,6 +121,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
       {(resume.experience.length > 0 || authoring) && (
         <DocumentSection
           id="experience"
+          heading={resume.section_headings?.experience}
           title="Experience"
           className="tpl-ivy__section"
           headingClassName="tpl-ivy__heading"
@@ -140,6 +142,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
       {(resume.education.length > 0 || authoring) && (
         <DocumentSection
           id="education"
+          heading={resume.section_headings?.education}
           title="Education"
           className="tpl-ivy__section"
           headingClassName="tpl-ivy__heading"
@@ -157,9 +160,19 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
         </DocumentSection>
       )}
 
-      {(resume.skills.length > languages.length || authoring) && (
+      <DescribedEntries
+        id="achievements"
+        heading={resume.section_headings?.achievements}
+        title="Achievements"
+        items={resume.achievements}
+        className="tpl-ivy__section tpl-described--marked tpl-described--grid"
+        headingClassName="tpl-ivy__heading"
+        entryClassName="tpl-ivy__described"
+      />
+      {(resume.skills.length > 0 || authoring) && (
         <DocumentSection
           id="skills"
+          heading={resume.section_headings?.skills}
           title="Skills"
           className="tpl-ivy__section"
           headingClassName="tpl-ivy__heading"
@@ -171,15 +184,9 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
               noun="skill"
               gap={false}
             >
-              {({ item, path, index }) =>
-                isLanguages(item) ? null : (
-                  <InlineSkillGroup
-                    item={item}
-                    path={path}
-                    first={index === 0}
-                  />
-                )
-              }
+              {({ item, path, index }) => (
+                <InlineSkillGroup item={item} path={path} first={index === 0} />
+              )}
             </Collection>
           </p>
         </DocumentSection>
@@ -190,30 +197,27 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
        * stores, and reusing the skills key would give two sections one rail —
        * pointing at either would light up both.
        */}
-      {languages.length > 0 && (
-        <section className="tpl-ivy__section">
-          <h2 className="tpl-ivy__heading" data-block data-keep-with-next>
-            Languages
-          </h2>
-          <p className="tpl-ivy__keywords" data-block>
-            {languages.map((group) => {
-              const index = resume.skills.indexOf(group);
-              return (
-                <EditableInlineList
-                  key={index}
-                  path={`skills.${index}.items`}
-                  items={group.items}
-                  placeholder={PLACEHOLDERS['items']}
-                />
-              );
-            })}
-          </p>
-        </section>
-      )}
+      <DescribedEntries
+        id="courses"
+        heading={resume.section_headings?.courses}
+        title="Courses"
+        items={resume.courses}
+        className="tpl-ivy__section"
+        headingClassName="tpl-ivy__heading"
+        entryClassName="tpl-ivy__described"
+      />
+      <LanguageList
+        items={resume.languages}
+        heading={resume.section_headings?.languages}
+        className="tpl-ivy__section"
+        headingClassName="tpl-ivy__heading"
+        rowClassName="tpl-ivy__language"
+      />
 
       {resume.certifications.length > 0 && (
         <DocumentSection
           id="certifications"
+          heading={resume.section_headings?.certifications}
           title="Certifications"
           className="tpl-ivy__section"
           headingClassName="tpl-ivy__heading"
@@ -227,6 +231,15 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
           </p>
         </DocumentSection>
       )}
+      <DescribedEntries
+        id="passions"
+        heading={resume.section_headings?.passions}
+        title="Passions"
+        items={resume.passions}
+        className="tpl-ivy__section tpl-described--marked"
+        headingClassName="tpl-ivy__heading"
+        entryClassName="tpl-ivy__described"
+      />
 
       <CustomSections
         sections={resume.custom_sections}

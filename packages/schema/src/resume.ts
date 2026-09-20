@@ -139,6 +139,62 @@ export const CustomSectionSchema = z.object({
 });
 export type CustomSection = z.infer<typeof CustomSectionSchema>;
 
+/**
+ * A title with a short paragraph under it — an achievement, a course, a passion.
+ *
+ * The shape is taken from the references rather than guessed. Every one of the
+ * thirteen sets an achievement as a bold or accented title with a paragraph
+ * beneath it; not one sets it as bullets. `description` is therefore a single
+ * `string` and not a `string[]`, so the record cannot express a list no template
+ * draws — the same discipline {@link SkillGroupSchema} applies when it refuses
+ * prose.
+ *
+ * ONE schema for three sections because they share a shape, and three FIELDS
+ * rather than one tagged list because they do not share a place on the page: a
+ * template resolves where a section sits from the field it is reading, not from
+ * a discriminator it has to match. Keying behaviour off a string is the mistake
+ * `isLanguages` made, and it is not repeated here.
+ */
+export const DescribedEntrySchema = z.object({
+  title: z.string().min(1).describe('The entry’s headline, e.g. an award.'),
+  description: z
+    .string()
+    .describe(
+      'One short paragraph. Never a list — no template draws bullets here.',
+    ),
+});
+export type DescribedEntry = z.infer<typeof DescribedEntrySchema>;
+
+/**
+ * How well the candidate speaks a language.
+ *
+ * FIVE values, because the meter five of the references draw has five steps.
+ * That correspondence is the whole reason a meter is allowed to exist here at
+ * all: `docs/template-contract.md` refuses a proficiency meter whose
+ * proportions nothing recorded, and this one renders one step per stored enum
+ * value rather than a percentage somebody chose. A sixth level would break the
+ * correspondence and force that rule to be re-decided — stated here so it is
+ * decided knowingly rather than discovered.
+ *
+ * There is no zero: a language the candidate does not speak is not on the
+ * résumé.
+ */
+export const LANGUAGE_LEVELS = [
+  'native',
+  'fluent',
+  'advanced',
+  'intermediate',
+  'beginner',
+] as const;
+export const LanguageLevelSchema = z.enum(LANGUAGE_LEVELS);
+export type LanguageLevel = z.infer<typeof LanguageLevelSchema>;
+
+export const LanguageSchema = z.object({
+  name: z.string().min(1).describe("A language, e.g. 'Spanish'."),
+  level: LanguageLevelSchema.describe('How well the candidate speaks it.'),
+});
+export type Language = z.infer<typeof LanguageSchema>;
+
 /** A flat keyword list grouped by type (no rating bars / years-per-skill). */
 export const SkillGroupSchema = z.object({
   category: z
@@ -247,6 +303,55 @@ export const ResumeObjectSchema = z.object({
   education: z.array(EducationSchema).default([]),
   certifications: z.array(z.string().min(1)).default([]),
   /*
+   * The four sections every reference draws and the record could not hold.
+   *
+   * Achievements is in all thirteen references, usually directly under the
+   * summary or at the top of the rail; Courses is in ten, Passions in six,
+   * Languages in five. Until they existed here, seventeen templates each had
+   * four holes a stylesheet could not fill, because there was nowhere for a
+   * candidate to type the content.
+   *
+   * DEFAULTED EMPTY, so every résumé stored before these fields existed parses
+   * unchanged and nothing is migrated.
+   *
+   * DELIBERATELY ABSENT from `TailoredResumeSchema`, on the same terms as
+   * `custom_sections` below: a section the pipeline cannot express is a section
+   * the pipeline cannot invent, so every entry here is known to be the
+   * candidate's own. It also keeps the JSON Schema sent to the provider
+   * byte-identical, so the fields cost no tokens.
+   */
+  achievements: z.array(DescribedEntrySchema).default([]),
+  courses: z.array(DescribedEntrySchema).default([]),
+  passions: z.array(DescribedEntrySchema).default([]),
+  /*
+   * Read from here rather than from whichever skills group a candidate happened
+   * to name "Languages", which is how every template found them before this
+   * field existed. That stopgap had no level, so no meter; no section id, so no
+   * adjustable gap; and it rendered nothing at all for the candidate who had not
+   * guessed the magic category name.
+   */
+  languages: z.array(LanguageSchema).default([]),
+  /*
+   * What each section is CALLED, where the candidate renamed it.
+   *
+   * Keyed by `ResumeSectionId`, and absent for every section the candidate left
+   * alone — so the template's own heading is the default and nothing is stored
+   * until somebody types. A custom section has carried an editable `heading`
+   * since it was introduced; this is the same capability for the sections the
+   * schema names, which a candidate could read on the page and not change.
+   *
+   * The VALUE type is a loose `Record<string, string>` rather than a record
+   * keyed by the enum, deliberately. A rename arrives as an ordinary `set` edit
+   * on `section_headings.<id>`, and an overlay is data at rest that outlives the
+   * code that wrote it — so an edit naming a section this build no longer has
+   * would make the whole résumé fail to parse, and `presentedResume` would fall
+   * back to the writer's copy and silently discard every OTHER edit with it. A
+   * key nothing reads costs nothing; a résumé that will not open costs the
+   * candidate their work. The same reasoning `applyPresentation` gives for
+   * skipping a stale path rather than throwing.
+   */
+  section_headings: z.record(z.string(), z.string()).default({}),
+  /*
    * Sections the candidate added, which this schema has no other concept of.
    *
    * Defaulted empty, so every résumé written before this field existed parses
@@ -262,16 +367,44 @@ export const ResumeObjectSchema = z.object({
 export type ResumeObject = z.infer<typeof ResumeObjectSchema>;
 
 /**
+ * The résumé fields the writer cannot express.
+ *
+ * One list, used by `TailoredResumeSchema` to omit them and by
+ * {@link asResumeObject} to put them back, so the two can never disagree about
+ * which fields are candidate-only.
+ */
+export const CANDIDATE_ONLY_FIELDS = [
+  'custom_sections',
+  'section_headings',
+  'achievements',
+  'courses',
+  'passions',
+  'languages',
+] as const;
+export type CandidateOnlyField = (typeof CANDIDATE_ONLY_FIELDS)[number];
+
+/**
  * A writer résumé widened to a full {@link ResumeObject}.
  *
- * `TailoredResumeSchema` omits `custom_sections` so the model cannot express a
- * section it did not ground. Everything that RENDERS a résumé takes the full
- * object, so the two meet here: a writer résumé has no custom sections, and
- * saying that once beats each caller spreading an empty array and hoping it
- * stays the right default.
+ * `TailoredResumeSchema` omits every {@link CANDIDATE_ONLY_FIELDS} member so the
+ * model cannot express a section it did not ground. Everything that RENDERS a
+ * résumé takes the full object, so the two meet here: a writer résumé has none
+ * of them, and saying that once beats each caller spreading five empty arrays
+ * and hoping they stay the right defaults.
+ *
+ * The parameter is typed by the same list, so a sixth candidate-only field is a
+ * type error here until it is handled rather than a silently missing default.
  */
 export function asResumeObject(
-  written: Omit<ResumeObject, 'custom_sections'>,
+  written: Omit<ResumeObject, CandidateOnlyField>,
 ): ResumeObject {
-  return { ...written, custom_sections: [] };
+  return {
+    ...written,
+    custom_sections: [],
+    section_headings: {},
+    achievements: [],
+    courses: [],
+    passions: [],
+    languages: [],
+  };
 }

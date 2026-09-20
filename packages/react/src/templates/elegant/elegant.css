@@ -138,13 +138,25 @@
   border-bottom-color: rgb(255 255 255 / 30%);
 }
 
-.tpl-elegant__aside .tpl-elegant__note-title {
+.tpl-elegant__aside .tpl-elegant__note-title,
+.tpl-elegant__aside .tpl-described__title {
   color: #ffffff;
 }
 
 .tpl-elegant__aside .tpl-elegant__note-detail,
-.tpl-elegant__aside .tpl-elegant__prose {
+.tpl-elegant__aside .tpl-elegant__prose,
+.tpl-elegant__aside .tpl-described__body,
+.tpl-elegant__aside .tpl-language {
   color: rgb(255 255 255 / 86%);
+}
+
+/*
+ * On the painted rail the meter is drawn in the panel's own ink, like the
+ * keyword rule below. The accent the root sets is a dark-on-white colour and
+ * would all but vanish here.
+ */
+.tpl-elegant__aside .tpl-languages {
+  --tpl-language-meter-ink: rgb(255 255 255 / 80%);
 }
 
 /* On the painted rail the keyword's rule is drawn in the panel's own ink. */
@@ -256,4 +268,30 @@
 /* Skills as one run of keywords, as this template's reference sets them. */
 .tpl-elegant__keywords {
   margin: 0;
+}
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-elegant {
+  --tpl-described-gap: calc(7pt * var(--el-scale));
+  --tpl-described-lead: calc(1.5pt * var(--el-scale));
+  --tpl-described-title-ink: var(--el-accent);
+  --tpl-described-span: calc(14pt * var(--el-scale));
+  --tpl-language-gap: calc(6pt * var(--el-scale));
+  --tpl-language-lead: calc(4pt * var(--el-scale));
+  --tpl-language-step: calc(4pt * var(--el-scale));
+  --tpl-language-meter-ink: var(--el-accent);
+}
+
+/* One repeated mark, never one per entry: nothing in the résumé says which
+   glyph an achievement deserves. */
+.tpl-elegant .tpl-described--marked {
+  --tpl-described-mark: '\25C6';
+  --tpl-described-mark-gap: calc(4pt * var(--el-scale));
 }

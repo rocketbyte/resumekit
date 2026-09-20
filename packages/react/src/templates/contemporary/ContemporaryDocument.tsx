@@ -9,9 +9,10 @@ import { useDocumentStyle } from '../../presentation-context.js';
 import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
 import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
+import { DescribedEntries } from '../../kit/DescribedEntries.js';
+import { LanguageList } from '../../kit/LanguageList.js';
 import { contactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
-import { isLanguages } from '../skills.js';
 import {
   ContemporaryCustomEntry,
   ContemporaryEducationEntry,
@@ -41,7 +42,6 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const languages = resume.skills.filter(isLanguages);
   const contact = contactLines(
     resume.contact,
     ['phone', 'email', 'location'],
@@ -126,6 +126,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
           {(resume.summary || authoring) && (
             <DocumentSection
               id="summary"
+              heading={resume.section_headings?.summary}
               title="Summary"
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
@@ -140,6 +141,15 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
               </p>
             </DocumentSection>
           )}
+          <DescribedEntries
+            id="achievements"
+            heading={resume.section_headings?.achievements}
+            title="Key Achievements"
+            items={resume.achievements}
+            className="tpl-contemporary__section tpl-described--marked"
+            headingClassName="tpl-contemporary__heading"
+            entryClassName="tpl-contemporary__described"
+          />
           <CustomSections
             sections={resume.custom_sections}
             sectionClass="tpl-contemporary__section"
@@ -147,9 +157,10 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             Entry={ContemporaryCustomEntry}
           />
 
-          {(resume.skills.length > languages.length || authoring) && (
+          {(resume.skills.length > 0 || authoring) && (
             <DocumentSection
               id="skills"
+              heading={resume.section_headings?.skills}
               title="Skills"
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
@@ -163,23 +174,31 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
                   noun="skill"
                   gap={false}
                 >
-                  {({ item, path, index }) =>
-                    isLanguages(item) ? null : (
-                      <InlineSkillGroup
-                        item={item}
-                        path={path}
-                        first={index === 0}
-                      />
-                    )
-                  }
+                  {({ item, path, index }) => (
+                    <InlineSkillGroup
+                      item={item}
+                      path={path}
+                      first={index === 0}
+                    />
+                  )}
                 </Collection>
               </p>
             </DocumentSection>
           )}
 
+          <DescribedEntries
+            id="courses"
+            heading={resume.section_headings?.courses}
+            title="Courses"
+            items={resume.courses}
+            className="tpl-contemporary__section"
+            headingClassName="tpl-contemporary__heading"
+            entryClassName="tpl-contemporary__described"
+          />
           {resume.certifications.length > 0 && (
             <DocumentSection
               id="certifications"
+              heading={resume.section_headings?.certifications}
               title="Certifications"
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
@@ -193,11 +212,21 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
               </p>
             </DocumentSection>
           )}
+          <DescribedEntries
+            id="passions"
+            heading={resume.section_headings?.passions}
+            title="Passions"
+            items={resume.passions}
+            className="tpl-contemporary__section tpl-described--marked"
+            headingClassName="tpl-contemporary__heading"
+            entryClassName="tpl-contemporary__described"
+          />
         </aside>
         <div className="tpl-contemporary__main" data-flow>
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"
+              heading={resume.section_headings?.experience}
               title="Experience"
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
@@ -218,6 +247,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
           {(resume.education.length > 0 || authoring) && (
             <DocumentSection
               id="education"
+              heading={resume.section_headings?.education}
               title="Education"
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
@@ -235,32 +265,15 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             </DocumentSection>
           )}
 
-          {/* A plain section: Languages is read from the skills group that
-              names them, and has no stored gap of its own. */}
-          {languages.length > 0 && (
-            <section className="tpl-contemporary__section">
-              <h2
-                className="tpl-contemporary__heading"
-                data-block
-                data-keep-with-next
-              >
-                Languages
-              </h2>
-              <p className="tpl-contemporary__prose" data-block>
-                {languages.map((group) => {
-                  const index = resume.skills.indexOf(group);
-                  return (
-                    <EditableInlineList
-                      key={index}
-                      path={`skills.${index}.items`}
-                      items={group.items}
-                      placeholder={PLACEHOLDERS['items']}
-                    />
-                  );
-                })}
-              </p>
-            </section>
-          )}
+          {/* Languages: read from `resume.languages`, so each one carries a level
+              and the section carries a gap of its own. */}
+          <LanguageList
+            items={resume.languages}
+            heading={resume.section_headings?.languages}
+            className="tpl-contemporary__section"
+            headingClassName="tpl-contemporary__heading"
+            rowClassName="tpl-contemporary__language"
+          />
         </div>
       </div>
     </article>

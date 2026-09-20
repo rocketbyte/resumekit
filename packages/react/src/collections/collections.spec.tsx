@@ -53,6 +53,11 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
     contact: { email: 'ada@example.com' },
     links: [],
     custom_sections: [],
+    section_headings: {},
+    achievements: [],
+    courses: [],
+    passions: [],
+    languages: [],
     summary: 'Engineer.',
     skills: [{ category: 'Backend', items: ['Node.js'] }],
     experience: [

@@ -214,3 +214,34 @@
   --tpl-rail-right: auto;
   --tpl-rail-left: calc(100% + var(--i-margin) + 12px);
 }
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-ivy {
+  --tpl-described-gap: calc(7pt * var(--i-scale));
+  --tpl-described-lead: calc(1.5pt * var(--i-scale));
+  --tpl-described-title-ink: var(--i-accent);
+  --tpl-described-span: calc(14pt * var(--i-scale));
+  --tpl-language-gap: calc(6pt * var(--i-scale));
+  --tpl-language-lead: calc(4pt * var(--i-scale));
+  --tpl-language-step: calc(4pt * var(--i-scale));
+  --tpl-language-meter-ink: var(--i-accent);
+}
+
+/* One repeated mark, never one per entry: nothing in the résumé says which
+   glyph an achievement deserves. */
+.tpl-ivy .tpl-described--marked {
+  --tpl-described-mark: '\2606';
+  --tpl-described-mark-gap: calc(4pt * var(--i-scale));
+}
+
+/* The reference sets these 3 to a row. */
+.tpl-ivy .tpl-described--grid {
+  --tpl-described-columns: 3;
+}

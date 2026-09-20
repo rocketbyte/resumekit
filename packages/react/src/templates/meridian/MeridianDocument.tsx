@@ -8,10 +8,11 @@ import { useAuthoring } from '../../collections/authoring-context.js';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
+import { DescribedEntries } from '../../kit/DescribedEntries.js';
+import { LanguageList } from '../../kit/LanguageList.js';
 import { contactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import { monogram } from '../../kit/monogram.js';
-import { isLanguages } from '../skills.js';
 import {
   MeridianCustomEntry,
   MeridianEducationEntry,
@@ -39,10 +40,10 @@ import './meridian.css';
  *     break it by its own height. Without it a push in the main column would
  *     displace every measured position in the sidebar.
  *
- * The reference prints two things this résumé cannot hold — a location per
- * experience entry, and languages as a first-class list. Neither is invented
- * here: entry locations are omitted, and Languages is read from the skills group
- * that names them. See #32's `design.md`, decision 1.
+ * The reference prints a location per experience entry, which this résumé
+ * cannot hold, so entry locations are omitted rather than invented. Languages
+ * WAS the other such gap; `resume.languages` closed it, and the section is now
+ * a first-class list with a level per language. See #32's `design.md`, decision 1.
  */
 
 export interface MeridianDocumentProps {
@@ -58,8 +59,6 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
    * context this is false and an empty section stays absent.
    */
   const authoring = useAuthoring() !== null;
-
-  const languages = resume.skills.filter(isLanguages);
 
   const contact = contactLines(
     resume.contact,
@@ -111,6 +110,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
           {(resume.summary || authoring) && (
             <DocumentSection
               id="summary"
+              heading={resume.section_headings?.summary}
               title="Professional Summary"
               className="tpl-mer__section"
               headingClassName="tpl-mer__heading"
@@ -126,9 +126,19 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
             </DocumentSection>
           )}
 
+          <DescribedEntries
+            id="achievements"
+            heading={resume.section_headings?.achievements}
+            title="Achievements"
+            items={resume.achievements}
+            className="tpl-mer__section tpl-described--marked"
+            headingClassName="tpl-mer__heading"
+            entryClassName="tpl-mer__described"
+          />
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"
+              heading={resume.section_headings?.experience}
               title="Experience"
               className="tpl-mer__section"
               headingClassName="tpl-mer__heading"
@@ -149,6 +159,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
           {(resume.education.length > 0 || authoring) && (
             <DocumentSection
               id="education"
+              heading={resume.section_headings?.education}
               title="Education"
               className="tpl-mer__section"
               headingClassName="tpl-mer__heading"
@@ -169,6 +180,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
           {resume.certifications.length > 0 && (
             <DocumentSection
               id="certifications"
+              heading={resume.section_headings?.certifications}
               title="Certifications"
               className="tpl-mer__section"
               headingClassName="tpl-mer__heading"
@@ -182,25 +194,31 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
             </DocumentSection>
           )}
 
-          {languages.length > 0 && (
-            <section className="tpl-mer__section">
-              <h2 className="tpl-mer__heading" data-block data-keep-with-next>
-                Languages
-              </h2>
-              <div data-block>
-                {languages.map((group) => {
-                  const index = resume.skills.indexOf(group);
-                  return (
-                    <EditableBulletList
-                      key={index}
-                      path={`skills.${index}.items`}
-                      items={group.items}
-                    />
-                  );
-                })}
-              </div>
-            </section>
-          )}
+          <DescribedEntries
+            id="courses"
+            heading={resume.section_headings?.courses}
+            title="Courses"
+            items={resume.courses}
+            className="tpl-mer__section"
+            headingClassName="tpl-mer__heading"
+            entryClassName="tpl-mer__described"
+          />
+          <LanguageList
+            items={resume.languages}
+            heading={resume.section_headings?.languages}
+            className="tpl-mer__section"
+            headingClassName="tpl-mer__heading"
+            rowClassName="tpl-mer__language"
+          />
+          <DescribedEntries
+            id="passions"
+            heading={resume.section_headings?.passions}
+            title="Passions"
+            items={resume.passions}
+            className="tpl-mer__section tpl-described--marked"
+            headingClassName="tpl-mer__heading"
+            entryClassName="tpl-mer__described"
+          />
 
           {(resume.headline || authoring) && (
             <section className="tpl-mer__section">
@@ -246,9 +264,10 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
 
         {/* ── The rail ───────────────────────────────────────────────────── */}
         <aside className="tpl-mer__aside" data-flow>
-          {(resume.skills.length > languages.length || authoring) && (
+          {(resume.skills.length > 0 || authoring) && (
             <DocumentSection
               id="skills"
+              heading={resume.section_headings?.skills}
               title="Technical Skills"
               className="tpl-mer__section"
               headingClassName="tpl-mer__heading tpl-mer__heading--marked"
@@ -264,11 +283,9 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                   noun="skill"
                   gap={false}
                 >
-                  {({ item, path }) =>
-                    isLanguages(item) ? null : (
-                      <BulletSkillGroup item={item} path={path} />
-                    )
-                  }
+                  {({ item, path }) => (
+                    <BulletSkillGroup item={item} path={path} />
+                  )}
                 </Collection>
               </div>
             </DocumentSection>

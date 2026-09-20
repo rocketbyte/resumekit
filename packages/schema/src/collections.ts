@@ -2,8 +2,11 @@ import { z } from 'zod';
 import {
   CustomEntrySchema,
   CustomSectionSchema,
+  DescribedEntrySchema,
   EducationSchema,
   ExperienceSchema,
+  LanguageLevelSchema,
+  LanguageSchema,
   LinkSchema,
   ResumeObjectSchema,
   SkillGroupSchema,
@@ -136,6 +139,26 @@ export const PLACEHOLDERS: Record<string, string> = {
    */
   items: 'Skills, separated by commas',
   certifications: 'Certifications, separated by commas',
+  /*
+   * The supporting sections' fields.
+   *
+   * Keyed per SECTION rather than by the bare field name, because `title` is
+   * already the experience entry's and means "Your role" there. An achievement
+   * guided as a job title would be worse than unguided. `DescribedEntries` looks
+   * up its own pair from the section id it is given, so no template carries a
+   * table for this.
+   */
+  achievement_title: 'What you achieved',
+  achievement_description:
+    'One or two lines: what you did, and what it changed.',
+  course_title: 'Course or qualification',
+  course_description: 'One or two lines: what it covered, and who ran it.',
+  passion_title: 'An interest',
+  passion_description: 'One or two lines on what draws you to it.',
+  /* Keyed `language`, not `name`: `blank-document.spec.tsx` asserts that no
+     guidance string appears as document text, and "Language" is a substring
+     of the "Languages" heading right above the field. */
+  language: 'e.g. Spanish',
 };
 
 /** A blank experience entry: every field empty, every field guided. */
@@ -165,6 +188,21 @@ const mintCustomEntry = () => ({ title: '', bullets: [''] });
 const mintCustomSection = () => ({ heading: '', entries: [mintCustomEntry()] });
 
 const mintLink = () => ({ label: '', url: '' });
+
+/** A blank achievement, course or passion: a title and a paragraph, both empty. */
+const mintDescribedEntry = () => ({ title: '', description: '' });
+
+/*
+ * A blank language: no name, and NO LEVEL.
+ *
+ * Minting a level would mint a claim. `native` is not a neutral default — it is
+ * a statement about the candidate's fluency that the candidate has not made,
+ * and `collections.spec.ts` holds every mint to "guidance, never content" for
+ * exactly this reason. So the empty string is the unchosen state, the draft
+ * schema below is what tolerates it, and a template draws no meter until a
+ * level exists.
+ */
+const mintLanguage = () => ({ name: '', level: '' });
 
 const mintString = () => '';
 
@@ -227,6 +265,23 @@ export const DraftLinkSchema = LinkSchema.extend({
   url: z.string(),
 });
 
+/** A minted achievement, course or passion, before either field is typed. */
+export const DraftDescribedEntrySchema = DescribedEntrySchema.extend({
+  title: z.string(),
+});
+
+/**
+ * A minted language, before either field is chosen.
+ *
+ * `level` widens to the enum OR the empty string, which is the unchosen state —
+ * not a sixth level. Nothing renders a meter for it, and the stored schema still
+ * refuses it, so an empty level cannot reach a saved résumé.
+ */
+export const DraftLanguageSchema = LanguageSchema.extend({
+  name: z.string(),
+  level: z.union([LanguageLevelSchema, z.literal('')]),
+});
+
 /**
  * The résumé AS DRAWN: the writer's shape, tolerating the empty fields of an
  * entry the candidate has added and not yet filled in.
@@ -242,6 +297,10 @@ export const PresentedResumeSchema = ResumeObjectSchema.extend({
   education: z.array(DraftEducationSchema).default([]),
   skills: z.array(DraftSkillGroupSchema).default([]),
   certifications: z.array(z.string()).default([]),
+  achievements: z.array(DraftDescribedEntrySchema).default([]),
+  courses: z.array(DraftDescribedEntrySchema).default([]),
+  passions: z.array(DraftDescribedEntrySchema).default([]),
+  languages: z.array(DraftLanguageSchema).default([]),
   custom_sections: z.array(DraftCustomSectionSchema).default([]),
 });
 
@@ -344,6 +403,50 @@ export const COLLECTIONS = {
     min: 0,
     mint: mintString,
     item: z.string(),
+  },
+  achievements: {
+    path: 'achievements',
+    noun: 'achievement',
+    label: 'Achievements',
+    arity: 'many',
+    shape: 'entry',
+    reorderable: true,
+    min: 0,
+    mint: mintDescribedEntry,
+    item: DraftDescribedEntrySchema,
+  },
+  courses: {
+    path: 'courses',
+    noun: 'course',
+    label: 'Courses',
+    arity: 'many',
+    shape: 'entry',
+    reorderable: true,
+    min: 0,
+    mint: mintDescribedEntry,
+    item: DraftDescribedEntrySchema,
+  },
+  passions: {
+    path: 'passions',
+    noun: 'interest',
+    label: 'Passions',
+    arity: 'many',
+    shape: 'entry',
+    reorderable: true,
+    min: 0,
+    mint: mintDescribedEntry,
+    item: DraftDescribedEntrySchema,
+  },
+  languages: {
+    path: 'languages',
+    noun: 'language',
+    label: 'Languages',
+    arity: 'many',
+    shape: 'entry',
+    reorderable: true,
+    min: 0,
+    mint: mintLanguage,
+    item: DraftLanguageSchema,
   },
   custom_sections: {
     path: 'custom_sections',
