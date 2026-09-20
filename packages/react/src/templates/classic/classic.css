@@ -1,0 +1,184 @@
+/*
+ * The Classic template: a plain left-aligned page whose only ornament is the
+ * accent on the line that names the employer.
+ *
+ * Everything else is type and space — no rules, no bands, no panels — which is
+ * what makes it the safest thing in the catalog to send anywhere.
+ */
+
+.tpl-classic {
+  /* A fifth of the gap between two sections, so a drag lands between
+     positions rather than jumping a whole one. */
+  --tpl-space-unit: calc(2.4pt * var(--cl-scale) * var(--cl-density));
+  --tpl-space-margin: var(--cl-margin);
+  /* The bullet marker column, read by `template-node.css`. */
+  --tpl-marker: calc(10pt * var(--cl-scale));
+
+  --cl-scale: 1;
+  --cl-ink: #1f1f1f;
+  --cl-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  /* The accent names the employer, and nothing else on the page carries it. */
+  --cl-accent: #2fa36a;
+  --cl-density: 1;
+  --cl-margin: 0.6in;
+  --cl-muted: #5c5c5c;
+  --cl-quiet: #767676;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.55in var(--cl-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--cl-ink);
+  font-family: var(--cl-font);
+  font-size: calc(9.2pt * var(--cl-scale));
+  line-height: 1.4;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-classic__name {
+  margin: 0;
+  font-size: calc(19pt * var(--cl-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.tpl-classic__headline {
+  margin: calc(2pt * var(--cl-scale)) 0 0;
+  font-size: calc(11pt * var(--cl-scale));
+  color: var(--cl-muted);
+}
+
+.tpl-classic__contact {
+  margin: calc(3pt * var(--cl-scale)) 0 0;
+  font-size: calc(8pt * var(--cl-scale));
+  color: var(--cl-quiet);
+}
+
+/* Spaced rather than punctuated — the reference sets the details apart with
+   air, so a detail the writer did not have leaves no separator behind. */
+.tpl-classic__contact-item + .tpl-classic__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: calc(10pt * var(--cl-scale));
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-classic__section {
+  margin-top: calc(
+    12pt * var(--cl-scale) * var(--cl-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-classic__heading {
+  margin: 0 0 calc(4pt * var(--cl-scale));
+  font-size: calc(8.4pt * var(--cl-scale));
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cl-muted);
+}
+
+.tpl-classic__prose,
+.tpl-classic__keywords {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-classic__entry {
+  margin-top: calc(
+    8pt * var(--cl-scale) * var(--cl-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-classic__entry:first-of-type {
+  margin-top: calc(4pt * var(--cl-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-classic__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(12pt * var(--cl-scale));
+  align-items: start;
+}
+
+.tpl-classic__lead,
+.tpl-classic__support,
+.tpl-classic__place,
+.tpl-classic__dates {
+  margin: 0;
+}
+
+.tpl-classic__lead {
+  font-size: calc(11.5pt * var(--cl-scale));
+  line-height: 1.25;
+}
+
+.tpl-classic__support {
+  font-weight: 700;
+  color: var(--cl-accent);
+}
+
+.tpl-classic__aside {
+  text-align: right;
+  font-size: calc(8pt * var(--cl-scale));
+  color: var(--cl-quiet);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-classic .tpl-bullets {
+  margin: calc(3pt * var(--cl-scale)) 0 0;
+}
+
+/* ── The candidate's own sections: two notes to a row ───────────────────── */
+
+/*
+ * A GRID rather than CSS columns. Each note is an editable container, and a
+ * container that spans a column break is fragmented — which leaves it unable
+ * to carry its outline or hold its rail. Grid items never fragment sideways.
+ */
+.tpl-classic__section:has(> .tpl-classic__note) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: calc(22pt * var(--cl-scale));
+}
+
+.tpl-classic__section:has(> .tpl-classic__note) > .tpl-classic__heading {
+  grid-column: 1 / -1;
+}
+
+.tpl-classic__note {
+  margin-top: calc(
+    6pt * var(--cl-scale) * var(--cl-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The right-hand column stands against the page's right edge, so its rails
+   belong in the right margin rather than over the column beside them. */
+.tpl-classic__note:nth-of-type(even) {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+.tpl-classic__note-title,
+.tpl-classic__note-detail {
+  margin: 0;
+}
+
+.tpl-classic__note-title {
+  font-weight: 700;
+  color: var(--cl-accent);
+}
+
+.tpl-classic__note-detail {
+  color: var(--cl-muted);
+}

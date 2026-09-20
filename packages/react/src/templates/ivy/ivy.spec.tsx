@@ -63,9 +63,9 @@ function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
       {
         id: 'ach',
         heading: 'Achievements',
+        author: 'candidate',
         entries: [
           {
-            id: 'a1',
             title: 'Team Lead for Sustainability Project',
             detail: 'Targeted a 15% carbon footprint reduction.',
             bullets: [],

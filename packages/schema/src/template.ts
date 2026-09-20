@@ -73,6 +73,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  classic: {
+    name: 'Classic',
+    description:
+      'A plain left-aligned page whose only ornament is the accent on the ' +
+      'line that names the employer: small uppercase headings, the role over ' +
+      'the employer, and place and dates kept in a quiet column.',
+    page: 'letter',
+    columns: 1,
+    ats: [
+      'Single column — no sidebar, no text boxes',
+      'Headings in plain text, with no rules or bands to parse around',
+      'No tables, images, or icon fonts carrying meaning',
+      'Real selectable text, standard system typefaces',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:
