@@ -1,0 +1,274 @@
+/*
+ * The Modern template: a navy name over an accented headline, the candidate's
+ * initials where the reference shows a portrait, and two columns whose
+ * headings are ruled across their own column.
+ *
+ * The rule under each heading is what separates the columns — there is no
+ * divider between them, which keeps the page from reading as a form.
+ */
+
+.tpl-elegant {
+  --tpl-space-unit: calc(2.2pt * var(--el-scale) * var(--el-density));
+  --tpl-space-margin: var(--el-margin);
+  --tpl-marker: calc(8pt * var(--el-scale));
+  --tpl-avatar-size: calc(56pt * var(--el-scale));
+  --tpl-avatar-text: calc(18pt * var(--el-scale));
+
+  --el-scale: 1;
+  --el-ink: #1d2733;
+  --el-rail: #1f3448;
+  --el-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --el-accent: #2f72c4;
+  --el-density: 1;
+  --el-margin: 0.5in;
+  --el-body: #34404f;
+  --el-muted: #6c7787;
+  --el-line: #d3d8e0;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  /* No padding on the root: the rail must reach the paper's edge, so each
+     column carries its own. */
+  padding: 0;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--el-body);
+  font-family: var(--el-font);
+  font-size: calc(8.8pt * var(--el-scale));
+  line-height: 1.4;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-elegant__head-block {
+  margin-bottom: calc(12pt * var(--el-scale));
+}
+
+.tpl-elegant__name {
+  margin: 0;
+  font-size: calc(18pt * var(--el-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--el-ink);
+  text-transform: uppercase;
+}
+
+.tpl-elegant__headline {
+  margin: calc(1pt * var(--el-scale)) 0 0;
+  font-size: calc(11pt * var(--el-scale));
+  font-weight: 700;
+  color: var(--el-accent);
+}
+
+.tpl-elegant__contact {
+  margin: calc(3pt * var(--el-scale)) 0 0;
+  font-size: calc(8pt * var(--el-scale));
+  color: var(--el-muted);
+}
+
+.tpl-elegant__contact-item + .tpl-elegant__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: calc(10pt * var(--el-scale));
+}
+
+/* The initials, in the slot the design gives a portrait. */
+.tpl-elegant__avatar {
+  margin: 0 auto calc(14pt * var(--el-scale));
+  color: #ffffff;
+  border-color: rgb(255 255 255 / 45%);
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+.tpl-elegant__body {
+  display: grid;
+  grid-template-columns: 64fr 36fr;
+  /* A page's worth, so the rail reaches the foot of the sheet on a résumé
+     that does not fill one. Beyond that it grows with the document. */
+  min-height: 11in;
+}
+
+.tpl-elegant__main,
+.tpl-elegant__aside {
+  min-width: 0;
+}
+
+.tpl-elegant__main {
+  padding: 0.45in calc(22pt * var(--el-scale)) 0.45in var(--el-margin);
+}
+
+/*
+ * The rail: painted, reversed, and running the full height of the sheet
+ * because it is a grid item stretched by the row rather than a panel given a
+ * height of its own.
+ */
+.tpl-elegant__aside {
+  padding: 0.45in var(--el-margin) 0.45in calc(20pt * var(--el-scale));
+  background: var(--el-rail);
+  color: #ffffff;
+
+  /* Reversed type: unpainted, the words are not faint, they are absent. */
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* The rail stands against the page's right edge, so its controls belong in the
+   right margin rather than over the column beside them — and clear of its own
+   padding, which is wider than the page margin the default measures from. */
+.tpl-elegant__aside {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--el-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-elegant__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-elegant__section + .tpl-elegant__section {
+  margin-top: calc(
+    11pt * var(--el-scale) * var(--el-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-elegant__aside .tpl-elegant__heading {
+  color: rgb(255 255 255 / 72%);
+  border-bottom-color: rgb(255 255 255 / 30%);
+}
+
+.tpl-elegant__aside .tpl-elegant__note-title {
+  color: #ffffff;
+}
+
+.tpl-elegant__aside .tpl-elegant__note-detail,
+.tpl-elegant__aside .tpl-elegant__prose {
+  color: rgb(255 255 255 / 86%);
+}
+
+.tpl-elegant__aside .tpl-elegant__chips .tpl-bullet {
+  border-color: rgb(255 255 255 / 40%);
+}
+
+.tpl-elegant__heading {
+  margin: 0 0 calc(4pt * var(--el-scale));
+  padding-bottom: calc(2pt * var(--el-scale));
+  border-bottom: 0.75pt solid var(--el-line);
+  font-size: calc(7.6pt * var(--el-scale));
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--el-muted);
+}
+
+.tpl-elegant__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-elegant__entry {
+  margin-top: calc(
+    8pt * var(--el-scale) * var(--el-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-elegant__entry:first-of-type {
+  margin-top: calc(4pt * var(--el-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-elegant__role {
+  margin: 0;
+  font-size: calc(10.5pt * var(--el-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--el-ink);
+}
+
+.tpl-elegant__meta {
+  margin: 0;
+  font-size: calc(8pt * var(--el-scale));
+  color: var(--el-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-elegant__org {
+  font-weight: 700;
+  color: var(--el-accent);
+}
+
+/* A REAL character between the facts: a parser extracts characters, and a gap
+   made of CSS is not one. */
+.tpl-elegant__meta-item::before {
+  content: ' · ';
+  color: var(--el-muted);
+}
+
+.tpl-elegant .tpl-bullets {
+  margin: calc(2.5pt * var(--el-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-elegant .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(8pt * var(--el-scale)) 1fr;
+  margin-top: calc(1pt * var(--el-scale));
+}
+
+.tpl-elegant .tpl-bullet::before {
+  content: '·';
+  color: var(--el-muted);
+}
+
+/* ── The rail's notes and chips ─────────────────────────────────────────── */
+
+.tpl-elegant__note {
+  margin-top: calc(
+    6pt * var(--el-scale) * var(--el-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+.tpl-elegant__note:first-of-type {
+  margin-top: calc(3.5pt * var(--el-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-elegant__note-title,
+.tpl-elegant__note-detail {
+  margin: 0;
+}
+
+.tpl-elegant__note-title {
+  font-weight: 700;
+  color: var(--el-ink);
+}
+
+.tpl-elegant__note-detail {
+  color: var(--el-body);
+}
+
+/* Chips: boxes by appearance, list items by structure. */
+.tpl-elegant__chips .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(3pt * var(--el-scale));
+  margin-top: 0;
+}
+
+.tpl-elegant__chips .tpl-bullet {
+  display: block;
+  margin-top: 0;
+  padding: calc(1.5pt * var(--el-scale)) calc(4pt * var(--el-scale));
+  border: 0.75pt solid var(--el-line);
+  border-radius: calc(2pt * var(--el-scale));
+}
+
+.tpl-elegant__chips .tpl-bullet::before {
+  content: none;
+}

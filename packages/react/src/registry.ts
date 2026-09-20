@@ -14,6 +14,7 @@ import { CreativeDocument } from './templates/creative/CreativeDocument.js';
 import { ContemporaryDocument } from './templates/contemporary/ContemporaryDocument.js';
 import { DoubleColumnDocument } from './templates/double-column/DoubleColumnDocument.js';
 import { DoubleColumnLogosDocument } from './templates/double-column-logos/DoubleColumnLogosDocument.js';
+import { ElegantDocument } from './templates/elegant/ElegantDocument.js';
 import { ExecutiveDocument } from './templates/executive/ExecutiveDocument.js';
 import { MeridianDocument } from './templates/meridian/MeridianDocument.js';
 import { CobaltDocument } from './templates/cobalt/CobaltDocument.js';
@@ -54,6 +55,7 @@ export const TEMPLATE_RENDERERS: Record<TemplateId, TemplateRenderer> = {
   contemporary: { Document: ContemporaryDocument },
   'double-column': { Document: DoubleColumnDocument },
   'double-column-logos': { Document: DoubleColumnLogosDocument },
+  elegant: { Document: ElegantDocument },
   executive: { Document: ExecutiveDocument },
   meridian: { Document: MeridianDocument },
   cobalt: { Document: CobaltDocument },

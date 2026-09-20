@@ -217,6 +217,22 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  elegant: {
+    name: 'Elegant',
+    description:
+      'A painted rail down the right of every sheet, reversed out in white, ' +
+      'beside a work history that is written first — the highlights, the ' +
+      'skills and the candidate’s own sections ride the rail.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns — the work history is written first, so extracted text reads it through before the rail',
+      'Rail colour is forced to print, so white-on-navy never vanishes',
+      'The rail is a column with a background, not a box the text is placed inside',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
   executive: {
     name: 'Executive',
     description:
