@@ -104,13 +104,17 @@ export function LibraryAction<T>({
           {
             id: MORE,
             heading: 'More from this role',
+            hint: 'Bullets from your profile that this resume left out.',
             options: offer.bullets.map((title) => ({ title })),
           },
         ]
       : []),
     {
       id: OTHERS,
-      heading: isRole ? 'Other roles' : undefined,
+      heading: isRole ? 'Other roles you’ve held' : undefined,
+      hint: isRole
+        ? 'Added below this one. Untick any bullet you don’t need.'
+        : undefined,
       options: offer.entries.map((entry) => ({
         ...describeLibraryEntry(section, entry),
         ...(isRole ? { parts: (entry as Experience).bullets } : {}),
@@ -173,14 +177,19 @@ export function LibraryAction<T>({
         <LibraryPicker
           title={
             isRole
-              ? 'Add from your career profile'
-              : `Add ${plural(sectionNoun)} from your career profile`
+              ? 'Bring in more of your experience'
+              : `Add ${plural(sectionNoun)} from your profile`
+          }
+          subtitle={
+            isRole && item
+              ? `${[item.title, item.company].filter(Boolean).join(' · ')} — pick what fits this job. You can edit anything after adding it.`
+              : 'Pick what fits this job. You can edit anything after adding it.'
           }
           groups={groups}
           empty={
             isRole
-              ? 'Everything in your career profile for this role, and every other role, is already on this resume.'
-              : `Every ${sectionNoun} in your career profile is already on this resume.`
+              ? 'Everything from your career profile for this role — and every other role — is already on this resume.'
+              : `Every ${sectionNoun} from your career profile is already on this resume.`
           }
           addLabel={addLabel}
           onAdd={add}

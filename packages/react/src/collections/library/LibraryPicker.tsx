@@ -14,6 +14,8 @@ export interface PickerOption {
 export interface PickerGroup {
   id: string;
   heading?: string;
+  /** One line under the heading saying what choosing here does. */
+  hint?: string;
   options: readonly PickerOption[];
 }
 
@@ -28,6 +30,8 @@ export type PickerSelection = Record<string, PickedOption[]>;
 
 export interface LibraryPickerProps {
   title: string;
+  /** Where this was opened from, and what happens next. */
+  subtitle?: string;
   groups: readonly PickerGroup[];
   /** Said when there is nothing to choose. */
   empty: string;
@@ -62,6 +66,7 @@ function Check({ small = false }: { small?: boolean }) {
  */
 export function LibraryPicker({
   title,
+  subtitle,
   groups,
   empty,
   addLabel,
@@ -161,13 +166,34 @@ export function LibraryPicker({
               <path d="M8 2.5v6.5M5.5 6.5 8 9l2.5-2.5M3 9.5v3h10v-3" />
             </svg>
           </span>
-          <h2 id={titleId} className="tpl-library__title">
-            {title}
-          </h2>
+          <div className="tpl-library__heading">
+            <h2 id={titleId} className="tpl-library__title">
+              {title}
+            </h2>
+            {subtitle && <p className="tpl-library__subtitle">{subtitle}</p>}
+          </div>
+          <button
+            type="button"
+            className="tpl-library__close"
+            aria-label="Close"
+            onClick={onClose}
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M4 4l8 8M12 4l-8 8" />
+            </svg>
+          </button>
         </header>
 
         {nothing ? (
-          <p className="tpl-library__empty">{empty}</p>
+          <div className="tpl-library__empty">
+            <span className="tpl-library__empty-mark" aria-hidden="true">
+              <svg viewBox="0 0 16 16">
+                <path d="M3.5 8.5 6.5 11.5 12.5 5" />
+              </svg>
+            </span>
+            <p className="tpl-library__empty-title">You’re all set</p>
+            <p className="tpl-library__empty-text">{empty}</p>
+          </div>
         ) : (
           <div className="tpl-library__body">
             {groups
@@ -181,12 +207,19 @@ export function LibraryPicker({
                   {(group.heading || group.options.length > 1) && (
                     <div className="tpl-library__group-head">
                       {group.heading && (
-                        <h3 className="tpl-library__group-title">
-                          {group.heading}
-                          <span className="tpl-library__count">
-                            {group.options.length}
-                          </span>
-                        </h3>
+                        <div>
+                          <h3 className="tpl-library__group-title">
+                            {group.heading}
+                            <span className="tpl-library__count">
+                              {group.options.length}
+                            </span>
+                          </h3>
+                          {group.hint && (
+                            <p className="tpl-library__group-hint">
+                              {group.hint}
+                            </p>
+                          )}
+                        </div>
                       )}
                       {group.options.length > 1 && (
                         <button
@@ -258,8 +291,15 @@ export function LibraryPicker({
         )}
 
         <footer className="tpl-library__actions">
+          {!nothing && (
+            <span className="tpl-library__selected" aria-live="polite">
+              {chosen.size === 0
+                ? 'Nothing selected yet'
+                : `${chosen.size} selected`}
+            </span>
+          )}
           <button type="button" className="tpl-library__btn" onClick={onClose}>
-            {nothing ? 'Close' : 'Cancel'}
+            {nothing ? 'Done' : 'Cancel'}
           </button>
           {!nothing && (
             <button

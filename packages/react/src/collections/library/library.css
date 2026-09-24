@@ -25,7 +25,7 @@
   max-height: min(86vh, 44rem);
   overflow: hidden;
   border: 1px solid var(--color-border, rgb(0 0 0 / 0.08));
-  border-radius: 22px;
+  border-radius: 24px;
   background: var(--color-surface, #fff);
   color: var(--color-text, #1f2330);
   box-shadow: var(--shadow-lg, 0 24px 64px -16px rgb(15 23 42 / 0.28));
@@ -36,20 +36,57 @@
 /* --- Head --- */
 .tpl-library__head {
   display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 22px 22px 16px;
+}
+.tpl-library__heading {
+  flex: 1;
+  min-width: 0;
+}
+.tpl-library__subtitle {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-text-muted, #5b6170);
+}
+.tpl-library__close {
+  display: inline-flex;
+  flex: none;
   align-items: center;
-  gap: 12px;
-  padding: 20px 22px 14px;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: -4px -6px 0 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text-muted, #5b6170);
+  cursor: pointer;
+}
+.tpl-library__close:hover {
+  background: var(--color-surface-2, #f1f2f5);
+  color: var(--color-text, #1f2330);
+}
+.tpl-library__close svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
 }
 .tpl-library__mark {
   display: inline-flex;
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 11px;
-  background: var(--color-accent-weak, #e8efff);
-  color: var(--color-accent, #2f6bff);
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--gradient-ai, linear-gradient(135deg, #5b8cff, #8b5cf6));
+  color: #fff;
+  box-shadow: 0 8px 20px -8px rgb(91 140 255 / 0.7);
 }
 .tpl-library__mark svg {
   width: 18px;
@@ -84,7 +121,7 @@
 }
 .tpl-library__group-head {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 8px;
 }
@@ -93,16 +130,20 @@
   align-items: center;
   gap: 8px;
   margin: 0;
-  font-size: 11.5px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  color: var(--color-text, #1f2330);
+}
+.tpl-library__group-hint {
+  margin: 2px 0 0;
+  font-size: 12.5px;
   color: var(--color-text-muted, #5b6170);
 }
 .tpl-library__count {
-  padding: 1px 7px;
+  padding: 1px 8px;
   border-radius: 999px;
-  background: var(--color-surface-2, #f1f2f5);
+  background: var(--color-accent-weak, #e8efff);
+  color: var(--color-accent, #2f6bff);
   font-size: 11px;
   letter-spacing: 0;
   color: var(--color-text-muted, #5b6170);
@@ -271,11 +312,46 @@
 }
 
 .tpl-library__empty {
-  margin: 0 22px 8px;
-  padding: 16px;
-  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 22px 12px;
+  padding: 26px 20px;
+  border-radius: 16px;
   background: var(--color-surface-2, #f5f6f8);
-  font-size: 14px;
+  text-align: center;
+}
+.tpl-library__empty-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  background: var(--color-success-weak, #e3f6ea);
+  color: var(--color-success, #1f9d55);
+}
+.tpl-library__empty-mark svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tpl-library__empty-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text, #1f2330);
+}
+.tpl-library__empty-text {
+  margin: 0;
+  max-width: 24rem;
+  font-size: 13.5px;
   line-height: 1.5;
   color: var(--color-text-muted, #5b6170);
 }
@@ -283,10 +359,17 @@
 /* --- Foot --- */
 .tpl-library__actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 8px;
   padding: 14px 22px 18px;
   border-top: 1px solid var(--color-border, rgb(0 0 0 / 0.06));
+}
+.tpl-library__selected {
+  margin-right: auto;
+  font-size: 13px;
+  color: var(--color-text-muted, #5b6170);
+  font-variant-numeric: tabular-nums;
 }
 .tpl-library__btn {
   padding: 9px 16px;

@@ -93,7 +93,7 @@ async function openPicker(
 }
 
 const dialog = () =>
-  screen.getByRole('dialog', { name: 'Add from your career profile' });
+  screen.getByRole('dialog', { name: 'Bring in more of your experience' });
 
 describe('adding to a role from the career profile', () => {
   it('offers the bullets the resume left out of a role it already has', async () => {
@@ -107,6 +107,7 @@ describe('adding to a role from the career profile', () => {
 
     fireEvent.click(within(more).getByRole('button', { name: 'Select all' }));
     fireEvent.click(within(more).getByLabelText('Mentored three engineers.'));
+    expect(within(dialog()).getByText('2 selected')).toBeTruthy();
     fireEvent.click(
       within(dialog()).getByRole('button', { name: 'Add 2 bullets' }),
     );
@@ -124,7 +125,7 @@ describe('adding to a role from the career profile', () => {
     const onEditsChange = vi.fn();
     await openPicker(profile, onEditsChange);
     const others = within(dialog()).getByRole('region', {
-      name: 'Other roles',
+      name: 'Other roles you’ve held',
     });
     fireEvent.click(within(others).getByLabelText(/Tech Lead/));
     fireEvent.click(within(others).getByLabelText('Ran the on-call rotation.'));
@@ -150,7 +151,7 @@ describe('adding to a role from the career profile', () => {
       within(dialog()).getByText(/is already on this resume/i),
     ).toBeTruthy();
     expect(within(dialog()).queryByRole('checkbox')).toBeNull();
-    fireEvent.click(within(dialog()).getByRole('button', { name: 'Close' }));
+    fireEvent.click(within(dialog()).getByRole('button', { name: 'Done' }));
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
