@@ -8,6 +8,7 @@ import {
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';
 import { withArticle } from './article.js';
+import { LibraryAction } from './library/LibraryAction.js';
 
 /** Where an item came from, which decides what removing it means. */
 export type ItemOrigin = 'added' | 'written';
@@ -126,6 +127,12 @@ export function EntryOverlay<T>({
           <PlusIcon />
         </button>
       )}
+      <LibraryAction
+        collection={collection}
+        index={index}
+        noun={noun}
+        className="tpl-entry-overlay__btn"
+      />
 
       <button
         type="button"

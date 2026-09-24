@@ -81,6 +81,7 @@ function AuthoredItem<T>({
           collection={collection}
           index={index}
           noun={noun}
+          path={path}
           handleProps={sortable ? handleProps : undefined}
         />
       </ContainerRail>

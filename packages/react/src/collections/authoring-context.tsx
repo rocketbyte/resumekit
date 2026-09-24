@@ -50,6 +50,12 @@ export interface AuthoringContextValue {
   liveEdits: () => ResumeEdits;
   /** Replace the overlay. One call per operation, so undo has whole steps. */
   onEditsChange: (next: ResumeEdits) => void;
+  /**
+   * The candidate's career profile, when the document may take entries from
+   * it. Absent on the profile's own editor and for a candidate without one,
+   * which is what withdraws the "add from career profile" action.
+   */
+  library?: ResumeObject | null;
 }
 
 const AuthoringContext = createContext<AuthoringContextValue | null>(null);
@@ -60,6 +66,8 @@ export interface DocumentAuthoring {
   /** The overlay as it currently stands, structural operations included. */
   edits: ResumeEdits;
   onEditsChange: (next: ResumeEdits) => void;
+  /** See {@link AuthoringContextValue.library}. */
+  library?: ResumeObject | null;
 }
 
 export function DocumentAuthoringProvider({
@@ -69,7 +77,7 @@ export function DocumentAuthoringProvider({
   value: DocumentAuthoring;
   children: ReactNode;
 }) {
-  const { base, edits, onEditsChange } = value;
+  const { base, edits, onEditsChange, library } = value;
 
   /*
    * The live overlay, and the snapshot the document derives from — separated
@@ -90,8 +98,8 @@ export function DocumentAuthoringProvider({
   );
 
   const published = useMemo<AuthoringContextValue>(
-    () => ({ base, edits: snapshot, liveEdits, onEditsChange }),
-    [base, snapshot, liveEdits, onEditsChange],
+    () => ({ base, edits: snapshot, liveEdits, onEditsChange, library }),
+    [base, snapshot, liveEdits, onEditsChange, library],
   );
 
   return (

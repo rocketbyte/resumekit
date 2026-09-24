@@ -19,6 +19,8 @@ export interface CollectionHandle<T> {
   /** Why this item cannot be removed, or `undefined` when it can. */
   removeReason: (index: number) => string | undefined;
   add: (afterIndex?: number) => void;
+  /** Insert ready-made items after `afterIndex`, as ONE step of the document's history. */
+  addMany: (afterIndex: number, items: readonly T[]) => void;
   remove: (index: number) => void;
   move: (from: number, to: number) => void;
 }
@@ -27,6 +29,8 @@ export interface CollectionHandle<T> {
 export interface CollectionStore<T> {
   items: readonly T[];
   insert: (index: number, item: T) => void;
+  /** Several items at once; stores that can write them as one step say how. */
+  insertMany?: (index: number, items: readonly T[]) => void;
   removeAt: (index: number) => void;
   reorder: (from: number, to: number) => void;
   /**
@@ -96,6 +100,14 @@ export function useCollection<T>(
         if (def.arity !== 'many') return;
         const at = afterIndex === undefined ? items.length : afterIndex + 1;
         store.insert(at, def.mint() as T);
+        saveNow();
+      },
+
+      addMany: (afterIndex, added) => {
+        if (def.arity !== 'many' || added.length === 0) return;
+        const at = afterIndex + 1;
+        if (store.insertMany) store.insertMany(at, added);
+        else added.forEach((item, i) => store.insert(at + i, item));
         saveNow();
       },
 

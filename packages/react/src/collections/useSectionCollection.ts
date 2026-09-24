@@ -154,6 +154,27 @@ export function useSectionCollection<T>(
         writeOrder(placed, next);
       },
 
+      insertMany: (index, added) => {
+        const refs = added.map(() => mintRef());
+        const next: ResumeEdits = [
+          ...liveEdits(),
+          ...added.map((entry, i) => ({
+            kind: 'append' as const,
+            ref: refs[i] as string,
+            section,
+            author: 'candidate' as const,
+            entry,
+          })),
+        ];
+        const placed = [...slots];
+        placed.splice(
+          Math.min(index, placed.length),
+          0,
+          ...refs.map((ref) => ({ ref })),
+        );
+        writeOrder(placed, next);
+      },
+
       removeAt: (index) => {
         const slot = slots[index];
         if (!slot) return;

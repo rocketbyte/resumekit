@@ -8,6 +8,7 @@ import {
 import type { CollectionHandle } from '../collections/useCollection.js';
 import type { ItemOrigin } from '../collections/EntryOverlay.js';
 import { withArticle } from '../collections/article.js';
+import { LibraryAction } from '../collections/library/LibraryAction.js';
 
 /**
  * An entry's own actions in its rail — the same operations, names and rules as
@@ -19,11 +20,14 @@ export function EntryActions<T>({
   collection,
   index,
   noun,
+  path,
   handleProps,
 }: {
   collection: CollectionHandle<T> & { originOf?: (i: number) => ItemOrigin };
   index: number;
   noun: string;
+  /** The entry's field path, for actions that write into it. */
+  path?: string;
   handleProps?: Record<string, unknown>;
 }) {
   const origin = collection.originOf?.(index) ?? 'added';
@@ -76,6 +80,13 @@ export function EntryActions<T>({
           <PlusIcon />
         </button>
       )}
+      <LibraryAction
+        collection={collection}
+        index={index}
+        path={path}
+        noun={noun}
+        className="tpl-rail__btn"
+      />
       <button
         type="button"
         className="tpl-rail__btn"
