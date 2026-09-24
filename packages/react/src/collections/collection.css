@@ -57,7 +57,14 @@
    */
   --tpl-ring-room: 24px;
 
-  --tpl-ring-x: var(--tpl-ring-room);
+  /*
+   * How far the ring actually reaches: close to the text, so it frames the
+   * entry rather than floating half a margin away from it. `--tpl-ring-room`
+   * stays what a template knows — the space it has — and is a ceiling here,
+   * so a template with a narrow gutter still never gets a ring past it.
+   */
+  --tpl-ring-reach: 8px;
+  --tpl-ring-x: min(var(--tpl-ring-reach), var(--tpl-ring-room));
   --tpl-ring-y: 4px;
   --tpl-ring-radius: 8px;
 
