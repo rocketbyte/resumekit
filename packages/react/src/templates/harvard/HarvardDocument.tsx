@@ -209,7 +209,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         title="Achievements"
         items={resume.achievements}
         className="tpl-harvard__section"
-        headingClassName="tpl-harvard__heading"
+        headingClassName="tpl-harvard__section-title"
         entryClassName="tpl-harvard__described"
       />
       {(resume.skills.length > 0 || authoring) && (
@@ -241,14 +241,14 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         title="Courses"
         items={resume.courses}
         className="tpl-harvard__section"
-        headingClassName="tpl-harvard__heading"
+        headingClassName="tpl-harvard__section-title"
         entryClassName="tpl-harvard__described"
       />
       <LanguageList
         items={resume.languages}
         heading={resume.section_headings?.languages}
         className="tpl-harvard__section"
-        headingClassName="tpl-harvard__heading"
+        headingClassName="tpl-harvard__section-title"
         rowClassName="tpl-harvard__language"
       />
       {resume.certifications.length > 0 && (
@@ -274,7 +274,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         title="Passions"
         items={resume.passions}
         className="tpl-harvard__section"
-        headingClassName="tpl-harvard__heading"
+        headingClassName="tpl-harvard__section-title"
         entryClassName="tpl-harvard__described"
       />
       {/*

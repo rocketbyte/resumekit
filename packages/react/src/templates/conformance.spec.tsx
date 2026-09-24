@@ -167,6 +167,29 @@ describe.each(IDS)('%s meets the editing contract', (id) => {
     for (const meter of container.querySelectorAll('.tpl-language__meter')) {
       expect(meter.getAttribute('aria-hidden')).toBe('true');
     }
+
+    /*
+     * A heading class the stylesheet never names renders as a bare `<h2>`:
+     * no rule, no case, no spacing. Harvard shipped exactly that for these
+     * four, and nothing but looking at the page caught it.
+     */
+    const css = sheet(id);
+    for (const section of [
+      'achievements',
+      'courses',
+      'passions',
+      'languages',
+    ]) {
+      const heading = container.querySelector(
+        `section[data-rail-key="s:${section}"] h2`,
+      );
+      for (const c of Array.from(heading?.classList ?? [])) {
+        expect(
+          new RegExp(`\\.${c}(?![\\w-])`).test(css),
+          `${section}'s heading class .${c} is styled`,
+        ).toBe(true);
+      }
+    }
   });
 
   /*
