@@ -7,6 +7,8 @@ import { useSpaceSlot } from '../spacing/useSpaceSlot.js';
 import { ContainerRail } from '../rail/ContainerRail.js';
 import { EntryActions } from '../rail/EntryActions.js';
 import { RAIL_KEY } from '../rail/rail-store.js';
+import { useItemName } from './entry-text.js';
+import { useEditorText } from '../i18n/index.js';
 import type {
   CollectionItemsProps,
   ItemProps,
@@ -48,7 +50,9 @@ function AuthoredItem<T>({
    * it. Addressed by the entry's own PATH, so the space follows the job through
    * a reorder rather than staying at the position it was set in.
    */
-  const space = useSpaceSlot({ path }, `${noun} ${index + 1}`);
+  const itemName = useItemName(noun, index);
+  const space = useSpaceSlot({ path }, itemName);
+  const { t, format, noun: forms } = useEditorText();
 
   /*
    * A CONTAINER — a role, a school, a skills group, a custom section — carries
@@ -59,7 +63,11 @@ function AuthoredItem<T>({
   const shape = COLLECTIONS[collection.id].shape;
   const container = shape === 'entry' || shape === 'section';
   const railKey = `e:${id}`;
-  const itemLabel = `${label} · ${noun.charAt(0).toUpperCase()}${noun.slice(1)} ${index + 1}`;
+  const itemLabel = format(t.entry.name, {
+    ...forms(noun),
+    section: label,
+    position: index + 1,
+  });
 
   const element = children({
     item: collection.items[index] as T,
@@ -73,9 +81,9 @@ function AuthoredItem<T>({
     chrome: container ? (
       <ContainerRail
         railKey={railKey}
-        toolbarLabel={`${itemLabel} — editing actions`}
+        toolbarLabel={format(t.entry.toolbar, { name: itemLabel })}
         selected={selected}
-        space={gap ? { target: { path }, label: `${noun} ${index + 1}` } : null}
+        space={gap ? { target: { path }, label: itemName } : null}
       >
         <EntryActions
           collection={collection}
@@ -115,7 +123,7 @@ function AuthoredItem<T>({
        * naming it costs nothing and `collection.css` gains one rule.
        */
       'data-entry': COLLECTIONS[collection.id].shape,
-      'data-entry-label': `${noun} ${index + 1}`,
+      'data-entry-label': itemName,
       ...(container ? { [RAIL_KEY]: railKey } : {}),
       ...(selected ? { 'data-selected': '' } : {}),
       /*

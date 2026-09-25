@@ -1,14 +1,15 @@
-import { PLACEHOLDERS, type DescribedEntry } from '@cvgs/core';
+import type { DescribedEntry } from '@cvgs/core';
 import { DocumentSection } from './DocumentSection.js';
 import { Collection } from '../collections/Collection.js';
 import { useAuthoring } from '../collections/authoring-context.js';
 import { EditableText } from '../nodes/EditableText.js';
+import { useEditorText } from '../i18n/index.js';
 
 /** The three sections that are a title over a paragraph. */
 export type DescribedSectionId = 'achievements' | 'courses' | 'passions';
 
 /**
- * Which guidance each section's two fields show.
+ * Which guidance each section's two fields show, by core's `PLACEHOLDERS` keys.
  *
  * Spelled out rather than derived from the id, because `PLACEHOLDERS` is keyed
  * by a name a person chose and a singularising slice would be a rule that holds
@@ -16,17 +17,11 @@ export type DescribedSectionId = 'achievements' | 'courses' | 'passions';
  */
 const GUIDANCE: Record<DescribedSectionId, { title: string; body: string }> = {
   achievements: {
-    title: PLACEHOLDERS['achievement_title'],
-    body: PLACEHOLDERS['achievement_description'],
+    title: 'achievement_title',
+    body: 'achievement_description',
   },
-  courses: {
-    title: PLACEHOLDERS['course_title'],
-    body: PLACEHOLDERS['course_description'],
-  },
-  passions: {
-    title: PLACEHOLDERS['passion_title'],
-    body: PLACEHOLDERS['passion_description'],
-  },
+  courses: { title: 'course_title', body: 'course_description' },
+  passions: { title: 'passion_title', body: 'passion_description' },
 };
 
 export interface DescribedEntriesProps {
@@ -80,6 +75,7 @@ export function DescribedEntries({
   entryClassName,
 }: DescribedEntriesProps) {
   const authoring = useAuthoring() !== null;
+  const { placeholder } = useEditorText();
   const entries = items ?? [];
 
   /*
@@ -112,14 +108,14 @@ export function DescribedEntries({
               <EditableText
                 path={`${path}.title`}
                 value={item.title}
-                placeholder={GUIDANCE[id].title}
+                placeholder={placeholder(GUIDANCE[id].title)}
               />
             </p>
             <p className="tpl-described__body">
               <EditableText
                 path={`${path}.description`}
                 value={item.description}
-                placeholder={GUIDANCE[id].body}
+                placeholder={placeholder(GUIDANCE[id].body)}
                 multiline
               />
             </p>

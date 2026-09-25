@@ -1,13 +1,9 @@
 import type { ReactNode } from 'react';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
-import {
-  PLACEHOLDERS,
-  type CustomEntry,
-  type Education,
-  type Experience,
-} from '@cvgs/core';
+import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
+import { useEditorText } from '../../i18n/index.js';
 
 /**
  * Cobalt's entry components: the markup for one item of each shape.
@@ -128,6 +124,7 @@ export function CobaltCustomEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <article {...itemProps} className="tpl-cob__entry" data-block>
       {chrome}
@@ -135,7 +132,7 @@ export function CobaltCustomEntry({
         <EditableText
           path={`${path}.title`}
           value={item.title}
-          placeholder={PLACEHOLDERS['heading']}
+          placeholder={placeholder('heading')}
         />
       </p>
       <p className="tpl-cob__entry-meta">
@@ -143,7 +140,7 @@ export function CobaltCustomEntry({
           <EditableText
             path={`${path}.detail`}
             value={item.detail ?? ''}
-            placeholder={PLACEHOLDERS['detail']}
+            placeholder={placeholder('detail')}
           />
         </em>
       </p>

@@ -1,4 +1,4 @@
-import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@cvgs/core';
 import { Collection } from '../../collections/Collection.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
@@ -11,7 +11,7 @@ import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { contactLines } from '../../kit/contact.js';
+import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import {
   CreativeCustomEntry,
@@ -19,6 +19,7 @@ import {
   CreativeExperienceEntry,
 } from './entries.js';
 import './creative.css';
+import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
 /**
  * The Creative template.
@@ -40,10 +41,12 @@ export interface CreativeDocumentProps {
 }
 
 export function CreativeDocument({ resume }: CreativeDocumentProps) {
+  const { placeholder } = useEditorText();
+  const doc = useDocumentText();
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const contact = contactLines(
+  const contact = useContactLines(
     resume.contact,
     ['phone', 'email', 'location'],
     authoring,
@@ -53,7 +56,8 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
     <article
       className="tpl-creative"
       style={documentStyle('cr', style)}
-      aria-label="Resume document"
+      aria-label={doc.t.resume}
+      lang={doc.locale}
     >
       <header className="tpl-creative__band" data-block>
         <div className="tpl-creative__identity">
@@ -66,7 +70,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
               <EditableText
                 path="headline"
                 value={resume.headline ?? ''}
-                placeholder={PLACEHOLDERS['headline']}
+                placeholder={placeholder('headline')}
               />
             </p>
           )}
@@ -115,7 +119,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
             <DocumentSection
               id="experience"
               heading={resume.section_headings?.experience}
-              title="Experience"
+              title={doc.t.sections.experience}
               className="tpl-creative__section"
               headingClassName="tpl-creative__heading"
             >
@@ -136,7 +140,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
             <DocumentSection
               id="education"
               heading={resume.section_headings?.education}
-              title="Education"
+              title={doc.t.sections.education}
               className="tpl-creative__section"
               headingClassName="tpl-creative__heading"
             >
@@ -158,7 +162,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
           <DescribedEntries
             id="courses"
             heading={resume.section_headings?.courses}
-            title="Courses"
+            title={doc.t.sections.courses}
             items={resume.courses}
             className="tpl-creative__section tpl-described--grid"
             headingClassName="tpl-creative__heading"
@@ -179,7 +183,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
             <DocumentSection
               id="summary"
               heading={resume.section_headings?.summary}
-              title="Summary"
+              title={doc.t.sections.summary}
               className="tpl-creative__section"
               headingClassName="tpl-creative__heading"
             >
@@ -187,7 +191,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
                 <EditableText
                   path="summary"
                   value={resume.summary ?? ''}
-                  placeholder={PLACEHOLDERS['summary']}
+                  placeholder={placeholder('summary')}
                   multiline
                 />
               </p>
@@ -205,7 +209,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
             <DocumentSection
               id="skills"
               heading={resume.section_headings?.skills}
-              title="Skills"
+              title={doc.t.sections.skills}
               className="tpl-creative__section"
               headingClassName="tpl-creative__heading"
             >
@@ -233,7 +237,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
           <DescribedEntries
             id="achievements"
             heading={resume.section_headings?.achievements}
-            title="Achievements"
+            title={doc.t.sections.achievements}
             items={resume.achievements}
             className="tpl-creative__section tpl-described--marked"
             headingClassName="tpl-creative__heading"
@@ -243,7 +247,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
             <DocumentSection
               id="certifications"
               heading={resume.section_headings?.certifications}
-              title="Certifications"
+              title={doc.t.sections.certifications}
               className="tpl-creative__section"
               headingClassName="tpl-creative__heading"
             >
@@ -251,7 +255,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
                 <EditableInlineList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={PLACEHOLDERS['certifications']}
+                  placeholder={placeholder('certifications')}
                 />
               </p>
             </DocumentSection>
@@ -259,7 +263,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
-            title="Passions"
+            title={doc.t.sections.passions}
             items={resume.passions}
             className="tpl-creative__section tpl-described--marked"
             headingClassName="tpl-creative__heading"

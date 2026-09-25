@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
 import {
-  PLACEHOLDERS,
   type CustomEntry,
   type Education,
   type Experience,
@@ -11,6 +10,7 @@ import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { useEditorText } from '../../i18n/index.js';
 
 /**
  * Harvard's entry components: the markup for one item of each shape.
@@ -43,6 +43,7 @@ export function HarvardExperienceEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <article {...itemProps} className="tpl-harvard__entry" data-block>
       {chrome}
@@ -51,7 +52,7 @@ export function HarvardExperienceEntry({
           <EditableText
             path={`${path}.company`}
             value={item.company}
-            placeholder={PLACEHOLDERS['company']}
+            placeholder={placeholder('company')}
           />
         </span>
         {/*
@@ -75,27 +76,27 @@ export function HarvardExperienceEntry({
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
-            placeholder={PLACEHOLDERS['location']}
+            placeholder={placeholder('location')}
           />
         </span>
         <span className="tpl-harvard__role">
           <EditableText
             path={`${path}.title`}
             value={item.title}
-            placeholder={PLACEHOLDERS['title']}
+            placeholder={placeholder('title')}
           />
         </span>
         <span className="tpl-harvard__dates">
           <EditableText
             path={`${path}.start`}
             value={item.start}
-            placeholder={PLACEHOLDERS['start']}
+            placeholder={placeholder('start')}
           />
           {' – '}
           <EditableText
             path={`${path}.end`}
             value={item.end}
-            placeholder={PLACEHOLDERS['end']}
+            placeholder={placeholder('end')}
           />
         </span>
       </div>
@@ -124,6 +125,7 @@ export function HarvardEducationEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   const authoring = useAuthoring() !== null;
 
   return (
@@ -134,7 +136,7 @@ export function HarvardEducationEntry({
           <EditableText
             path={`${path}.school`}
             value={item.school}
-            placeholder={PLACEHOLDERS['school']}
+            placeholder={placeholder('school')}
           />
         </span>
         {/*
@@ -150,20 +152,20 @@ export function HarvardEducationEntry({
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
-            placeholder={PLACEHOLDERS['location']}
+            placeholder={placeholder('location')}
           />
         </span>
         <span className="tpl-harvard__role">
           <EditableText
             path={`${path}.degree`}
             value={item.degree ?? ''}
-            placeholder={PLACEHOLDERS['degree']}
+            placeholder={placeholder('degree')}
           />
           {item.degree && item.field ? ', ' : ''}
           <EditableText
             path={`${path}.field`}
             value={item.field ?? ''}
-            placeholder={PLACEHOLDERS['field']}
+            placeholder={placeholder('field')}
           />
         </span>
         {/*
@@ -177,7 +179,7 @@ export function HarvardEducationEntry({
           <EditableText
             path={`${path}.start`}
             value={item.start ?? ''}
-            placeholder={PLACEHOLDERS['start']}
+            placeholder={placeholder('start')}
           />
           {/*
            * The dash is REAL TEXT, so it only belongs where there is a range
@@ -190,7 +192,7 @@ export function HarvardEducationEntry({
           <EditableText
             path={`${path}.end`}
             value={item.end ?? ''}
-            placeholder={PLACEHOLDERS['end']}
+            placeholder={placeholder('end')}
           />
         </span>
       </div>
@@ -209,6 +211,7 @@ export function HarvardSkillGroup({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <li {...itemProps} className="tpl-harvard__skill-group">
       {chrome}
@@ -216,7 +219,7 @@ export function HarvardSkillGroup({
         <EditableText
           path={`${path}.category`}
           value={item.category}
-          placeholder={PLACEHOLDERS['category']}
+          placeholder={placeholder('category')}
         />
         :
       </span>{' '}
@@ -232,7 +235,7 @@ export function HarvardSkillGroup({
       <EditableInlineList
         path={`${path}.items`}
         items={item.items}
-        placeholder={PLACEHOLDERS['items']}
+        placeholder={placeholder('items')}
       />
     </li>
   );
@@ -258,6 +261,7 @@ export function HarvardCustomEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <article {...itemProps} className="tpl-harvard__entry" data-block>
       {chrome}
@@ -266,7 +270,7 @@ export function HarvardCustomEntry({
           <EditableText
             path={`${path}.title`}
             value={item.title}
-            placeholder={PLACEHOLDERS['heading']}
+            placeholder={placeholder('heading')}
           />
         </span>
         <span className="tpl-harvard__dates" />
@@ -274,7 +278,7 @@ export function HarvardCustomEntry({
           <EditableText
             path={`${path}.detail`}
             value={item.detail ?? ''}
-            placeholder={PLACEHOLDERS['detail']}
+            placeholder={placeholder('detail')}
           />
         </span>
         <span className="tpl-harvard__where" />

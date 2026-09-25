@@ -1,4 +1,4 @@
-import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@cvgs/core';
 import { Collection } from '../../collections/Collection.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
@@ -10,7 +10,7 @@ import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { contactLines } from '../../kit/contact.js';
+import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import {
   CompactCustomEntry,
@@ -18,6 +18,7 @@ import {
   CompactExperienceEntry,
 } from './entries.js';
 import './compact.css';
+import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
 /**
  * The Compact template.
@@ -39,10 +40,12 @@ export interface CompactDocumentProps {
 }
 
 export function CompactDocument({ resume }: CompactDocumentProps) {
+  const { placeholder } = useEditorText();
+  const doc = useDocumentText();
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const contact = contactLines(
+  const contact = useContactLines(
     resume.contact,
     ['phone', 'email', 'location'],
     authoring,
@@ -52,7 +55,8 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
     <article
       className="tpl-compact"
       style={documentStyle('cp', style)}
-      aria-label="Resume document"
+      aria-label={doc.t.resume}
+      lang={doc.locale}
     >
       <header className="tpl-compact__head-block" data-block>
         <h1 className="tpl-compact__name">
@@ -64,7 +68,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
             <EditableText
               path="headline"
               value={resume.headline ?? ''}
-              placeholder={PLACEHOLDERS['headline']}
+              placeholder={placeholder('headline')}
             />
           </p>
         )}
@@ -105,7 +109,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
             <DocumentSection
               id="summary"
               heading={resume.section_headings?.summary}
-              title="Summary"
+              title={doc.t.sections.summary}
               className="tpl-compact__section"
               headingClassName="tpl-compact__heading"
             >
@@ -113,7 +117,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
                 <EditableText
                   path="summary"
                   value={resume.summary ?? ''}
-                  placeholder={PLACEHOLDERS['summary']}
+                  placeholder={placeholder('summary')}
                   multiline
                 />
               </p>
@@ -124,7 +128,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
             <DocumentSection
               id="experience"
               heading={resume.section_headings?.experience}
-              title="Experience"
+              title={doc.t.sections.experience}
               className="tpl-compact__section"
               headingClassName="tpl-compact__heading"
             >
@@ -145,7 +149,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
             <DocumentSection
               id="education"
               heading={resume.section_headings?.education}
-              title="Education"
+              title={doc.t.sections.education}
               className="tpl-compact__section"
               headingClassName="tpl-compact__heading"
             >
@@ -178,7 +182,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
           <DescribedEntries
             id="achievements"
             heading={resume.section_headings?.achievements}
-            title="Achievements"
+            title={doc.t.sections.achievements}
             items={resume.achievements}
             className="tpl-compact__section tpl-described--marked"
             headingClassName="tpl-compact__heading"
@@ -195,7 +199,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
             <DocumentSection
               id="skills"
               heading={resume.section_headings?.skills}
-              title="Skills"
+              title={doc.t.sections.skills}
               className="tpl-compact__section"
               headingClassName="tpl-compact__heading"
             >
@@ -219,7 +223,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
           <DescribedEntries
             id="courses"
             heading={resume.section_headings?.courses}
-            title="Courses"
+            title={doc.t.sections.courses}
             items={resume.courses}
             className="tpl-compact__section"
             headingClassName="tpl-compact__heading"
@@ -229,7 +233,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
             <DocumentSection
               id="certifications"
               heading={resume.section_headings?.certifications}
-              title="Certifications"
+              title={doc.t.sections.certifications}
               className="tpl-compact__section"
               headingClassName="tpl-compact__heading"
             >
@@ -237,7 +241,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
                 <EditableInlineList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={PLACEHOLDERS['certifications']}
+                  placeholder={placeholder('certifications')}
                 />
               </p>
             </DocumentSection>
@@ -245,7 +249,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
-            title="Passions"
+            title={doc.t.sections.passions}
             items={resume.passions}
             className="tpl-compact__section tpl-described--marked"
             headingClassName="tpl-compact__heading"

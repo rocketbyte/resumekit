@@ -4,6 +4,7 @@ import type { SpaceTarget } from '../spacing/spacing-context.js';
 import { useRailLevel } from './rail-store.js';
 import { useSpaceDrag } from './useSpaceDrag.js';
 import './rail.css';
+import { useEditorText } from '../i18n/index.js';
 
 /** Up-and-down through a bar: the space above can be opened or closed. */
 const SpaceIcon = () => (
@@ -35,6 +36,7 @@ function SpaceControl({
     railKey,
   );
   const [looking, setLooking] = useState(false);
+  const { t, locale } = useEditorText();
   if (!adjustable) return null;
 
   return (
@@ -61,7 +63,12 @@ function SpaceControl({
             /* An attribute the stylesheet draws, never a text node: a word in
                here would be a word in the résumé's own text. */
             data-readout={
-              shown > 0 ? `+${shown.toFixed(1)}` : 'Drag to add space'
+              shown > 0
+                ? `+${shown.toLocaleString(locale, {
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 1,
+                  })}`
+                : t.space.dragToAdd
             }
           />,
           host,

@@ -8,6 +8,7 @@ import {
 import { useAutosave } from '../autosave-context.js';
 import { useSpace, type SpaceTarget } from '../spacing/spacing-context.js';
 import { useRailPin } from './rail-store.js';
+import { useEditorText } from '../i18n/index.js';
 
 /** One step on screen when nothing can be measured — a test renderer only. */
 const FALLBACK_UNIT = 8;
@@ -47,6 +48,7 @@ export function useSpaceDrag(
   railKey: string,
 ) {
   const { steps, adjustable, setSteps } = useSpace(target);
+  const { t, format, locale } = useEditorText();
   const { saveNow } = useAutosave();
   const { pin, unpin } = useRailPin(railKey);
   const [dragging, setDragging] = useState<number | null>(null);
@@ -155,14 +157,19 @@ export function useSpaceDrag(
     sliderProps: {
       role: 'slider',
       tabIndex: 0,
-      'aria-label': `Space above ${label}`,
+      'aria-label': format(t.space.handle, { name: label }),
       'aria-orientation': 'vertical' as const,
       'aria-valuemin': 0,
       'aria-valuemax': SPACE_MAX_STEPS,
       'aria-valuenow': shown,
       // The scale is fifths, so the announced value has to be too.
-      'aria-valuetext': SECTION_SPACES[spaceAtStep(shown)]?.name ?? 'None',
-      title: `Drag up or down to change the space above ${label}`,
+      'aria-valuetext':
+        spaceAtStep(shown) === 'none'
+          ? t.space.none
+          : (SECTION_SPACES[spaceAtStep(shown)]?.steps ?? 0).toLocaleString(
+              locale,
+            ),
+      title: format(t.space.handleTitle, { name: label }),
       onPointerDown,
       onKeyDown,
     },

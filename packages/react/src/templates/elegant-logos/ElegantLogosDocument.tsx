@@ -1,4 +1,4 @@
-import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@cvgs/core';
 import { Collection } from '../../collections/Collection.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
@@ -11,7 +11,7 @@ import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { contactLines } from '../../kit/contact.js';
+import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import {
   ElegantLogosCustomEntry,
@@ -19,6 +19,7 @@ import {
   ElegantLogosExperienceEntry,
 } from './entries.js';
 import './elegant-logos.css';
+import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
 /**
  * The Elegant with Logos template.
@@ -32,10 +33,12 @@ export interface ElegantLogosDocumentProps {
 }
 
 export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
+  const { placeholder } = useEditorText();
+  const doc = useDocumentText();
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const contact = contactLines(
+  const contact = useContactLines(
     resume.contact,
     ['phone', 'email', 'location'],
     authoring,
@@ -45,7 +48,8 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
     <article
       className="tpl-ell"
       style={documentStyle('ell', style)}
-      aria-label="Resume document"
+      aria-label={doc.t.resume}
+      lang={doc.locale}
     >
       <div className="tpl-ell__body tpl-sheet-tall">
         <div className="tpl-ell__main" data-flow>
@@ -60,7 +64,7 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
                   <EditableText
                     path="headline"
                     value={resume.headline ?? ''}
-                    placeholder={PLACEHOLDERS['headline']}
+                    placeholder={placeholder('headline')}
                   />
                 </p>
               )}
@@ -104,7 +108,7 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
             <DocumentSection
               id="summary"
               heading={resume.section_headings?.summary}
-              title="Summary"
+              title={doc.t.sections.summary}
               className="tpl-ell__section"
               headingClassName="tpl-ell__heading"
             >
@@ -112,7 +116,7 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
                 <EditableText
                   path="summary"
                   value={resume.summary ?? ''}
-                  placeholder={PLACEHOLDERS['summary']}
+                  placeholder={placeholder('summary')}
                   multiline
                 />
               </p>
@@ -122,7 +126,7 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
             <DocumentSection
               id="experience"
               heading={resume.section_headings?.experience}
-              title="Experience"
+              title={doc.t.sections.experience}
               className="tpl-ell__section"
               headingClassName="tpl-ell__heading"
             >
@@ -143,7 +147,7 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
             <DocumentSection
               id="education"
               heading={resume.section_headings?.education}
-              title="Education"
+              title={doc.t.sections.education}
               className="tpl-ell__section"
               headingClassName="tpl-ell__heading"
             >
@@ -180,7 +184,7 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
           <DescribedEntries
             id="achievements"
             heading={resume.section_headings?.achievements}
-            title="Key Achievements"
+            title={doc.t.sections.keyAchievements}
             items={resume.achievements}
             className="tpl-ell__section tpl-described--marked"
             headingClassName="tpl-ell__heading"
@@ -197,7 +201,7 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
             <DocumentSection
               id="skills"
               heading={resume.section_headings?.skills}
-              title="Skills"
+              title={doc.t.sections.skills}
               className="tpl-ell__section"
               headingClassName="tpl-ell__heading"
             >
@@ -225,7 +229,7 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
           <DescribedEntries
             id="courses"
             heading={resume.section_headings?.courses}
-            title="Courses"
+            title={doc.t.sections.courses}
             items={resume.courses}
             className="tpl-ell__section"
             headingClassName="tpl-ell__heading"
@@ -235,7 +239,7 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
             <DocumentSection
               id="certifications"
               heading={resume.section_headings?.certifications}
-              title="Certifications"
+              title={doc.t.sections.certifications}
               className="tpl-ell__section"
               headingClassName="tpl-ell__heading"
             >
@@ -243,7 +247,7 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
                 <EditableInlineList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={PLACEHOLDERS['certifications']}
+                  placeholder={placeholder('certifications')}
                 />
               </p>
             </DocumentSection>
@@ -251,7 +255,7 @@ export function ElegantLogosDocument({ resume }: ElegantLogosDocumentProps) {
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
-            title="Interests"
+            title={doc.t.sections.interests}
             items={resume.passions}
             className="tpl-ell__section tpl-described--marked"
             headingClassName="tpl-ell__heading"

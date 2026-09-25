@@ -13,6 +13,7 @@
     "jsx": "react-jsx",
     "module": "esnext",
     "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "lib": ["dom", "es2022"]
   },
   "include": [

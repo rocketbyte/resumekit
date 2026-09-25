@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from 'react';
-import { PLACEHOLDERS, type CustomEntry, type CustomSection } from '@cvgs/core';
+import type { CustomEntry, CustomSection } from '@cvgs/core';
+import { useEditorText } from '../i18n/index.js';
 import { EditableText } from './EditableText.js';
 import {
   CollectionItems,
@@ -58,6 +59,7 @@ function AuthoredSection({
   Entry: CustomEntryComponent;
 }) {
   const collection = useCustomEntries(section.id, section.entries);
+  const { t } = useEditorText();
   const base = `custom_sections.${index}`;
 
   return (
@@ -66,7 +68,7 @@ function AuthoredSection({
         <EditableText
           path={`${base}.heading`}
           value={section.heading}
-          placeholder={PLACEHOLDERS['heading']}
+          placeholder={t.placeholders.heading}
         />
       </h2>
 
@@ -74,7 +76,7 @@ function AuthoredSection({
         collection={collection}
         basePath={`${base}.entries`}
         noun="entry"
-        label={section.heading || 'Section'}
+        label={section.heading || t.customSection}
       >
         {({ item, path, chrome, itemProps }) => (
           <Entry

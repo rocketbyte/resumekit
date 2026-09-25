@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import './library.css';
+import { useEditorText } from '../../i18n/index.js';
 
 /** One thing that can be chosen, with the sub-items that come with it. */
 export interface PickerOption {
@@ -78,6 +79,7 @@ export function LibraryPicker({
   >(new Map());
   const panel = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  const { t, format, plural } = useEditorText();
 
   /* Focus the dialog, not its first option: a ring on an item nobody chose
      reads as a selection. Tab reaches the options from here. */
@@ -175,7 +177,7 @@ export function LibraryPicker({
           <button
             type="button"
             className="tpl-library__close"
-            aria-label="Close"
+            aria-label={t.library.close}
             onClick={onClose}
           >
             <svg viewBox="0 0 16 16" aria-hidden="true">
@@ -191,7 +193,7 @@ export function LibraryPicker({
                 <path d="M3.5 8.5 6.5 11.5 12.5 5" />
               </svg>
             </span>
-            <p className="tpl-library__empty-title">You’re all set</p>
+            <p className="tpl-library__empty-title">{t.library.allSet}</p>
             <p className="tpl-library__empty-text">{empty}</p>
           </div>
         ) : (
@@ -227,7 +229,9 @@ export function LibraryPicker({
                           className="tpl-library__all"
                           onClick={() => toggleAll(group)}
                         >
-                          {allChosen(group) ? 'Clear' : 'Select all'}
+                          {allChosen(group)
+                            ? t.library.clear
+                            : t.library.selectAll}
                         </button>
                       )}
                     </div>
@@ -263,7 +267,9 @@ export function LibraryPicker({
                           {on && option.parts && option.parts.length > 0 && (
                             <ul
                               className="tpl-library__parts"
-                              aria-label={`Bullets of ${option.title}`}
+                              aria-label={format(t.library.bulletsOf, {
+                                title: option.title,
+                              })}
                             >
                               {option.parts.map((part, p) => (
                                 <li key={p}>
@@ -294,12 +300,12 @@ export function LibraryPicker({
           {!nothing && (
             <span className="tpl-library__selected" aria-live="polite">
               {chosen.size === 0
-                ? 'Nothing selected yet'
-                : `${chosen.size} selected`}
+                ? t.library.nothingSelected
+                : plural(t.library.selected, chosen.size)}
             </span>
           )}
           <button type="button" className="tpl-library__btn" onClick={onClose}>
-            {nothing ? 'Done' : 'Cancel'}
+            {nothing ? t.library.done : t.library.cancel}
           </button>
           {!nothing && (
             <button
@@ -308,7 +314,7 @@ export function LibraryPicker({
               disabled={chosen.size === 0}
               onClick={() => onAdd(selection)}
             >
-              {chosen.size === 0 ? 'Add' : addLabel(selection)}
+              {chosen.size === 0 ? t.library.add : addLabel(selection)}
             </button>
           )}
         </footer>

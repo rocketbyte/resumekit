@@ -1,4 +1,4 @@
-import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@cvgs/core';
 import { Collection } from '../../collections/Collection.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
@@ -11,7 +11,7 @@ import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { contactLines } from '../../kit/contact.js';
+import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import {
   StylishCustomEntry,
@@ -19,6 +19,7 @@ import {
   StylishExperienceEntry,
 } from './entries.js';
 import './stylish.css';
+import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
 /**
  * The Stylish template.
@@ -37,10 +38,12 @@ export interface StylishDocumentProps {
 }
 
 export function StylishDocument({ resume }: StylishDocumentProps) {
+  const { placeholder } = useEditorText();
+  const doc = useDocumentText();
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const contact = contactLines(
+  const contact = useContactLines(
     resume.contact,
     ['phone', 'email', 'location'],
     authoring,
@@ -50,7 +53,8 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
     <article
       className="tpl-stylish"
       style={documentStyle('st', style)}
-      aria-label="Resume document"
+      aria-label={doc.t.resume}
+      lang={doc.locale}
     >
       <header className="tpl-stylish__head-block" data-block>
         <div className="tpl-stylish__identity">
@@ -63,7 +67,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
               <EditableText
                 path="headline"
                 value={resume.headline ?? ''}
-                placeholder={PLACEHOLDERS['headline']}
+                placeholder={placeholder('headline')}
               />
             </p>
           )}
@@ -112,7 +116,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
           <DescribedEntries
             id="achievements"
             heading={resume.section_headings?.achievements}
-            title="Achievements"
+            title={doc.t.sections.achievements}
             items={resume.achievements}
             className="tpl-stylish__section tpl-described--marked"
             headingClassName="tpl-stylish__heading"
@@ -129,7 +133,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
             <DocumentSection
               id="skills"
               heading={resume.section_headings?.skills}
-              title="Skills"
+              title={doc.t.sections.skills}
               className="tpl-stylish__section"
               headingClassName="tpl-stylish__heading"
             >
@@ -157,7 +161,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
           <DescribedEntries
             id="courses"
             heading={resume.section_headings?.courses}
-            title="Courses"
+            title={doc.t.sections.courses}
             items={resume.courses}
             className="tpl-stylish__section"
             headingClassName="tpl-stylish__heading"
@@ -167,7 +171,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
             <DocumentSection
               id="certifications"
               heading={resume.section_headings?.certifications}
-              title="Certifications"
+              title={doc.t.sections.certifications}
               className="tpl-stylish__section"
               headingClassName="tpl-stylish__heading"
             >
@@ -175,7 +179,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
                 <EditableInlineList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={PLACEHOLDERS['certifications']}
+                  placeholder={placeholder('certifications')}
                 />
               </p>
             </DocumentSection>
@@ -183,7 +187,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
-            title="Passions"
+            title={doc.t.sections.passions}
             items={resume.passions}
             className="tpl-stylish__section tpl-described--marked"
             headingClassName="tpl-stylish__heading"
@@ -195,7 +199,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
             <DocumentSection
               id="summary"
               heading={resume.section_headings?.summary}
-              title="Summary"
+              title={doc.t.sections.summary}
               className="tpl-stylish__section"
               headingClassName="tpl-stylish__heading"
             >
@@ -203,7 +207,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
                 <EditableText
                   path="summary"
                   value={resume.summary ?? ''}
-                  placeholder={PLACEHOLDERS['summary']}
+                  placeholder={placeholder('summary')}
                   multiline
                 />
               </p>
@@ -214,7 +218,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
             <DocumentSection
               id="experience"
               heading={resume.section_headings?.experience}
-              title="Experience"
+              title={doc.t.sections.experience}
               className="tpl-stylish__section"
               headingClassName="tpl-stylish__heading"
             >
@@ -235,7 +239,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
             <DocumentSection
               id="education"
               heading={resume.section_headings?.education}
-              title="Education"
+              title={doc.t.sections.education}
               className="tpl-stylish__section"
               headingClassName="tpl-stylish__heading"
             >

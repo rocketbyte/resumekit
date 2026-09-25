@@ -1,13 +1,9 @@
 import type { ReactNode } from 'react';
-import {
-  PLACEHOLDERS,
-  type CustomEntry,
-  type Education,
-  type Experience,
-} from '@cvgs/core';
+import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
+import { useEditorText } from '../../i18n/index.js';
 
 /**
  * Double Column's entries: the role, then the employer in the accent with the
@@ -44,6 +40,7 @@ export function DoubleColumnExperienceEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <article {...itemProps} className="tpl-dc__entry" data-block>
       {chrome}
@@ -51,7 +48,7 @@ export function DoubleColumnExperienceEntry({
         <EditableText
           path={`${path}.title`}
           value={item.title}
-          placeholder={PLACEHOLDERS['title']}
+          placeholder={placeholder('title')}
         />
       </p>
       <MetaLine
@@ -59,7 +56,7 @@ export function DoubleColumnExperienceEntry({
           <EditableText
             path={`${path}.company`}
             value={item.company}
-            placeholder={PLACEHOLDERS['company']}
+            placeholder={placeholder('company')}
           />
         }
         dates={
@@ -67,13 +64,13 @@ export function DoubleColumnExperienceEntry({
             <EditableText
               path={`${path}.start`}
               value={item.start}
-              placeholder={PLACEHOLDERS['start']}
+              placeholder={placeholder('start')}
             />
             {' - '}
             <EditableText
               path={`${path}.end`}
               value={item.end}
-              placeholder={PLACEHOLDERS['end']}
+              placeholder={placeholder('end')}
             />
           </>
         }
@@ -81,7 +78,7 @@ export function DoubleColumnExperienceEntry({
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
-            placeholder={PLACEHOLDERS['location']}
+            placeholder={placeholder('location')}
           />
         }
       />
@@ -101,6 +98,7 @@ export function DoubleColumnEducationEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <article {...itemProps} className="tpl-dc__entry" data-block>
       {chrome}
@@ -108,13 +106,13 @@ export function DoubleColumnEducationEntry({
         <EditableText
           path={`${path}.degree`}
           value={item.degree ?? ''}
-          placeholder={PLACEHOLDERS['degree']}
+          placeholder={placeholder('degree')}
         />
         {item.degree && item.field ? ' in ' : ''}
         <EditableText
           path={`${path}.field`}
           value={item.field ?? ''}
-          placeholder={PLACEHOLDERS['field']}
+          placeholder={placeholder('field')}
         />
       </p>
       <MetaLine
@@ -122,7 +120,7 @@ export function DoubleColumnEducationEntry({
           <EditableText
             path={`${path}.school`}
             value={item.school}
-            placeholder={PLACEHOLDERS['school']}
+            placeholder={placeholder('school')}
           />
         }
         dates={
@@ -130,13 +128,13 @@ export function DoubleColumnEducationEntry({
             <EditableText
               path={`${path}.start`}
               value={item.start ?? ''}
-              placeholder={PLACEHOLDERS['start']}
+              placeholder={placeholder('start')}
             />
             {item.start && item.end ? ' - ' : ''}
             <EditableText
               path={`${path}.end`}
               value={item.end ?? ''}
-              placeholder={PLACEHOLDERS['end']}
+              placeholder={placeholder('end')}
             />
           </>
         }
@@ -144,7 +142,7 @@ export function DoubleColumnEducationEntry({
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
-            placeholder={PLACEHOLDERS['location']}
+            placeholder={placeholder('location')}
           />
         }
       />
@@ -164,6 +162,7 @@ export function DoubleColumnCustomEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <article {...itemProps} className="tpl-dc__note" data-block>
       {chrome}
@@ -171,14 +170,14 @@ export function DoubleColumnCustomEntry({
         <EditableText
           path={`${path}.title`}
           value={item.title}
-          placeholder={PLACEHOLDERS['heading']}
+          placeholder={placeholder('heading')}
         />
       </p>
       <p className="tpl-dc__note-detail">
         <EditableText
           path={`${path}.detail`}
           value={item.detail ?? ''}
-          placeholder={PLACEHOLDERS['detail']}
+          placeholder={placeholder('detail')}
         />
       </p>
       <EditableBulletList path={`${path}.bullets`} items={item.bullets} />

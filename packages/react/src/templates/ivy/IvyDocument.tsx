@@ -1,4 +1,4 @@
-import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@cvgs/core';
 import { Collection } from '../../collections/Collection.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
@@ -10,7 +10,7 @@ import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
 import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
-import { contactLines } from '../../kit/contact.js';
+import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import {
   IvyCustomEntry,
@@ -18,6 +18,7 @@ import {
   IvyExperienceEntry,
 } from './entries.js';
 import './ivy.css';
+import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
 /**
  * The Ivy League template.
@@ -35,10 +36,12 @@ export interface IvyDocumentProps {
 }
 
 export function IvyDocument({ resume }: IvyDocumentProps) {
+  const { placeholder } = useEditorText();
+  const doc = useDocumentText();
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const contact = contactLines(
+  const contact = useContactLines(
     resume.contact,
     ['phone', 'email', 'location'],
     authoring,
@@ -48,7 +51,8 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
     <article
       className="tpl-ivy"
       style={documentStyle('i', style)}
-      aria-label="Resume document"
+      aria-label={doc.t.resume}
+      lang={doc.locale}
     >
       <header className="tpl-ivy__head-block" data-block>
         <h1 className="tpl-ivy__name">
@@ -60,7 +64,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
             <EditableText
               path="headline"
               value={resume.headline ?? ''}
-              placeholder={PLACEHOLDERS['headline']}
+              placeholder={placeholder('headline')}
             />
           </p>
         )}
@@ -103,7 +107,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
         <DocumentSection
           id="summary"
           heading={resume.section_headings?.summary}
-          title="Summary"
+          title={doc.t.sections.summary}
           className="tpl-ivy__section"
           headingClassName="tpl-ivy__heading"
         >
@@ -111,7 +115,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
             <EditableText
               path="summary"
               value={resume.summary ?? ''}
-              placeholder={PLACEHOLDERS['summary']}
+              placeholder={placeholder('summary')}
               multiline
             />
           </p>
@@ -122,7 +126,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
         <DocumentSection
           id="experience"
           heading={resume.section_headings?.experience}
-          title="Experience"
+          title={doc.t.sections.experience}
           className="tpl-ivy__section"
           headingClassName="tpl-ivy__heading"
         >
@@ -143,7 +147,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
         <DocumentSection
           id="education"
           heading={resume.section_headings?.education}
-          title="Education"
+          title={doc.t.sections.education}
           className="tpl-ivy__section"
           headingClassName="tpl-ivy__heading"
         >
@@ -163,7 +167,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
       <DescribedEntries
         id="achievements"
         heading={resume.section_headings?.achievements}
-        title="Achievements"
+        title={doc.t.sections.achievements}
         items={resume.achievements}
         className="tpl-ivy__section tpl-described--marked tpl-described--grid"
         headingClassName="tpl-ivy__heading"
@@ -173,7 +177,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
         <DocumentSection
           id="skills"
           heading={resume.section_headings?.skills}
-          title="Skills"
+          title={doc.t.sections.skills}
           className="tpl-ivy__section"
           headingClassName="tpl-ivy__heading"
         >
@@ -200,7 +204,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
       <DescribedEntries
         id="courses"
         heading={resume.section_headings?.courses}
-        title="Courses"
+        title={doc.t.sections.courses}
         items={resume.courses}
         className="tpl-ivy__section"
         headingClassName="tpl-ivy__heading"
@@ -218,7 +222,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
         <DocumentSection
           id="certifications"
           heading={resume.section_headings?.certifications}
-          title="Certifications"
+          title={doc.t.sections.certifications}
           className="tpl-ivy__section"
           headingClassName="tpl-ivy__heading"
         >
@@ -226,7 +230,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
             <EditableInlineList
               path="certifications"
               items={resume.certifications}
-              placeholder={PLACEHOLDERS['certifications']}
+              placeholder={placeholder('certifications')}
             />
           </p>
         </DocumentSection>
@@ -234,7 +238,7 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
       <DescribedEntries
         id="passions"
         heading={resume.section_headings?.passions}
-        title="Passions"
+        title={doc.t.sections.passions}
         items={resume.passions}
         className="tpl-ivy__section tpl-described--marked"
         headingClassName="tpl-ivy__heading"

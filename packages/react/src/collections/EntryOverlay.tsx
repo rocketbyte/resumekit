@@ -7,7 +7,8 @@ import {
 } from './icons.js';
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';
-import { withArticle } from './article.js';
+import { useEntryText } from './entry-text.js';
+import { useEditorText } from '../i18n/index.js';
 import { LibraryAction } from './library/LibraryAction.js';
 
 /** Where an item came from, which decides what removing it means. */
@@ -62,9 +63,13 @@ export function EntryOverlay<T>({
    * the section first, because a candidate with six sections and eleven bullets
    * needs to know which document they are in before which item.
    */
-  const label = `${section} · ${noun.charAt(0).toUpperCase()}${noun.slice(1)} ${
-    index + 1
-  }`;
+  const text = useEntryText(noun, index, origin);
+  const editor = useEditorText();
+  const label = editor.format(editor.t.entry.name, {
+    ...editor.noun(noun),
+    section,
+    position: index + 1,
+  });
 
   return (
     <span
@@ -72,12 +77,12 @@ export function EntryOverlay<T>({
       data-chrome
       contentEditable={false}
       role="toolbar"
-      aria-label={`${label} — editing actions`}
+      aria-label={editor.format(editor.t.entry.toolbar, { name: label })}
     >
       {handleProps ? (
         <span
           className="tpl-entry-overlay__grip"
-          title={`Drag to move this ${noun}`}
+          title={text.drag}
           {...handleProps}
         >
           <GripIcon />
@@ -96,8 +101,8 @@ export function EntryOverlay<T>({
           <button
             type="button"
             className="tpl-entry-overlay__btn"
-            title={`Move this ${noun} up`}
-            aria-label={`Move ${noun} ${index + 1} up`}
+            title={text.moveUp}
+            aria-label={text.moveUpLabel}
             disabled={index === 0}
             onClick={() => collection.move(index, index - 1)}
           >
@@ -106,8 +111,8 @@ export function EntryOverlay<T>({
           <button
             type="button"
             className="tpl-entry-overlay__btn"
-            title={`Move this ${noun} down`}
-            aria-label={`Move ${noun} ${index + 1} down`}
+            title={text.moveDown}
+            aria-label={text.moveDownLabel}
             disabled={index === last}
             onClick={() => collection.move(index, index + 1)}
           >
@@ -120,8 +125,8 @@ export function EntryOverlay<T>({
         <button
           type="button"
           className="tpl-entry-overlay__btn"
-          title={`Add ${withArticle(noun)} below`}
-          aria-label={`Add ${withArticle(noun)} after ${index + 1}`}
+          title={text.addBelow}
+          aria-label={text.addAfterLabel}
           onClick={() => collection.add(index)}
         >
           <PlusIcon />
@@ -146,17 +151,8 @@ export function EntryOverlay<T>({
          * product refuses to perform — the score and the requirement audit are
          * derived against that content.
          */
-        title={
-          refusal ??
-          (origin === 'added'
-            ? `Remove this ${noun}`
-            : `Hide this ${noun} — it stays in your tailored resume and can be brought back`)
-        }
-        aria-label={
-          origin === 'added'
-            ? `Remove ${noun} ${index + 1}`
-            : `Hide ${noun} ${index + 1}`
-        }
+        title={refusal ?? text.remove}
+        aria-label={text.removeLabel}
         onClick={() => collection.remove(index)}
       >
         <TrashIcon />

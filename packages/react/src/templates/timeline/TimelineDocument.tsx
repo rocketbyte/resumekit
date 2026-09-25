@@ -1,4 +1,4 @@
-import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@cvgs/core';
 import { Collection } from '../../collections/Collection.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
@@ -10,7 +10,7 @@ import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
 import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
-import { contactLines } from '../../kit/contact.js';
+import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import {
   TimelineCustomEntry,
@@ -18,6 +18,7 @@ import {
   TimelineExperienceEntry,
 } from './entries.js';
 import './timeline.css';
+import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
 /**
  * The Timeline template.
@@ -35,10 +36,12 @@ export interface TimelineDocumentProps {
 }
 
 export function TimelineDocument({ resume }: TimelineDocumentProps) {
+  const { placeholder } = useEditorText();
+  const doc = useDocumentText();
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const contact = contactLines(
+  const contact = useContactLines(
     resume.contact,
     ['phone', 'email', 'location'],
     authoring,
@@ -48,7 +51,8 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
     <article
       className="tpl-timeline"
       style={documentStyle('tl', style)}
-      aria-label="Resume document"
+      aria-label={doc.t.resume}
+      lang={doc.locale}
     >
       <header className="tpl-timeline__head-block" data-block>
         <h1 className="tpl-timeline__name">
@@ -60,7 +64,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
             <EditableText
               path="headline"
               value={resume.headline ?? ''}
-              placeholder={PLACEHOLDERS['headline']}
+              placeholder={placeholder('headline')}
             />
           </p>
         )}
@@ -99,7 +103,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
         <DocumentSection
           id="summary"
           heading={resume.section_headings?.summary}
-          title="Summary"
+          title={doc.t.sections.summary}
           className="tpl-timeline__section"
           headingClassName="tpl-timeline__heading"
         >
@@ -107,7 +111,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
             <EditableText
               path="summary"
               value={resume.summary ?? ''}
-              placeholder={PLACEHOLDERS['summary']}
+              placeholder={placeholder('summary')}
               multiline
             />
           </p>
@@ -118,7 +122,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
         <DocumentSection
           id="experience"
           heading={resume.section_headings?.experience}
-          title="Experience"
+          title={doc.t.sections.experience}
           className="tpl-timeline__section"
           headingClassName="tpl-timeline__heading"
         >
@@ -139,7 +143,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
         <DocumentSection
           id="education"
           heading={resume.section_headings?.education}
-          title="Education"
+          title={doc.t.sections.education}
           className="tpl-timeline__section"
           headingClassName="tpl-timeline__heading"
         >
@@ -159,7 +163,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
       <DescribedEntries
         id="achievements"
         heading={resume.section_headings?.achievements}
-        title="Achievements"
+        title={doc.t.sections.achievements}
         items={resume.achievements}
         className="tpl-timeline__section tpl-described--marked tpl-described--grid"
         headingClassName="tpl-timeline__heading"
@@ -176,7 +180,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
         <DocumentSection
           id="skills"
           heading={resume.section_headings?.skills}
-          title="Skills"
+          title={doc.t.sections.skills}
           className="tpl-timeline__section"
           headingClassName="tpl-timeline__heading"
         >
@@ -204,7 +208,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
       <DescribedEntries
         id="courses"
         heading={resume.section_headings?.courses}
-        title="Courses"
+        title={doc.t.sections.courses}
         items={resume.courses}
         className="tpl-timeline__section"
         headingClassName="tpl-timeline__heading"
@@ -222,7 +226,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
         <DocumentSection
           id="certifications"
           heading={resume.section_headings?.certifications}
-          title="Certifications"
+          title={doc.t.sections.certifications}
           className="tpl-timeline__section"
           headingClassName="tpl-timeline__heading"
         >
@@ -230,7 +234,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
             <EditableInlineList
               path="certifications"
               items={resume.certifications}
-              placeholder={PLACEHOLDERS['certifications']}
+              placeholder={placeholder('certifications')}
             />
           </p>
         </DocumentSection>
@@ -238,7 +242,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
       <DescribedEntries
         id="passions"
         heading={resume.section_headings?.passions}
-        title="Passions"
+        title={doc.t.sections.passions}
         items={resume.passions}
         className="tpl-timeline__section tpl-described--marked"
         headingClassName="tpl-timeline__heading"

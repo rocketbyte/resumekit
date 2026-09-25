@@ -1,13 +1,9 @@
 import type { ReactNode } from 'react';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
-import {
-  PLACEHOLDERS,
-  type CustomEntry,
-  type Education,
-  type Experience,
-} from '@cvgs/core';
+import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
+import { useEditorText } from '../../i18n/index.js';
 
 /**
  * Exec's entry components: the markup for one item of each shape.
@@ -126,6 +122,7 @@ export function ExecCustomEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <article {...itemProps} className="tpl-exec__entry" data-block>
       {chrome}
@@ -135,7 +132,7 @@ export function ExecCustomEntry({
             <EditableText
               path={`${path}.title`}
               value={item.title}
-              placeholder={PLACEHOLDERS['heading']}
+              placeholder={placeholder('heading')}
             />
           </strong>
         </span>
@@ -143,7 +140,7 @@ export function ExecCustomEntry({
           <EditableText
             path={`${path}.detail`}
             value={item.detail ?? ''}
-            placeholder={PLACEHOLDERS['detail']}
+            placeholder={placeholder('detail')}
           />
         </span>
       </div>

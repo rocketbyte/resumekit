@@ -55,6 +55,7 @@ export function TemplateDocument({
       <DocumentPresentationProvider
         style={presentation?.style}
         formats={presentation?.formats}
+        language={presentation?.language}
       >
         {/*
          * The recorded space, with no way to change it.

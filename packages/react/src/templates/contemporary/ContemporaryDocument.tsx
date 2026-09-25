@@ -1,4 +1,4 @@
-import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@cvgs/core';
 import { Collection } from '../../collections/Collection.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
@@ -11,7 +11,7 @@ import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { contactLines } from '../../kit/contact.js';
+import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import {
   ContemporaryCustomEntry,
@@ -19,6 +19,7 @@ import {
   ContemporaryExperienceEntry,
 } from './entries.js';
 import './contemporary.css';
+import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
 /**
  * The Contemporary template.
@@ -39,10 +40,12 @@ export interface ContemporaryDocumentProps {
 }
 
 export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
+  const { placeholder } = useEditorText();
+  const doc = useDocumentText();
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const contact = contactLines(
+  const contact = useContactLines(
     resume.contact,
     ['phone', 'email', 'location'],
     authoring,
@@ -52,7 +55,8 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
     <article
       className="tpl-contemporary"
       style={documentStyle('cn', style)}
-      aria-label="Resume document"
+      aria-label={doc.t.resume}
+      lang={doc.locale}
     >
       <header className="tpl-contemporary__head-block" data-block>
         <div className="tpl-contemporary__identity">
@@ -65,7 +69,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
               <EditableText
                 path="headline"
                 value={resume.headline ?? ''}
-                placeholder={PLACEHOLDERS['headline']}
+                placeholder={placeholder('headline')}
               />
             </p>
           )}
@@ -127,7 +131,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             <DocumentSection
               id="summary"
               heading={resume.section_headings?.summary}
-              title="Summary"
+              title={doc.t.sections.summary}
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
             >
@@ -135,7 +139,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
                 <EditableText
                   path="summary"
                   value={resume.summary ?? ''}
-                  placeholder={PLACEHOLDERS['summary']}
+                  placeholder={placeholder('summary')}
                   multiline
                 />
               </p>
@@ -144,7 +148,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
           <DescribedEntries
             id="achievements"
             heading={resume.section_headings?.achievements}
-            title="Key Achievements"
+            title={doc.t.sections.keyAchievements}
             items={resume.achievements}
             className="tpl-contemporary__section tpl-described--marked"
             headingClassName="tpl-contemporary__heading"
@@ -161,7 +165,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             <DocumentSection
               id="skills"
               heading={resume.section_headings?.skills}
-              title="Skills"
+              title={doc.t.sections.skills}
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
             >
@@ -189,7 +193,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
           <DescribedEntries
             id="courses"
             heading={resume.section_headings?.courses}
-            title="Courses"
+            title={doc.t.sections.courses}
             items={resume.courses}
             className="tpl-contemporary__section"
             headingClassName="tpl-contemporary__heading"
@@ -199,7 +203,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             <DocumentSection
               id="certifications"
               heading={resume.section_headings?.certifications}
-              title="Certifications"
+              title={doc.t.sections.certifications}
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
             >
@@ -207,7 +211,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
                 <EditableInlineList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={PLACEHOLDERS['certifications']}
+                  placeholder={placeholder('certifications')}
                 />
               </p>
             </DocumentSection>
@@ -215,7 +219,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
-            title="Passions"
+            title={doc.t.sections.passions}
             items={resume.passions}
             className="tpl-contemporary__section tpl-described--marked"
             headingClassName="tpl-contemporary__heading"
@@ -227,7 +231,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             <DocumentSection
               id="experience"
               heading={resume.section_headings?.experience}
-              title="Experience"
+              title={doc.t.sections.experience}
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
             >
@@ -248,7 +252,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             <DocumentSection
               id="education"
               heading={resume.section_headings?.education}
-              title="Education"
+              title={doc.t.sections.education}
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
             >

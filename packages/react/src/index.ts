@@ -37,6 +37,23 @@ export {
 } from './kit/DescribedEntries.js';
 export { LanguageList } from './kit/LanguageList.js';
 
+/**
+ * Language: the library's own catalogs, with no i18n dependency.
+ *
+ * Mount `TemplateLocaleProvider` with the editor's language — or nothing, for
+ * English. The document prints in `presentation.language`. A new language is a
+ * JSON file with the keys of `i18n/locales/en.json`, passed in `catalogs`; any
+ * message it lacks is English.
+ */
+export {
+  TEMPLATE_CATALOGS,
+  TemplateLocaleProvider,
+  resolveCatalog,
+  type PartialCatalog,
+  type TemplateCatalog,
+  type TemplateLocaleProviderProps,
+} from './i18n/index.js';
+
 /** A résumé drawn read-only, with a presentation applied. */
 export { TemplateDocument } from './TemplateDocument.js';
 export { LetterDocument } from './letter/LetterDocument.js';

@@ -12,7 +12,8 @@ import { useSpaceSlot } from '../spacing/useSpaceSlot.js';
 import type { ItemOrigin } from './EntryOverlay.js';
 import type { CollectionHandle } from './useCollection.js';
 import './collection.css';
-import { withArticle } from './article.js';
+import { useItemName } from './entry-text.js';
+import { useEditorText } from '../i18n/index.js';
 
 /**
  * What a template's root element must carry for the item to be movable.
@@ -136,7 +137,7 @@ function ReadOnlyItem<T>({
    * recorded and offers nothing to change it with. Which is the point — the
    * space is the document and prints; the control is chrome and does not.
    */
-  const space = useSpaceSlot({ path }, `${noun} ${index + 1}`);
+  const space = useSpaceSlot({ path }, useItemName(noun, index));
   const element = children({
     item: collection.items[index] as T,
     path,
@@ -184,6 +185,7 @@ export function CollectionItems<T>({
   children,
 }: CollectionItemsProps<T>) {
   const authoring = useAuthoring();
+  const { t, format, noun: forms } = useEditorText();
 
   /*
    * Unique across the whole DOCUMENT, not just within this collection: the
@@ -292,8 +294,8 @@ export function CollectionItems<T>({
             className="tpl-collection__add-inline"
             data-chrome
             contentEditable={false}
-            data-placeholder={`Add ${noun}s`}
-            aria-label={`Add ${withArticle(noun)}`}
+            data-placeholder={format(t.entry.addFirstPlaceholder, forms(noun))}
+            aria-label={format(t.entry.addFirstLabel, forms(noun))}
             onClick={() => collection.add()}
           />
         ) : (
@@ -307,7 +309,7 @@ export function CollectionItems<T>({
               className="tpl-collection__add-btn"
               onClick={() => collection.add()}
             >
-              + Add {noun}
+              {format(t.entry.addFirst, forms(noun))}
             </button>
           </div>
         ))}

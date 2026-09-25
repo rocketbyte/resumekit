@@ -1,6 +1,7 @@
 import { COLLECTIONS, type AppendableSection } from '@cvgs/core';
 import { useSectionCollection } from './useSectionCollection.js';
 import { CollectionItems, type EntryRenderProps } from './CollectionItems.js';
+import { useEditorText } from '../i18n/index.js';
 import type { ReactElement } from 'react';
 
 export type { EntryRenderProps };
@@ -57,11 +58,12 @@ export function Collection<T>({
   emptyAdd,
 }: CollectionProps<T>) {
   const collection = useSectionCollection<T>(section, items);
+  const { sectionName } = useEditorText();
   return (
     <CollectionItems
       collection={collection}
       noun={noun ?? COLLECTIONS[section].noun}
-      label={COLLECTIONS[section].label}
+      label={sectionName(section)}
       gap={gap}
       emptyAdd={emptyAdd}
     >

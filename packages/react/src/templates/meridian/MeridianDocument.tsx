@@ -1,4 +1,4 @@
-import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
@@ -10,7 +10,7 @@ import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { contactLines } from '../../kit/contact.js';
+import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import { monogram } from '../../kit/monogram.js';
 import {
@@ -19,6 +19,7 @@ import {
   MeridianExperienceEntry,
 } from './entries.js';
 import './meridian.css';
+import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
 /**
  * The Meridian template.
@@ -51,6 +52,8 @@ export interface MeridianDocumentProps {
 }
 
 export function MeridianDocument({ resume }: MeridianDocumentProps) {
+  const { placeholder } = useEditorText();
+  const doc = useDocumentText();
   const style = useDocumentStyle();
   /*
    * A section with nothing in it is omitted from the DOCUMENT and offered in
@@ -60,7 +63,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
    */
   const authoring = useAuthoring() !== null;
 
-  const contact = contactLines(
+  const contact = useContactLines(
     resume.contact,
     ['location', 'phone', 'email'],
     authoring,
@@ -70,7 +73,8 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
     <article
       className="tpl-mer"
       style={documentStyle('m', style)}
-      aria-label="Resume document"
+      aria-label={doc.t.resume}
+      lang={doc.locale}
     >
       {/* ── Crown band ───────────────────────────────────────────────────── */}
       <header className="tpl-mer__crown" data-block>
@@ -111,7 +115,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
             <DocumentSection
               id="summary"
               heading={resume.section_headings?.summary}
-              title="Professional Summary"
+              title={doc.t.sections.professionalSummary}
               className="tpl-mer__section"
               headingClassName="tpl-mer__heading"
             >
@@ -119,7 +123,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                 <EditableText
                   path="summary"
                   value={resume.summary ?? ''}
-                  placeholder={PLACEHOLDERS['summary']}
+                  placeholder={placeholder('summary')}
                   multiline
                 />
               </p>
@@ -129,7 +133,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
           <DescribedEntries
             id="achievements"
             heading={resume.section_headings?.achievements}
-            title="Achievements"
+            title={doc.t.sections.achievements}
             items={resume.achievements}
             className="tpl-mer__section tpl-described--marked"
             headingClassName="tpl-mer__heading"
@@ -139,7 +143,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
             <DocumentSection
               id="experience"
               heading={resume.section_headings?.experience}
-              title="Experience"
+              title={doc.t.sections.experience}
               className="tpl-mer__section"
               headingClassName="tpl-mer__heading"
             >
@@ -160,7 +164,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
             <DocumentSection
               id="education"
               heading={resume.section_headings?.education}
-              title="Education"
+              title={doc.t.sections.education}
               className="tpl-mer__section"
               headingClassName="tpl-mer__heading"
             >
@@ -181,7 +185,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
             <DocumentSection
               id="certifications"
               heading={resume.section_headings?.certifications}
-              title="Certifications"
+              title={doc.t.sections.certifications}
               className="tpl-mer__section"
               headingClassName="tpl-mer__heading"
             >
@@ -197,7 +201,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
           <DescribedEntries
             id="courses"
             heading={resume.section_headings?.courses}
-            title="Courses"
+            title={doc.t.sections.courses}
             items={resume.courses}
             className="tpl-mer__section"
             headingClassName="tpl-mer__heading"
@@ -213,7 +217,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
-            title="Passions"
+            title={doc.t.sections.passions}
             items={resume.passions}
             className="tpl-mer__section tpl-described--marked"
             headingClassName="tpl-mer__heading"
@@ -230,7 +234,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                 <EditableText
                   path="headline"
                   value={resume.headline ?? ''}
-                  placeholder={PLACEHOLDERS['headline']}
+                  placeholder={placeholder('headline')}
                 />
               </p>
             </section>
@@ -268,7 +272,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
             <DocumentSection
               id="skills"
               heading={resume.section_headings?.skills}
-              title="Technical Skills"
+              title={doc.t.sections.technicalSkills}
               className="tpl-mer__section"
               headingClassName="tpl-mer__heading tpl-mer__heading--marked"
             >

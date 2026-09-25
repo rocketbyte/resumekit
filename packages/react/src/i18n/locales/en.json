@@ -1,0 +1,291 @@
+{
+  "editor": {
+    "zoom": {
+      "group": "View zoom",
+      "out": "Zoom out",
+      "in": "Zoom in",
+      "reset": "Reset to fit",
+      "level": "Zoom {percent} percent — reset to fit"
+    },
+    "entry": {
+      "name": "{section} · {title} {position}",
+      "item": "{one} {position}",
+      "toolbar": "{name} — editing actions",
+      "drag": "Drag to move {this}",
+      "moveUp": "Move {this} up",
+      "moveUpLabel": "Move {one} {position} up",
+      "moveDown": "Move {this} down",
+      "moveDownLabel": "Move {one} {position} down",
+      "addBelow": "Add {a} below",
+      "addAfterLabel": "Add {a} after {position}",
+      "remove": "Remove {this}",
+      "removeLabel": "Remove {one} {position}",
+      "hide": "Hide {this} — it stays in your tailored resume and can be brought back",
+      "hideLabel": "Hide {one} {position}",
+      "addFirst": "+ Add {one}",
+      "addFirstLabel": "Add {a}",
+      "addFirstPlaceholder": "Add {other}"
+    },
+    "bullets": {
+      "drag": "Drag to move this bullet, or press Space and use the arrow keys",
+      "moveLabel": "Move bullet {position}",
+      "addBelow": "Add a bullet below",
+      "addAfterLabel": "Add a bullet after {position}",
+      "remove": "Remove this bullet",
+      "removeLabel": "Remove bullet {position}"
+    },
+    "refusal": {
+      "single": "There is only ever one of these.",
+      "minimumOne": "This needs at least one {one} — reword it instead of removing it.",
+      "minimum": "This needs at least {count}."
+    },
+    "space": {
+      "handle": "Space above {name}",
+      "handleTitle": "Drag up or down to change the space above {name}",
+      "none": "None",
+      "dragToAdd": "Drag to add space"
+    },
+    "link": {
+      "edit": "Edit {name}",
+      "editThis": "Edit this link",
+      "dialog": "Link",
+      "text": "Text",
+      "url": "Link",
+      "ok": "Ok"
+    },
+    "library": {
+      "action": "Add from your career profile",
+      "actionLabel": "Add from your career profile to {this}",
+      "moreHeading": "More from this role",
+      "moreHint": "Bullets from your profile that this resume left out.",
+      "othersHeading": "Other roles you’ve held",
+      "othersHint": "Added below this one. Untick any bullet you don’t need.",
+      "roleTitle": "Bring in more of your experience",
+      "sectionTitle": "Add {other} from your profile",
+      "roleSubtitle": "{role} — pick what fits this job. You can edit anything after adding it.",
+      "subtitle": "Pick what fits this job. You can edit anything after adding it.",
+      "roleEmpty": "Everything from your career profile for this role — and every other role — is already on this resume.",
+      "sectionEmpty": "Every {one} from your career profile is already on this resume.",
+      "allSet": "You’re all set",
+      "close": "Close",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "bulletsOf": "Bullets of {title}",
+      "nothingSelected": "Nothing selected yet",
+      "selected": { "one": "{count} selected", "other": "{count} selected" },
+      "done": "Done",
+      "cancel": "Cancel",
+      "add": "Add",
+      "addSelection": "Add {items}"
+    },
+    "language": {
+      "level": "Level",
+      "choose": "Level…"
+    },
+    "customSection": "Section",
+    "sections": {
+      "summary": "Summary",
+      "links": "Links",
+      "experience": "Experience",
+      "experience_bullets": "Experience",
+      "education": "Education",
+      "skills": "Skills",
+      "skill_items": "Skills",
+      "certifications": "Certifications",
+      "achievements": "Achievements",
+      "courses": "Courses",
+      "passions": "Passions",
+      "languages": "Languages",
+      "custom_sections": "Sections",
+      "custom_entries": "Section",
+      "custom_bullets": "Section"
+    },
+    "nouns": {
+      "summary": {
+        "one": "summary",
+        "other": "summaries",
+        "title": "Summary",
+        "a": "a summary",
+        "this": "this summary",
+        "count": { "one": "{count} summary", "other": "{count} summaries" }
+      },
+      "link": {
+        "one": "link",
+        "other": "links",
+        "title": "Link",
+        "a": "a link",
+        "this": "this link",
+        "count": { "one": "{count} link", "other": "{count} links" }
+      },
+      "role": {
+        "one": "role",
+        "other": "roles",
+        "title": "Role",
+        "a": "a role",
+        "this": "this role",
+        "count": { "one": "{count} role", "other": "{count} roles" }
+      },
+      "bullet": {
+        "one": "bullet",
+        "other": "bullets",
+        "title": "Bullet",
+        "a": "a bullet",
+        "this": "this bullet",
+        "count": { "one": "{count} bullet", "other": "{count} bullets" }
+      },
+      "qualification": {
+        "one": "qualification",
+        "other": "qualifications",
+        "title": "Qualification",
+        "a": "a qualification",
+        "this": "this qualification",
+        "count": {
+          "one": "{count} qualification",
+          "other": "{count} qualifications"
+        }
+      },
+      "skills group": {
+        "one": "skills group",
+        "other": "skills groups",
+        "title": "Skills group",
+        "a": "a skills group",
+        "this": "this skills group",
+        "count": {
+          "one": "{count} skills group",
+          "other": "{count} skills groups"
+        }
+      },
+      "skill": {
+        "one": "skill",
+        "other": "skills",
+        "title": "Skill",
+        "a": "a skill",
+        "this": "this skill",
+        "count": { "one": "{count} skill", "other": "{count} skills" }
+      },
+      "certification": {
+        "one": "certification",
+        "other": "certifications",
+        "title": "Certification",
+        "a": "a certification",
+        "this": "this certification",
+        "count": {
+          "one": "{count} certification",
+          "other": "{count} certifications"
+        }
+      },
+      "achievement": {
+        "one": "achievement",
+        "other": "achievements",
+        "title": "Achievement",
+        "a": "an achievement",
+        "this": "this achievement",
+        "count": {
+          "one": "{count} achievement",
+          "other": "{count} achievements"
+        }
+      },
+      "course": {
+        "one": "course",
+        "other": "courses",
+        "title": "Course",
+        "a": "a course",
+        "this": "this course",
+        "count": { "one": "{count} course", "other": "{count} courses" }
+      },
+      "interest": {
+        "one": "interest",
+        "other": "interests",
+        "title": "Interest",
+        "a": "an interest",
+        "this": "this interest",
+        "count": { "one": "{count} interest", "other": "{count} interests" }
+      },
+      "language": {
+        "one": "language",
+        "other": "languages",
+        "title": "Language",
+        "a": "a language",
+        "this": "this language",
+        "count": { "one": "{count} language", "other": "{count} languages" }
+      },
+      "section": {
+        "one": "section",
+        "other": "sections",
+        "title": "Section",
+        "a": "a section",
+        "this": "this section",
+        "count": { "one": "{count} section", "other": "{count} sections" }
+      },
+      "entry": {
+        "one": "entry",
+        "other": "entries",
+        "title": "Entry",
+        "a": "an entry",
+        "this": "this entry",
+        "count": { "one": "{count} entry", "other": "{count} entries" }
+      }
+    },
+    "placeholders": {
+      "location": "City, Country",
+      "email": "you@example.com",
+      "phone": "Phone number",
+      "company": "Employer",
+      "title": "Your role",
+      "start": "YYYY-MM",
+      "end": "YYYY-MM or Present",
+      "school": "Institution",
+      "degree": "Degree",
+      "field": "Field of study",
+      "category": "Skill group, e.g. Languages",
+      "heading": "Section heading",
+      "detail": "Organisation or date range",
+      "bullet": "What you did, and what changed because of it.",
+      "item": "Keyword",
+      "certification": "Certification name",
+      "label": "Link text",
+      "url": "https://",
+      "summary": "Two or three lines: what you do, how long, and what you are best at.",
+      "headline": "The role you are applying for.",
+      "items": "Skills, separated by commas",
+      "certifications": "Certifications, separated by commas",
+      "achievement_title": "What you achieved",
+      "achievement_description": "One or two lines: what you did, and what it changed.",
+      "course_title": "Course or qualification",
+      "course_description": "One or two lines: what it covered, and who ran it.",
+      "passion_title": "An interest",
+      "passion_description": "One or two lines on what draws you to it.",
+      "language": "e.g. Spanish"
+    },
+    "dateIssues": {
+      "ends-before-start": "This ends before it starts — check the dates.",
+      "out-of-order": "Recruiters expect the most recent first — this one starts later than the entry above it."
+    }
+  },
+  "document": {
+    "resume": "Resume document",
+    "letter": "Cover letter",
+    "sections": {
+      "summary": "Summary",
+      "professionalSummary": "Professional Summary",
+      "experience": "Experience",
+      "education": "Education",
+      "skills": "Skills",
+      "technicalSkills": "Technical Skills",
+      "achievements": "Achievements",
+      "keyAchievements": "Key Achievements",
+      "courses": "Courses",
+      "certifications": "Certifications",
+      "passions": "Passions",
+      "interests": "Interests",
+      "languages": "Languages"
+    },
+    "levels": {
+      "native": "Native",
+      "fluent": "Fluent",
+      "advanced": "Advanced",
+      "intermediate": "Intermediate",
+      "beginner": "Beginner"
+    }
+  }
+}

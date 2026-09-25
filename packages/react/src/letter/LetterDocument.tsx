@@ -1,4 +1,5 @@
 import type { CoverLetter } from '@cvgs/core';
+import { useDocumentText } from '../i18n/index.js';
 import './letter.css';
 
 export interface LetterDocumentProps {
@@ -13,8 +14,9 @@ export interface LetterDocumentProps {
  * exported file both draw.
  */
 export function LetterDocument({ letter, date }: LetterDocumentProps) {
+  const doc = useDocumentText();
   return (
-    <article className="tpl-letter" aria-label="Cover letter">
+    <article className="tpl-letter" aria-label={doc.t.letter} lang={doc.locale}>
       <p className="tpl-letter__sender">{letter.signature}</p>
       <p className="tpl-letter__date">{date}</p>
       {letter.recipient && (

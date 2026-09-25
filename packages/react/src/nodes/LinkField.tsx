@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { PLACEHOLDERS, type Link } from '@cvgs/core';
+import type { Link } from '@cvgs/core';
+import { useEditorText } from '../i18n/index.js';
 import { useAutosave } from '../autosave-context.js';
 import { useFieldRegistry, useFieldValue } from '../fields/field-registry.js';
 import { EditableText } from './EditableText.js';
@@ -116,9 +117,11 @@ interface LinkDraft {
 export function LinkField({
   item,
   path,
-  placeholder = PLACEHOLDERS['label'],
+  placeholder: givenPlaceholder,
   justAdded = false,
 }: LinkFieldProps) {
+  const { t, format } = useEditorText();
+  const placeholder = givenPlaceholder ?? t.placeholders.label;
   const labelPath = `${path}.label`;
   const urlPath = `${path}.url`;
 
@@ -344,8 +347,10 @@ export function LinkField({
             contentEditable={false}
             aria-haspopup="dialog"
             aria-expanded={open}
-            aria-label={`Edit ${shown || 'this link'}`}
-            title="Edit this link"
+            aria-label={
+              shown ? format(t.link.edit, { name: shown }) : t.link.editThis
+            }
+            title={t.link.editThis}
             onClick={(e) => {
               e.stopPropagation();
               if (open) discard();
@@ -379,7 +384,7 @@ export function LinkField({
                   ref={pop}
                   data-chrome
                   role="dialog"
-                  aria-label="Link"
+                  aria-label={t.link.dialog}
                   style={{ top: at.top, left: at.left }}
                   onMouseDown={stop}
                   onClick={stop}
@@ -389,7 +394,7 @@ export function LinkField({
                   }}
                 >
                   <label className="tpl-link__row">
-                    <span className="tpl-link__label">Text</span>
+                    <span className="tpl-link__label">{t.link.text}</span>
                     <input
                       ref={firstInput}
                       className="tpl-link__input"
@@ -402,12 +407,12 @@ export function LinkField({
                     />
                   </label>
                   <label className="tpl-link__row">
-                    <span className="tpl-link__label">Link</span>
+                    <span className="tpl-link__label">{t.link.url}</span>
                     <input
                       className="tpl-link__input"
                       type="url"
                       value={draft.url}
-                      placeholder={PLACEHOLDERS['url']}
+                      placeholder={t.placeholders.url}
                       onChange={(e) =>
                         setDraft({ ...draft, url: e.target.value })
                       }
@@ -419,7 +424,7 @@ export function LinkField({
                       className="tpl-link__ok"
                       disabled={!settable}
                     >
-                      Ok
+                      {t.link.ok}
                     </button>
                   </div>
                 </form>,

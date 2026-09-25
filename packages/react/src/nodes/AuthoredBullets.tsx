@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { GripIcon, PlusIcon, TrashIcon } from '../collections/icons.js';
 import type { CollectionHandle } from '../collections/useCollection.js';
 import { SortableItems, useDragHandle } from '../collections/SortableItems.js';
+import { useEditorText } from '../i18n/index.js';
 
 /**
  * A bullet list the candidate can act on.
@@ -71,6 +72,8 @@ function Bullet({
     !sortable,
   );
   const refusal = bullets.removeReason(index);
+  const { t, format } = useEditorText();
+  const position = { position: index + 1 };
 
   return (
     <li
@@ -98,8 +101,8 @@ function Bullet({
         type="button"
         className="tpl-bullet__grip"
         data-chrome
-        title="Drag to move this bullet, or press Space and use the arrow keys"
-        aria-label={`Move bullet ${index + 1}`}
+        title={t.bullets.drag}
+        aria-label={format(t.bullets.moveLabel, position)}
         {...(sortable ? handleProps : {})}
       >
         <GripIcon />
@@ -146,8 +149,8 @@ function Bullet({
         <button
           type="button"
           className="tpl-tool"
-          title="Add a bullet below"
-          aria-label={`Add a bullet after ${index + 1}`}
+          title={t.bullets.addBelow}
+          aria-label={format(t.bullets.addAfterLabel, position)}
           onClick={() => bullets.add(index)}
         >
           <PlusIcon />
@@ -162,8 +165,8 @@ function Bullet({
            * cannot see is a rule they run into. The words are the collection's,
            * not this component's.
            */
-          title={refusal ?? 'Remove this bullet'}
-          aria-label={`Remove bullet ${index + 1}`}
+          title={refusal ?? t.bullets.remove}
+          aria-label={format(t.bullets.removeLabel, position)}
           onClick={() => bullets.remove(index)}
         >
           <TrashIcon />

@@ -1,4 +1,5 @@
-import { PLACEHOLDERS, type SkillGroup } from '@cvgs/core';
+import type { SkillGroup } from '@cvgs/core';
+import { useEditorText } from '../i18n/index.js';
 import { EditableInlineList } from '../nodes/EditableInlineList.js';
 
 /**
@@ -26,13 +27,14 @@ export function InlineSkillGroup({
   separator?: string;
   first: boolean;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <>
       {!first && separator}
       <EditableInlineList
         path={`${path}.items`}
         items={item.items}
-        placeholder={PLACEHOLDERS['items']}
+        placeholder={placeholder('items')}
       />
     </>
   );

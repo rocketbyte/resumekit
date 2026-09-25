@@ -15,6 +15,7 @@ import { FieldRegistryProvider } from '../../fields/field-registry.js';
 import { TEMPLATE_RENDERERS } from '../../registry.js';
 import { DocumentPresentationProvider } from '../../presentation-context.js';
 import { DocumentAuthoringProvider } from '../authoring-context.js';
+import { TemplateLocaleProvider } from '../../i18n/index.js';
 
 beforeAll(async () => {
   await import('../AuthoredItems.js');
@@ -65,18 +66,21 @@ const profile: ResumeObject = {
 async function openPicker(
   library: ResumeObject | null,
   onEditsChange: (next: ResumeEdits) => void = () => undefined,
+  languages: { editor?: string; document?: string } = {},
 ) {
   const { Document } = TEMPLATE_RENDERERS.harvard;
   const result = render(
-    <DocumentAuthoringProvider
-      value={{ base, edits: [], onEditsChange, library }}
-    >
-      <DocumentPresentationProvider>
-        <FieldRegistryProvider enabled>
-          <Document resume={applyPresentation(base, [])} />
-        </FieldRegistryProvider>
-      </DocumentPresentationProvider>
-    </DocumentAuthoringProvider>,
+    <TemplateLocaleProvider locale={languages.editor}>
+      <DocumentAuthoringProvider
+        value={{ base, edits: [], onEditsChange, library }}
+      >
+        <DocumentPresentationProvider language={languages.document}>
+          <FieldRegistryProvider enabled>
+            <Document resume={applyPresentation(base, [])} />
+          </FieldRegistryProvider>
+        </DocumentPresentationProvider>
+      </DocumentAuthoringProvider>
+    </TemplateLocaleProvider>,
   );
   await waitFor(() =>
     expect(result.container.querySelector('[data-entry]')).not.toBeNull(),
@@ -86,7 +90,7 @@ async function openPicker(
   );
   const bar = await screen.findByRole('toolbar');
   const button = within(bar).queryByRole('button', {
-    name: /from your career profile/i,
+    name: /from your career profile|desde tu perfil profesional/i,
   });
   if (button) fireEvent.click(button);
   return { result, bar };
@@ -160,5 +164,36 @@ describe('adding to a role from the career profile', () => {
     expect(
       within(bar).queryByRole('button', { name: /from your career profile/i }),
     ).toBeNull();
+  });
+});
+
+describe('in another language', () => {
+  it('speaks the editor’s language around a document printed in its own', async () => {
+    const { result } = await openPicker(profile, undefined, {
+      editor: 'es',
+      document: 'en',
+    });
+    const dialog = screen.getByRole('dialog', {
+      name: 'Suma más de tu experiencia',
+    });
+    const more = within(dialog).getByRole('region', {
+      name: 'Más de este puesto',
+    });
+    fireEvent.click(
+      within(more).getByRole('button', { name: 'Seleccionar todo' }),
+    );
+    fireEvent.click(within(dialog).getByLabelText(/Tech Lead/));
+    expect(
+      within(dialog).getByRole('button', {
+        name: 'Añadir 3 puntos y 1 puesto',
+      }),
+    ).toBeTruthy();
+    expect(within(result.container).getByText('Experience')).toBeTruthy();
+  });
+
+  it('prints its default headings in the document’s language', async () => {
+    const { result } = await openPicker(null, undefined, { document: 'es' });
+    expect(within(result.container).getByText('Experiencia')).toBeTruthy();
+    expect(within(result.container).queryByText('Experience')).toBeNull();
   });
 });

@@ -1,5 +1,4 @@
 import { Suspense, lazy, useMemo } from 'react';
-import { PLACEHOLDERS } from '@cvgs/core';
 import { useField } from '../fields/field-registry.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
@@ -11,6 +10,7 @@ import {
 import { useAuthoring } from '../collections/authoring-context.js';
 import { useAutosave } from '../autosave-context.js';
 import type { AuthoredBulletsProps } from './AuthoredBullets.js';
+import { useEditorText } from '../i18n/index.js';
 
 export interface EditableBulletListProps {
   /**
@@ -58,8 +58,10 @@ const AuthoredBullets = lazy(() => import('./AuthoredBullets.js')) as (
 export function EditableBulletList({
   path,
   items,
-  placeholder = PLACEHOLDERS['bullet'],
+  placeholder: givenPlaceholder,
 }: EditableBulletListProps) {
+  const { t } = useEditorText();
+  const placeholder = givenPlaceholder ?? t.placeholders.bullet;
   const format = useFieldFormat(path);
   const authoring = useAuthoring();
   /*

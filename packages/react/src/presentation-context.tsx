@@ -24,6 +24,8 @@ import {
 export interface DocumentPresentation {
   style?: DocumentStyle;
   formats?: ResumeFormats;
+  /** The document's language, which its printed words follow. Absent is English. */
+  language?: string;
 }
 
 const PresentationContext = createContext<DocumentPresentation>({});
@@ -31,11 +33,15 @@ const PresentationContext = createContext<DocumentPresentation>({});
 export function DocumentPresentationProvider({
   style,
   formats,
+  language,
   children,
 }: DocumentPresentation & { children: ReactNode }) {
   // Keyed on the values themselves, so a parent re-render that changed neither
   // does not cascade a new context object through the whole document.
-  const value = useMemo(() => ({ style, formats }), [style, formats]);
+  const value = useMemo(
+    () => ({ style, formats, language }),
+    [style, formats, language],
+  );
   return (
     <PresentationContext.Provider value={value}>
       {children}
@@ -55,6 +61,10 @@ export function useDocumentStyle(): DocumentStyle | undefined {
  * for `useSpace`, which reaches the same record for a different question and
  * would otherwise need a second copy of the formats threaded to it.
  */
+export function useDocumentLanguage(): string | undefined {
+  return useContext(PresentationContext).language;
+}
+
 export function useDocumentFormats(): ResumeFormats | undefined {
   return useContext(PresentationContext).formats;
 }

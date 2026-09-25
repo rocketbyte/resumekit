@@ -15,6 +15,7 @@ import {
   useFieldValue,
 } from '../../fields/field-registry.js';
 import { useAutosave } from '../../autosave-context.js';
+import { useEditorText } from '../../i18n/index.js';
 import {
   LibraryPicker,
   type PickerGroup,
@@ -26,10 +27,6 @@ const LibraryIcon = () => (
     <path d="M8 2.5v6.5M5.5 6.5 8 9l2.5-2.5M3 9.5v3h10v-3" />
   </svg>
 );
-
-const plural = (noun: string, n = 2) =>
-  n === 1 || noun.endsWith('s') ? noun : `${noun}s`;
-const counted = (n: number, noun: string) => `${n} ${plural(noun, n)}`;
 
 const MORE = 'more-of-this-role';
 const OTHERS = 'other-entries';
@@ -66,6 +63,8 @@ export function LibraryAction<T>({
   const registry = useFieldRegistry();
   const { saveNow } = useAutosave();
   const [open, setOpen] = useState(false);
+  const text = useEditorText();
+  const { t, format } = text;
 
   const section = (APPENDABLE_SECTIONS as readonly string[]).includes(
     collection.id,
@@ -73,6 +72,7 @@ export function LibraryAction<T>({
     ? (collection.id as LibrarySection)
     : null;
   const sectionNoun = COLLECTIONS[collection.id].noun ?? noun;
+  const nounForms = text.noun(sectionNoun);
   const isRole = section === 'experience';
 
   /* The role's bullets as they stand now, typed edits included. */
@@ -103,18 +103,16 @@ export function LibraryAction<T>({
       ? [
           {
             id: MORE,
-            heading: 'More from this role',
-            hint: 'Bullets from your profile that this resume left out.',
+            heading: t.library.moreHeading,
+            hint: t.library.moreHint,
             options: offer.bullets.map((title) => ({ title })),
           },
         ]
       : []),
     {
       id: OTHERS,
-      heading: isRole ? 'Other roles you’ve held' : undefined,
-      hint: isRole
-        ? 'Added below this one. Untick any bullet you don’t need.'
-        : undefined,
+      heading: isRole ? t.library.othersHeading : undefined,
+      hint: isRole ? t.library.othersHint : undefined,
       options: offer.entries.map((entry) => ({
         ...describeLibraryEntry(section, entry),
         ...(isRole ? { parts: (entry as Experience).bullets } : {}),
@@ -125,12 +123,11 @@ export function LibraryAction<T>({
   const addLabel = (selection: PickerSelection) => {
     const bullets = selection[MORE]?.length ?? 0;
     const entries = selection[OTHERS]?.length ?? 0;
-    return `Add ${[
-      bullets > 0 && counted(bullets, 'bullet'),
-      entries > 0 && counted(entries, sectionNoun),
-    ]
-      .filter(Boolean)
-      .join(' and ')}`;
+    const counted = [
+      bullets > 0 && text.plural(text.noun('bullet').count, bullets),
+      entries > 0 && text.plural(nounForms.count, entries),
+    ].filter((part): part is string => Boolean(part));
+    return format(t.library.addSelection, { items: text.list(counted) });
   };
 
   const add = (selection: PickerSelection) => {
@@ -163,8 +160,8 @@ export function LibraryAction<T>({
       <button
         type="button"
         className={className}
-        title="Add from your career profile"
-        aria-label={`Add from your career profile to this ${noun}`}
+        title={t.library.action}
+        aria-label={format(t.library.actionLabel, text.noun(noun))}
         aria-haspopup="dialog"
         onClick={(e) => {
           e.stopPropagation();
@@ -177,19 +174,21 @@ export function LibraryAction<T>({
         <LibraryPicker
           title={
             isRole
-              ? 'Bring in more of your experience'
-              : `Add ${plural(sectionNoun)} from your profile`
+              ? t.library.roleTitle
+              : format(t.library.sectionTitle, nounForms)
           }
           subtitle={
             isRole && item
-              ? `${[item.title, item.company].filter(Boolean).join(' · ')} — pick what fits this job. You can edit anything after adding it.`
-              : 'Pick what fits this job. You can edit anything after adding it.'
+              ? format(t.library.roleSubtitle, {
+                  role: [item.title, item.company].filter(Boolean).join(' · '),
+                })
+              : t.library.subtitle
           }
           groups={groups}
           empty={
             isRole
-              ? 'Everything from your career profile for this role — and every other role — is already on this resume.'
-              : `Every ${sectionNoun} from your career profile is already on this resume.`
+              ? t.library.roleEmpty
+              : format(t.library.sectionEmpty, nounForms)
           }
           addLabel={addLabel}
           onAdd={add}

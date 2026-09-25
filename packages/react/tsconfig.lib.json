@@ -12,6 +12,7 @@
     "jsx": "react-jsx",
     "module": "esnext",
     "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "lib": ["dom", "es2022"]
   },
@@ -43,7 +44,13 @@
     "eslint.config.cjs",
     "eslint.config.mjs"
   ],
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"],
+  "include": [
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.json"
+  ],
   "references": [
     {
       "path": "../core/tsconfig.lib.json"

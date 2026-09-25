@@ -1,10 +1,11 @@
-import { DATE_ISSUE_MESSAGE, isSafeLinkTarget } from '@cvgs/core';
+import { isSafeLinkTarget } from '@cvgs/core';
 import { useField } from '../fields/field-registry.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
 import { PlainTextField } from './PlainTextField.js';
 import { useAutosave } from '../autosave-context.js';
 import { useDateIssue } from '../fields/date-issues-context.js';
+import { useEditorText } from '../i18n/index.js';
 
 export interface EditableTextProps {
   /** Where this text lives in the `ResumeObject` — e.g. `experience.0.title`. */
@@ -120,6 +121,8 @@ export function EditableText({
    * must never print.
    */
   const dateIssue = useDateIssue(path);
+  const { t } = useEditorText();
+  const dateWarning = dateIssue ? t.dateIssues[dateIssue] : undefined;
 
   const change = (next: string) => {
     // A line stays a line. Pasting three lines of a signature block into a job
@@ -183,8 +186,8 @@ export function EditableText({
          * avoid, made a second time.
          */
         data-issue={dateIssue}
-        title={dateIssue ? DATE_ISSUE_MESSAGE[dateIssue] : undefined}
-        aria-description={dateIssue ? DATE_ISSUE_MESSAGE[dateIssue] : undefined}
+        title={dateWarning}
+        aria-description={dateWarning}
       >
         {/*
          * An ANCHOR when the field points somewhere.

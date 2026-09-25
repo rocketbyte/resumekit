@@ -1,18 +1,10 @@
-import { LANGUAGE_LEVELS, PLACEHOLDERS, type Language } from '@cvgs/core';
+import { LANGUAGE_LEVELS, type Language } from '@cvgs/core';
 import { DocumentSection } from './DocumentSection.js';
 import { Collection } from '../collections/Collection.js';
 import { useAuthoring } from '../collections/authoring-context.js';
 import { EditableText } from '../nodes/EditableText.js';
 import { useField } from '../fields/field-registry.js';
-
-/** How a stored level is written on the page. */
-const LEVEL_WORDS: Record<string, string> = {
-  native: 'Native',
-  fluent: 'Fluent',
-  advanced: 'Advanced',
-  intermediate: 'Intermediate',
-  beginner: 'Beginner',
-};
+import { useDocumentText, useEditorText } from '../i18n/index.js';
 
 /** How many of the five steps a level fills. `native` fills all five. */
 function filled(level: string): number {
@@ -39,7 +31,10 @@ function filled(level: string): number {
  */
 function LevelChoice({ path, value }: { path: string; value: string }) {
   const { value: live, editing, set } = useField(path, value);
-  const word = LEVEL_WORDS[live] ?? '';
+  const { t } = useEditorText();
+  /* How a stored level is written on the page: the document's words. */
+  const levels: Readonly<Record<string, string>> = useDocumentText().t.levels;
+  const word = levels[live] ?? '';
 
   return (
     <>
@@ -47,13 +42,13 @@ function LevelChoice({ path, value }: { path: string; value: string }) {
         <select
           className="tpl-language__choice"
           value={live}
-          aria-label="Level"
+          aria-label={t.language.level}
           onChange={(e) => set(e.target.value)}
         >
-          <option value="">Level…</option>
+          <option value="">{t.language.choose}</option>
           {LANGUAGE_LEVELS.map((level) => (
             <option key={level} value={level}>
-              {LEVEL_WORDS[level]}
+              {levels[level]}
             </option>
           ))}
         </select>
@@ -107,17 +102,19 @@ export function LanguageList({
   className,
   headingClassName,
   rowClassName,
-  title = 'Languages',
+  title,
   heading,
 }: LanguageListProps) {
   const authoring = useAuthoring() !== null;
+  const { placeholder } = useEditorText();
+  const doc = useDocumentText();
   const entries = items ?? [];
   if (entries.length === 0 && !authoring) return null;
 
   return (
     <DocumentSection
       id="languages"
-      title={title}
+      title={title ?? doc.t.sections.languages}
       heading={heading}
       className={`tpl-languages ${className}`}
       headingClassName={headingClassName}
@@ -134,7 +131,7 @@ export function LanguageList({
               <EditableText
                 path={`${path}.name`}
                 value={item.name}
-                placeholder={PLACEHOLDERS['language']}
+                placeholder={placeholder('language')}
               />
             </span>
             <LevelChoice path={`${path}.level`} value={item.level} />

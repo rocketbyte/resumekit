@@ -23,6 +23,7 @@ import {
   planPagination,
   type MeasuredBlock,
 } from './pagination.js';
+import { useEditorText } from './i18n/index.js';
 import './paged.css';
 
 /** How many times a single pagination will re-measure before giving up. */
@@ -642,44 +643,12 @@ export function PagedSheet({
          * of 1 and never reach this branch.
          */}
         {maxZoom > 1 && (
-          <div
-            className="tpl-zoom"
-            data-chrome
-            role="group"
-            aria-label="View zoom"
-          >
-            <button
-              type="button"
-              className="tpl-zoom__btn"
-              aria-label="Zoom out"
-              title="Zoom out"
-              disabled={zoom <= ZOOM_MIN}
-              onClick={() => setChosen(step(zoom, -ZOOM_STEP))}
-            >
-              −
-            </button>
-            <button
-              type="button"
-              className="tpl-zoom__value"
-              /* The percentage is also the way back: one press returns the page
-               to the size the canvas has room for, which is where it started. */
-              aria-label={`Zoom ${Math.round(zoom * 100)} percent — reset to fit`}
-              title="Reset to fit"
-              onClick={() => setChosen(null)}
-            >
-              {Math.round(zoom * 100)}%
-            </button>
-            <button
-              type="button"
-              className="tpl-zoom__btn"
-              aria-label="Zoom in"
-              title="Zoom in"
-              disabled={zoom >= ZOOM_MAX}
-              onClick={() => setChosen(step(zoom, ZOOM_STEP))}
-            >
-              +
-            </button>
-          </div>
+          <ZoomControl
+            zoom={zoom}
+            onZoomOut={() => setChosen(step(zoom, -ZOOM_STEP))}
+            onReset={() => setChosen(null)}
+            onZoomIn={() => setChosen(step(zoom, ZOOM_STEP))}
+          />
         )}
 
         <div
@@ -750,6 +719,61 @@ export function PagedSheet({
 }
 
 /** Split out so the sheet's own re-render is not a new context object. */
+function ZoomControl({
+  zoom,
+  onZoomOut,
+  onReset,
+  onZoomIn,
+}: {
+  zoom: number;
+  onZoomOut: () => void;
+  onReset: () => void;
+  onZoomIn: () => void;
+}) {
+  const { t, format } = useEditorText();
+  const percent = Math.round(zoom * 100);
+  return (
+    <div
+      className="tpl-zoom"
+      data-chrome
+      role="group"
+      aria-label={t.zoom.group}
+    >
+      <button
+        type="button"
+        className="tpl-zoom__btn"
+        aria-label={t.zoom.out}
+        title={t.zoom.out}
+        disabled={zoom <= ZOOM_MIN}
+        onClick={onZoomOut}
+      >
+        −
+      </button>
+      <button
+        type="button"
+        className="tpl-zoom__value"
+        /* The percentage is also the way back: one press returns the page
+         to the size the canvas has room for, which is where it started. */
+        aria-label={format(t.zoom.level, { percent })}
+        title={t.zoom.reset}
+        onClick={onReset}
+      >
+        {percent}%
+      </button>
+      <button
+        type="button"
+        className="tpl-zoom__btn"
+        aria-label={t.zoom.in}
+        title={t.zoom.in}
+        disabled={zoom >= ZOOM_MAX}
+        onClick={onZoomIn}
+      >
+        +
+      </button>
+    </div>
+  );
+}
+
 function ZoomProvider({
   zoom,
   children,

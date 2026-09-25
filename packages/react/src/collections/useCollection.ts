@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { COLLECTIONS, type CollectionId } from '@cvgs/core';
 import { useAutosave } from '../autosave-context.js';
+import { useEditorText } from '../i18n/index.js';
 
 /**
  * Everything a collection can do, and every reason it cannot.
@@ -71,6 +72,7 @@ export function useCollection<T>(
   store: CollectionStore<T>,
 ): CollectionHandle<T> {
   const def = COLLECTIONS[id];
+  const text = useEditorText();
   const { items } = store;
   const { saveNow } = useAutosave();
 
@@ -82,7 +84,8 @@ export function useCollection<T>(
       canMove: def.reorderable && items.length > 1,
 
       removeReason: (index) => {
-        if (def.arity !== 'many') return 'There is only ever one of these.';
+        const { t, format } = text;
+        if (def.arity !== 'many') return t.refusal.single;
         if (items.length <= def.min) {
           /*
            * Explained rather than hidden — the rule #29 set for the last
@@ -90,8 +93,8 @@ export function useCollection<T>(
            * the candidate cannot see is a rule they run into.
            */
           return def.min === 1
-            ? `This needs at least one ${def.noun} — reword it instead of removing it.`
-            : `This needs at least ${def.min}.`;
+            ? format(t.refusal.minimumOne, text.noun(def.noun))
+            : format(t.refusal.minimum, { count: def.min });
         }
         return store.removeReason?.(index);
       },
@@ -125,6 +128,6 @@ export function useCollection<T>(
         saveNow();
       },
     }),
-    [id, def, items, store, saveNow],
+    [id, def, items, store, saveNow, text],
   );
 }

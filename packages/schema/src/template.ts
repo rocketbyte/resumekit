@@ -13,6 +13,7 @@ import {
   CustomEntrySchema,
   type ResumeObject,
 } from './resume.js';
+import { LocaleSchema } from './user.js';
 
 /**
  * Resume templates — the renderers that turn a {@link ResumeObject} into a
@@ -1384,6 +1385,8 @@ export const ResumePresentationSchema = z.object({
   formats: ResumeFormatsSchema.optional(),
   /** Absent means every section sits where the template puts it. */
   section_spacing: ResumeSectionSpacingSchema.optional(),
+  /** The language the document prints in. Absent means English. */
+  language: LocaleSchema.optional(),
   updated_at: z.string(),
 });
 export type ResumePresentation = z.infer<typeof ResumePresentationSchema>;
@@ -1395,6 +1398,7 @@ export const PutPresentationRequestSchema = z.object({
   style: DocumentStyleSchema.optional(),
   formats: ResumeFormatsSchema.optional(),
   section_spacing: ResumeSectionSpacingSchema.optional(),
+  language: LocaleSchema.optional(),
 });
 export type PutPresentationRequest = z.infer<
   typeof PutPresentationRequestSchema

@@ -1,4 +1,4 @@
-import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
@@ -10,7 +10,7 @@ import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { contactLines } from '../../kit/contact.js';
+import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import { monogram } from '../../kit/monogram.js';
 import {
@@ -19,6 +19,7 @@ import {
   CobaltExperienceEntry,
 } from './entries.js';
 import './cobalt.css';
+import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
 /**
  * The Cobalt template.
@@ -78,6 +79,8 @@ export interface CobaltDocumentProps {
 }
 
 export function CobaltDocument({ resume }: CobaltDocumentProps) {
+  const { placeholder } = useEditorText();
+  const doc = useDocumentText();
   const style = useDocumentStyle();
   /*
    * A section with nothing in it is omitted from the DOCUMENT and offered in
@@ -88,7 +91,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
   const authoring = useAuthoring() !== null;
 
   // The reference stacks email, phone, location, in that order.
-  const contact = contactLines(
+  const contact = useContactLines(
     resume.contact,
     ['email', 'phone', 'location'],
     authoring,
@@ -98,7 +101,8 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
     <article
       className="tpl-cob"
       style={documentStyle('c', style)}
-      aria-label="Resume document"
+      aria-label={doc.t.resume}
+      lang={doc.locale}
     >
       {/* ── Header: crest, name, contact ─────────────────────────────────── */}
       <header className="tpl-cob__head" data-block>
@@ -153,7 +157,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
             <DocumentSection
               id="summary"
               heading={resume.section_headings?.summary}
-              title="Professional Summary"
+              title={doc.t.sections.professionalSummary}
               className="tpl-cob__section"
               headingClassName="tpl-cob__heading"
             >
@@ -161,7 +165,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
                 <EditableText
                   path="summary"
                   value={resume.summary ?? ''}
-                  placeholder={PLACEHOLDERS['summary']}
+                  placeholder={placeholder('summary')}
                   multiline
                 />
               </p>
@@ -171,7 +175,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
           <DescribedEntries
             id="achievements"
             heading={resume.section_headings?.achievements}
-            title="Achievements"
+            title={doc.t.sections.achievements}
             items={resume.achievements}
             className="tpl-cob__section tpl-described--marked"
             headingClassName="tpl-cob__heading"
@@ -181,7 +185,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
             <DocumentSection
               id="skills"
               heading={resume.section_headings?.skills}
-              title="Technical Skills"
+              title={doc.t.sections.technicalSkills}
               className="tpl-cob__section"
               headingClassName="tpl-cob__heading"
             >
@@ -208,7 +212,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
             <DocumentSection
               id="education"
               heading={resume.section_headings?.education}
-              title="Education"
+              title={doc.t.sections.education}
               className="tpl-cob__section"
               headingClassName="tpl-cob__heading"
             >
@@ -228,7 +232,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
           <DescribedEntries
             id="courses"
             heading={resume.section_headings?.courses}
-            title="Courses"
+            title={doc.t.sections.courses}
             items={resume.courses}
             className="tpl-cob__section"
             headingClassName="tpl-cob__heading"
@@ -238,7 +242,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
             <DocumentSection
               id="certifications"
               heading={resume.section_headings?.certifications}
-              title="Certifications"
+              title={doc.t.sections.certifications}
               className="tpl-cob__section"
               headingClassName="tpl-cob__heading"
             >
@@ -253,7 +257,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
-            title="Passions"
+            title={doc.t.sections.passions}
             items={resume.passions}
             className="tpl-cob__section tpl-described--marked"
             headingClassName="tpl-cob__heading"
@@ -267,7 +271,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
             <DocumentSection
               id="experience"
               heading={resume.section_headings?.experience}
-              title="Experience"
+              title={doc.t.sections.experience}
               className="tpl-cob__section"
               headingClassName="tpl-cob__heading"
             >
@@ -302,7 +306,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
                 <EditableText
                   path="headline"
                   value={resume.headline ?? ''}
-                  placeholder={PLACEHOLDERS['headline']}
+                  placeholder={placeholder('headline')}
                 />
               </p>
             </section>

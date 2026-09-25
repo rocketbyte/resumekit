@@ -7,7 +7,7 @@ import {
 } from '../collections/icons.js';
 import type { CollectionHandle } from '../collections/useCollection.js';
 import type { ItemOrigin } from '../collections/EntryOverlay.js';
-import { withArticle } from '../collections/article.js';
+import { useEntryText } from '../collections/entry-text.js';
 import { LibraryAction } from '../collections/library/LibraryAction.js';
 
 /**
@@ -33,13 +33,14 @@ export function EntryActions<T>({
   const origin = collection.originOf?.(index) ?? 'added';
   const refusal = collection.removeReason(index);
   const last = collection.items.length - 1;
+  const text = useEntryText(noun, index, origin);
 
   return (
     <>
       {handleProps && (
         <span
           className="tpl-rail__btn tpl-rail__grip"
-          title={`Drag to move this ${noun}`}
+          title={text.drag}
           {...handleProps}
         >
           <GripIcon />
@@ -50,8 +51,8 @@ export function EntryActions<T>({
           <button
             type="button"
             className="tpl-rail__btn"
-            title={`Move this ${noun} up`}
-            aria-label={`Move ${noun} ${index + 1} up`}
+            title={text.moveUp}
+            aria-label={text.moveUpLabel}
             disabled={index === 0}
             onClick={() => collection.move(index, index - 1)}
           >
@@ -60,8 +61,8 @@ export function EntryActions<T>({
           <button
             type="button"
             className="tpl-rail__btn"
-            title={`Move this ${noun} down`}
-            aria-label={`Move ${noun} ${index + 1} down`}
+            title={text.moveDown}
+            aria-label={text.moveDownLabel}
             disabled={index === last}
             onClick={() => collection.move(index, index + 1)}
           >
@@ -73,8 +74,8 @@ export function EntryActions<T>({
         <button
           type="button"
           className="tpl-rail__btn"
-          title={`Add ${withArticle(noun)} below`}
-          aria-label={`Add ${withArticle(noun)} after ${index + 1}`}
+          title={text.addBelow}
+          aria-label={text.addAfterLabel}
           onClick={() => collection.add(index)}
         >
           <PlusIcon />
@@ -92,18 +93,8 @@ export function EntryActions<T>({
         className="tpl-rail__btn"
         data-tone="danger"
         disabled={refusal !== undefined}
-        /* Removing an addition deletes it; "removing" a written entry hides it. */
-        title={
-          refusal ??
-          (origin === 'added'
-            ? `Remove this ${noun}`
-            : `Hide this ${noun} — it stays in your tailored resume and can be brought back`)
-        }
-        aria-label={
-          origin === 'added'
-            ? `Remove ${noun} ${index + 1}`
-            : `Hide ${noun} ${index + 1}`
-        }
+        title={refusal ?? text.remove}
+        aria-label={text.removeLabel}
         onClick={() => collection.remove(index)}
       >
         <TrashIcon />

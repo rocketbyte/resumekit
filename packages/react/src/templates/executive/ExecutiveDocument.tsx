@@ -1,4 +1,4 @@
-import { PLACEHOLDERS, type ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
@@ -10,7 +10,7 @@ import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { contactLines } from '../../kit/contact.js';
+import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import { monogram } from '../../kit/monogram.js';
 import {
@@ -19,6 +19,7 @@ import {
   ExecExperienceEntry,
 } from './entries.js';
 import './executive.css';
+import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
 /**
  * The Executive template.
@@ -40,6 +41,8 @@ export interface ExecutiveDocumentProps {
 }
 
 export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
+  const { placeholder } = useEditorText();
+  const doc = useDocumentText();
   const style = useDocumentStyle();
   /*
    * A section with nothing in it is omitted from the DOCUMENT and offered in
@@ -49,14 +52,19 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
    */
   const authoring = useAuthoring() !== null;
 
-  const [location] = contactLines(resume.contact, ['location'], authoring);
-  const contact = contactLines(resume.contact, ['email', 'phone'], authoring);
+  const [location] = useContactLines(resume.contact, ['location'], authoring);
+  const contact = useContactLines(
+    resume.contact,
+    ['email', 'phone'],
+    authoring,
+  );
 
   return (
     <article
       className="tpl-exec"
       style={documentStyle('e', style)}
-      aria-label="Resume document"
+      aria-label={doc.t.resume}
+      lang={doc.locale}
     >
       {/* ── Header band ──────────────────────────────────────────────────── */}
       <header className="tpl-exec__band" data-block>
@@ -100,7 +108,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           <DocumentSection
             id="summary"
             heading={resume.section_headings?.summary}
-            title="Professional Summary"
+            title={doc.t.sections.professionalSummary}
             className="tpl-exec__section"
             headingClassName="tpl-exec__heading"
           >
@@ -108,7 +116,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
               <EditableText
                 path="summary"
                 value={resume.summary ?? ''}
-                placeholder={PLACEHOLDERS['summary']}
+                placeholder={placeholder('summary')}
                 multiline
               />
             </p>
@@ -118,7 +126,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
         <DescribedEntries
           id="achievements"
           heading={resume.section_headings?.achievements}
-          title="Achievements"
+          title={doc.t.sections.achievements}
           items={resume.achievements}
           className="tpl-exec__section tpl-described--marked"
           headingClassName="tpl-exec__heading"
@@ -128,7 +136,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           <DocumentSection
             id="skills"
             heading={resume.section_headings?.skills}
-            title="Technical Skills"
+            title={doc.t.sections.technicalSkills}
             className="tpl-exec__section"
             headingClassName="tpl-exec__heading"
           >
@@ -158,7 +166,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           <DocumentSection
             id="experience"
             heading={resume.section_headings?.experience}
-            title="Experience"
+            title={doc.t.sections.experience}
             className="tpl-exec__section"
             headingClassName="tpl-exec__heading"
           >
@@ -179,7 +187,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           <DocumentSection
             id="education"
             heading={resume.section_headings?.education}
-            title="Education"
+            title={doc.t.sections.education}
             className="tpl-exec__section"
             headingClassName="tpl-exec__heading"
           >
@@ -199,7 +207,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
         <DescribedEntries
           id="courses"
           heading={resume.section_headings?.courses}
-          title="Courses"
+          title={doc.t.sections.courses}
           items={resume.courses}
           className="tpl-exec__section"
           headingClassName="tpl-exec__heading"
@@ -217,7 +225,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           <DocumentSection
             id="certifications"
             heading={resume.section_headings?.certifications}
-            title="Certifications"
+            title={doc.t.sections.certifications}
             className="tpl-exec__section"
             headingClassName="tpl-exec__heading"
           >
@@ -232,7 +240,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
         <DescribedEntries
           id="passions"
           heading={resume.section_headings?.passions}
-          title="Passions"
+          title={doc.t.sections.passions}
           items={resume.passions}
           className="tpl-exec__section tpl-described--marked"
           headingClassName="tpl-exec__heading"
@@ -249,7 +257,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
               <EditableText
                 path="headline"
                 value={resume.headline ?? ''}
-                placeholder={PLACEHOLDERS['headline']}
+                placeholder={placeholder('headline')}
               />
             </p>
           </section>
