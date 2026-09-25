@@ -4,6 +4,7 @@ import type { ItemRootProps } from '../../collections/CollectionItems.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { useEditorText } from '../../i18n/index.js';
+import { Separator } from '../../kit/Separator.js';
 
 /**
  * Double Column's entries: the role, then the employer in the accent with the
@@ -108,7 +109,7 @@ export function DoubleColumnEducationEntry({
           value={item.degree ?? ''}
           placeholder={placeholder('degree')}
         />
-        {item.degree && item.field ? ' in ' : ''}
+        <Separator between={[item.degree, item.field]} word="degreeField" />
         <EditableText
           path={`${path}.field`}
           value={item.field ?? ''}
@@ -130,7 +131,7 @@ export function DoubleColumnEducationEntry({
               value={item.start ?? ''}
               placeholder={placeholder('start')}
             />
-            {item.start && item.end ? ' - ' : ''}
+            <Separator between={[item.start, item.end]} text=" - " />
             <EditableText
               path={`${path}.end`}
               value={item.end ?? ''}

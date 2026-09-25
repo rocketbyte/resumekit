@@ -6,11 +6,11 @@ import {
   type Experience,
   type SkillGroup,
 } from '@cvgs/core';
-import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { EditableInlineList } from '../../nodes/EditableInlineList.js';
 import { useEditorText } from '../../i18n/index.js';
+import { Separator } from '../../kit/Separator.js';
 
 /**
  * Harvard's entry components: the markup for one item of each shape.
@@ -126,7 +126,6 @@ export function HarvardEducationEntry({
   itemProps: ItemRootProps;
 }) {
   const { placeholder } = useEditorText();
-  const authoring = useAuthoring() !== null;
 
   return (
     <article {...itemProps} className="tpl-harvard__entry" data-block>
@@ -161,7 +160,7 @@ export function HarvardEducationEntry({
             value={item.degree ?? ''}
             placeholder={placeholder('degree')}
           />
-          {item.degree && item.field ? ', ' : ''}
+          <Separator between={[item.degree, item.field]} text=", " />
           <EditableText
             path={`${path}.field`}
             value={item.field ?? ''}
@@ -188,7 +187,7 @@ export function HarvardEducationEntry({
            * degree's line. In the editor it stays, because the two guided
            * fields either side of it run together without it.
            */}
-          {authoring || (item.start && item.end) ? ' – ' : ''}
+          <Separator between={[item.start, item.end]} text=" – " />
           <EditableText
             path={`${path}.end`}
             value={item.end ?? ''}

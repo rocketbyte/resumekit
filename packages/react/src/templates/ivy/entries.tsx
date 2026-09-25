@@ -4,6 +4,7 @@ import type { ItemRootProps } from '../../collections/CollectionItems.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { useEditorText } from '../../i18n/index.js';
+import { Separator } from '../../kit/Separator.js';
 
 /**
  * Ivy League's entries: the markup for one item of each shape.
@@ -130,7 +131,7 @@ export function IvyEducationEntry({
               value={item.degree ?? ''}
               placeholder={placeholder('degree')}
             />
-            {item.degree && item.field ? ', ' : ''}
+            <Separator between={[item.degree, item.field]} text=", " />
             <EditableText
               path={`${path}.field`}
               value={item.field ?? ''}
@@ -145,7 +146,7 @@ export function IvyEducationEntry({
               value={item.start ?? ''}
               placeholder={placeholder('start')}
             />
-            {item.start && item.end ? ' - ' : ''}
+            <Separator between={[item.start, item.end]} text=" - " />
             <EditableText
               path={`${path}.end`}
               value={item.end ?? ''}

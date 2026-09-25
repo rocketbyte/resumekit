@@ -5,6 +5,7 @@ import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { InitialsChip } from '../../kit/InitialsChip.js';
 import { useEditorText } from '../../i18n/index.js';
+import { Separator } from '../../kit/Separator.js';
 
 /**
  * Elegant with Logos' entries: a mark beside the employer, then the role, then
@@ -114,7 +115,7 @@ export function ElegantLogosEducationEntry({
           value={item.degree ?? ''}
           placeholder={placeholder('degree')}
         />
-        {item.degree && item.field ? ' in ' : ''}
+        <Separator between={[item.degree, item.field]} word="degreeField" />
         <EditableText
           path={`${path}.field`}
           value={item.field ?? ''}
@@ -136,7 +137,7 @@ export function ElegantLogosEducationEntry({
               value={item.start ?? ''}
               placeholder={placeholder('start')}
             />
-            {item.start && item.end ? ' - ' : ''}
+            <Separator between={[item.start, item.end]} text=" - " />
             <EditableText
               path={`${path}.end`}
               value={item.end ?? ''}

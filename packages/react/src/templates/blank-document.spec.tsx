@@ -2,7 +2,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, expect, it } from 'vitest';
 import {
+  COLLECTIONS,
   PLACEHOLDERS,
+  TOP_LEVEL_COLLECTIONS,
   applyPresentation,
   asResumeObject,
   blankTailoredResume,
@@ -35,9 +37,8 @@ const TEMPLATE_IDS = Object.keys(TEMPLATE_RENDERERS) as TemplateId[];
 const blank = () =>
   asResumeObject(blankTailoredResume('Ada Lovelace').resume_object);
 
-function draw(id: TemplateId, authoring: boolean) {
+function draw(id: TemplateId, authoring: boolean, resume = blank()) {
   const { Document } = TEMPLATE_RENDERERS[id];
-  const resume = blank();
   const tree = (
     <DocumentPresentationProvider>
       <FieldRegistryProvider enabled={authoring}>
@@ -319,5 +320,46 @@ describe('a role whose bullets are missing', () => {
     const { container } = drawResume(withRole(['Shipped the thing.']), true);
     expect(container.querySelectorAll('.tpl-bullet')).toHaveLength(1);
     expect(container.textContent).toContain('Shipped the thing.');
+  });
+});
+
+/*
+ * Two empty fields on one line each show their guidance, and with nothing
+ * between them the two run together — "DegreeField of study", "TítuloÁrea de
+ * estudio". Whatever separates them when filled must separate them while empty.
+ */
+describe('guidance never runs together', () => {
+  const INLINE = new Set(['SPAN', 'A', 'EM', 'STRONG', 'B', 'I']);
+  const isEmptyField = (node: Node | null): node is Element =>
+    node instanceof Element &&
+    INLINE.has(node.tagName) &&
+    (node.getAttribute('data-empty') === 'true' ||
+      (node.lastElementChild !== null &&
+        isEmptyField(node.lastElementChild) &&
+        !node.textContent?.trim()));
+
+  /* One blank entry in every collection, as a candidate adding each would have. */
+  const everyEntryBlank = (): ResumeObject => {
+    const resume: Record<string, unknown> = { ...blank() };
+    for (const id of TOP_LEVEL_COLLECTIONS)
+      resume[COLLECTIONS[id].path] = [COLLECTIONS[id].mint()];
+    return resume as ResumeObject;
+  };
+
+  it.each(TEMPLATE_IDS)('%s: separates every pair of empty fields', (id) => {
+    const { container } = draw(id, true, everyEntryBlank());
+    const touching = [...container.querySelectorAll('[data-empty="true"]')]
+      .filter((field) => INLINE.has(field.tagName))
+      .flatMap((field) => {
+        let prev = field.previousSibling;
+        while (prev instanceof Element && prev.hasAttribute('data-chrome'))
+          prev = prev.previousSibling;
+        return isEmptyField(prev)
+          ? [
+              `${prev.getAttribute('data-path')} | ${field.getAttribute('data-path')}`,
+            ]
+          : [];
+      });
+    expect(touching).toEqual([]);
   });
 });

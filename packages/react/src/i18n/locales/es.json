@@ -280,6 +280,9 @@
       "interests": "Intereses",
       "languages": "Idiomas"
     },
+    "joins": {
+      "degreeField": "en"
+    },
     "levels": {
       "native": "Nativo",
       "fluent": "Fluido",
