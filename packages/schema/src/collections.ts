@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isPresentDate } from './resume-dates.js';
 import {
   CustomEntrySchema,
   CustomSectionSchema,
@@ -576,7 +577,7 @@ export function chronologyWarnings(resume: PresentedResume): number[] {
   const rank = (end: string): number | null => {
     const value = end.trim();
     if (value.length === 0) return null;
-    if (/^present$/i.test(value)) return Number.POSITIVE_INFINITY;
+    if (isPresentDate(value)) return Number.POSITIVE_INFINITY;
     const match = /^(\d{4})(?:-(\d{2}))?/.exec(value);
     if (!match) return null;
     return Number(match[1]) * 12 + (match[2] ? Number(match[2]) : 0);

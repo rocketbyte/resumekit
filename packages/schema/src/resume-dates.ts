@@ -40,6 +40,42 @@ export interface DateIssue {
 }
 
 /**
+ * The word for a role that has not ended, in each language a resume can be
+ * translated to. Stored `Present` in English; a translation writes the target
+ * language's word instead, from this table rather than the model, so it costs
+ * nothing and reads the same in every resume.
+ */
+export const PRESENT_WORDS = {
+  en: 'Present',
+  es: 'Actualidad',
+  fr: "Aujourd'hui",
+  de: 'Heute',
+  pt: 'Atual',
+  it: 'Presente',
+  nl: 'Heden',
+  pl: 'Obecnie',
+  ro: 'Prezent',
+  ru: 'Настоящее время',
+  uk: 'Дотепер',
+  tr: 'Günümüz',
+  sv: 'Nu',
+  zh: '至今',
+  ja: '現在',
+  ko: '현재',
+  hi: 'वर्तमान',
+  id: 'Sekarang',
+} as const;
+
+const PRESENT = new Set(
+  Object.values(PRESENT_WORDS).map((word) => word.toLocaleLowerCase()),
+);
+
+/** Whether an end date says the role has not ended, in any language. */
+export function isPresentDate(value: string | undefined): boolean {
+  return PRESENT.has((value ?? '').trim().toLocaleLowerCase());
+}
+
+/**
  * A date reduced to a number that sorts, or `null` when it cannot be read.
  *
  * `null` is the important return. A candidate mid-keystroke has `20`, and a
@@ -55,7 +91,7 @@ export interface DateIssue {
 export function dateOrder(value: string | undefined): number | null {
   const text = (value ?? '').trim();
   if (!text) return null;
-  if (/^present$/i.test(text)) return Number.POSITIVE_INFINITY;
+  if (isPresentDate(text)) return Number.POSITIVE_INFINITY;
 
   /* `YYYY-MM`, and `YYYY` alone — a degree is routinely dated by year, and a
      year is perfectly comparable against a month in another entry. */
