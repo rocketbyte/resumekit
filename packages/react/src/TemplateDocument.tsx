@@ -25,7 +25,16 @@ export interface TemplateDocumentProps {
    * geometry, the paginator — is one definition used twice.
    */
   sheetGap?: number;
+  /**
+   * Shrink the page to fit a container narrower than the paper, as on a phone.
+   * For viewing only: the export must never pass it, since a rendered page is
+   * the page.
+   */
+  shrinkToFit?: boolean;
 }
+
+/** Below this a page is unreadable anyway; it scrolls rather than shrinks. */
+const SHRINK_MIN = 0.35;
 
 /**
  * A resume rendered read-only in its template.
@@ -40,6 +49,7 @@ export function TemplateDocument({
   resume,
   presentation,
   sheetGap,
+  shrinkToFit = false,
 }: TemplateDocumentProps) {
   const templateId = presentation?.template_id ?? DEFAULT_TEMPLATE_ID;
   const { Document } = TEMPLATE_RENDERERS[templateId];
@@ -82,6 +92,7 @@ export function TemplateDocument({
           >
             <PagedSheet
               sheetGap={sheetGap}
+              minZoom={shrinkToFit ? SHRINK_MIN : 1}
               measureKey={JSON.stringify([
                 presentation?.style,
                 presentation?.section_spacing,

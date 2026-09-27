@@ -77,6 +77,12 @@ export interface PagedSheetProps {
    */
   maxZoom?: number;
   /**
+   * The least this may be zoomed to fit a narrow container. `1`, the default,
+   * never shrinks: the editor and the export keep the page its own size. A
+   * read-only view passes less, so a phone shows the whole page.
+   */
+  minZoom?: number;
+  /**
    * How long to leave the page at its own size before fitting it, in ms.
    *
    * Default `0`: fitted during the first layout pass, so a surface that merely
@@ -118,12 +124,13 @@ export function PagedSheet({
   measureKey,
   children,
   maxZoom = 1,
+  minZoom = 1,
   fitDelayMs = 0,
   sheetGap = SHEET_GAP,
 }: PagedSheetProps) {
   const flow = useRef<HTMLDivElement>(null);
   const pagesRef = useRef<HTMLDivElement>(null);
-  const fit = useFitZoom(pagesRef, maxZoom, fitDelayMs);
+  const fit = useFitZoom(pagesRef, maxZoom, fitDelayMs, minZoom);
 
   /*
    * The gap, held in a ref so `paginate` can stay dependency-free.

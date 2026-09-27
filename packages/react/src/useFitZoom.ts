@@ -47,6 +47,20 @@ export function fitZoom(availableWidth: number, max: number): number {
 }
 
 /**
+ * The zoom that lets a READ-ONLY page fit a container narrower than the paper,
+ * such as a phone: never above 1, never below `min`, whole percent rounded down.
+ *
+ * Separate from {@link fitZoom} because the reason that one refuses to shrink —
+ * the candidate could not tell a smaller page from a smaller type scale — does
+ * not apply to a page nobody is editing, and a page wider than the screen is
+ * one nobody can read. No clearance: there are no controls beside the paper.
+ */
+export function shrinkZoom(availableWidth: number, min: number): number {
+  const fits = Math.floor((availableWidth / PAGE_WIDTH) * 100) / 100;
+  return Math.min(1, Math.max(min, fits));
+}
+
+/**
  * {@link fitZoom}, kept current against the container the page is drawn in.
  *
  * Measured from the container rather than from the window, because the editor's
@@ -76,11 +90,13 @@ export function useFitZoom(
    * and wanting to see the result, so those measure immediately.
    */
   fitDelayMs = 0,
+  /** Below 1 lets a read-only page shrink to fit; see {@link shrinkZoom}. */
+  min = 1,
 ): number {
   const [zoom, setZoom] = useState(1);
 
   useLayoutEffect(() => {
-    if (max <= 1) {
+    if (max <= 1 && min >= 1) {
       setZoom(1);
       return;
     }
@@ -89,7 +105,11 @@ export function useFitZoom(
       const host = ref.current?.parentElement;
       if (!host) return;
       // `clientWidth` already excludes a vertical scrollbar.
-      setZoom(fitZoom(host.clientWidth, max));
+      setZoom(
+        max > 1
+          ? fitZoom(host.clientWidth, max)
+          : shrinkZoom(host.clientWidth, min),
+      );
     };
 
     /*
@@ -116,7 +136,7 @@ export function useFitZoom(
       clearTimeout(first);
       window.removeEventListener('resize', measure);
     };
-  }, [ref, max, fitDelayMs]);
+  }, [ref, max, fitDelayMs, min]);
 
   return zoom;
 }

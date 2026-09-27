@@ -1,7 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, fitZoom, step } from './useFitZoom.js';
+import {
+  ZOOM_MAX,
+  ZOOM_MIN,
+  ZOOM_STEP,
+  fitZoom,
+  shrinkZoom,
+  step,
+} from './useFitZoom.js';
 import { PAGE_WIDTH } from './pagination.js';
 import {
   PAGE_HEIGHT,
@@ -281,6 +288,21 @@ describe('a view zoom changes nothing about where pages break', () => {
     expect([
       ...planPagination(asMeasuredUnderZoom(blocks, 1.07)).pushes,
     ]).toEqual([...planPagination(blocks).pushes]);
+  });
+});
+
+describe('shrinkZoom', () => {
+  it('leaves a page that fits at its own size', () => {
+    expect(shrinkZoom(816, 0.35)).toBe(1);
+    expect(shrinkZoom(1400, 0.35)).toBe(1);
+  });
+
+  it('shrinks to a phone, rounded down so the page never overflows', () => {
+    expect(shrinkZoom(358, 0.35)).toBe(0.43);
+  });
+
+  it('stops at the floor rather than becoming unreadable', () => {
+    expect(shrinkZoom(100, 0.35)).toBe(0.35);
   });
 });
 
