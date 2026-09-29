@@ -33,8 +33,12 @@ export interface TemplateDocumentProps {
   shrinkToFit?: boolean;
 }
 
-/** Below this a page is unreadable anyway; it scrolls rather than shrinks. */
-const SHRINK_MIN = 0.35;
+/**
+ * Below this a page is unreadable anyway; it scrolls rather than shrinks.
+ * 0.3 is what a 320px phone needs once the card's padding is taken: at 0.35 the
+ * page was wider than its card there and lost its right edge.
+ */
+const SHRINK_MIN = 0.3;
 
 /**
  * A resume rendered read-only in its template.
