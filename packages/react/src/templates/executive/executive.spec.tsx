@@ -1,5 +1,9 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { render, screen } from '@testing-library/react';
-import { TEMPLATES, type ResumeObject } from '@cvgs/core';
+import { TEMPLATES, type DocumentStyle, type ResumeObject } from '@cvgs/core';
+import { documentStyle } from '../../kit/documentStyle.js';
 import { TEMPLATE_RENDERERS } from '../../registry.js';
 import { FieldRegistryProvider } from '../../fields/field-registry.js';
 import { DocumentPresentationProvider } from '../../presentation-context.js';
@@ -11,6 +15,61 @@ import { DocumentPresentationProvider } from '../../presentation-context.js';
  * page carries the reference's sections, omits what it has no data for, and
  * stays parseable despite its two columns.
  */
+
+const css = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), 'executive.css'),
+  'utf8',
+).replace(/\/\*[\s\S]*?\*\//g, '');
+
+/** The custom properties the root rule declares. */
+const ROOT: Record<string, string> = Object.fromEntries(
+  [...css.matchAll(/(?:^|\})\s*\.tpl-exec\s*\{([^}]*)\}/g)].flatMap(
+    ([, body]) =>
+      [...body.matchAll(/(--[\w-]+):\s*([^;]+);/g)].map(([, k, v]) => [
+        k,
+        v.trim(),
+      ]),
+  ),
+);
+
+/**
+ * What `name` computes to on the root, with the inline properties a stored
+ * style writes taking precedence — the cascade jsdom does not model.
+ */
+function resolve(name: string, inline: Record<string, string>): string {
+  const value = inline[name] ?? ROOT[name];
+  if (value === undefined) throw new Error(`${name} is not set`);
+  return expand(value, inline);
+}
+
+function expand(value: string, inline: Record<string, string>): string {
+  const at = value.indexOf('var(');
+  if (at < 0) return value;
+  let depth = 0;
+  let end = at + 4;
+  for (; end < value.length; end++) {
+    if (value[end] === '(') depth++;
+    else if (value[end] === ')' && depth-- === 0) break;
+  }
+  const [, name, fallback] = /^(--[\w-]+)\s*(?:,\s*([\s\S]*))?$/.exec(
+    value.slice(at + 4, end).trim(),
+  ) as RegExpExecArray;
+  const own = inline[name] ?? ROOT[name];
+  const inner =
+    own !== undefined
+      ? resolve(name, inline)
+      : expand(fallback?.trim() ?? '', inline);
+  return expand(value.slice(0, at) + inner + value.slice(end + 1), inline);
+}
+
+function contrastOnWhite(hex: string): number {
+  const channel = (i: number) => {
+    const c = parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  const l = 0.2126 * channel(0) + 0.7152 * channel(1) + 0.0722 * channel(2);
+  return 1.05 / (l + 0.05);
+}
 
 function resume(overrides: Partial<ResumeObject> = {}): ResumeObject {
   return {
@@ -176,6 +235,33 @@ describe('the Executive document', () => {
     );
     for (const h of container.querySelectorAll('[data-keep-with-next]')) {
       expect(h.hasAttribute('data-block')).toBe(true);
+    }
+  });
+});
+
+describe('the Executive colours', () => {
+  const base: DocumentStyle = { font: 'helvetica', ink: 'ink', scale: 1 };
+  const inks = ['--tpl-described-title-ink', '--tpl-language-meter-ink'];
+
+  it('reads titles and meter dots in navy, not in the hairline grey', () => {
+    // The rule colour once inked achievement titles and language dots at
+    // ~1.6:1 on the paper: present in the file, invisible on the page.
+    const inline = documentStyle('e', base) as Record<string, string>;
+    expect(resolve('--e-rule', inline)).toBe('#c9cdd6');
+    for (const ink of inks) {
+      expect(resolve(ink, inline), ink).toBe(resolve('--e-navy', inline));
+      expect(contrastOnWhite(resolve(ink, inline)), ink).toBeGreaterThan(4.5);
+    }
+  });
+
+  it('gives a chosen accent to the hairlines and to what the accent inks', () => {
+    const inline = documentStyle('e', {
+      ...base,
+      accent: 'maroon',
+    }) as Record<string, string>;
+    expect(resolve('--e-rule', inline)).toBe(inline['--e-accent']);
+    for (const ink of inks) {
+      expect(resolve(ink, inline), ink).toBe(inline['--e-accent']);
     }
   });
 });

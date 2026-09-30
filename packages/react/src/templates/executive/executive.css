@@ -55,10 +55,17 @@
     sans-serif;
 
   --e-navy: #26314a;
-  /* See Harvard: absent means what the template already chose. */
-  --e-accent: #c9cdd6;
+  /*
+   * See Harvard: absent means what the template already chose. `--e-accent` is
+   * deliberately NOT declared, because this template chose two colours where
+   * others chose one: a pale hairline, and navy for anything that is read. A
+   * declared default would have to be one of them and ink the other; the
+   * pale one, used for titles and meter dots, measured ~1.6:1 on the paper.
+   * A candidate's accent is a vetted dark ink, so it may serve as both.
+   */
   --e-density: 1;
-  --e-rule: var(--e-accent);
+  --e-rule: var(--e-accent, #c9cdd6);
+  --e-accent-ink: var(--e-accent, var(--e-navy));
   --e-muted: #5b6373;
   --e-body: calc(9.4pt * var(--e-scale));
 
@@ -358,12 +365,12 @@
 .tpl-exec {
   --tpl-described-gap: calc(7pt * var(--e-scale));
   --tpl-described-lead: calc(1.5pt * var(--e-scale));
-  --tpl-described-title-ink: var(--e-accent);
+  --tpl-described-title-ink: var(--e-accent-ink);
   --tpl-described-span: calc(14pt * var(--e-scale));
   --tpl-language-gap: calc(6pt * var(--e-scale));
   --tpl-language-lead: calc(4pt * var(--e-scale));
   --tpl-language-step: calc(4pt * var(--e-scale));
-  --tpl-language-meter-ink: var(--e-accent);
+  --tpl-language-meter-ink: var(--e-accent-ink);
 }
 
 /* One repeated mark, never one per entry: nothing in the résumé says which
