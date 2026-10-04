@@ -11,6 +11,7 @@ import { useAuthoring } from '../collections/authoring-context.js';
 import { useAutosave } from '../autosave-context.js';
 import type { AuthoredBulletsProps } from './AuthoredBullets.js';
 import { useEditorText } from '../i18n/index.js';
+import { usePicture } from '../picture-context.js';
 
 export interface EditableBulletListProps {
   /**
@@ -63,6 +64,7 @@ export function EditableBulletList({
   const { t } = useEditorText();
   const placeholder = givenPlaceholder ?? t.placeholders.bullet;
   const format = useFieldFormat(path);
+  const picture = usePicture();
   const authoring = useAuthoring();
   /*
    * Only the TEXT is asked for here. Adding, removing and reordering a bullet
@@ -144,7 +146,7 @@ export function EditableBulletList({
       <span
         className="tpl-text"
         data-empty={item.length === 0 || undefined}
-        data-placeholder={placeholder}
+        data-placeholder={picture ? undefined : placeholder}
       >
         {item}
       </span>
@@ -157,7 +159,7 @@ export function EditableBulletList({
       className={formatClass(format, 'tpl-bullets')}
       style={formatInk(format)}
       data-ink={inkAttr(format)}
-      data-path={path}
+      data-path={picture ? undefined : path}
       data-editing={selected || undefined}
     >
       {/*

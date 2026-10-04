@@ -2,6 +2,7 @@ import type { ComponentType, ReactNode } from 'react';
 import type { CustomEntry, CustomSection } from '@cvgs/core';
 import { useEditorText } from '../i18n/index.js';
 import { EditableText } from './EditableText.js';
+import { Heading } from '../kit/Heading.js';
 import {
   CollectionItems,
   type ItemRootProps,
@@ -64,13 +65,18 @@ function AuthoredSection({
 
   return (
     <section className={sectionClass}>
-      <h2 className={headingClass} data-block data-keep-with-next>
+      <Heading
+        level={2}
+        className={headingClass}
+        data-block
+        data-keep-with-next
+      >
         <EditableText
           path={`${base}.heading`}
           value={section.heading}
           placeholder={t.placeholders.heading}
         />
-      </h2>
+      </Heading>
 
       <CollectionItems
         collection={collection}

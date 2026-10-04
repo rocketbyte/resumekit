@@ -1,40 +1,32 @@
+/*
+ * GENERATED from polished.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ResumeObject } from '@cvgs/core';
-import { Collection } from '../../collections/Collection.js';
-import { useAuthoring } from '../../collections/authoring-context.js';
-import { CustomSections } from '../../nodes/CustomSections.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
-import { EditableText } from '../../nodes/EditableText.js';
-import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
-import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
+import { EditableText } from '../../nodes/EditableText.js';
+import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
+import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
+import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
+import { Heading } from '../../kit/Heading.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import {
   PolishedCustomEntry,
   PolishedEducationEntry,
   PolishedExperienceEntry,
 } from './entries.js';
+import '../../kit/layout.css';
 import './polished.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
-/**
- * The Elegant template.
- *
- * A painted rail down the right of the page, reversed out in white, beside a
- * work history written FIRST — the only ATS property this shape can honestly
- * offer.
- *
- * The rail runs the FULL height of every sheet, which is why the header lives
- * inside the wide column rather than above both: a header spanning the page
- * would cut the panel off at the top of page one and nowhere else.
- *
- * Reversed type is the one thing here that a browser may decline to print, so
- * the panel asks to be painted and the catalog says the rail is forced rather
- * than promising what an unpainted design can.
- */
 export interface PolishedDocumentProps {
   resume: ResumeObject;
 }
@@ -58,22 +50,22 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
       aria-label={doc.t.resume}
       lang={doc.locale}
     >
-      <div className="tpl-polished__body tpl-sheet-tall">
-        {/* ── The rail: what a reader scans ─────────────────────────────── */}
+      <div className="tpl-polished__body tpl-sheet-tall" data-layout="row">
         <aside className="tpl-polished__aside" data-flow>
-          <h1 className="tpl-polished__name" data-block>
+          <Heading level={1} className="tpl-polished__name" data-block>
             <EditableText path="name" value={resume.name} />
-          </h1>
+          </Heading>
 
           <DescribedEntries
             id="achievements"
             heading={resume.section_headings?.achievements}
             title={doc.t.sections.achievements}
-            items={resume.achievements}
             className="tpl-polished__section tpl-described--marked"
             headingClassName="tpl-polished__heading"
+            items={resume.achievements}
             entryClassName="tpl-polished__described"
           />
+
           <CustomSections
             sections={resume.custom_sections}
             sectionClass="tpl-polished__section"
@@ -85,11 +77,12 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
             id="courses"
             heading={resume.section_headings?.courses}
             title={doc.t.sections.courses}
-            items={resume.courses}
             className="tpl-polished__section"
             headingClassName="tpl-polished__heading"
+            items={resume.courses}
             entryClassName="tpl-polished__described"
           />
+
           {resume.certifications.length > 0 && (
             <DocumentSection
               id="certifications"
@@ -107,16 +100,18 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
               </p>
             </DocumentSection>
           )}
+
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
             title={doc.t.sections.passions}
-            items={resume.passions}
             className="tpl-polished__section tpl-described--marked"
             headingClassName="tpl-polished__heading"
+            items={resume.passions}
             entryClassName="tpl-polished__described"
           />
         </aside>
+
         <div className="tpl-polished__main" data-flow>
           <header className="tpl-polished__head-block" data-block>
             <div className="tpl-polished__identity">
@@ -183,6 +178,7 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
               </p>
             </DocumentSection>
           )}
+
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"
@@ -233,8 +229,6 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
               className="tpl-polished__section"
               headingClassName="tpl-polished__heading"
             >
-              {/* One run of keywords, as this reference sets them — and still a
-                  field per group, so a parser reads the separators as characters. */}
               <p className="tpl-polished__keywords" data-block>
                 <Collection
                   section="skills"
@@ -253,8 +247,7 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
               </p>
             </DocumentSection>
           )}
-          {/* Languages: read from `resume.languages`, so each one carries a level
-              and the section carries a gap of its own. */}
+
           <LanguageList
             items={resume.languages}
             heading={resume.section_headings?.languages}

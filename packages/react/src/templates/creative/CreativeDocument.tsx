@@ -1,41 +1,33 @@
+/*
+ * GENERATED from creative.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ResumeObject } from '@cvgs/core';
-import { Collection } from '../../collections/Collection.js';
-import { useAuthoring } from '../../collections/authoring-context.js';
-import { CustomSections } from '../../nodes/CustomSections.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
-import { EditableText } from '../../nodes/EditableText.js';
-import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
-import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
-import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
+import { EditableText } from '../../nodes/EditableText.js';
+import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
+import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
+import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
+import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
+import { Heading } from '../../kit/Heading.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import {
   CreativeCustomEntry,
   CreativeEducationEntry,
   CreativeExperienceEntry,
 } from './entries.js';
+import '../../kit/layout.css';
 import './creative.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
-/**
- * The Creative template.
- *
- * A full-width band carrying the name, the headline, the contact details and
- * the candidate's initials, over two columns with the work history in the wide
- * one — written FIRST, which is the only ATS property this shape can honestly
- * offer.
- *
- * The band is the one thing on the page that needs a background to print, so
- * the catalog says so rather than claiming what Cobalt can: `print-color-
- * adjust` is a hint, and reversed type on an unpainted band does not degrade,
- * it disappears — which is why the band's own rule forces it.
- *
- * Each column is `data-flow`, so `PagedSheet` breaks it by its own height.
- */
 export interface CreativeDocumentProps {
   resume: ResumeObject;
 }
@@ -59,11 +51,11 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
       aria-label={doc.t.resume}
       lang={doc.locale}
     >
-      <header className="tpl-creative__band" data-block>
+      <header className="tpl-creative__band" data-layout="row" data-block>
         <div className="tpl-creative__identity">
-          <h1 className="tpl-creative__name">
+          <Heading level={1} className="tpl-creative__name">
             <EditableText path="name" value={resume.name} />
-          </h1>
+          </Heading>
 
           {(resume.headline || authoring) && (
             <p className="tpl-creative__headline">
@@ -108,12 +100,11 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
             </p>
           )}
         </div>
-        {/* No photograph is stored, and none is invented: the initials stand
-            in the slot the design gives a portrait. */}
+
         <InitialsAvatar name={resume.name} className="tpl-creative__avatar" />
       </header>
 
-      <div className="tpl-creative__body">
+      <div className="tpl-creative__body" data-layout="row">
         <div className="tpl-creative__main" data-flow>
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
@@ -157,17 +148,16 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
             </DocumentSection>
           )}
 
-          {/* Languages: read from `resume.languages`, so each one carries a level
-              and the section carries a gap of its own. */}
           <DescribedEntries
             id="courses"
             heading={resume.section_headings?.courses}
             title={doc.t.sections.courses}
-            items={resume.courses}
             className="tpl-creative__section tpl-described--grid"
             headingClassName="tpl-creative__heading"
+            items={resume.courses}
             entryClassName="tpl-creative__described"
           />
+
           <LanguageList
             items={resume.languages}
             heading={resume.section_headings?.languages}
@@ -177,7 +167,6 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
           />
         </div>
 
-        {/* ── The rail: what a reader scans ─────────────────────────────── */}
         <aside className="tpl-creative__aside" data-flow>
           {(resume.summary || authoring) && (
             <DocumentSection
@@ -213,8 +202,6 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
               className="tpl-creative__section"
               headingClassName="tpl-creative__heading"
             >
-              {/* Keywords in boxes, as this reference draws them — and every one a
-                  list ITEM, so a parser still reads one skill per line. */}
               <div
                 className="tpl-keywords tpl-keywords--boxed"
                 data-block
@@ -238,11 +225,12 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
             id="achievements"
             heading={resume.section_headings?.achievements}
             title={doc.t.sections.achievements}
-            items={resume.achievements}
             className="tpl-creative__section tpl-described--marked"
             headingClassName="tpl-creative__heading"
+            items={resume.achievements}
             entryClassName="tpl-creative__described"
           />
+
           {resume.certifications.length > 0 && (
             <DocumentSection
               id="certifications"
@@ -260,13 +248,14 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
               </p>
             </DocumentSection>
           )}
+
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
             title={doc.t.sections.passions}
-            items={resume.passions}
             className="tpl-creative__section tpl-described--marked"
             headingClassName="tpl-creative__heading"
+            items={resume.passions}
             entryClassName="tpl-creative__described"
           />
         </aside>

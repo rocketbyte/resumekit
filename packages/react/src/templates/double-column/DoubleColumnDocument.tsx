@@ -1,40 +1,33 @@
+/*
+ * GENERATED from double-column.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ResumeObject } from '@cvgs/core';
-import { Collection } from '../../collections/Collection.js';
-import { useAuthoring } from '../../collections/authoring-context.js';
-import { CustomSections } from '../../nodes/CustomSections.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
-import { EditableText } from '../../nodes/EditableText.js';
-import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
-import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
-import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
+import { EditableText } from '../../nodes/EditableText.js';
+import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
+import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
+import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
+import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
+import { Heading } from '../../kit/Heading.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import {
   DoubleColumnCustomEntry,
   DoubleColumnEducationEntry,
   DoubleColumnExperienceEntry,
 } from './entries.js';
+import '../../kit/layout.css';
 import './double-column.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
-/**
- * The Double Column template.
- *
- * The plainest two-column page in the catalog, and the loudest headings: set
- * at reading size over a heavy rule, so the eye finds a section before it
- * finds a word. The work history is in the wide column and written FIRST,
- * which is the only ATS property this shape can honestly offer.
- *
- * Its rail separates one highlight from the next with a dotted rule rather
- * than with space, which is what lets the column stay dense without the notes
- * running together.
- *
- * Each column is `data-flow`, so `PagedSheet` breaks it by its own height.
- */
 export interface DoubleColumnDocumentProps {
   resume: ResumeObject;
 }
@@ -58,11 +51,11 @@ export function DoubleColumnDocument({ resume }: DoubleColumnDocumentProps) {
       aria-label={doc.t.resume}
       lang={doc.locale}
     >
-      <header className="tpl-dc__head-block" data-block>
+      <header className="tpl-dc__head-block" data-layout="row" data-block>
         <div className="tpl-dc__identity">
-          <h1 className="tpl-dc__name">
+          <Heading level={1} className="tpl-dc__name">
             <EditableText path="name" value={resume.name} />
-          </h1>
+          </Heading>
 
           {(resume.headline || authoring) && (
             <p className="tpl-dc__headline">
@@ -107,12 +100,11 @@ export function DoubleColumnDocument({ resume }: DoubleColumnDocumentProps) {
             </p>
           )}
         </div>
-        {/* No photograph is stored, and none is invented: the initials stand
-            in the slot the design gives a portrait. */}
+
         <InitialsAvatar name={resume.name} className="tpl-dc__avatar" />
       </header>
 
-      <div className="tpl-dc__body">
+      <div className="tpl-dc__body" data-layout="row">
         <div className="tpl-dc__main" data-flow>
           {(resume.summary || authoring) && (
             <DocumentSection
@@ -132,6 +124,7 @@ export function DoubleColumnDocument({ resume }: DoubleColumnDocumentProps) {
               </p>
             </DocumentSection>
           )}
+
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"
@@ -174,8 +167,6 @@ export function DoubleColumnDocument({ resume }: DoubleColumnDocumentProps) {
             </DocumentSection>
           )}
 
-          {/* Languages: read from `resume.languages`, so each one carries a level
-              and the section carries a gap of its own. */}
           <LanguageList
             items={resume.languages}
             heading={resume.section_headings?.languages}
@@ -185,17 +176,17 @@ export function DoubleColumnDocument({ resume }: DoubleColumnDocumentProps) {
           />
         </div>
 
-        {/* ── The rail: what a reader scans ─────────────────────────────── */}
         <aside className="tpl-dc__aside" data-flow>
           <DescribedEntries
             id="achievements"
             heading={resume.section_headings?.achievements}
             title={doc.t.sections.achievements}
-            items={resume.achievements}
             className="tpl-dc__section tpl-described--marked"
             headingClassName="tpl-dc__heading"
+            items={resume.achievements}
             entryClassName="tpl-dc__described"
           />
+
           <CustomSections
             sections={resume.custom_sections}
             sectionClass="tpl-dc__section"
@@ -211,8 +202,6 @@ export function DoubleColumnDocument({ resume }: DoubleColumnDocumentProps) {
               className="tpl-dc__section"
               headingClassName="tpl-dc__heading"
             >
-              {/* Keywords over a rule, one to a line, and every one a list ITEM:
-                  a parser reads them one per line rather than as a run. */}
               <div className="tpl-keywords" data-block data-split>
                 <Collection
                   section="skills"
@@ -232,11 +221,12 @@ export function DoubleColumnDocument({ resume }: DoubleColumnDocumentProps) {
             id="courses"
             heading={resume.section_headings?.courses}
             title={doc.t.sections.courses}
-            items={resume.courses}
             className="tpl-dc__section"
             headingClassName="tpl-dc__heading"
+            items={resume.courses}
             entryClassName="tpl-dc__described"
           />
+
           {resume.certifications.length > 0 && (
             <DocumentSection
               id="certifications"
@@ -254,13 +244,14 @@ export function DoubleColumnDocument({ resume }: DoubleColumnDocumentProps) {
               </p>
             </DocumentSection>
           )}
+
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
             title={doc.t.sections.passions}
-            items={resume.passions}
             className="tpl-dc__section tpl-described--marked"
             headingClassName="tpl-dc__heading"
+            items={resume.passions}
             entryClassName="tpl-dc__described"
           />
         </aside>

@@ -1,41 +1,33 @@
+/*
+ * GENERATED from elegant.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ResumeObject } from '@cvgs/core';
-import { Collection } from '../../collections/Collection.js';
-import { useAuthoring } from '../../collections/authoring-context.js';
-import { CustomSections } from '../../nodes/CustomSections.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
-import { EditableText } from '../../nodes/EditableText.js';
-import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
-import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
-import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
+import { EditableText } from '../../nodes/EditableText.js';
+import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
+import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
+import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
+import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
+import { Heading } from '../../kit/Heading.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import {
   ElegantCustomEntry,
   ElegantEducationEntry,
   ElegantExperienceEntry,
 } from './entries.js';
+import '../../kit/layout.css';
 import './elegant.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
-/**
- * The Elegant template.
- *
- * A painted rail down the right of the page, reversed out in white, beside a
- * work history written FIRST — the only ATS property this shape can honestly
- * offer.
- *
- * The rail runs the FULL height of every sheet, which is why the header lives
- * inside the wide column rather than above both: a header spanning the page
- * would cut the panel off at the top of page one and nowhere else.
- *
- * Reversed type is the one thing here that a browser may decline to print, so
- * the panel asks to be painted and the catalog says the rail is forced rather
- * than promising what an unpainted design can.
- */
 export interface ElegantDocumentProps {
   resume: ResumeObject;
 }
@@ -59,13 +51,13 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
       aria-label={doc.t.resume}
       lang={doc.locale}
     >
-      <div className="tpl-elegant__body tpl-sheet-tall">
+      <div className="tpl-elegant__body tpl-sheet-tall" data-layout="row">
         <div className="tpl-elegant__main" data-flow>
           <header className="tpl-elegant__head-block" data-block>
             <div className="tpl-elegant__identity">
-              <h1 className="tpl-elegant__name">
+              <Heading level={1} className="tpl-elegant__name">
                 <EditableText path="name" value={resume.name} />
-              </h1>
+              </Heading>
 
               {(resume.headline || authoring) && (
                 <p className="tpl-elegant__headline">
@@ -130,6 +122,7 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
               </p>
             </DocumentSection>
           )}
+
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
               id="experience"
@@ -172,8 +165,6 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
             </DocumentSection>
           )}
 
-          {/* Languages: read from `resume.languages`, so each one carries a level
-              and the section carries a gap of its own. */}
           <LanguageList
             items={resume.languages}
             heading={resume.section_headings?.languages}
@@ -183,21 +174,19 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
           />
         </div>
 
-        {/* ── The rail: what a reader scans ─────────────────────────────── */}
         <aside className="tpl-elegant__aside" data-flow>
-          {/* No photograph is stored, and none is invented: the initials ride
-              the top of the rail, where the reference puts a portrait. */}
           <InitialsAvatar name={resume.name} className="tpl-elegant__avatar" />
 
           <DescribedEntries
             id="achievements"
             heading={resume.section_headings?.achievements}
             title={doc.t.sections.achievements}
-            items={resume.achievements}
             className="tpl-elegant__section tpl-described--marked"
             headingClassName="tpl-elegant__heading"
+            items={resume.achievements}
             entryClassName="tpl-elegant__described"
           />
+
           <CustomSections
             sections={resume.custom_sections}
             sectionClass="tpl-elegant__section"
@@ -213,8 +202,6 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
               className="tpl-elegant__section"
               headingClassName="tpl-elegant__heading"
             >
-              {/* One run of keywords, as this reference sets them — and still a
-                  field per group, so a parser reads the separators as characters. */}
               <p className="tpl-elegant__keywords" data-block>
                 <Collection
                   section="skills"
@@ -238,11 +225,12 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
             id="courses"
             heading={resume.section_headings?.courses}
             title={doc.t.sections.courses}
-            items={resume.courses}
             className="tpl-elegant__section"
             headingClassName="tpl-elegant__heading"
+            items={resume.courses}
             entryClassName="tpl-elegant__described"
           />
+
           {resume.certifications.length > 0 && (
             <DocumentSection
               id="certifications"
@@ -260,13 +248,14 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
               </p>
             </DocumentSection>
           )}
+
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
             title={doc.t.sections.passions}
-            items={resume.passions}
             className="tpl-elegant__section tpl-described--marked"
             headingClassName="tpl-elegant__heading"
+            items={resume.passions}
             entryClassName="tpl-elegant__described"
           />
         </aside>

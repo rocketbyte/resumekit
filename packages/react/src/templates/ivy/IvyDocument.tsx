@@ -1,17 +1,23 @@
+/*
+ * GENERATED from ivy.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ResumeObject } from '@cvgs/core';
-import { Collection } from '../../collections/Collection.js';
-import { useAuthoring } from '../../collections/authoring-context.js';
-import { CustomSections } from '../../nodes/CustomSections.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
-import { EditableText } from '../../nodes/EditableText.js';
-import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
+import { EditableText } from '../../nodes/EditableText.js';
+import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
+import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
 import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
+import { Heading } from '../../kit/Heading.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import {
   IvyCustomEntry,
   IvyEducationEntry,
@@ -20,17 +26,6 @@ import {
 import './ivy.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
-/**
- * The Ivy League template.
- *
- * A centred academic page: the name over its headline over one contact line,
- * then section headings centred with a rule under each. Every entry is two
- * lines of four corners — organisation and place, role and dates — which is
- * the reference's whole structure and the reason `entries.tsx` has one head.
- *
- * Single column, and the skills are a run of keywords rather than a grid, so
- * the extracted text is the document's own order throughout.
- */
 export interface IvyDocumentProps {
   resume: ResumeObject;
 }
@@ -55,9 +50,9 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
       lang={doc.locale}
     >
       <header className="tpl-ivy__head-block" data-block>
-        <h1 className="tpl-ivy__name">
+        <Heading level={1} className="tpl-ivy__name">
           <EditableText path="name" value={resume.name} />
-        </h1>
+        </Heading>
 
         {(resume.headline || authoring) && (
           <p className="tpl-ivy__headline">
@@ -71,8 +66,6 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
 
         {(contact.length > 0 || resume.links.length > 0 || authoring) && (
           <p className="tpl-ivy__contact">
-            {/* The separator is drawn by CSS between siblings, so a detail the
-                writer did not have leaves no stray bullet behind it. */}
             {contact.map(({ path, value, placeholder }) => (
               <span key={path} className="tpl-ivy__contact-item">
                 <EditableText
@@ -90,8 +83,6 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
             >
               {({ item, path, chrome, itemProps, justAdded }) => (
                 <span className="tpl-ivy__contact-item">
-                  {/* Two spans: the separator belongs to the LINE and the ring
-                      to the LINK — see Harvard, which learned this. */}
                   <span {...itemProps}>
                     {chrome}
                     <LinkField item={item} path={path} justAdded={justAdded} />
@@ -168,11 +159,12 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
         id="achievements"
         heading={resume.section_headings?.achievements}
         title={doc.t.sections.achievements}
-        items={resume.achievements}
         className="tpl-ivy__section tpl-described--marked tpl-described--grid"
         headingClassName="tpl-ivy__heading"
+        items={resume.achievements}
         entryClassName="tpl-ivy__described"
       />
+
       {(resume.skills.length > 0 || authoring) && (
         <DocumentSection
           id="skills"
@@ -196,20 +188,16 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
         </DocumentSection>
       )}
 
-      {/*
-       * A plain section: "the space above Languages" is not a gap the document
-       * stores, and reusing the skills key would give two sections one rail —
-       * pointing at either would light up both.
-       */}
       <DescribedEntries
         id="courses"
         heading={resume.section_headings?.courses}
         title={doc.t.sections.courses}
-        items={resume.courses}
         className="tpl-ivy__section"
         headingClassName="tpl-ivy__heading"
+        items={resume.courses}
         entryClassName="tpl-ivy__described"
       />
+
       <LanguageList
         items={resume.languages}
         heading={resume.section_headings?.languages}
@@ -235,13 +223,14 @@ export function IvyDocument({ resume }: IvyDocumentProps) {
           </p>
         </DocumentSection>
       )}
+
       <DescribedEntries
         id="passions"
         heading={resume.section_headings?.passions}
         title={doc.t.sections.passions}
-        items={resume.passions}
         className="tpl-ivy__section tpl-described--marked"
         headingClassName="tpl-ivy__heading"
+        items={resume.passions}
         entryClassName="tpl-ivy__described"
       />
 

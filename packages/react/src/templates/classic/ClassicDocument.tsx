@@ -1,17 +1,23 @@
+/*
+ * GENERATED from classic.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ResumeObject } from '@cvgs/core';
-import { Collection } from '../../collections/Collection.js';
-import { useAuthoring } from '../../collections/authoring-context.js';
-import { CustomSections } from '../../nodes/CustomSections.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
-import { EditableText } from '../../nodes/EditableText.js';
-import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
+import { EditableText } from '../../nodes/EditableText.js';
+import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
+import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
 import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
+import { Heading } from '../../kit/Heading.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import {
   ClassicCustomEntry,
   ClassicEducationEntry,
@@ -20,16 +26,6 @@ import {
 import './classic.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
-/**
- * The Classic template.
- *
- * A plain left-aligned page whose only ornament is the accent on the line that
- * names the employer. Headings are set small and uppercase with no rule, and
- * each entry leads with what was done — the role over the employer, with place
- * and dates kept in a quiet column at the right.
- *
- * Single column, so the extracted text is the document's own order.
- */
 export interface ClassicDocumentProps {
   resume: ResumeObject;
 }
@@ -54,9 +50,9 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
       lang={doc.locale}
     >
       <header className="tpl-classic__head-block" data-block>
-        <h1 className="tpl-classic__name">
+        <Heading level={1} className="tpl-classic__name">
           <EditableText path="name" value={resume.name} />
-        </h1>
+        </Heading>
 
         {(resume.headline || authoring) && (
           <p className="tpl-classic__headline">
@@ -163,11 +159,12 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
         id="achievements"
         heading={resume.section_headings?.achievements}
         title={doc.t.sections.achievements}
-        items={resume.achievements}
         className="tpl-classic__section tpl-described--grid"
         headingClassName="tpl-classic__heading"
+        items={resume.achievements}
         entryClassName="tpl-classic__described"
       />
+
       <CustomSections
         sections={resume.custom_sections}
         sectionClass="tpl-classic__section"
@@ -198,17 +195,16 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
         </DocumentSection>
       )}
 
-      {/* A plain section: "the space above Languages" is not a stored gap, and
-          reusing the skills key would give two sections one rail. */}
       <DescribedEntries
         id="courses"
         heading={resume.section_headings?.courses}
         title={doc.t.sections.courses}
-        items={resume.courses}
         className="tpl-classic__section"
         headingClassName="tpl-classic__heading"
+        items={resume.courses}
         entryClassName="tpl-classic__described"
       />
+
       <LanguageList
         items={resume.languages}
         heading={resume.section_headings?.languages}
@@ -234,13 +230,14 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
           </p>
         </DocumentSection>
       )}
+
       <DescribedEntries
         id="passions"
         heading={resume.section_headings?.passions}
         title={doc.t.sections.passions}
-        items={resume.passions}
         className="tpl-classic__section"
         headingClassName="tpl-classic__heading"
+        items={resume.passions}
         entryClassName="tpl-classic__described"
       />
     </article>

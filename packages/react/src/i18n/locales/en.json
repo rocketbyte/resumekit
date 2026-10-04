@@ -72,7 +72,10 @@
       "clear": "Clear",
       "bulletsOf": "Bullets of {title}",
       "nothingSelected": "Nothing selected yet",
-      "selected": { "one": "{count} selected", "other": "{count} selected" },
+      "selected": {
+        "one": "{count} selected",
+        "other": "{count} selected"
+      },
       "done": "Done",
       "cancel": "Cancel",
       "add": "Add",
@@ -107,7 +110,10 @@
         "title": "Summary",
         "a": "a summary",
         "this": "this summary",
-        "count": { "one": "{count} summary", "other": "{count} summaries" }
+        "count": {
+          "one": "{count} summary",
+          "other": "{count} summaries"
+        }
       },
       "link": {
         "one": "link",
@@ -115,7 +121,10 @@
         "title": "Link",
         "a": "a link",
         "this": "this link",
-        "count": { "one": "{count} link", "other": "{count} links" }
+        "count": {
+          "one": "{count} link",
+          "other": "{count} links"
+        }
       },
       "role": {
         "one": "role",
@@ -123,7 +132,10 @@
         "title": "Role",
         "a": "a role",
         "this": "this role",
-        "count": { "one": "{count} role", "other": "{count} roles" }
+        "count": {
+          "one": "{count} role",
+          "other": "{count} roles"
+        }
       },
       "bullet": {
         "one": "bullet",
@@ -131,7 +143,10 @@
         "title": "Bullet",
         "a": "a bullet",
         "this": "this bullet",
-        "count": { "one": "{count} bullet", "other": "{count} bullets" }
+        "count": {
+          "one": "{count} bullet",
+          "other": "{count} bullets"
+        }
       },
       "qualification": {
         "one": "qualification",
@@ -161,7 +176,10 @@
         "title": "Skill",
         "a": "a skill",
         "this": "this skill",
-        "count": { "one": "{count} skill", "other": "{count} skills" }
+        "count": {
+          "one": "{count} skill",
+          "other": "{count} skills"
+        }
       },
       "certification": {
         "one": "certification",
@@ -191,7 +209,10 @@
         "title": "Course",
         "a": "a course",
         "this": "this course",
-        "count": { "one": "{count} course", "other": "{count} courses" }
+        "count": {
+          "one": "{count} course",
+          "other": "{count} courses"
+        }
       },
       "interest": {
         "one": "interest",
@@ -199,7 +220,10 @@
         "title": "Interest",
         "a": "an interest",
         "this": "this interest",
-        "count": { "one": "{count} interest", "other": "{count} interests" }
+        "count": {
+          "one": "{count} interest",
+          "other": "{count} interests"
+        }
       },
       "language": {
         "one": "language",
@@ -207,7 +231,10 @@
         "title": "Language",
         "a": "a language",
         "this": "this language",
-        "count": { "one": "{count} language", "other": "{count} languages" }
+        "count": {
+          "one": "{count} language",
+          "other": "{count} languages"
+        }
       },
       "section": {
         "one": "section",
@@ -215,7 +242,10 @@
         "title": "Section",
         "a": "a section",
         "this": "this section",
-        "count": { "one": "{count} section", "other": "{count} sections" }
+        "count": {
+          "one": "{count} section",
+          "other": "{count} sections"
+        }
       },
       "entry": {
         "one": "entry",
@@ -223,7 +253,10 @@
         "title": "Entry",
         "a": "an entry",
         "this": "this entry",
-        "count": { "one": "{count} entry", "other": "{count} entries" }
+        "count": {
+          "one": "{count} entry",
+          "other": "{count} entries"
+        }
       }
     },
     "placeholders": {
@@ -289,6 +322,15 @@
       "advanced": "Advanced",
       "intermediate": "Intermediate",
       "beginner": "Beginner"
+    },
+    "panels": {
+      "contacts": "Contacts",
+      "personalInformation": "Personal Information",
+      "locations": "Locations",
+      "websites": "Websites, Portfolios, Profiles"
+    },
+    "labels": {
+      "title": "Title: "
     }
   }
 }

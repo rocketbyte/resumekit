@@ -1,38 +1,16 @@
+/*
+ * GENERATED from double-column-logos.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ReactNode } from 'react';
-import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
+import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
-import { InitialsChip } from '../../kit/InitialsChip.js';
 import { useEditorText } from '../../i18n/index.js';
 import { Separator } from '../../kit/Separator.js';
-
-/**
- * Double Column with Logos' entries: a mark beside the employer, then the
- * role, then the employer in the accent with the dates and the place.
- *
- * The mark is the employer's initials — see `InitialsChip`, which explains why
- * it cannot be a logo.
- */
-function MetaLine({
-  org,
-  dates,
-  place,
-}: {
-  org: ReactNode;
-  dates: ReactNode;
-  place: ReactNode;
-}) {
-  return (
-    <p className="tpl-dcl__meta">
-      <span className="tpl-dcl__org">{org}</span>
-      {/* Real characters between the facts, so the extracted line reads as
-          three things rather than as one run-on. */}
-      <span className="tpl-dcl__meta-item">{dates}</span>
-      <span className="tpl-dcl__meta-item">{place}</span>
-    </p>
-  );
-}
+import { InitialsChip } from '../../kit/InitialsChip.js';
 
 export function DoubleColumnLogosExperienceEntry({
   item,
@@ -57,37 +35,35 @@ export function DoubleColumnLogosExperienceEntry({
           placeholder={placeholder('title')}
         />
       </p>
-      <MetaLine
-        org={
+      <p className="tpl-dcl__meta">
+        <span className="tpl-dcl__org">
           <EditableText
             path={`${path}.company`}
             value={item.company}
             placeholder={placeholder('company')}
           />
-        }
-        dates={
-          <>
-            <EditableText
-              path={`${path}.start`}
-              value={item.start}
-              placeholder={placeholder('start')}
-            />
-            {' - '}
-            <EditableText
-              path={`${path}.end`}
-              value={item.end}
-              placeholder={placeholder('end')}
-            />
-          </>
-        }
-        place={
+        </span>
+        <span className="tpl-dcl__meta-item">
+          <EditableText
+            path={`${path}.start`}
+            value={item.start}
+            placeholder={placeholder('start')}
+          />
+          {' - '}
+          <EditableText
+            path={`${path}.end`}
+            value={item.end}
+            placeholder={placeholder('end')}
+          />
+        </span>
+        <span className="tpl-dcl__meta-item">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
             placeholder={placeholder('location')}
           />
-        }
-      />
+        </span>
+      </p>
       <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
   );
@@ -122,42 +98,39 @@ export function DoubleColumnLogosEducationEntry({
           placeholder={placeholder('field')}
         />
       </p>
-      <MetaLine
-        org={
+      <p className="tpl-dcl__meta">
+        <span className="tpl-dcl__org">
           <EditableText
             path={`${path}.school`}
             value={item.school}
             placeholder={placeholder('school')}
           />
-        }
-        dates={
-          <>
-            <EditableText
-              path={`${path}.start`}
-              value={item.start ?? ''}
-              placeholder={placeholder('start')}
-            />
-            <Separator between={[item.start, item.end]} text=" - " />
-            <EditableText
-              path={`${path}.end`}
-              value={item.end ?? ''}
-              placeholder={placeholder('end')}
-            />
-          </>
-        }
-        place={
+        </span>
+        <span className="tpl-dcl__meta-item">
+          <EditableText
+            path={`${path}.start`}
+            value={item.start ?? ''}
+            placeholder={placeholder('start')}
+          />
+          <Separator between={[item.start, item.end]} text=" - " />
+          <EditableText
+            path={`${path}.end`}
+            value={item.end ?? ''}
+            placeholder={placeholder('end')}
+          />
+        </span>
+        <span className="tpl-dcl__meta-item">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
             placeholder={placeholder('location')}
           />
-        }
-      />
+        </span>
+      </p>
     </article>
   );
 }
 
-/** A section the candidate declared: a titled note, as the rail sets them. */
 export function DoubleColumnLogosCustomEntry({
   item,
   path,

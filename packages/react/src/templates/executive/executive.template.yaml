@@ -1,0 +1,146 @@
+id: executive
+component: Executive
+prefix: tpl-exec
+styleKey: e
+
+layout:
+  - row:
+      - monogram
+      - stack:
+          - name
+          - { contact: [location], class: where, item: false }
+          - { contact: [email, phone] }
+        class: identity
+    tag: header
+    class: band
+    block: true
+  - stack:
+      - { section: summary, title: professionalSummary }
+      - { section: achievements, kit: [tpl-described--marked] }
+      - section: skills
+        title: technicalSkills
+        groups: bullets
+        wrapper: { tag: div, class: columns }
+      - experience
+      - education
+      - courses
+      - languages
+      - { section: certifications, as: bullets, whenEmpty: hide }
+      - { section: passions, kit: [tpl-described--marked] }
+      - stack:
+          - { headline: prose, block: true, prefix: title }
+        tag: section
+        class: section
+        heading: personalInformation
+        when: headline
+      - stack:
+          - stack: [location]
+            tag: p
+            class: prose
+            block: true
+        tag: section
+        class: section
+        heading: locations
+        when: location
+      - stack:
+          - links
+        tag: section
+        class: section
+        heading: websites
+        when: links
+      - custom
+    class: body
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: div
+        class: entry-head
+        children:
+          - tag: span
+            class: role
+            children:
+              - tag: strong
+                children:
+                  - field: title
+                    placeholder: false
+              - tag: span
+                class: sep
+                children:
+                  - text: /
+              - field: company
+                placeholder: false
+          - tag: span
+            class: dates
+            children:
+              - field: start
+                placeholder: false
+              - text: ' - '
+              - field: end
+                placeholder: false
+      - bullets: bullets
+  education:
+    name: EducationEntry
+    type: Education
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: div
+        class: entry-head
+        children:
+          - tag: span
+            class: role
+            children:
+              - tag: strong
+                children:
+                  - field: degree
+                    optional: true
+                    placeholder: degree
+              - fragment:
+                  - text: ': '
+                  - field: field
+                    placeholder: false
+                when: field
+          - tag: span
+            class: dates
+            children:
+              - field: end
+                optional: true
+                placeholder: end
+      - tag: p
+        class: school
+        children:
+          - field: school
+            placeholder: false
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: div
+        class: entry-head
+        children:
+          - tag: span
+            class: role
+            children:
+              - tag: strong
+                children:
+                  - field: title
+                    placeholder: heading
+          - tag: span
+            class: dates
+            children:
+              - field: detail
+                optional: true
+      - bullets: bullets

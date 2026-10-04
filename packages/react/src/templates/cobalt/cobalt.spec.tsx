@@ -227,6 +227,9 @@ describe('the Cobalt document', () => {
       'data-chrome',
     ]);
 
+    /** The layout kit's (`kit/layout.css`) — shared by every described template. */
+    const layout = new Set(['data-layout', 'data-layout-sized']);
+
     const seen = new Set<string>();
     for (const el of container.querySelectorAll('*')) {
       for (const attr of el.getAttributeNames()) {
@@ -234,7 +237,9 @@ describe('the Cobalt document', () => {
       }
     }
     expect(
-      [...seen].filter((a) => !pagination.has(a) && !nodes.has(a)),
+      [...seen].filter(
+        (a) => !pagination.has(a) && !nodes.has(a) && !layout.has(a),
+      ),
     ).toEqual([]);
   });
 

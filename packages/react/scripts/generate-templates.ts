@@ -1,14 +1,7 @@
 /**
- * Compile every `src/templates/<id>/<id>.template.yaml` into that template's
- * `<Component>Document.tsx` and `entries.tsx`.
- *
- *   pnpm run generate-templates   # write, once      (or: nx run resume-templates:…)
- *   pnpm run watch-templates      # write on every save
- *   pnpm run check-templates      # CI: fail on drift
- *
- * The output is formatted with the repository's Prettier config, so the check
- * compares exactly what is committed. See `src/compiler/` and
- * `openspec/changes/declarative-templates`.
+ * Compile every `src/templates/<id>/<id>.template.yaml` into the template's
+ * `<Component>Document.tsx` and `entries.tsx`. `--watch` regenerates on save;
+ * `--check` fails on drift.
  */
 import {
   readFileSync,
@@ -34,7 +27,6 @@ async function pretty(source: string, file: string): Promise<string> {
   return format(source, { ...config, filepath: file });
 }
 
-/** One pass over every description. Returns the problems found. */
 async function run(): Promise<string[]> {
   const problems: string[] = [];
   for (const id of readdirSync(TEMPLATES)) {
@@ -86,12 +78,7 @@ const first = await run();
 for (const p of first) console.error(p);
 
 if (watching) {
-  /*
-   * Regenerate on every save of a description. The gallery and the app pick
-   * the rewritten .tsx up through Vite's hot reload, so an edit to the YAML is
-   * on screen a moment later. A description that does not validate prints its
-   * problems and leaves the last good output in place.
-   */
+  /* An invalid description reports and keeps the last good output. */
   console.log('watching src/templates/**/*.template.yaml — Ctrl+C to stop');
   let timer: ReturnType<typeof setTimeout> | undefined;
   watch(TEMPLATES, { recursive: true }, (_, file) => {

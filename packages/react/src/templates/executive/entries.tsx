@@ -1,3 +1,8 @@
+/*
+ * GENERATED from executive.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ReactNode } from 'react';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
 import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
@@ -5,27 +10,7 @@ import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { useEditorText } from '../../i18n/index.js';
 
-/**
- * Exec's entry components: the markup for one item of each shape.
- *
- * This is the whole of what a template supplies to a collection. None of
- * these can add, remove, hide or move anything — they are handed an item and
- * the path that addresses it, and `collections.spec.tsx` asserts that no file
- * in this directory can reach a mutator.
- *
- * `path` is the item's own path in the résumé, which is NOT where it is drawn:
- * a reordered document renders `experience.2` in first place, and the fields
- * inside it must keep saying `experience.2.*` so a stored edit follows the job
- * rather than the position.
- *
- * `chrome` is the item's controls. A template decides WHERE they sit in its own
- * markup — it owns the layout — and cannot decide what they are: the value is
- * opaque, and no template can reach the operations behind it. It is `null` on a
- * document that is only being read, so the markup is the same either way and no
- * template asks which mode it is in.
- */
-
-export function ExecExperienceEntry({
+export function ExecutiveExperienceEntry({
   item,
   path,
   chrome,
@@ -44,7 +29,7 @@ export function ExecExperienceEntry({
           <strong>
             <EditableText path={`${path}.title`} value={item.title} />
           </strong>
-          <span className="tpl-exec__sep">/</span>
+          <span className="tpl-exec__sep">{'/'}</span>
           <EditableText path={`${path}.company`} value={item.company} />
         </span>
         <span className="tpl-exec__dates">
@@ -58,7 +43,7 @@ export function ExecExperienceEntry({
   );
 }
 
-export function ExecEducationEntry({
+export function ExecutiveEducationEntry({
   item,
   path,
   chrome,
@@ -69,6 +54,7 @@ export function ExecEducationEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <article {...itemProps} className="tpl-exec__entry" data-block>
       {chrome}
@@ -78,7 +64,7 @@ export function ExecEducationEntry({
             <EditableText
               path={`${path}.degree`}
               value={item.degree ?? ''}
-              placeholder="Degree"
+              placeholder={placeholder('degree')}
             />
           </strong>
           {item.field && (
@@ -92,7 +78,7 @@ export function ExecEducationEntry({
           <EditableText
             path={`${path}.end`}
             value={item.end ?? ''}
-            placeholder="—"
+            placeholder={placeholder('end')}
           />
         </span>
       </div>
@@ -103,15 +89,7 @@ export function ExecEducationEntry({
   );
 }
 
-/**
- * A candidate's own section entry, in Exec's own pattern.
- *
- * `CustomSections` drew these in a shared neutral layout because "borrowing one
- * template's entry markup would render as debris in the other three" — true
- * while entry markup was inline in a document's JSX, and false now that each
- * template names a component for it.
- */
-export function ExecCustomEntry({
+export function ExecutiveCustomEntry({
   item,
   path,
   chrome,
@@ -144,10 +122,6 @@ export function ExecCustomEntry({
           />
         </span>
       </div>
-      {/* The list renders itself empty while the document is being authored —
-          see `EditableBulletList`. Gating it here on having bullets was the
-          same defect one level up: an entry with none had no list, so there was
-          nowhere to put the first one. */}
       <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
   );

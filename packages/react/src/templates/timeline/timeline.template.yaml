@@ -1,0 +1,129 @@
+id: timeline
+component: Timeline
+prefix: tpl-timeline
+styleKey: tl
+
+layout:
+  - stack: [name, headline, { contact: [phone, email, location], links: true }]
+    tag: header
+    class: head-block
+    block: true
+  - summary
+  - experience
+  - education
+  - { section: achievements, kit: [tpl-described--marked, tpl-described--grid] }
+  - custom
+  - section: skills
+    groups: bullets
+    wrapper:
+      { tag: div, kit: [tpl-keywords, tpl-keywords--inline], split: true }
+  - courses
+  - languages
+  - { section: certifications, class: keywords, whenEmpty: hide }
+  - { section: passions, kit: [tpl-described--marked] }
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: div
+        class: when
+        children:
+          - tag: p
+            class: dates
+            children:
+              - field: start
+              - text: ' - '
+              - field: end
+          - tag: p
+            class: place
+            children:
+              - field: location
+                optional: true
+      - tag: div
+        class: spine
+        decorative: true
+      - tag: div
+        class: what
+        children:
+          - tag: p
+            class: role
+            children:
+              - field: title
+          - tag: p
+            class: org
+            children:
+              - field: company
+          - bullets: bullets
+  education:
+    name: EducationEntry
+    type: Education
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: div
+        class: when
+        children:
+          - tag: p
+            class: dates
+            children:
+              - field: start
+                optional: true
+              - separator: ' - '
+                between:
+                  - start
+                  - end
+              - field: end
+                optional: true
+          - tag: p
+            class: place
+            children:
+              - field: location
+                optional: true
+      - tag: div
+        class: spine
+        decorative: true
+      - tag: div
+        class: what
+        children:
+          - tag: p
+            class: role
+            children:
+              - field: degree
+                optional: true
+              - word: degreeField
+                between:
+                  - degree
+                  - field
+              - field: field
+                optional: true
+          - tag: p
+            class: org
+            children:
+              - field: school
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root:
+      tag: article
+      class: note
+      block: true
+    children:
+      - tag: p
+        class: note-title
+        children:
+          - field: title
+            placeholder: heading
+      - tag: p
+        class: note-detail
+        children:
+          - field: detail
+            optional: true
+      - bullets: bullets

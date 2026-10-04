@@ -4,6 +4,7 @@ import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
 import { useAutosave } from '../autosave-context.js';
 import { PlainTextField } from './PlainTextField.js';
+import { usePicture } from '../picture-context.js';
 
 export interface EditableInlineListProps {
   /** Where this list lives in the `ResumeObject` — e.g. `skills.0.items`. */
@@ -47,6 +48,7 @@ export function EditableInlineList({
   placeholder,
 }: EditableInlineListProps) {
   const format = useFieldFormat(path);
+  const picture = usePicture();
   const { value, editing, selected, select, set } = useField(path, items);
 
   /* Typing, so deferred — the same bargain `EditableText` makes. */
@@ -85,8 +87,8 @@ export function EditableInlineList({
        * — the same split `EditableText` makes for the same reason.
        */
       data-empty={(!selected && text.length === 0) || undefined}
-      data-placeholder={placeholder}
-      data-path={path}
+      data-placeholder={picture ? undefined : placeholder}
+      data-path={picture ? undefined : path}
     >
       {selected ? (
         /*

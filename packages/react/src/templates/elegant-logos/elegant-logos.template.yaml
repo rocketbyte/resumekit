@@ -1,0 +1,142 @@
+id: elegant-logos
+component: ElegantLogos
+prefix: tpl-ell
+styleKey: ell
+
+layout:
+  - row:
+      - stack:
+          - stack:
+              - stack:
+                  [
+                    name,
+                    headline,
+                    { contact: [phone, email, location], links: true },
+                  ]
+                class: identity
+            tag: header
+            class: head-block
+            block: true
+          - summary
+          - experience
+          - education
+          - languages
+        class: main
+      - stack:
+          - avatar
+          - {
+              section: achievements,
+              title: keyAchievements,
+              kit: [tpl-described--marked],
+            }
+          - custom
+          - { section: skills, groups: inline }
+          - courses
+          - { section: certifications, whenEmpty: hide }
+          - {
+              section: passions,
+              title: interests,
+              kit: [tpl-described--marked],
+            }
+        tag: aside
+        class: aside
+    class: body
+    kit: [tpl-sheet-tall]
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - chip: company
+        class: mark
+      - tag: p
+        class: role
+        children:
+          - field: title
+      - tag: p
+        class: meta
+        children:
+          - tag: span
+            class: org
+            children:
+              - field: company
+          - tag: span
+            class: meta-item
+            children:
+              - field: start
+              - text: ' - '
+              - field: end
+          - tag: span
+            class: meta-item
+            children:
+              - field: location
+                optional: true
+      - bullets: bullets
+  education:
+    name: EducationEntry
+    type: Education
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - chip: school
+        class: mark
+      - tag: p
+        class: role
+        children:
+          - field: degree
+            optional: true
+          - word: degreeField
+            between:
+              - degree
+              - field
+          - field: field
+            optional: true
+      - tag: p
+        class: meta
+        children:
+          - tag: span
+            class: org
+            children:
+              - field: school
+          - tag: span
+            class: meta-item
+            children:
+              - field: start
+                optional: true
+              - separator: ' - '
+                between:
+                  - start
+                  - end
+              - field: end
+                optional: true
+          - tag: span
+            class: meta-item
+            children:
+              - field: location
+                optional: true
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root:
+      tag: article
+      class: note
+      block: true
+    children:
+      - tag: p
+        class: note-title
+        children:
+          - field: title
+            placeholder: heading
+      - tag: p
+        class: note-detail
+        children:
+          - field: detail
+            optional: true
+      - bullets: bullets

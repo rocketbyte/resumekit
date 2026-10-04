@@ -1,17 +1,23 @@
+/*
+ * GENERATED from timeline.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ResumeObject } from '@cvgs/core';
-import { Collection } from '../../collections/Collection.js';
-import { useAuthoring } from '../../collections/authoring-context.js';
-import { CustomSections } from '../../nodes/CustomSections.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
-import { EditableText } from '../../nodes/EditableText.js';
-import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
+import { EditableText } from '../../nodes/EditableText.js';
+import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
+import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
 import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
+import { Heading } from '../../kit/Heading.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import {
   TimelineCustomEntry,
   TimelineEducationEntry,
@@ -20,17 +26,6 @@ import {
 import './timeline.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
-/**
- * The Timeline template.
- *
- * One column, with every entry hung off a dated spine: the dates and the place
- * at the left, a ruled line with a dot, then the role over the employer in the
- * accent. The spine is the design's whole idea, and it is drawn as a border on
- * the entry's own middle column so that it exists exactly where entries do.
- *
- * Skills are chips — boxes by appearance, list items by structure — and the
- * candidate's own sections are set two to a row.
- */
 export interface TimelineDocumentProps {
   resume: ResumeObject;
 }
@@ -55,9 +50,9 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
       lang={doc.locale}
     >
       <header className="tpl-timeline__head-block" data-block>
-        <h1 className="tpl-timeline__name">
+        <Heading level={1} className="tpl-timeline__name">
           <EditableText path="name" value={resume.name} />
-        </h1>
+        </Heading>
 
         {(resume.headline || authoring) && (
           <p className="tpl-timeline__headline">
@@ -164,11 +159,12 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
         id="achievements"
         heading={resume.section_headings?.achievements}
         title={doc.t.sections.achievements}
-        items={resume.achievements}
         className="tpl-timeline__section tpl-described--marked tpl-described--grid"
         headingClassName="tpl-timeline__heading"
+        items={resume.achievements}
         entryClassName="tpl-timeline__described"
       />
+
       <CustomSections
         sections={resume.custom_sections}
         sectionClass="tpl-timeline__section"
@@ -184,8 +180,6 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
           className="tpl-timeline__section"
           headingClassName="tpl-timeline__heading"
         >
-          {/* Keywords over a rule, one to a line, and every one a list ITEM:
-              a parser reads them one per line rather than as a run. */}
           <div
             className="tpl-keywords tpl-keywords--inline"
             data-block
@@ -203,17 +197,16 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
         </DocumentSection>
       )}
 
-      {/* A plain section: "the space above Languages" is not a stored gap, and
-          reusing the skills key would give two sections one rail. */}
       <DescribedEntries
         id="courses"
         heading={resume.section_headings?.courses}
         title={doc.t.sections.courses}
-        items={resume.courses}
         className="tpl-timeline__section"
         headingClassName="tpl-timeline__heading"
+        items={resume.courses}
         entryClassName="tpl-timeline__described"
       />
+
       <LanguageList
         items={resume.languages}
         heading={resume.section_headings?.languages}
@@ -239,13 +232,14 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
           </p>
         </DocumentSection>
       )}
+
       <DescribedEntries
         id="passions"
         heading={resume.section_headings?.passions}
         title={doc.t.sections.passions}
-        items={resume.passions}
         className="tpl-timeline__section tpl-described--marked"
         headingClassName="tpl-timeline__heading"
+        items={resume.passions}
         entryClassName="tpl-timeline__described"
       />
     </article>

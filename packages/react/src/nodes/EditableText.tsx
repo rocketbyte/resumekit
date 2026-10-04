@@ -6,6 +6,7 @@ import { PlainTextField } from './PlainTextField.js';
 import { useAutosave } from '../autosave-context.js';
 import { useDateIssue } from '../fields/date-issues-context.js';
 import { useEditorText } from '../i18n/index.js';
+import { usePicture } from '../picture-context.js';
 
 export interface EditableTextProps {
   /** Where this text lives in the `ResumeObject` — e.g. `experience.0.title`. */
@@ -87,6 +88,7 @@ export function EditableText({
   // Read live, so a formatting change shows the instant it is made — a field's
   // value is the text, and only the text.
   const format = useFieldFormat(path);
+  const picture = usePicture();
   /*
    * The field, by its path in the résumé.
    *
@@ -176,8 +178,8 @@ export function EditableText({
         style={formatInk(format)}
         data-ink={inkAttr(format)}
         data-empty={value.length === 0 || undefined}
-        data-placeholder={placeholder}
-        data-path={path}
+        data-placeholder={picture ? undefined : placeholder}
+        data-path={picture ? undefined : path}
         /*
          * What was noticed about this date, as an attribute the stylesheet
          * draws and a reader can hear. Never a text node: a message painted
@@ -203,7 +205,9 @@ export function EditableText({
          * product does not control. The target is validated in `libs/core`, so
          * a `javascript:` URL never reaches this element.
          */}
-        {target ? (
+        {target && picture ? (
+          <span className="tpl-text__link">{text}</span>
+        ) : target ? (
           <a
             className="tpl-text__link"
             href={target}

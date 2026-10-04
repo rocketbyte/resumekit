@@ -1,38 +1,33 @@
+/*
+ * GENERATED from stylish.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ResumeObject } from '@cvgs/core';
-import { Collection } from '../../collections/Collection.js';
-import { useAuthoring } from '../../collections/authoring-context.js';
-import { CustomSections } from '../../nodes/CustomSections.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
-import { EditableText } from '../../nodes/EditableText.js';
-import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
-import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
-import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
+import { EditableText } from '../../nodes/EditableText.js';
+import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
+import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
+import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
+import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
+import { Heading } from '../../kit/Heading.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import {
   StylishCustomEntry,
   StylishEducationEntry,
   StylishExperienceEntry,
 } from './entries.js';
+import '../../kit/layout.css';
 import './stylish.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
-/**
- * The Stylish template.
- *
- * Two columns with the rail on the LEFT, and it is written first because it is
- * drawn first: document order is the page's order, so the extracted text, the
- * printed text layer and the keyboard's path through the fields are one order
- * by construction. That makes the catalog's claim a statement about what a
- * parser actually receives — the highlights and the skills, then the work
- * history — rather than about a column's width.
- *
- * Each column is `data-flow`, so `PagedSheet` breaks it by its own height.
- */
 export interface StylishDocumentProps {
   resume: ResumeObject;
 }
@@ -56,11 +51,11 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
       aria-label={doc.t.resume}
       lang={doc.locale}
     >
-      <header className="tpl-stylish__head-block" data-block>
+      <header className="tpl-stylish__head-block" data-layout="row" data-block>
         <div className="tpl-stylish__identity">
-          <h1 className="tpl-stylish__name">
+          <Heading level={1} className="tpl-stylish__name">
             <EditableText path="name" value={resume.name} />
-          </h1>
+          </Heading>
 
           {(resume.headline || authoring) && (
             <p className="tpl-stylish__headline">
@@ -105,23 +100,22 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
             </p>
           )}
         </div>
-        {/* No photograph is stored, and none is invented: the initials stand
-            in the slot the design gives a portrait. */}
+
         <InitialsAvatar name={resume.name} className="tpl-stylish__avatar" />
       </header>
 
-      <div className="tpl-stylish__body">
-        {/* ── The rail: what a reader scans ─────────────────────────────── */}
+      <div className="tpl-stylish__body" data-layout="row">
         <aside className="tpl-stylish__aside" data-flow>
           <DescribedEntries
             id="achievements"
             heading={resume.section_headings?.achievements}
             title={doc.t.sections.achievements}
-            items={resume.achievements}
             className="tpl-stylish__section tpl-described--marked"
             headingClassName="tpl-stylish__heading"
+            items={resume.achievements}
             entryClassName="tpl-stylish__described"
           />
+
           <CustomSections
             sections={resume.custom_sections}
             sectionClass="tpl-stylish__section"
@@ -137,8 +131,6 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
               className="tpl-stylish__section"
               headingClassName="tpl-stylish__heading"
             >
-              {/* Keywords in boxes, as this reference draws them — and every one a
-                  list ITEM, so a parser still reads one skill per line. */}
               <div
                 className="tpl-keywords tpl-keywords--boxed"
                 data-block
@@ -162,11 +154,12 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
             id="courses"
             heading={resume.section_headings?.courses}
             title={doc.t.sections.courses}
-            items={resume.courses}
             className="tpl-stylish__section"
             headingClassName="tpl-stylish__heading"
+            items={resume.courses}
             entryClassName="tpl-stylish__described"
           />
+
           {resume.certifications.length > 0 && (
             <DocumentSection
               id="certifications"
@@ -184,16 +177,18 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
               </p>
             </DocumentSection>
           )}
+
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
             title={doc.t.sections.passions}
-            items={resume.passions}
             className="tpl-stylish__section tpl-described--marked"
             headingClassName="tpl-stylish__heading"
+            items={resume.passions}
             entryClassName="tpl-stylish__described"
           />
         </aside>
+
         <div className="tpl-stylish__main" data-flow>
           {(resume.summary || authoring) && (
             <DocumentSection
@@ -256,8 +251,6 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
             </DocumentSection>
           )}
 
-          {/* Languages: read from `resume.languages`, so each one carries a level
-              and the section carries a gap of its own. */}
           <LanguageList
             items={resume.languages}
             heading={resume.section_headings?.languages}

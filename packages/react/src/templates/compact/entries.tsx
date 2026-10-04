@@ -1,37 +1,15 @@
+/*
+ * GENERATED from compact.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ReactNode } from 'react';
-import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
+import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { useEditorText } from '../../i18n/index.js';
 import { Separator } from '../../kit/Separator.js';
-
-/**
- * Compact's entries.
- *
- * The reference spends no vertical space on an entry's facts: the role sits on
- * its own line, and the employer, the dates and the place share the next one.
- * That single meta line is what makes the page dense without making it small.
- */
-function MetaLine({
-  org,
-  dates,
-  place,
-}: {
-  org: ReactNode;
-  dates: ReactNode;
-  place: ReactNode;
-}) {
-  return (
-    <p className="tpl-compact__meta">
-      <span className="tpl-compact__org">{org}</span>
-      {/* Real characters between the facts, so the extracted line reads as
-          three things rather than as one run-on. */}
-      <span className="tpl-compact__meta-item">{dates}</span>
-      <span className="tpl-compact__meta-item">{place}</span>
-    </p>
-  );
-}
 
 export function CompactExperienceEntry({
   item,
@@ -55,37 +33,35 @@ export function CompactExperienceEntry({
           placeholder={placeholder('title')}
         />
       </p>
-      <MetaLine
-        org={
+      <p className="tpl-compact__meta">
+        <span className="tpl-compact__org">
           <EditableText
             path={`${path}.company`}
             value={item.company}
             placeholder={placeholder('company')}
           />
-        }
-        dates={
-          <>
-            <EditableText
-              path={`${path}.start`}
-              value={item.start}
-              placeholder={placeholder('start')}
-            />
-            {' - '}
-            <EditableText
-              path={`${path}.end`}
-              value={item.end}
-              placeholder={placeholder('end')}
-            />
-          </>
-        }
-        place={
+        </span>
+        <span className="tpl-compact__meta-item">
+          <EditableText
+            path={`${path}.start`}
+            value={item.start}
+            placeholder={placeholder('start')}
+          />
+          {' - '}
+          <EditableText
+            path={`${path}.end`}
+            value={item.end}
+            placeholder={placeholder('end')}
+          />
+        </span>
+        <span className="tpl-compact__meta-item">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
             placeholder={placeholder('location')}
           />
-        }
-      />
+        </span>
+      </p>
       <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
   );
@@ -119,42 +95,39 @@ export function CompactEducationEntry({
           placeholder={placeholder('field')}
         />
       </p>
-      <MetaLine
-        org={
+      <p className="tpl-compact__meta">
+        <span className="tpl-compact__org">
           <EditableText
             path={`${path}.school`}
             value={item.school}
             placeholder={placeholder('school')}
           />
-        }
-        dates={
-          <>
-            <EditableText
-              path={`${path}.start`}
-              value={item.start ?? ''}
-              placeholder={placeholder('start')}
-            />
-            <Separator between={[item.start, item.end]} text=" - " />
-            <EditableText
-              path={`${path}.end`}
-              value={item.end ?? ''}
-              placeholder={placeholder('end')}
-            />
-          </>
-        }
-        place={
+        </span>
+        <span className="tpl-compact__meta-item">
+          <EditableText
+            path={`${path}.start`}
+            value={item.start ?? ''}
+            placeholder={placeholder('start')}
+          />
+          <Separator between={[item.start, item.end]} text=" - " />
+          <EditableText
+            path={`${path}.end`}
+            value={item.end ?? ''}
+            placeholder={placeholder('end')}
+          />
+        </span>
+        <span className="tpl-compact__meta-item">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
             placeholder={placeholder('location')}
           />
-        }
-      />
+        </span>
+      </p>
     </article>
   );
 }
 
-/** A section the candidate declared: a titled note, as the rail sets them. */
 export function CompactCustomEntry({
   item,
   path,

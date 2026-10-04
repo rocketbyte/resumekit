@@ -1,0 +1,16 @@
+/* Zero-specificity defaults for described layouts; a template's own rules win. */
+:where([data-layout='row']) {
+  display: flex;
+  gap: var(--tpl-gap, 0);
+}
+
+:where([data-layout='row'] > [data-layout-sized]) {
+  flex: var(--tpl-grow, 1) var(--tpl-shrink, 1) var(--tpl-basis, 0%);
+  min-width: 0;
+}
+
+:where([data-layout='stack']) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tpl-gap);
+}

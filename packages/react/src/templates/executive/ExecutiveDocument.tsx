@@ -1,40 +1,32 @@
+/*
+ * GENERATED from executive.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ResumeObject } from '@cvgs/core';
+import { useDocumentStyle } from '../../presentation-context.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
-import { LinkField } from '../../nodes/LinkField.js';
-import { useAuthoring } from '../../collections/authoring-context.js';
-import { useDocumentStyle } from '../../presentation-context.js';
-import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
+import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
+import { monogram } from '../../kit/monogram.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
-import { monogram } from '../../kit/monogram.js';
+import { Heading } from '../../kit/Heading.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import {
-  ExecCustomEntry,
-  ExecEducationEntry,
-  ExecExperienceEntry,
+  ExecutiveCustomEntry,
+  ExecutiveEducationEntry,
+  ExecutiveExperienceEntry,
 } from './entries.js';
+import '../../kit/layout.css';
 import './executive.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
-
-/**
- * The Executive template.
- *
- * Same contract as Harvard: one Craft node for the whole document, structure as
- * plain JSX inside this render (so it is not addressable), and every editable
- * field declared as an `<Element id=…>` linked node carrying its **domain path**.
- * The paths are identical to Harvard's, which is what makes an overlay written
- * under one template apply unchanged under this one.
- *
- * The reference prints a location per experience entry, which this résumé
- * cannot hold, so entry locations are omitted rather than invented. Languages
- * WAS the other such gap; `resume.languages` closed it, and the section is now
- * a first-class list with a level per language. See `design.md`, decision 1.
- */
 
 export interface ExecutiveDocumentProps {
   resume: ResumeObject;
@@ -44,16 +36,10 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
   const { placeholder } = useEditorText();
   const doc = useDocumentText();
   const style = useDocumentStyle();
-  /*
-   * A section with nothing in it is omitted from the DOCUMENT and offered in
-   * the EDITOR, because a candidate cannot add their first role to a section
-   * that is not drawn. The read-only page is unchanged: with no authoring
-   * context this is false and an empty section stays absent.
-   */
   const authoring = useAuthoring() !== null;
 
-  const [location] = useContactLines(resume.contact, ['location'], authoring);
-  const contact = useContactLines(
+  const contact = useContactLines(resume.contact, ['location'], authoring);
+  const contact2 = useContactLines(
     resume.contact,
     ['email', 'phone'],
     authoring,
@@ -66,30 +52,32 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
       aria-label={doc.t.resume}
       lang={doc.locale}
     >
-      {/* ── Header band ──────────────────────────────────────────────────── */}
-      <header className="tpl-exec__band" data-block>
+      <header className="tpl-exec__band" data-layout="row" data-block>
         <span className="tpl-exec__monogram" aria-hidden="true">
           {monogram(resume.name)}
         </span>
 
         <div className="tpl-exec__identity">
-          <h1 className="tpl-exec__name">
+          <Heading level={1} className="tpl-exec__name">
             <EditableText path="name" value={resume.name} />
-          </h1>
+          </Heading>
 
-          {location && (
+          {contact.length > 0 && (
             <p className="tpl-exec__where">
-              <EditableText
-                path={location.path}
-                value={location.value}
-                placeholder={location.placeholder}
-              />
+              {contact.map(({ path, value, placeholder }) => (
+                <EditableText
+                  key={path}
+                  path={path}
+                  value={value}
+                  placeholder={placeholder}
+                />
+              ))}
             </p>
           )}
 
-          {contact.length > 0 && (
+          {contact2.length > 0 && (
             <p className="tpl-exec__contact">
-              {contact.map(({ path, value, placeholder }) => (
+              {contact2.map(({ path, value, placeholder }) => (
                 <span key={path} className="tpl-exec__contact-item">
                   <EditableText
                     path={path}
@@ -127,11 +115,12 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           id="achievements"
           heading={resume.section_headings?.achievements}
           title={doc.t.sections.achievements}
-          items={resume.achievements}
           className="tpl-exec__section tpl-described--marked"
           headingClassName="tpl-exec__heading"
+          items={resume.achievements}
           entryClassName="tpl-exec__described"
         />
+
         {(resume.skills.length > 0 || authoring) && (
           <DocumentSection
             id="skills"
@@ -140,14 +129,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
             className="tpl-exec__section"
             headingClassName="tpl-exec__heading"
           >
-            {/*
-             * Two VISUAL columns over the lists, not structural ones: CSS
-             * columns leave the DOM — and therefore the text a parser extracts
-             * — in document order.
-             */}
             <div className="tpl-exec__columns" data-block>
-              {/* "skill", because this template prints no category: what a candidate
-                    adds here is a skill, and the group it lands in is storage. */}
               <Collection
                 section="skills"
                 items={resume.skills}
@@ -172,7 +154,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           >
             <Collection section="experience" items={resume.experience}>
               {({ item, path, chrome, itemProps }) => (
-                <ExecExperienceEntry
+                <ExecutiveExperienceEntry
                   item={item}
                   path={path}
                   chrome={chrome}
@@ -193,7 +175,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           >
             <Collection section="education" items={resume.education}>
               {({ item, path, chrome, itemProps }) => (
-                <ExecEducationEntry
+                <ExecutiveEducationEntry
                   item={item}
                   path={path}
                   chrome={chrome}
@@ -208,11 +190,12 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           id="courses"
           heading={resume.section_headings?.courses}
           title={doc.t.sections.courses}
-          items={resume.courses}
           className="tpl-exec__section"
           headingClassName="tpl-exec__heading"
+          items={resume.courses}
           entryClassName="tpl-exec__described"
         />
+
         <LanguageList
           items={resume.languages}
           heading={resume.section_headings?.languages}
@@ -237,40 +220,51 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
             </div>
           </DocumentSection>
         )}
+
         <DescribedEntries
           id="passions"
           heading={resume.section_headings?.passions}
           title={doc.t.sections.passions}
-          items={resume.passions}
           className="tpl-exec__section tpl-described--marked"
           headingClassName="tpl-exec__heading"
+          items={resume.passions}
           entryClassName="tpl-exec__described"
         />
 
         {(resume.headline || authoring) && (
           <section className="tpl-exec__section">
-            <h2 className="tpl-exec__heading" data-block data-keep-with-next>
-              Personal Information
-            </h2>
-            <p className="tpl-exec__prose" data-block>
-              {'Title: '}
-              <EditableText
-                path="headline"
-                value={resume.headline ?? ''}
-                placeholder={placeholder('headline')}
-              />
-            </p>
+            <Heading
+              level={2}
+              className="tpl-exec__heading"
+              data-block
+              data-keep-with-next
+            >
+              {doc.t.panels.personalInformation}
+            </Heading>
+            {(resume.headline || authoring) && (
+              <p className="tpl-exec__prose" data-block>
+                {doc.t.labels.title}
+                <EditableText
+                  path="headline"
+                  value={resume.headline ?? ''}
+                  placeholder={placeholder('headline')}
+                />
+              </p>
+            )}
           </section>
         )}
 
         {resume.contact.location && (
           <section className="tpl-exec__section">
-            <h2 className="tpl-exec__heading" data-block data-keep-with-next>
-              Locations
-            </h2>
+            <Heading
+              level={2}
+              className="tpl-exec__heading"
+              data-block
+              data-keep-with-next
+            >
+              {doc.t.panels.locations}
+            </Heading>
             <p className="tpl-exec__prose" data-block>
-              {/* The same field the header shows: one location, two places it
-                  is printed, never two values that can disagree. */}
               {resume.contact.location}
             </p>
           </section>
@@ -278,9 +272,14 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
 
         {(resume.links.length > 0 || authoring) && (
           <section className="tpl-exec__section">
-            <h2 className="tpl-exec__heading" data-block data-keep-with-next>
-              Websites, Portfolios, Profiles
-            </h2>
+            <Heading
+              level={2}
+              className="tpl-exec__heading"
+              data-block
+              data-keep-with-next
+            >
+              {doc.t.panels.websites}
+            </Heading>
             <ul className="tpl-exec__links" data-block>
               <Collection section="links" items={resume.links} gap={false}>
                 {({ item, path, chrome, itemProps, justAdded }) => (
@@ -293,17 +292,12 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
             </ul>
           </section>
         )}
-        {/*
-         * The candidate's own sections, inside the column that carries the
-         * résumé — not after the body. A section outside it inherits none of
-         * the page's side padding, so it ran to the paper's edge and its
-         * rail fell outside the flow, where nothing can click it.
-         */}
+
         <CustomSections
           sections={resume.custom_sections}
           sectionClass="tpl-exec__section"
           headingClass="tpl-exec__heading"
-          Entry={ExecCustomEntry}
+          Entry={ExecutiveCustomEntry}
         />
       </div>
     </article>

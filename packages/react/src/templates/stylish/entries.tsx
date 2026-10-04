@@ -1,37 +1,15 @@
+/*
+ * GENERATED from stylish.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ReactNode } from 'react';
-import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
+import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { useEditorText } from '../../i18n/index.js';
 import { Separator } from '../../kit/Separator.js';
-
-/**
- * Stylish's entries.
- *
- * The role leads, the employer follows in the accent, and the dates and the
- * place close the line in grey — three weights on two lines, which is how the
- * reference tells them apart without drawing anything.
- */
-function MetaLine({
-  org,
-  dates,
-  place,
-}: {
-  org: ReactNode;
-  dates: ReactNode;
-  place: ReactNode;
-}) {
-  return (
-    <p className="tpl-stylish__meta">
-      <span className="tpl-stylish__org">{org}</span>
-      {/* Real characters between the facts, so the extracted line reads as
-          three things rather than as one run-on. */}
-      <span className="tpl-stylish__meta-item">{dates}</span>
-      <span className="tpl-stylish__meta-item">{place}</span>
-    </p>
-  );
-}
 
 export function StylishExperienceEntry({
   item,
@@ -55,37 +33,35 @@ export function StylishExperienceEntry({
           placeholder={placeholder('title')}
         />
       </p>
-      <MetaLine
-        org={
+      <p className="tpl-stylish__meta">
+        <span className="tpl-stylish__org">
           <EditableText
             path={`${path}.company`}
             value={item.company}
             placeholder={placeholder('company')}
           />
-        }
-        dates={
-          <>
-            <EditableText
-              path={`${path}.start`}
-              value={item.start}
-              placeholder={placeholder('start')}
-            />
-            {' - '}
-            <EditableText
-              path={`${path}.end`}
-              value={item.end}
-              placeholder={placeholder('end')}
-            />
-          </>
-        }
-        place={
+        </span>
+        <span className="tpl-stylish__meta-item">
+          <EditableText
+            path={`${path}.start`}
+            value={item.start}
+            placeholder={placeholder('start')}
+          />
+          {' - '}
+          <EditableText
+            path={`${path}.end`}
+            value={item.end}
+            placeholder={placeholder('end')}
+          />
+        </span>
+        <span className="tpl-stylish__meta-item">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
             placeholder={placeholder('location')}
           />
-        }
-      />
+        </span>
+      </p>
       <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
   );
@@ -119,42 +95,39 @@ export function StylishEducationEntry({
           placeholder={placeholder('field')}
         />
       </p>
-      <MetaLine
-        org={
+      <p className="tpl-stylish__meta">
+        <span className="tpl-stylish__org">
           <EditableText
             path={`${path}.school`}
             value={item.school}
             placeholder={placeholder('school')}
           />
-        }
-        dates={
-          <>
-            <EditableText
-              path={`${path}.start`}
-              value={item.start ?? ''}
-              placeholder={placeholder('start')}
-            />
-            <Separator between={[item.start, item.end]} text=" - " />
-            <EditableText
-              path={`${path}.end`}
-              value={item.end ?? ''}
-              placeholder={placeholder('end')}
-            />
-          </>
-        }
-        place={
+        </span>
+        <span className="tpl-stylish__meta-item">
+          <EditableText
+            path={`${path}.start`}
+            value={item.start ?? ''}
+            placeholder={placeholder('start')}
+          />
+          <Separator between={[item.start, item.end]} text=" - " />
+          <EditableText
+            path={`${path}.end`}
+            value={item.end ?? ''}
+            placeholder={placeholder('end')}
+          />
+        </span>
+        <span className="tpl-stylish__meta-item">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
             placeholder={placeholder('location')}
           />
-        }
-      />
+        </span>
+      </p>
     </article>
   );
 }
 
-/** A section the candidate declared: a titled note, as the rail sets them. */
 export function StylishCustomEntry({
   item,
   path,

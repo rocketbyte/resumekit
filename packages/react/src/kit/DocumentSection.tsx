@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { ResumeSectionId } from '@cvgs/core';
 import { useSpaceSlot } from '../spacing/useSpaceSlot.js';
 import { EditableText } from '../nodes/EditableText.js';
+import { Heading } from './Heading.js';
 
 export interface DocumentSectionProps {
   /** The stored section this is, which gives it an adjustable gap and a rail. */
@@ -69,14 +70,19 @@ export function DocumentSection({
   return (
     <section className={className} {...space.rootProps}>
       {space.handle}
-      <h2 className={headingClassName} data-block data-keep-with-next>
+      <Heading
+        level={2}
+        className={headingClassName}
+        data-block
+        data-keep-with-next
+      >
         <EditableText
           path={`section_headings.${id}`}
           value={printed}
           placeholder={title}
           defaultValue={title}
         />
-      </h2>
+      </Heading>
       {children}
     </section>
   );

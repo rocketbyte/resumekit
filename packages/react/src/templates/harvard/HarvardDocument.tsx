@@ -15,6 +15,7 @@ import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
+import { Heading } from '../../kit/Heading.js';
 import { LinkField } from '../../nodes/LinkField.js';
 import {
   HarvardCustomEntry,
@@ -49,9 +50,9 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
       lang={doc.locale}
     >
       <header className="tpl-harvard__head" data-block>
-        <h1 className="tpl-harvard__name">
+        <Heading level={1} className="tpl-harvard__name">
           <EditableText path="name" value={resume.name} />
-        </h1>
+        </Heading>
 
         {(resume.headline || authoring) && (
           <p className="tpl-harvard__headline">

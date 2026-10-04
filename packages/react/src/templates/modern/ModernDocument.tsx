@@ -1,39 +1,33 @@
+/*
+ * GENERATED from modern.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ResumeObject } from '@cvgs/core';
-import { Collection } from '../../collections/Collection.js';
-import { useAuthoring } from '../../collections/authoring-context.js';
-import { CustomSections } from '../../nodes/CustomSections.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
-import { EditableText } from '../../nodes/EditableText.js';
-import { LinkField } from '../../nodes/LinkField.js';
 import { useDocumentStyle } from '../../presentation-context.js';
-import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
-import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
+import { useAuthoring } from '../../collections/authoring-context.js';
+import { EditableText } from '../../nodes/EditableText.js';
+import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { CustomSections } from '../../nodes/CustomSections.js';
+import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
+import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
+import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
+import { Heading } from '../../kit/Heading.js';
+import { LinkField } from '../../nodes/LinkField.js';
 import {
   ModernCustomEntry,
   ModernEducationEntry,
   ModernExperienceEntry,
 } from './entries.js';
+import '../../kit/layout.css';
 import './modern.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
-/**
- * The Modern template.
- *
- * A navy name over an accented headline, the candidate's initials where the
- * reference shows a portrait, and a body of two columns with the work history
- * in the wide one — written FIRST, which is the only ATS property this shape
- * can honestly offer.
- *
- * Its headings are ruled across their own column, which is what tells the two
- * columns apart at a glance without drawing a divider between them.
- *
- * Each column is `data-flow`, so `PagedSheet` breaks it by its own height.
- */
 export interface ModernDocumentProps {
   resume: ResumeObject;
 }
@@ -57,11 +51,11 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
       aria-label={doc.t.resume}
       lang={doc.locale}
     >
-      <header className="tpl-modern__head-block" data-block>
+      <header className="tpl-modern__head-block" data-layout="row" data-block>
         <div className="tpl-modern__identity">
-          <h1 className="tpl-modern__name">
+          <Heading level={1} className="tpl-modern__name">
             <EditableText path="name" value={resume.name} />
-          </h1>
+          </Heading>
 
           {(resume.headline || authoring) && (
             <p className="tpl-modern__headline">
@@ -106,12 +100,11 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
             </p>
           )}
         </div>
-        {/* No photograph is stored, and none is invented: the initials stand
-            in the slot the design gives a portrait. */}
+
         <InitialsAvatar name={resume.name} className="tpl-modern__avatar" />
       </header>
 
-      <div className="tpl-modern__body">
+      <div className="tpl-modern__body" data-layout="row">
         <div className="tpl-modern__main" data-flow>
           {(resume.experience.length > 0 || authoring) && (
             <DocumentSection
@@ -155,8 +148,6 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
             </DocumentSection>
           )}
 
-          {/* Languages: read from `resume.languages`, so each one carries a level
-              and the section carries a gap of its own. */}
           <LanguageList
             items={resume.languages}
             heading={resume.section_headings?.languages}
@@ -166,7 +157,6 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
           />
         </div>
 
-        {/* ── The rail: what a reader scans ─────────────────────────────── */}
         <aside className="tpl-modern__aside" data-flow>
           {(resume.summary || authoring) && (
             <DocumentSection
@@ -191,11 +181,12 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
             id="achievements"
             heading={resume.section_headings?.achievements}
             title={doc.t.sections.achievements}
-            items={resume.achievements}
             className="tpl-modern__section tpl-described--marked"
             headingClassName="tpl-modern__heading"
+            items={resume.achievements}
             entryClassName="tpl-modern__described"
           />
+
           <CustomSections
             sections={resume.custom_sections}
             sectionClass="tpl-modern__section"
@@ -211,8 +202,6 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
               className="tpl-modern__section"
               headingClassName="tpl-modern__heading"
             >
-              {/* Keywords over a rule, one to a line, and every one a list ITEM:
-                  a parser reads them one per line rather than as a run. */}
               <div className="tpl-keywords" data-block data-split>
                 <Collection
                   section="skills"
@@ -232,11 +221,12 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
             id="courses"
             heading={resume.section_headings?.courses}
             title={doc.t.sections.courses}
-            items={resume.courses}
             className="tpl-modern__section"
             headingClassName="tpl-modern__heading"
+            items={resume.courses}
             entryClassName="tpl-modern__described"
           />
+
           {resume.certifications.length > 0 && (
             <DocumentSection
               id="certifications"
@@ -254,13 +244,14 @@ export function ModernDocument({ resume }: ModernDocumentProps) {
               </p>
             </DocumentSection>
           )}
+
           <DescribedEntries
             id="passions"
             heading={resume.section_headings?.passions}
             title={doc.t.sections.passions}
-            items={resume.passions}
             className="tpl-modern__section tpl-described--marked"
             headingClassName="tpl-modern__heading"
+            items={resume.passions}
             entryClassName="tpl-modern__described"
           />
         </aside>

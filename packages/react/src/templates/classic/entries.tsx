@@ -1,43 +1,15 @@
+/*
+ * GENERATED from classic.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ReactNode } from 'react';
-import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
+import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { useEditorText } from '../../i18n/index.js';
 import { Separator } from '../../kit/Separator.js';
-
-/**
- * Classic's entries.
- *
- * The reference leads with what was DONE — the role, then the employer in the
- * accent beneath it — and keeps place and dates in a quiet column at the right.
- * Education is the same shape with the qualification leading, so both share one
- * head.
- */
-function EntryHead({
-  lead,
-  support,
-  place,
-  dates,
-}: {
-  lead: ReactNode;
-  support: ReactNode;
-  place: ReactNode;
-  dates: ReactNode;
-}) {
-  return (
-    <div className="tpl-classic__head">
-      <div>
-        <p className="tpl-classic__lead">{lead}</p>
-        <p className="tpl-classic__support">{support}</p>
-      </div>
-      <div className="tpl-classic__aside">
-        <p className="tpl-classic__place">{place}</p>
-        <p className="tpl-classic__dates">{dates}</p>
-      </div>
-    </div>
-  );
-}
 
 export function ClassicExperienceEntry({
   item,
@@ -54,30 +26,32 @@ export function ClassicExperienceEntry({
   return (
     <article {...itemProps} className="tpl-classic__entry" data-block>
       {chrome}
-      <EntryHead
-        lead={
-          <EditableText
-            path={`${path}.title`}
-            value={item.title}
-            placeholder={placeholder('title')}
-          />
-        }
-        support={
-          <EditableText
-            path={`${path}.company`}
-            value={item.company}
-            placeholder={placeholder('company')}
-          />
-        }
-        place={
-          <EditableText
-            path={`${path}.location`}
-            value={item.location ?? ''}
-            placeholder={placeholder('location')}
-          />
-        }
-        dates={
-          <>
+      <div className="tpl-classic__head">
+        <div>
+          <p className="tpl-classic__lead">
+            <EditableText
+              path={`${path}.title`}
+              value={item.title}
+              placeholder={placeholder('title')}
+            />
+          </p>
+          <p className="tpl-classic__support">
+            <EditableText
+              path={`${path}.company`}
+              value={item.company}
+              placeholder={placeholder('company')}
+            />
+          </p>
+        </div>
+        <div className="tpl-classic__aside">
+          <p className="tpl-classic__place">
+            <EditableText
+              path={`${path}.location`}
+              value={item.location ?? ''}
+              placeholder={placeholder('location')}
+            />
+          </p>
+          <p className="tpl-classic__dates">
             <EditableText
               path={`${path}.start`}
               value={item.start}
@@ -89,9 +63,9 @@ export function ClassicExperienceEntry({
               value={item.end}
               placeholder={placeholder('end')}
             />
-          </>
-        }
-      />
+          </p>
+        </div>
+      </div>
       <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
   );
@@ -112,9 +86,9 @@ export function ClassicEducationEntry({
   return (
     <article {...itemProps} className="tpl-classic__entry" data-block>
       {chrome}
-      <EntryHead
-        lead={
-          <>
+      <div className="tpl-classic__head">
+        <div>
+          <p className="tpl-classic__lead">
             <EditableText
               path={`${path}.degree`}
               value={item.degree ?? ''}
@@ -126,24 +100,24 @@ export function ClassicEducationEntry({
               value={item.field ?? ''}
               placeholder={placeholder('field')}
             />
-          </>
-        }
-        support={
-          <EditableText
-            path={`${path}.school`}
-            value={item.school}
-            placeholder={placeholder('school')}
-          />
-        }
-        place={
-          <EditableText
-            path={`${path}.location`}
-            value={item.location ?? ''}
-            placeholder={placeholder('location')}
-          />
-        }
-        dates={
-          <>
+          </p>
+          <p className="tpl-classic__support">
+            <EditableText
+              path={`${path}.school`}
+              value={item.school}
+              placeholder={placeholder('school')}
+            />
+          </p>
+        </div>
+        <div className="tpl-classic__aside">
+          <p className="tpl-classic__place">
+            <EditableText
+              path={`${path}.location`}
+              value={item.location ?? ''}
+              placeholder={placeholder('location')}
+            />
+          </p>
+          <p className="tpl-classic__dates">
             <EditableText
               path={`${path}.start`}
               value={item.start ?? ''}
@@ -155,18 +129,13 @@ export function ClassicEducationEntry({
               value={item.end ?? ''}
               placeholder={placeholder('end')}
             />
-          </>
-        }
-      />
+          </p>
+        </div>
+      </div>
     </article>
   );
 }
 
-/**
- * A section the candidate declared: the title in the accent over its detail,
- * two to a row. The grid is the template's own — see `classic.css`, which also
- * moves the right column's rail out to the right margin.
- */
 export function ClassicCustomEntry({
   item,
   path,
