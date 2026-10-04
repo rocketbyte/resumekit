@@ -1,30 +1,32 @@
 /*
- * The Modern template: a navy name over an accented headline, the candidate's
- * initials where the reference shows a portrait, and two columns whose
- * headings are ruled across their own column.
+ * The Creative template: the name, headline and contact reversed out of a navy
+ * band, the candidate's initials where the reference shows a portrait, and two
+ * columns whose headings are ruled in the ink across their own column.
  *
  * The rule under each heading is what separates the columns — there is no
  * divider between them, which keeps the page from reading as a form.
  */
 
 .tpl-creative {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(5pt * var(--cr-scale));
   --tpl-space-unit: calc(2.2pt * var(--cr-scale) * var(--cr-density));
   --tpl-space-margin: var(--cr-margin);
   --tpl-marker: calc(8pt * var(--cr-scale));
-  --tpl-avatar-size: calc(56pt * var(--cr-scale));
-  --tpl-avatar-text: calc(18pt * var(--cr-scale));
+  --tpl-avatar-size: calc(80pt * var(--cr-scale));
+  --tpl-avatar-text: calc(24pt * var(--cr-scale));
 
   --cr-scale: 1;
-  --cr-ink: #22394f;
-  --cr-band: #244059;
+  --cr-ink: #2c3e5c;
+  --cr-band: #22405a;
   --cr-font:
     'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   --cr-accent: #3f7fb5;
   --cr-density: 1;
-  --cr-margin: 0.5in;
-  --cr-body: #34404f;
-  --cr-muted: #6c7787;
-  --cr-line: #d3d8e0;
+  --cr-margin: 0.6in;
+  --cr-body: #2f3640;
+  --cr-muted: #5f6670;
+  --cr-line: #d4d7dc;
 
   box-sizing: border-box;
   width: 8.5in;
@@ -34,7 +36,7 @@
   color: var(--cr-body);
   font-family: var(--cr-font);
   font-size: calc(8pt * var(--cr-scale));
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
@@ -45,7 +47,7 @@
   column-gap: calc(16pt * var(--cr-scale));
   align-items: center;
   margin: calc(-0.45in) calc(-1 * var(--cr-margin)) 0;
-  padding: calc(22pt * var(--cr-scale)) var(--cr-margin);
+  padding: calc(26pt * var(--cr-scale)) var(--cr-margin);
   background: var(--cr-band);
   color: #ffffff;
 
@@ -57,7 +59,7 @@
 
 .tpl-creative__name {
   margin: 0;
-  font-size: calc(16pt * var(--cr-scale));
+  font-size: calc(24pt * var(--cr-scale));
   font-weight: 700;
   line-height: 1.1;
   color: inherit;
@@ -65,23 +67,22 @@
 }
 
 .tpl-creative__headline {
-  margin: calc(1pt * var(--cr-scale)) 0 0;
-  font-size: calc(10.5pt * var(--cr-scale));
+  margin: calc(2pt * var(--cr-scale)) 0 0;
+  font-size: calc(11.5pt * var(--cr-scale));
   font-weight: 700;
+  line-height: 1.2;
   color: inherit;
 }
 
 .tpl-creative__contact {
-  margin: calc(3pt * var(--cr-scale)) 0 0;
-  font-size: calc(8pt * var(--cr-scale));
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  column-gap: calc(90pt * var(--cr-scale));
+  margin: calc(4pt * var(--cr-scale)) 0 0;
+  font-size: calc(7.6pt * var(--cr-scale));
+  font-weight: 700;
+  line-height: 1.45;
   color: inherit;
-  opacity: 0.92;
-}
-
-.tpl-creative__contact-item + .tpl-creative__contact-item::before {
-  content: '';
-  display: inline-block;
-  width: calc(10pt * var(--cr-scale));
 }
 
 /* The initials, in the slot the design gives a portrait — on the band, so
@@ -96,8 +97,8 @@
 .tpl-creative__body {
   display: grid;
   grid-template-columns: 60fr 40fr;
-  column-gap: calc(20pt * var(--cr-scale));
-  margin-top: calc(14pt * var(--cr-scale) * var(--cr-density));
+  column-gap: calc(30pt * var(--cr-scale));
+  margin-top: calc(26pt * var(--cr-scale) * var(--cr-density));
 }
 
 .tpl-creative__main,
@@ -120,19 +121,19 @@
 
 .tpl-creative__section + .tpl-creative__section {
   margin-top: calc(
-    11pt * var(--cr-scale) * var(--cr-density) + var(--tpl-space-height, 0px)
+    18pt * var(--cr-scale) * var(--cr-density) + var(--tpl-space-height, 0px)
   );
 }
 
 .tpl-creative__heading {
-  margin: 0 0 calc(4pt * var(--cr-scale));
-  padding-bottom: calc(2pt * var(--cr-scale));
-  border-bottom: 0.75pt solid var(--cr-line);
-  font-size: calc(7.6pt * var(--cr-scale));
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  margin: 0 0 calc(5pt * var(--cr-scale));
+  padding-bottom: calc(1pt * var(--cr-scale));
+  border-bottom: 2pt solid var(--cr-ink);
+  font-size: calc(12pt * var(--cr-scale));
+  font-weight: 700;
+  line-height: 1.2;
   text-transform: uppercase;
-  color: var(--cr-muted);
+  color: var(--cr-ink);
 }
 
 .tpl-creative__prose {
@@ -143,7 +144,7 @@
 
 .tpl-creative__entry {
   margin-top: calc(
-    8pt * var(--cr-scale) * var(--cr-density) + var(--tpl-space-height, 0px)
+    6pt * var(--cr-scale) * var(--cr-density) + var(--tpl-space-height, 0px)
   );
   break-inside: avoid;
 }
@@ -151,51 +152,88 @@
 /* The heading's own margin, restated: the two collapse, so a recorded gap adds
    to it rather than being lost inside it. */
 .tpl-creative__entry:first-of-type {
-  margin-top: calc(4pt * var(--cr-scale) + var(--tpl-space-height, 0px));
+  margin-top: calc(5pt * var(--cr-scale) + var(--tpl-space-height, 0px));
+}
+
+/* A dotted rule between one entry and the next, as the reference draws it. */
+.tpl-creative__entry + .tpl-creative__entry {
+  padding-top: calc(6pt * var(--cr-scale) * var(--cr-density));
+  border-top: 1pt dashed var(--cr-line);
 }
 
 .tpl-creative__role {
   margin: 0;
-  font-size: calc(9.6pt * var(--cr-scale));
+  font-size: calc(11pt * var(--cr-scale));
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--cr-ink);
+}
+
+.tpl-creative__org {
+  margin: calc(1.5pt * var(--cr-scale)) 0 0;
   font-weight: 700;
-  line-height: 1.2;
   color: var(--cr-ink);
 }
 
 .tpl-creative__meta {
-  margin: 0;
-  font-size: calc(8pt * var(--cr-scale));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: calc(10pt * var(--cr-scale));
+  margin: calc(1.5pt * var(--cr-scale)) 0 0;
+  font-size: calc(7.2pt * var(--cr-scale));
   color: var(--cr-muted);
   font-variant-numeric: tabular-nums;
 }
 
-.tpl-creative__org {
-  font-weight: 700;
-  color: var(--cr-accent);
+/*
+ * A calendar before the dates and a pin before the place, as the reference
+ * marks them. Each glyph is a mask over a no-break space, so the extracted
+ * line still has a character between the employer and its facts.
+ */
+.tpl-creative__dates::before,
+.tpl-creative__place::before {
+  content: '\00a0';
+  display: inline-block;
+  width: calc(8pt * var(--cr-scale));
+  height: calc(8pt * var(--cr-scale));
+  margin-right: calc(3pt * var(--cr-scale));
+  vertical-align: -0.05em;
+  background: var(--cr-body);
+  mask: var(--cr-glyph) center / contain no-repeat;
+  -webkit-mask: var(--cr-glyph) center / contain no-repeat;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
-/* A REAL character between the facts: a parser extracts characters, and a gap
-   made of CSS is not one. */
-.tpl-creative__meta-item::before {
-  content: ' · ';
-  color: var(--cr-muted);
+.tpl-creative__dates {
+  --cr-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 2h2v2h6V2h2v2h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3zm-2 7v10h14V9z'/%3E%3C/svg%3E");
+}
+
+.tpl-creative__place {
+  --cr-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E");
+}
+
+/* No place, no pin. */
+.tpl-creative__place:has(> [data-empty])::before {
+  display: none;
 }
 
 .tpl-creative .tpl-bullets {
-  margin: calc(2.5pt * var(--cr-scale)) 0 0;
-  padding: 0;
+  margin: calc(2pt * var(--cr-scale)) 0 0;
+  padding: 0 0 0 calc(2pt * var(--cr-scale));
   list-style: none;
 }
 
 .tpl-creative .tpl-bullet {
   display: grid;
-  grid-template-columns: calc(8pt * var(--cr-scale)) 1fr;
-  margin-top: calc(1pt * var(--cr-scale));
+  grid-template-columns: calc(9pt * var(--cr-scale)) 1fr;
+  margin-top: calc(0.5pt * var(--cr-scale));
 }
 
 .tpl-creative .tpl-bullet::before {
-  content: '·';
-  color: var(--cr-muted);
+  content: '•';
+  color: var(--cr-ink);
 }
 
 /* ── The rail's notes and chips ─────────────────────────────────────────── */
@@ -227,7 +265,7 @@
 
 /* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
    template states only its colour and its rhythm. */
-.tpl-keywords {
+.tpl-creative .tpl-keywords {
   --tpl-keyword-line: var(--cr-line);
   --tpl-keyword-gap: calc(5pt * var(--cr-scale));
   --tpl-keyword-lead: calc(1.5pt * var(--cr-scale));
@@ -244,7 +282,8 @@
 .tpl-creative {
   --tpl-described-gap: calc(7pt * var(--cr-scale));
   --tpl-described-lead: calc(1.5pt * var(--cr-scale));
-  --tpl-described-title-ink: var(--cr-accent);
+  --tpl-described-title-ink: var(--cr-ink);
+  --tpl-described-body-ink: var(--cr-body);
   --tpl-described-span: calc(14pt * var(--cr-scale));
   --tpl-language-gap: calc(6pt * var(--cr-scale));
   --tpl-language-lead: calc(4pt * var(--cr-scale));
@@ -252,9 +291,33 @@
   --tpl-language-meter-ink: var(--cr-accent);
 }
 
-/* One repeated mark, never one per entry: nothing in the résumé says which
-   glyph an achievement deserves. */
+/*
+ * One repeated mark, never one per entry: nothing in the resume says which
+ * glyph an achievement deserves. It hangs in the ink to the left of the title,
+ * the paragraph keeps the title's indent, and a dotted rule parts the entries.
+ */
 .tpl-creative .tpl-described--marked {
-  --tpl-described-mark: '\25C6';
-  --tpl-described-mark-gap: calc(4pt * var(--cr-scale));
+  --tpl-described-mark: '\2605';
+  --tpl-described-mark-ink: var(--cr-ink);
+}
+
+.tpl-creative .tpl-described--marked .tpl-described__entry {
+  position: relative;
+  padding-left: calc(24pt * var(--cr-scale));
+}
+
+.tpl-creative
+  .tpl-described--marked
+  .tpl-described__entry
+  + .tpl-described__entry {
+  padding-top: calc(7pt * var(--cr-scale));
+  border-top: 1pt dashed var(--cr-line);
+}
+
+.tpl-creative .tpl-described--marked .tpl-described__title::before {
+  position: absolute;
+  left: calc(2pt * var(--cr-scale));
+  margin: 0;
+  font-size: calc(11pt * var(--cr-scale));
+  line-height: 1;
 }

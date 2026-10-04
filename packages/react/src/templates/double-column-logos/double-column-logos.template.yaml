@@ -4,11 +4,10 @@ prefix: tpl-dcl
 styleKey: dcl
 
 layout:
-  - row:
-      - stack:
-          [name, headline, { contact: [phone, email, location], links: true }]
-        class: identity
-      - avatar
+  - stack:
+      - name
+      - headline
+      - { contact: [phone, email, location], links: true, icons: true }
     tag: header
     class: head-block
     block: true
@@ -31,7 +30,12 @@ layout:
                 split: true,
               }
           - courses
-          - { section: certifications, whenEmpty: hide }
+          - {
+              section: certifications,
+              as: bullets,
+              split: true,
+              whenEmpty: hide,
+            }
           - { section: passions, kit: [tpl-described--marked] }
         tag: aside
         class: aside
@@ -53,20 +57,24 @@ entries:
         children:
           - field: title
       - tag: p
+        class: org
+        children:
+          - field: company
+      - tag: p
         class: meta
         children:
           - tag: span
-            class: org
-            children:
-              - field: company
-          - tag: span
-            class: meta-item
+            class: dates
             children:
               - field: start
               - text: ' - '
               - field: end
+          - separator: ' '
+            between:
+              - end
+              - location
           - tag: span
-            class: meta-item
+            class: where
             children:
               - field: location
                 optional: true
@@ -93,14 +101,14 @@ entries:
           - field: field
             optional: true
       - tag: p
+        class: org
+        children:
+          - field: school
+      - tag: p
         class: meta
         children:
           - tag: span
-            class: org
-            children:
-              - field: school
-          - tag: span
-            class: meta-item
+            class: dates
             children:
               - field: start
                 optional: true
@@ -110,8 +118,12 @@ entries:
                   - end
               - field: end
                 optional: true
+          - separator: ' '
+            between:
+              - end
+              - location
           - tag: span
-            class: meta-item
+            class: where
             children:
               - field: location
                 optional: true

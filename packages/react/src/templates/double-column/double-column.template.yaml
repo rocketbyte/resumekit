@@ -8,7 +8,7 @@ layout:
       - stack:
           - name
           - headline
-          - { contact: [phone, email, location], links: true }
+          - { contact: [phone, email, location], links: true, icons: true }
         class: identity
       - avatar
     tag: header
@@ -27,33 +27,41 @@ layout:
           - custom
           - { section: skills, groups: bullets }
           - courses
-          - { section: certifications, whenEmpty: hide }
+          - {
+              section: certifications,
+              as: bullets,
+              split: true,
+              whenEmpty: hide,
+            }
           - { section: passions, kit: [tpl-described--marked] }
         tag: aside
         class: aside
     class: body
 
 entries:
-  # Real characters between the facts, so extracted text reads as three things.
+  # The role, the employer under it, then the dates and the place on a line of
+  # their own. A real space joins the last two, so extracted text keeps them
+  # apart where the page sets an icon.
   experience:
     name: ExperienceEntry
     type: Experience
     root: { tag: article, class: entry, block: true }
     children:
       - { tag: p, class: role, children: [{ field: title }] }
+      - { tag: p, class: org, children: [{ field: company }] }
       - tag: p
         class: meta
         children:
-          - { tag: span, class: org, children: [{ field: company }] }
           - tag: span
-            class: meta-item
+            class: dates
             children:
               - { field: start }
               - { text: ' - ' }
               - { field: end }
+          - { separator: ' ', between: [end, location] }
           - {
               tag: span,
-              class: meta-item,
+              class: where,
               children: [{ field: location, optional: true }],
             }
       - { bullets: bullets }
@@ -69,19 +77,20 @@ entries:
           - { field: degree, optional: true }
           - { word: degreeField, between: [degree, field] }
           - { field: field, optional: true }
+      - { tag: p, class: org, children: [{ field: school }] }
       - tag: p
         class: meta
         children:
-          - { tag: span, class: org, children: [{ field: school }] }
           - tag: span
-            class: meta-item
+            class: dates
             children:
               - { field: start, optional: true }
               - { separator: ' - ', between: [start, end] }
               - { field: end, optional: true }
+          - { separator: ' ', between: [end, location] }
           - {
               tag: span,
-              class: meta-item,
+              class: where,
               children: [{ field: location, optional: true }],
             }
 

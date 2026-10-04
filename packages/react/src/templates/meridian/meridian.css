@@ -16,6 +16,8 @@
  */
 
 .tpl-mer {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(8pt * var(--m-scale));
   /*
    * What ONE STEP of recorded space is worth here — `document-styling` (#36).
    *
@@ -413,12 +415,12 @@
 .tpl-mer {
   --tpl-described-gap: calc(7pt * var(--m-scale));
   --tpl-described-lead: calc(1.5pt * var(--m-scale));
-  --tpl-described-title-ink: var(--m-accent);
+  --tpl-described-title-ink: var(--m-ink);
   --tpl-described-span: calc(14pt * var(--m-scale));
   --tpl-language-gap: calc(6pt * var(--m-scale));
   --tpl-language-lead: calc(4pt * var(--m-scale));
   --tpl-language-step: calc(4pt * var(--m-scale));
-  --tpl-language-meter-ink: var(--m-accent);
+  --tpl-language-meter-ink: var(--m-ink);
 }
 
 /* One repeated mark, never one per entry: nothing in the résumé says which

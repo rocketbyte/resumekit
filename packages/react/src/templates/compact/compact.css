@@ -7,6 +7,8 @@
  */
 
 .tpl-compact {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(3.5pt * var(--cp-scale));
   --tpl-space-unit: calc(2.2pt * var(--cp-scale) * var(--cp-density));
   --tpl-space-margin: var(--cp-margin);
   --tpl-marker: calc(8pt * var(--cp-scale));
@@ -21,6 +23,7 @@
   --cp-muted: #565656;
   --cp-quiet: #7b7b7b;
   --cp-line: #dcdcdc;
+  --cp-faint: #8f8f8f;
 
   box-sizing: border-box;
   width: 8.5in;
@@ -37,8 +40,8 @@
 
 .tpl-compact__name {
   margin: 0;
-  font-size: calc(17pt * var(--cp-scale));
-  font-weight: 600;
+  font-size: calc(19pt * var(--cp-scale));
+  font-weight: 400;
   line-height: 1.1;
 }
 
@@ -54,10 +57,8 @@
   color: var(--cp-muted);
 }
 
-.tpl-compact__contact-item + .tpl-compact__contact-item::before {
-  content: '';
-  display: inline-block;
-  width: calc(9pt * var(--cp-scale));
+.tpl-compact__contact-item + .tpl-compact__contact-item {
+  margin-left: calc(9pt * var(--cp-scale));
 }
 
 /* ── Body: the résumé, then the rail ────────────────────────────────────── */
@@ -95,11 +96,11 @@
 
 .tpl-compact__heading {
   margin: 0 0 calc(3.5pt * var(--cp-scale));
-  font-size: calc(7.4pt * var(--cp-scale));
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-size: calc(7pt * var(--cp-scale));
+  font-weight: 400;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--cp-quiet);
+  color: var(--cp-faint);
 }
 
 .tpl-compact__prose {
@@ -123,8 +124,8 @@
 
 .tpl-compact__role {
   margin: 0;
-  font-size: calc(9.6pt * var(--cp-scale));
-  font-weight: 600;
+  font-size: calc(10.5pt * var(--cp-scale));
+  font-weight: 400;
   line-height: 1.2;
 }
 
@@ -135,16 +136,26 @@
   font-variant-numeric: tabular-nums;
 }
 
-.tpl-compact__org {
-  font-weight: 600;
+.tpl-compact__org,
+.tpl-compact__school {
   color: var(--cp-accent);
 }
 
-/* A REAL space between the facts, not a gap made of CSS: a parser reading the
-   exported PDF extracts the characters, and a column gap is not one. */
+.tpl-compact__school {
+  margin: 0;
+  font-size: calc(8pt * var(--cp-scale));
+}
+
+/* A REAL space between the facts, widened by a margin rather than replaced by
+   one: a parser reading the exported PDF extracts the characters, and a gap
+   made only of CSS is not one. */
 .tpl-compact__meta-item::before {
-  content: ' · ';
-  color: var(--cp-quiet);
+  content: ' ';
+  margin-left: calc(5pt * var(--cp-scale));
+}
+
+.tpl-compact__meta-item:first-child::before {
+  content: none;
 }
 
 .tpl-compact .tpl-bullets {
@@ -192,7 +203,7 @@
 
 /* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
    template states only its colour and its rhythm. */
-.tpl-keywords {
+.tpl-compact .tpl-keywords {
   --tpl-keyword-line: var(--cp-line);
   --tpl-keyword-gap: calc(5pt * var(--cp-scale));
   --tpl-keyword-lead: calc(1.5pt * var(--cp-scale));
@@ -209,7 +220,11 @@
 .tpl-compact {
   --tpl-described-gap: calc(7pt * var(--cp-scale));
   --tpl-described-lead: calc(1.5pt * var(--cp-scale));
-  --tpl-described-title-ink: var(--cp-accent);
+  --tpl-described-title-ink: var(--cp-ink);
+  --tpl-described-title-weight: 400;
+  --tpl-described-title-size: calc(8.8pt * var(--cp-scale));
+  --tpl-described-body-ink: var(--cp-muted);
+  --tpl-described-mark-ink: var(--cp-accent);
   --tpl-described-span: calc(14pt * var(--cp-scale));
   --tpl-language-gap: calc(6pt * var(--cp-scale));
   --tpl-language-lead: calc(4pt * var(--cp-scale));

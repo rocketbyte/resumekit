@@ -229,14 +229,17 @@ const SECTION_OPTIONS = [
     .strict(),
   collection('experience'),
   collection('education'),
-  /** Skill groups: the template's own `entry`, or the kit's `bullets` or `inline` groups. */
+  /**
+   * Skill groups: the template's own `entry`, or the kit's `bullets`, `inline`
+   * or `grid` groups. A grid's groups are blocks of their own.
+   */
   z
     .object({
       section: z.literal('skills'),
       ...sectionStyle,
       title: SectionTitle.default('skills'),
       entry: Ident.optional(),
-      groups: z.enum(['bullets', 'inline']).optional(),
+      groups: z.enum(['bullets', 'inline', 'grid']).optional(),
       wrapper: z
         .object({
           tag: Tag,
@@ -384,6 +387,8 @@ export type LayoutNode =
       item: string | false;
       itemTag: 'span' | 'p';
       block?: boolean;
+      /** An icon before each detail, drawn by `kit/contact-icons.css`. */
+      icons?: boolean;
     }
   | {
       kind: 'links';
@@ -391,6 +396,7 @@ export type LayoutNode =
       class: string;
       item: string;
       split?: boolean;
+      icons?: boolean;
     }
   | { kind: 'location' }
   | { kind: 'text'; text: string }
@@ -505,6 +511,7 @@ export const LayoutNodeSchema: z.ZodType<LayoutNode, unknown> = z.lazy(() =>
           item: z.union([ClassName, z.literal(false)]).default('contact-item'),
           itemTag: z.enum(['span', 'p']).default('span'),
           block: z.boolean().optional(),
+          icons: z.boolean().optional(),
         })
         .strict(),
       z
@@ -514,6 +521,7 @@ export const LayoutNodeSchema: z.ZodType<LayoutNode, unknown> = z.lazy(() =>
           class: ClassName.default('links'),
           item: ClassName.default('link'),
           split: z.boolean().optional(),
+          icons: z.boolean().optional(),
         })
         .strict(),
       z.object({ kind: z.literal('location') }).strict(),
@@ -576,6 +584,18 @@ export const TemplateDescriptionSchema = z
           code: 'custom',
           path: ['layout'],
           message: 'skills takes an entry or groups — one of them',
+        });
+      }
+      if (
+        s.section === 'skills' &&
+        s.groups === 'grid' &&
+        (s.wrapper?.block || s.wrapper?.split)
+      ) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['layout'],
+          message:
+            'grid groups are blocks of their own — the wrapper takes no block or split',
         });
       }
       const entry = 'entry' in s ? s.entry : undefined;

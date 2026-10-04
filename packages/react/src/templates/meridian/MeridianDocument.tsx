@@ -63,8 +63,11 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
 
       {contact.length > 0 && (
         <p className="tpl-mer__contact" data-block>
-          {contact.map(({ path, value, placeholder }) => (
-            <span key={path} className="tpl-mer__contact-item">
+          {contact.map(({ field, path, value, placeholder }) => (
+            <span
+              key={path}
+              className={`tpl-mer__contact-item tpl-contact--${field}`}
+            >
               <EditableText
                 path={path}
                 value={value}
@@ -160,6 +163,7 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
                 <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
+                  placeholder={placeholder('certification')}
                 />
               </div>
             </DocumentSection>
@@ -277,7 +281,10 @@ export function MeridianDocument({ resume }: MeridianDocumentProps) {
               <ul className="tpl-mer__links" data-block data-split>
                 <Collection section="links" items={resume.links} gap={false}>
                   {({ item, path, chrome, itemProps, justAdded }) => (
-                    <li {...itemProps} className="tpl-mer__link">
+                    <li
+                      {...itemProps}
+                      className="tpl-mer__link tpl-contact--link"
+                    >
                       {chrome}
                       <LinkField
                         item={item}

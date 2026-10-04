@@ -298,9 +298,23 @@ const offered = (field: string) => `(resume.${field}.length > 0 || authoring)`;
 /** The kit's skill groups, in the wrapper each style is drawn in by default. */
 function skillGroups(
   d: TemplateDescription,
-  groups: 'bullets' | 'inline',
+  groups: 'bullets' | 'inline' | 'grid',
   wrapper: Wrapper | undefined,
 ): string {
+  if (groups === 'grid') {
+    return wrap(
+      d,
+      {
+        tag: wrapper?.tag ?? 'div',
+        class: wrapper?.class,
+        kit: ['tpl-skill-grid', ...(wrapper?.kit ?? [])],
+      },
+      `<Collection section="skills" items={resume.skills}>\n` +
+        `{({ item, path, chrome, itemProps }) => (\n` +
+        `<GridSkillGroup item={item} path={path} chrome={chrome} itemProps={itemProps} />\n` +
+        `)}\n</Collection>`,
+    );
+  }
   const w: Wrapper =
     wrapper ??
     (groups === 'bullets'
@@ -371,7 +385,8 @@ function emitSection(d: TemplateDescription, s: Section): string {
           ? wrap(
               d,
               { tag: 'div', class: s.class, block: true, split: s.split },
-              `<EditableBulletList path="certifications" items={resume.certifications} />`,
+              `<EditableBulletList path="certifications" items={resume.certifications} ` +
+                `placeholder={placeholder("certification")} />`,
             )
           : `<p className=${q(cls(d, s.class ?? 'prose'))} data-block>\n` +
               `<EditableInlineList path="certifications" items={resume.certifications} ` +
@@ -504,28 +519,41 @@ function emitLayout(c: Ctx, n: LayoutNode, flow = false): string {
     case 'contact': {
       const v = c.contacts.get(n) as string;
       const editable = `<EditableText path={path} value={value} placeholder={placeholder} />`;
+      /* Each detail names its field in a class, which survives the picture
+         render that drops `data-path`; a line of one bare field takes it. */
       const each = n.item
-        ? `<${n.itemTag} key={path} className=${q(cls(d, n.item))}>\n${editable}\n</${n.itemTag}>`
+        ? `<${n.itemTag} key={path} className={\`${cls(d, n.item)} tpl-contact--\${field}\`}>\n${editable}\n</${n.itemTag}>`
         : editable.replace('<EditableText ', '<EditableText key={path} ');
+      const linkClass = [
+        ...(n.item ? [cls(d, n.item)] : []),
+        'tpl-contact--link',
+      ].join(' ');
       const links = n.links
         ? `<Collection\nsection="links"\nitems={resume.links}\ngap={false}\nemptyAdd="inline"\n>\n` +
           `{({ item, path, chrome, itemProps, justAdded }) => (\n` +
-          `<${n.itemTag}${n.item ? ` className=${q(cls(d, n.item))}` : ''}>\n<span {...itemProps}>\n{chrome}\n` +
+          `<${n.itemTag} className=${q(linkClass)}>\n<span {...itemProps}>\n{chrome}\n` +
           `<LinkField item={item} path={path} justAdded={justAdded} />\n</span>\n</${n.itemTag}>\n)}\n</Collection>`
         : '';
+      const own = [
+        cls(d, n.class),
+        ...(n.item === false && n.fields.length === 1
+          ? [`tpl-contact--${n.fields[0]}`]
+          : []),
+        ...(n.icons ? ['tpl-contact-icons'] : []),
+      ].join(' ');
       return (
         `{${contactCondition(c, n)} && (\n` +
-        `<${n.tag} className=${q(cls(d, n.class))}${n.block ? ' data-block' : ''}>\n` +
-        `{${v}.map(({ path, value, placeholder }) => (\n${each}\n))}\n` +
+        `<${n.tag} className=${q(own)}${n.block ? ' data-block' : ''}>\n` +
+        `{${v}.map(({ ${n.item ? 'field, ' : ''}path, value, placeholder }) => (\n${each}\n))}\n` +
         `${links}\n</${n.tag}>\n)}`
       );
     }
     case 'links':
       return (
-        `<${n.tag} className=${q(cls(d, n.class))} data-block${n.split ? ' data-split' : ''}>\n` +
+        `<${n.tag} className=${q([cls(d, n.class), ...(n.icons ? ['tpl-contact-icons'] : [])].join(' '))} data-block${n.split ? ' data-split' : ''}>\n` +
         `<Collection section="links" items={resume.links} gap={false}>\n` +
         `{({ item, path, chrome, itemProps, justAdded }) => (\n` +
-        `<li {...itemProps} className=${q(cls(d, n.item))}>\n{chrome}\n` +
+        `<li {...itemProps} className=${q(`${cls(d, n.item)} tpl-contact--link`)}>\n{chrome}\n` +
         `<LinkField item={item} path={path} justAdded={justAdded} />\n</li>\n)}\n` +
         `</Collection>\n</${n.tag}>`
       );
@@ -618,6 +646,8 @@ function emitDocument(d: TemplateDescription): string {
       `import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';`,
     groups === 'inline' &&
       `import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';`,
+    groups === 'grid' &&
+      `import { GridSkillGroup } from '../../kit/GridSkillGroup.js';`,
     has('avatar') &&
       `import { InitialsAvatar } from '../../kit/InitialsAvatar.js';`,
     has('monogram') && `import { monogram } from '../../kit/monogram.js';`,
@@ -635,6 +665,9 @@ function emitDocument(d: TemplateDescription): string {
           `import { ${[...new Set(components.filter((n) => n.from === from).map((n) => n.name))].sort().join(', ')} } from '${from}';`,
       ),
     (has('row') || styled) && `import '../../kit/layout.css';`,
+    nodes.some(
+      (n) => (n.kind === 'contact' || n.kind === 'links') && n.icons,
+    ) && `import '../../kit/contact-icons.css';`,
     `import './${d.id}.css';`,
     `import { useEditorText, useDocumentText } from '../../i18n/index.js';`,
   ].filter(Boolean);

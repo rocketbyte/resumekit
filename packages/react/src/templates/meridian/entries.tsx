@@ -9,6 +9,7 @@ import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { useEditorText } from '../../i18n/index.js';
+import { Separator } from '../../kit/Separator.js';
 
 export function MeridianExperienceEntry({
   item,
@@ -21,6 +22,7 @@ export function MeridianExperienceEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <article {...itemProps} className="tpl-mer__entry" data-block>
       {chrome}
@@ -37,6 +39,12 @@ export function MeridianExperienceEntry({
       </p>
       <p className="tpl-mer__entry-org">
         <EditableText path={`${path}.company`} value={item.company} />
+        <Separator between={[item.company, item.location]} text=" - " />
+        <EditableText
+          path={`${path}.location`}
+          value={item.location ?? ''}
+          placeholder={placeholder('location')}
+        />
       </p>
       <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
@@ -80,6 +88,12 @@ export function MeridianEducationEntry({
       </p>
       <p className="tpl-mer__entry-org">
         <EditableText path={`${path}.school`} value={item.school} />
+        <Separator between={[item.school, item.location]} text=" - " />
+        <EditableText
+          path={`${path}.location`}
+          value={item.location ?? ''}
+          placeholder={placeholder('location')}
+        />
       </p>
     </article>
   );

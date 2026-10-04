@@ -21,15 +21,15 @@ layout:
   - experience
   - education
   - achievements
+  - courses
   - section: skills
     title: technicalSkills
     entry: skillGroup
     wrapper: { tag: ul, class: skills, block: true }
     gap: false
-  - courses
-  - languages
+  - { section: languages, sectionClass: languages }
+  - { section: passions, title: interests }
   - { section: certifications, class: inline-list, whenEmpty: hide }
-  - passions
   - custom
 
 entries:

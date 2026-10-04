@@ -1,0 +1,93 @@
+/*
+ * Skills as an INVISIBLE TABLE (`GridSkillGroup`): one row per group, the
+ * category in a label column, the skills in auto-fitting columns, one to a
+ * cell. No commas, no borders.
+ *
+ * A grid rather than CSS `columns`: each skill is an editable row with its own
+ * controls, and a box broken across columns cannot carry them.
+ *
+ * The cell is also what a parser reads. Chromium prints no hidden separator —
+ * clipped, transparent and zero-sized text are all dropped from the PDF — so
+ * one skill per cell is what makes `pdftotext` read one skill per line. A
+ * wrapping row of skills extracts as "Python SQL Tableau": three skills that
+ * read as one.
+ *
+ * A template sets the variables and nothing else.
+ */
+.tpl-skill-grid {
+  /* Below 240pt — a sidebar — the label stacks over one skill per line. */
+  container: tpl-skill-grid / inline-size;
+
+  /*
+   * Its own formatting context, so the first group's recorded space is added
+   * below the heading rather than collapsing into the heading's margin.
+   */
+  display: flow-root;
+
+  /* No marker column: a skill's drag handle sits on its left edge. */
+  --tpl-marker: 0px;
+}
+
+.tpl-skill-grid .tpl-skill-grid__group {
+  display: grid;
+  grid-template-columns: var(--tpl-skill-grid-label, 7.5em) minmax(0, 1fr);
+  column-gap: var(--tpl-skill-grid-gutter, 10pt);
+  align-items: baseline;
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-skill-grid .tpl-skill-grid__group + .tpl-skill-grid__group {
+  margin-top: calc(
+    var(--tpl-skill-grid-rhythm, 3pt) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-skill-grid__label {
+  overflow-wrap: break-word;
+  font-size: var(--tpl-skill-grid-label-size, inherit);
+  font-weight: var(--tpl-skill-grid-label-weight, 600);
+  color: var(--tpl-skill-grid-label-ink, currentcolor);
+}
+
+/*
+ * Named three classes deep: a template's own `.tpl-x .tpl-bullets` and
+ * `.tpl-x .tpl-bullet` carry two, and are imported after this file.
+ */
+.tpl-skill-grid .tpl-skill-grid__group .tpl-bullets {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(var(--tpl-skill-grid-column, 12em), 100%), 1fr)
+  );
+  gap: var(--tpl-skill-grid-lead, 1.5pt) var(--tpl-skill-grid-gap, 10pt);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A group with no category, while the document is read, spans both columns. */
+.tpl-skill-grid .tpl-skill-grid__group--bare .tpl-bullets {
+  grid-column: 1 / -1;
+}
+
+.tpl-skill-grid .tpl-skill-grid__group .tpl-bullet {
+  display: block;
+  margin: 0;
+  padding: 0;
+  text-indent: 0;
+}
+
+.tpl-skill-grid .tpl-skill-grid__group .tpl-bullet::before {
+  content: none;
+}
+
+@container tpl-skill-grid (max-width: 240pt) {
+  .tpl-skill-grid .tpl-skill-grid__group {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tpl-skill-grid .tpl-skill-grid__group .tpl-bullets {
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: var(--tpl-skill-grid-lead, 1.5pt);
+  }
+}

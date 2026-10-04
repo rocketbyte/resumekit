@@ -66,8 +66,11 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
 
         {(contact.length > 0 || resume.links.length > 0 || authoring) && (
           <p className="tpl-harvard__contact">
-            {contact.map(({ path, value, placeholder }) => (
-              <span key={path} className="tpl-harvard__contact-item">
+            {contact.map(({ field, path, value, placeholder }) => (
+              <span
+                key={path}
+                className={`tpl-harvard__contact-item tpl-contact--${field}`}
+              >
                 <EditableText
                   path={path}
                   value={value}
@@ -82,7 +85,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
               emptyAdd="inline"
             >
               {({ item, path, chrome, itemProps, justAdded }) => (
-                <span className="tpl-harvard__contact-item">
+                <span className="tpl-harvard__contact-item tpl-contact--link">
                   <span {...itemProps}>
                     {chrome}
                     <LinkField item={item} path={path} justAdded={justAdded} />
@@ -165,6 +168,16 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         entryClassName="tpl-harvard__described"
       />
 
+      <DescribedEntries
+        id="courses"
+        heading={resume.section_headings?.courses}
+        title={doc.t.sections.courses}
+        className="tpl-harvard__section"
+        headingClassName="tpl-harvard__section-title"
+        items={resume.courses}
+        entryClassName="tpl-harvard__described"
+      />
+
       {(resume.skills.length > 0 || authoring) && (
         <DocumentSection
           id="skills"
@@ -188,22 +201,22 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         </DocumentSection>
       )}
 
-      <DescribedEntries
-        id="courses"
-        heading={resume.section_headings?.courses}
-        title={doc.t.sections.courses}
-        className="tpl-harvard__section"
-        headingClassName="tpl-harvard__section-title"
-        items={resume.courses}
-        entryClassName="tpl-harvard__described"
-      />
-
       <LanguageList
         items={resume.languages}
         heading={resume.section_headings?.languages}
-        className="tpl-harvard__section"
+        className="tpl-harvard__section tpl-harvard__languages"
         headingClassName="tpl-harvard__section-title"
         rowClassName="tpl-harvard__language"
+      />
+
+      <DescribedEntries
+        id="passions"
+        heading={resume.section_headings?.passions}
+        title={doc.t.sections.interests}
+        className="tpl-harvard__section"
+        headingClassName="tpl-harvard__section-title"
+        items={resume.passions}
+        entryClassName="tpl-harvard__described"
       />
 
       {resume.certifications.length > 0 && (
@@ -223,16 +236,6 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
           </p>
         </DocumentSection>
       )}
-
-      <DescribedEntries
-        id="passions"
-        heading={resume.section_headings?.passions}
-        title={doc.t.sections.passions}
-        className="tpl-harvard__section"
-        headingClassName="tpl-harvard__section-title"
-        items={resume.passions}
-        entryClassName="tpl-harvard__described"
-      />
 
       <CustomSections
         sections={resume.custom_sections}

@@ -60,8 +60,11 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
 
         {contact.length > 0 && (
           <div className="tpl-cob__contact">
-            {contact.map(({ path, value, placeholder }) => (
-              <p key={path} className="tpl-cob__contact-item">
+            {contact.map(({ field, path, value, placeholder }) => (
+              <p
+                key={path}
+                className={`tpl-cob__contact-item tpl-contact--${field}`}
+              >
                 <EditableText
                   path={path}
                   value={value}
@@ -170,6 +173,7 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
                 <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
+                  placeholder={placeholder('certification')}
                 />
               </div>
             </DocumentSection>
@@ -268,7 +272,10 @@ export function CobaltDocument({ resume }: CobaltDocumentProps) {
               <ul className="tpl-cob__links" data-block data-split>
                 <Collection section="links" items={resume.links} gap={false}>
                   {({ item, path, chrome, itemProps, justAdded }) => (
-                    <li {...itemProps} className="tpl-cob__link">
+                    <li
+                      {...itemProps}
+                      className="tpl-cob__link tpl-contact--link"
+                    >
                       {chrome}
                       <LinkField
                         item={item}

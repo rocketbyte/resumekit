@@ -7,13 +7,13 @@ import type { ResumeObject } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
+import { GridSkillGroup } from '../../kit/GridSkillGroup.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import { Heading } from '../../kit/Heading.js';
@@ -24,6 +24,7 @@ import {
   PolishedExperienceEntry,
 } from './entries.js';
 import '../../kit/layout.css';
+import '../../kit/contact-icons.css';
 import './polished.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
@@ -91,13 +92,13 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
               className="tpl-polished__section"
               headingClassName="tpl-polished__heading"
             >
-              <p className="tpl-polished__prose" data-block>
-                <EditableInlineList
+              <div data-block data-split>
+                <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={placeholder('certifications')}
+                  placeholder={placeholder('certification')}
                 />
-              </p>
+              </div>
             </DocumentSection>
           )}
 
@@ -126,9 +127,12 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
               )}
 
               {(contact.length > 0 || resume.links.length > 0 || authoring) && (
-                <p className="tpl-polished__contact">
-                  {contact.map(({ path, value, placeholder }) => (
-                    <span key={path} className="tpl-polished__contact-item">
+                <p className="tpl-polished__contact tpl-contact-icons">
+                  {contact.map(({ field, path, value, placeholder }) => (
+                    <span
+                      key={path}
+                      className={`tpl-polished__contact-item tpl-contact--${field}`}
+                    >
                       <EditableText
                         path={path}
                         value={value}
@@ -143,7 +147,7 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
                     emptyAdd="inline"
                   >
                     {({ item, path, chrome, itemProps, justAdded }) => (
-                      <span className="tpl-polished__contact-item">
+                      <span className="tpl-polished__contact-item tpl-contact--link">
                         <span {...itemProps}>
                           {chrome}
                           <LinkField
@@ -229,22 +233,18 @@ export function PolishedDocument({ resume }: PolishedDocumentProps) {
               className="tpl-polished__section"
               headingClassName="tpl-polished__heading"
             >
-              <p className="tpl-polished__keywords" data-block>
-                <Collection
-                  section="skills"
-                  items={resume.skills}
-                  noun="skill"
-                  gap={false}
-                >
-                  {({ item, path, index }) => (
-                    <InlineSkillGroup
+              <div className="tpl-skill-grid">
+                <Collection section="skills" items={resume.skills}>
+                  {({ item, path, chrome, itemProps }) => (
+                    <GridSkillGroup
                       item={item}
                       path={path}
-                      first={index === 0}
+                      chrome={chrome}
+                      itemProps={itemProps}
                     />
                   )}
                 </Collection>
-              </p>
+              </div>
             </DocumentSection>
           )}
 

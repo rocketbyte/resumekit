@@ -1,93 +1,132 @@
 /*
- * The Modern template: a navy name over an accented headline, the candidate's
- * initials where the reference shows a portrait, and two columns whose
- * headings are ruled across their own column.
- *
- * The rule under each heading is what separates the columns — there is no
- * divider between them, which keeps the page from reading as a form.
+ * The Contemporary template: a light name over a headline set in a green pill,
+ * the candidate's initials on a soft green ground where the reference shows a
+ * portrait, and two columns whose headings each carry a small tinted badge.
  */
 
 .tpl-contemporary {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(8pt * var(--cn-scale));
   --tpl-space-unit: calc(2.2pt * var(--cn-scale) * var(--cn-density));
   --tpl-space-margin: var(--cn-margin);
   --tpl-marker: calc(8pt * var(--cn-scale));
-  --tpl-avatar-size: calc(56pt * var(--cn-scale));
-  --tpl-avatar-text: calc(18pt * var(--cn-scale));
+  --tpl-avatar-size: calc(104pt * var(--cn-scale));
+  --tpl-avatar-text: calc(26pt * var(--cn-scale));
 
   --cn-scale: 1;
-  --cn-ink: #1d2b26;
+  --cn-ink: #2b5944;
   --cn-font:
     'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  --cn-accent: #2f9e6b;
+  --cn-accent: #3aa86b;
   --cn-density: 1;
   --cn-margin: 0.5in;
-  --cn-body: #34404f;
-  --cn-muted: #6c7787;
+  --cn-strong: #2c3331;
+  --cn-body: #555d5a;
+  --cn-muted: #6c7471;
   --cn-line: #d6ded9;
-  --cn-tint: #e4f2ea;
+  --cn-tint: #9bdab3;
+  --cn-wash: #d4efdf;
 
   box-sizing: border-box;
   width: 8.5in;
-  padding: 0.45in var(--cn-margin);
+  padding: 0.5in var(--cn-margin);
   margin: 0 auto;
   background: #ffffff;
   color: var(--cn-body);
   font-family: var(--cn-font);
-  font-size: calc(8.2pt * var(--cn-scale));
-  line-height: 1.45;
+  font-size: calc(8.8pt * var(--cn-scale));
+  line-height: 1.4;
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
 
+/*
+ * The header shares the body's columns: the initials stand over the rail and
+ * the name over the main column. The initials hang below the header by the
+ * height the rail then gives back, so the main column starts under the
+ * headline while the rail starts under the portrait, as in the reference.
+ */
 .tpl-contemporary__head-block {
+  position: relative;
+  z-index: 0;
   display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: calc(14pt * var(--cn-scale));
-  align-items: center;
+  grid-template-columns: 31fr 69fr;
+  column-gap: calc(24pt * var(--cn-scale));
+  align-items: start;
+}
+
+.tpl-contemporary__identity {
+  min-width: 0;
+  padding-top: calc(2pt * var(--cn-scale));
+}
+
+.tpl-contemporary__name {
+  margin: 0;
+  font-size: calc(30pt * var(--cn-scale));
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: 0.005em;
+  color: var(--cn-strong);
+}
+
+/* The headline sits in a green pill, which is the reference's one flourish.
+   The words inside it are ordinary text, so nothing is lost when a reader —
+   or a parser — takes the colour away. */
+.tpl-contemporary__headline {
+  display: inline-block;
+  margin: calc(6pt * var(--cn-scale)) 0 0;
+  padding: calc(3.5pt * var(--cn-scale)) calc(11pt * var(--cn-scale));
+  font-size: calc(11.5pt * var(--cn-scale));
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  color: #1f4a37;
+  background: var(--cn-tint);
+  border-radius: 999px;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
 /* The initials first, then the name — the order the reference reads in. */
 .tpl-contemporary__avatar {
   order: -1;
-}
-
-.tpl-contemporary__name {
-  margin: 0;
-  font-size: calc(22pt * var(--cn-scale));
+  position: relative;
+  margin: calc(8pt * var(--cn-scale)) 0 calc(-58pt * var(--cn-scale))
+    calc(10pt * var(--cn-scale));
+  color: var(--cn-strong);
   font-weight: 400;
-  line-height: 1.1;
-  color: var(--cn-ink);
+  background: #eef2f0;
+  border-color: #ffffff;
+  border-width: 0;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
-/* The headline sits in a tinted pill, which is the reference's one flourish.
-   The words inside it are ordinary text, so nothing is lost when a reader —
-   or a parser — takes the colour away. */
-.tpl-contemporary__headline {
-  display: inline-block;
-  margin: calc(3pt * var(--cn-scale)) 0 0;
-  padding: calc(2pt * var(--cn-scale)) calc(7pt * var(--cn-scale));
-  font-size: calc(9.5pt * var(--cn-scale));
-  color: var(--cn-ink);
-  background: var(--cn-tint);
-  border-radius: 999px;
-}
-
-.tpl-contemporary__contact {
-  margin: calc(3pt * var(--cn-scale)) 0 0;
-  font-size: calc(8pt * var(--cn-scale));
-  color: var(--cn-muted);
-}
-
-.tpl-contemporary__contact-item + .tpl-contemporary__contact-item::before {
+/* The soft ground and the dot the reference sets behind its portrait. */
+.tpl-contemporary__avatar::before,
+.tpl-contemporary__avatar::after {
   content: '';
-  display: inline-block;
-  width: calc(10pt * var(--cn-scale));
+  position: absolute;
+  z-index: -1;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
-/* The initials, in the slot the design gives a portrait. */
-.tpl-contemporary__avatar {
-  color: var(--cn-ink);
-  border-color: var(--cn-line);
+.tpl-contemporary__avatar::before {
+  inset: -14% -10% -12% -18%;
+  background: #b9e6cb;
+  border-radius: 46% 54% 40% 60% / 55% 38% 62% 45%;
+  opacity: 0.85;
+}
+
+.tpl-contemporary__avatar::after {
+  left: -6%;
+  bottom: 2%;
+  width: 17%;
+  height: 17%;
+  background: var(--cn-accent);
+  border-radius: 50%;
+  z-index: 1;
 }
 
 /* ── Body ───────────────────────────────────────────────────────────────── */
@@ -96,13 +135,18 @@
 .tpl-contemporary__body {
   display: grid;
   grid-template-columns: 31fr 69fr;
-  column-gap: calc(20pt * var(--cn-scale));
-  margin-top: calc(12pt * var(--cn-scale) * var(--cn-density));
+  column-gap: calc(24pt * var(--cn-scale));
+  margin-top: calc(20pt * var(--cn-scale) * var(--cn-density));
 }
 
 .tpl-contemporary__main,
 .tpl-contemporary__aside {
   min-width: 0;
+}
+
+/* The room the initials hang into. */
+.tpl-contemporary__aside {
+  padding-top: calc(62pt * var(--cn-scale));
 }
 
 /*
@@ -123,31 +167,78 @@
 
 .tpl-contemporary__section + .tpl-contemporary__section {
   margin-top: calc(
-    11pt * var(--cn-scale) * var(--cn-density) + var(--tpl-space-height, 0px)
+    18pt * var(--cn-scale) * var(--cn-density) + var(--tpl-space-height, 0px)
   );
 }
 
 .tpl-contemporary__heading {
   position: relative;
-  margin: 0 0 calc(6pt * var(--cn-scale));
-  padding-bottom: calc(4pt * var(--cn-scale));
-  font-size: calc(8pt * var(--cn-scale));
-  font-weight: 700;
-  letter-spacing: 0.09em;
+  display: flex;
+  align-items: center;
+  min-height: calc(18pt * var(--cn-scale));
+  margin: 0 0 calc(8pt * var(--cn-scale));
+  padding-left: calc(24pt * var(--cn-scale));
+  font-size: calc(11pt * var(--cn-scale));
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
   text-transform: uppercase;
   color: var(--cn-ink);
 }
 
-/* A short rule in the accent rather than a line across the column: at this
-   weight a full rule would be the loudest thing on the page. */
+/*
+ * The badge beside each heading: a tinted square under a glyph that names
+ * nothing the heading's own words do not. Drawn, not set in an icon font, so
+ * it extracts as nothing.
+ */
+.tpl-contemporary__heading::before,
 .tpl-contemporary__heading::after {
   content: '';
   position: absolute;
-  bottom: 0;
+  top: 50%;
   left: 0;
   width: calc(18pt * var(--cn-scale));
-  height: 1.5pt;
-  background: var(--cn-accent);
+  height: calc(18pt * var(--cn-scale));
+  transform: translateY(-50%);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-contemporary__heading::before {
+  background: var(--cn-wash);
+  border-radius: calc(3pt * var(--cn-scale));
+}
+
+.tpl-contemporary__heading::after {
+  background: var(--cn-ink);
+  mask: var(--cn-glyph) center / 62% no-repeat;
+  -webkit-mask: var(--cn-glyph) center / 62% no-repeat;
+  --cn-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l2.6 6.6L21 9.3l-4.9 4.5 1.4 6.9L12 17.3l-5.5 3.4 1.4-6.9L3 9.3l6.4-.7z'/%3E%3C/svg%3E");
+}
+
+.tpl-contemporary__heading--contacts::after {
+  --cn-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M3 4h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm1 3v1.2l8 5 8-5V7l-8 5z'/%3E%3C/svg%3E");
+}
+
+.tpl-contemporary__heading--summary::after,
+.tpl-contemporary__heading--experience::after {
+  --cn-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='7.5' r='4.5'/%3E%3Cpath d='M3 21c0-4.4 4-7 9-7s9 2.6 9 7z'/%3E%3C/svg%3E");
+}
+
+.tpl-contemporary__heading--achievements::after {
+  --cn-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M4 2h2v20H4zM7 3h14v12H7zm2 2v8h10V5z'/%3E%3C/svg%3E");
+}
+
+.tpl-contemporary__heading--education::after {
+  --cn-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3L1 9l11 6 9-4.9V17h2V9zM5 13.2V17c0 1.7 3.1 3.5 7 3.5s7-1.8 7-3.5v-3.8l-7 3.8z'/%3E%3C/svg%3E");
+}
+
+.tpl-contemporary__heading--courses::after {
+  --cn-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M5 2h10l5 5v15H5zm3 9v2h9v-2zm0 4v2h9v-2z'/%3E%3C/svg%3E");
+}
+
+.tpl-contemporary__heading--passions::after {
+  --cn-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21l-1.4-1.3C5.4 15 2 12 2 8.3 2 5.3 4.4 3 7.4 3c1.7 0 3.4.8 4.6 2.1C13.2 3.8 14.9 3 16.6 3 19.6 3 22 5.3 22 8.3c0 3.7-3.4 6.7-8.6 11.4z'/%3E%3C/svg%3E");
 }
 
 .tpl-contemporary__prose {
@@ -158,7 +249,7 @@
 
 .tpl-contemporary__entry {
   margin-top: calc(
-    8pt * var(--cn-scale) * var(--cn-density) + var(--tpl-space-height, 0px)
+    10pt * var(--cn-scale) * var(--cn-density) + var(--tpl-space-height, 0px)
   );
   break-inside: avoid;
 }
@@ -166,29 +257,30 @@
 /* The heading's own margin, restated: the two collapse, so a recorded gap adds
    to it rather than being lost inside it. */
 .tpl-contemporary__entry:first-of-type {
-  margin-top: calc(4pt * var(--cn-scale) + var(--tpl-space-height, 0px));
+  margin-top: calc(8pt * var(--cn-scale) + var(--tpl-space-height, 0px));
 }
 
 .tpl-contemporary__head {
   display: grid;
   grid-template-columns: 1fr auto;
   column-gap: calc(10pt * var(--cn-scale));
+  font-size: calc(9.8pt * var(--cn-scale));
+  line-height: 1.35;
 }
 
 .tpl-contemporary__org {
   font-weight: 700;
-  color: var(--cn-ink);
+  color: var(--cn-strong);
 }
 
 .tpl-contemporary__role {
-  color: var(--cn-body);
+  color: var(--cn-strong);
 }
 
 .tpl-contemporary__where,
 .tpl-contemporary__dates {
   text-align: right;
-  font-size: calc(7.6pt * var(--cn-scale));
-  color: var(--cn-muted);
+  color: var(--cn-strong);
   font-variant-numeric: tabular-nums;
 }
 
@@ -198,33 +290,34 @@
 }
 
 .tpl-contemporary .tpl-bullets {
-  margin: calc(2.5pt * var(--cn-scale)) 0 0;
+  margin: calc(2pt * var(--cn-scale)) 0 0;
   padding: 0;
   list-style: none;
 }
 
 .tpl-contemporary .tpl-bullet {
   display: grid;
-  grid-template-columns: calc(8pt * var(--cn-scale)) 1fr;
-  margin-top: calc(1pt * var(--cn-scale));
+  grid-template-columns: calc(9pt * var(--cn-scale)) 1fr;
+  padding-left: calc(3pt * var(--cn-scale));
+  font-size: calc(8.6pt * var(--cn-scale));
 }
 
 .tpl-contemporary .tpl-bullet::before {
-  content: '·';
-  color: var(--cn-muted);
+  content: '•';
+  color: var(--cn-strong);
 }
 
-/* ── The rail's notes and chips ─────────────────────────────────────────── */
+/* ── The rail's notes ───────────────────────────────────────────────────── */
 
 .tpl-contemporary__note {
   margin-top: calc(
-    6pt * var(--cn-scale) * var(--cn-density) + var(--tpl-space-height, 0px)
+    9pt * var(--cn-scale) * var(--cn-density) + var(--tpl-space-height, 0px)
   );
   break-inside: avoid;
 }
 
 .tpl-contemporary__note:first-of-type {
-  margin-top: calc(3.5pt * var(--cn-scale) + var(--tpl-space-height, 0px));
+  margin-top: calc(8pt * var(--cn-scale) + var(--tpl-space-height, 0px));
 }
 
 .tpl-contemporary__note-title,
@@ -233,38 +326,37 @@
 }
 
 .tpl-contemporary__note-title {
-  position: relative;
-  padding-left: calc(11pt * var(--cn-scale));
+  font-size: calc(9.6pt * var(--cn-scale));
   font-weight: 700;
-  color: var(--cn-ink);
-}
-
-/* The ring the reference puts beside each highlight, drawn rather than set in
-   an icon font: a border is foreground ink and carries no meaning to lose. */
-.tpl-contemporary__note-title::before {
-  content: '';
-  position: absolute;
-  top: calc(2.5pt * var(--cn-scale));
-  left: 0;
-  width: calc(6pt * var(--cn-scale));
-  height: calc(6pt * var(--cn-scale));
-  border: 1pt solid var(--cn-accent);
-  border-radius: 50%;
+  color: var(--cn-strong);
 }
 
 .tpl-contemporary__note-detail {
+  margin-top: calc(1.5pt * var(--cn-scale));
+  font-size: calc(8.4pt * var(--cn-scale));
   color: var(--cn-body);
 }
 
-/* Skills as one run of keywords, as this template's reference sets them. */
-.tpl-contemporary__keywords {
-  margin: 0;
+/* Skills as the kit's invisible table (`kit/skill-grid.css`), tuned to this
+   template's main column. */
+.tpl-contemporary {
+  --tpl-skill-grid-label: calc(84pt * var(--cn-scale));
+  --tpl-skill-grid-column: calc(104pt * var(--cn-scale));
+  --tpl-skill-grid-gutter: calc(10pt * var(--cn-scale));
+  --tpl-skill-grid-gap: calc(10pt * var(--cn-scale));
+  --tpl-skill-grid-lead: calc(2pt * var(--cn-scale));
+  --tpl-skill-grid-rhythm: calc(4pt * var(--cn-scale));
+  --tpl-skill-grid-label-weight: 700;
+  --tpl-skill-grid-label-ink: var(--cn-strong);
 }
+
 /* ── The contact details, as a section of the rail ──────────────────────── */
 
 .tpl-contemporary__contacts {
+  --tpl-contact-icon-ink: var(--cn-accent);
   display: grid;
-  gap: calc(1.5pt * var(--cn-scale));
+  gap: calc(6pt * var(--cn-scale));
+  margin-top: calc(10pt * var(--cn-scale));
 }
 
 .tpl-contemporary__contact-item {
@@ -273,18 +365,25 @@
   color: var(--cn-body);
 }
 
+.tpl-contemporary__contact-item .tpl-text__link {
+  color: inherit;
+  text-decoration: none;
+}
+
 /*
  * The supporting sections — achievements, courses, passions, languages.
  *
  * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
  * this template's painting of it, which is the division the contract asks for.
- * Each value is the one already used by the sections beside them, so the four
- * arrive looking like they were always here.
  */
 .tpl-contemporary {
-  --tpl-described-gap: calc(7pt * var(--cn-scale));
-  --tpl-described-lead: calc(1.5pt * var(--cn-scale));
-  --tpl-described-title-ink: var(--cn-accent);
+  --tpl-described-gap: calc(11pt * var(--cn-scale));
+  --tpl-described-lead: calc(2pt * var(--cn-scale));
+  --tpl-described-title-ink: var(--cn-strong);
+  --tpl-described-title-size: calc(9.6pt * var(--cn-scale));
+  --tpl-described-title-leading: 1.3;
+  --tpl-described-body-size: calc(8.4pt * var(--cn-scale));
+  --tpl-described-body-ink: var(--cn-body);
   --tpl-described-span: calc(14pt * var(--cn-scale));
   --tpl-language-gap: calc(6pt * var(--cn-scale));
   --tpl-language-lead: calc(4pt * var(--cn-scale));
@@ -292,9 +391,21 @@
   --tpl-language-meter-ink: var(--cn-accent);
 }
 
-/* One repeated mark, never one per entry: nothing in the résumé says which
-   glyph an achievement deserves. */
+/* One repeated mark, never one per entry: nothing in the resume says which
+   glyph an achievement deserves. The mark hangs, so the paragraph under a
+   title lines up with the title rather than with the dot. */
 .tpl-contemporary .tpl-described--marked {
-  --tpl-described-mark: '\25CF';
-  --tpl-described-mark-gap: calc(4pt * var(--cn-scale));
+  --tpl-described-mark: '\2022';
+  --tpl-described-mark-ink: var(--cn-strong);
+}
+
+.tpl-contemporary .tpl-described--marked .tpl-described__entry {
+  position: relative;
+  padding-left: calc(13pt * var(--cn-scale));
+}
+
+.tpl-contemporary .tpl-described--marked .tpl-described__title::before {
+  position: absolute;
+  left: calc(3pt * var(--cn-scale));
+  margin: 0;
 }

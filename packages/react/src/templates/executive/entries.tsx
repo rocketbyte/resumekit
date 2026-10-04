@@ -9,6 +9,7 @@ import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { useEditorText } from '../../i18n/index.js';
+import { Separator } from '../../kit/Separator.js';
 
 export function ExecutiveExperienceEntry({
   item,
@@ -21,6 +22,7 @@ export function ExecutiveExperienceEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <article {...itemProps} className="tpl-exec__entry" data-block>
       {chrome}
@@ -31,6 +33,12 @@ export function ExecutiveExperienceEntry({
           </strong>
           <span className="tpl-exec__sep">{'/'}</span>
           <EditableText path={`${path}.company`} value={item.company} />
+          <Separator between={[item.company, item.location]} text=" - " />
+          <EditableText
+            path={`${path}.location`}
+            value={item.location ?? ''}
+            placeholder={placeholder('location')}
+          />
         </span>
         <span className="tpl-exec__dates">
           <EditableText path={`${path}.start`} value={item.start} />
@@ -84,6 +92,12 @@ export function ExecutiveEducationEntry({
       </div>
       <p className="tpl-exec__school">
         <EditableText path={`${path}.school`} value={item.school} />
+        <Separator between={[item.school, item.location]} text=" - " />
+        <EditableText
+          path={`${path}.location`}
+          value={item.location ?? ''}
+          placeholder={placeholder('location')}
+        />
       </p>
     </article>
   );

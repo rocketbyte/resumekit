@@ -164,7 +164,7 @@ describe('the Compact document', () => {
     expect(flows[1]?.className).toContain('tpl-compact__aside');
   });
 
-  /* One line for the facts: employer, dates and place, with real characters
+  /* One line for the facts: employer, dates and place, with a real space
      between them so the extracted line reads as three things. */
   it('puts the employer, the dates and the place on one line', () => {
     const { container } = draw(resume());
@@ -175,7 +175,7 @@ describe('the Compact document', () => {
     expect(meta?.textContent).toContain('2019-01');
     expect(meta?.textContent).toContain('London, UK');
     const sep = css.slice(css.indexOf('.tpl-compact__meta-item::before {'));
-    expect(sep.slice(0, sep.indexOf('}'))).toMatch(/content: '[^']*·[^']*'/);
+    expect(sep.slice(0, sep.indexOf('}'))).toMatch(/content: ' '/);
   });
 
   /*

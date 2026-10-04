@@ -1,30 +1,27 @@
 /*
- * The Modern template: a navy name over an accented headline, the candidate's
- * initials where the reference shows a portrait, and two columns whose
- * headings are ruled across their own column.
- *
- * The rule under each heading is what separates the columns — there is no
- * divider between them, which keeps the page from reading as a form.
+ * The Polished template: a deep teal rail down the left of every sheet with
+ * the name at its head, and a quiet white column beside it whose headings are
+ * small grey capitals over a hairline.
  */
 
 .tpl-polished {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(6pt * var(--po-scale));
   --tpl-space-unit: calc(2.2pt * var(--po-scale) * var(--po-density));
   --tpl-space-margin: var(--po-margin);
   --tpl-marker: calc(8pt * var(--po-scale));
-  --tpl-avatar-size: calc(56pt * var(--po-scale));
-  --tpl-avatar-text: calc(18pt * var(--po-scale));
 
   --po-scale: 1;
-  --po-ink: #1d2733;
-  --po-rail: #15514c;
+  --po-ink: #3b4043;
+  --po-rail: #0f625d;
   --po-font:
     'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  --po-accent: #14746c;
+  --po-accent: #1b9e96;
   --po-density: 1;
   --po-margin: 0.5in;
-  --po-body: #34404f;
-  --po-muted: #6c7787;
-  --po-line: #d3d8e0;
+  --po-body: #4a4f52;
+  --po-muted: #5f6568;
+  --po-line: #d9dcde;
 
   box-sizing: border-box;
   width: 8.5in;
@@ -35,50 +32,51 @@
   background: #ffffff;
   color: var(--po-body);
   font-family: var(--po-font);
-  font-size: calc(8pt * var(--po-scale));
-  line-height: 1.4;
+  font-size: calc(8.3pt * var(--po-scale));
+  line-height: 1.32;
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
 
+/* Padding rather than margin under the header and the name: a margin would
+   collapse with the recorded space above the first section and swallow it. */
 .tpl-polished__head-block {
-  margin-bottom: calc(12pt * var(--po-scale));
+  padding-bottom: calc(18pt * var(--po-scale));
 }
 
 /* The name heads the rail, in the panel's own ink. */
 .tpl-polished__name {
-  margin: 0 0 calc(12pt * var(--po-scale));
+  margin: calc(4pt * var(--po-scale)) 0 0;
+  padding-bottom: calc(26pt * var(--po-scale));
   font-size: calc(17pt * var(--po-scale));
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.15;
+  letter-spacing: 0.01em;
   color: #ffffff;
   text-transform: uppercase;
 }
 
 .tpl-polished__headline {
-  margin: calc(1pt * var(--po-scale)) 0 0;
-  font-size: calc(11pt * var(--po-scale));
-  font-weight: 700;
+  margin: 0;
+  font-size: calc(10.5pt * var(--po-scale));
+  font-weight: 400;
+  line-height: 1.25;
   color: var(--po-accent);
 }
 
 .tpl-polished__contact {
-  margin: calc(3pt * var(--po-scale)) 0 0;
+  --tpl-contact-icon-ink: var(--po-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(2pt * var(--po-scale)) calc(10pt * var(--po-scale));
+  margin: calc(5pt * var(--po-scale)) 0 0;
   font-size: calc(8pt * var(--po-scale));
-  color: var(--po-muted);
+  color: var(--po-ink);
 }
 
-.tpl-polished__contact-item + .tpl-polished__contact-item::before {
-  content: '';
-  display: inline-block;
-  width: calc(10pt * var(--po-scale));
-}
-
-/* The initials, in the slot the design gives a portrait. */
-.tpl-polished__avatar {
-  margin: 0 0 calc(14pt * var(--po-scale));
-  color: #ffffff;
-  border-color: rgb(255 255 255 / 45%);
+.tpl-polished__contact .tpl-text__link {
+  color: inherit;
+  text-decoration: none;
 }
 
 /* ── Body ───────────────────────────────────────────────────────────────── */
@@ -86,7 +84,7 @@
 /* The rail first, exactly as the document writes it. */
 .tpl-polished__body {
   display: grid;
-  grid-template-columns: 29fr 71fr;
+  grid-template-columns: 34.5fr 65.5fr;
   /* The rail covers every sheet the document runs to — `kit/panel.css` adds
      the height, because the arithmetic belongs with the sheets it measures. */
 }
@@ -97,7 +95,7 @@
 }
 
 .tpl-polished__main {
-  padding: 0.45in var(--po-margin) 0.45in calc(22pt * var(--po-scale));
+  padding: 0.5in var(--po-margin) 0.45in calc(22pt * var(--po-scale));
 }
 
 /*
@@ -106,7 +104,8 @@
  * height of its own.
  */
 .tpl-polished__aside {
-  padding: 0.45in calc(20pt * var(--po-scale)) 0.45in var(--po-margin);
+  padding: 0.5in calc(24pt * var(--po-scale)) 0.45in
+    calc(40pt * var(--po-scale));
   background: var(--po-rail);
   color: #ffffff;
 
@@ -133,18 +132,34 @@
 
 .tpl-polished__section + .tpl-polished__section {
   margin-top: calc(
-    11pt * var(--po-scale) * var(--po-density) + var(--tpl-space-height, 0px)
+    17pt * var(--po-scale) * var(--po-density) + var(--tpl-space-height, 0px)
   );
 }
 
+.tpl-polished__heading {
+  margin: 0 0 calc(6pt * var(--po-scale));
+  padding-bottom: calc(3pt * var(--po-scale));
+  border-bottom: 1pt solid var(--po-line);
+  font-size: calc(9.6pt * var(--po-scale));
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--po-muted);
+}
+
+/* On the rail the heading and its rule are white. */
 .tpl-polished__aside .tpl-polished__heading {
-  color: rgb(255 255 255 / 72%);
-  border-bottom-color: rgb(255 255 255 / 30%);
+  color: #ffffff;
+  border-bottom: 1.25pt solid rgb(255 255 255 / 85%);
 }
 
 .tpl-polished__aside .tpl-polished__note-title,
 .tpl-polished__aside .tpl-described__title {
   color: #ffffff;
+}
+
+.tpl-polished__aside .tpl-described {
+  --tpl-described-mark-ink: #ffffff;
 }
 
 .tpl-polished__aside .tpl-polished__note-detail,
@@ -163,22 +178,6 @@
   --tpl-language-meter-ink: rgb(255 255 255 / 80%);
 }
 
-/* On the painted rail the keyword's rule is drawn in the panel's own ink. */
-.tpl-polished__aside .tpl-keywords {
-  --tpl-keyword-line: rgb(255 255 255 / 45%);
-}
-
-.tpl-polished__heading {
-  margin: 0 0 calc(4pt * var(--po-scale));
-  padding-bottom: calc(2pt * var(--po-scale));
-  border-bottom: 0.75pt solid var(--po-line);
-  font-size: calc(7.6pt * var(--po-scale));
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--po-muted);
-}
-
 .tpl-polished__prose {
   margin: 0;
 }
@@ -187,7 +186,7 @@
 
 .tpl-polished__entry {
   margin-top: calc(
-    8pt * var(--po-scale) * var(--po-density) + var(--tpl-space-height, 0px)
+    10pt * var(--po-scale) * var(--po-density) + var(--tpl-space-height, 0px)
   );
   break-inside: avoid;
 }
@@ -195,64 +194,64 @@
 /* The heading's own margin, restated: the two collapse, so a recorded gap adds
    to it rather than being lost inside it. */
 .tpl-polished__entry:first-of-type {
-  margin-top: calc(4pt * var(--po-scale) + var(--tpl-space-height, 0px));
+  margin-top: calc(6pt * var(--po-scale) + var(--tpl-space-height, 0px));
+}
+
+/* Role and dates on one line, employer and place on the next. */
+.tpl-polished__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(10pt * var(--po-scale));
+  row-gap: calc(1pt * var(--po-scale));
 }
 
 .tpl-polished__role {
-  margin: 0;
-  font-size: calc(9.6pt * var(--po-scale));
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: calc(10pt * var(--po-scale));
   color: var(--po-ink);
 }
 
-.tpl-polished__meta {
-  margin: 0;
-  font-size: calc(8pt * var(--po-scale));
-  color: var(--po-muted);
-  font-variant-numeric: tabular-nums;
-}
-
 .tpl-polished__org {
-  font-weight: 700;
+  font-size: calc(9.2pt * var(--po-scale));
   color: var(--po-accent);
 }
 
-/* A REAL character between the facts: a parser extracts characters, and a gap
-   made of CSS is not one. */
-.tpl-polished__meta-item::before {
-  content: ' · ';
-  color: var(--po-muted);
+.tpl-polished__dates,
+.tpl-polished__where {
+  align-self: baseline;
+  text-align: right;
+  font-size: calc(7.8pt * var(--po-scale));
+  color: var(--po-ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .tpl-polished .tpl-bullets {
-  margin: calc(2.5pt * var(--po-scale)) 0 0;
+  margin: calc(3pt * var(--po-scale)) 0 0;
   padding: 0;
   list-style: none;
 }
 
 .tpl-polished .tpl-bullet {
   display: grid;
-  grid-template-columns: calc(8pt * var(--po-scale)) 1fr;
-  margin-top: calc(1pt * var(--po-scale));
+  grid-template-columns: calc(12pt * var(--po-scale)) 1fr;
+  padding-left: calc(1pt * var(--po-scale));
 }
 
 .tpl-polished .tpl-bullet::before {
-  content: '·';
-  color: var(--po-muted);
+  content: '•';
+  color: var(--po-ink);
 }
 
-/* ── The rail's notes and chips ─────────────────────────────────────────── */
+/* ── The rail's notes ───────────────────────────────────────────────────── */
 
 .tpl-polished__note {
   margin-top: calc(
-    6pt * var(--po-scale) * var(--po-density) + var(--tpl-space-height, 0px)
+    10pt * var(--po-scale) * var(--po-density) + var(--tpl-space-height, 0px)
   );
   break-inside: avoid;
 }
 
 .tpl-polished__note:first-of-type {
-  margin-top: calc(3.5pt * var(--po-scale) + var(--tpl-space-height, 0px));
+  margin-top: calc(6pt * var(--po-scale) + var(--tpl-space-height, 0px));
 }
 
 .tpl-polished__note-title,
@@ -261,17 +260,26 @@
 }
 
 .tpl-polished__note-title {
-  font-weight: 700;
+  font-size: calc(9.6pt * var(--po-scale));
   color: var(--po-ink);
 }
 
 .tpl-polished__note-detail {
+  font-size: calc(7.8pt * var(--po-scale));
   color: var(--po-body);
 }
 
-/* Skills as one run of keywords, as this template's reference sets them. */
-.tpl-polished__keywords {
-  margin: 0;
+/* Skills as the kit's invisible table (`kit/skill-grid.css`), tuned to this
+   template's main column. */
+.tpl-polished {
+  --tpl-skill-grid-label: calc(80pt * var(--po-scale));
+  --tpl-skill-grid-column: calc(100pt * var(--po-scale));
+  --tpl-skill-grid-gutter: calc(10pt * var(--po-scale));
+  --tpl-skill-grid-gap: calc(10pt * var(--po-scale));
+  --tpl-skill-grid-lead: calc(2pt * var(--po-scale));
+  --tpl-skill-grid-rhythm: calc(4pt * var(--po-scale));
+  --tpl-skill-grid-label-weight: 700;
+  --tpl-skill-grid-label-ink: var(--po-ink);
 }
 
 /*
@@ -279,13 +287,15 @@
  *
  * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
  * this template's painting of it, which is the division the contract asks for.
- * Each value is the one already used by the sections beside them, so the four
- * arrive looking like they were always here.
  */
 .tpl-polished {
-  --tpl-described-gap: calc(7pt * var(--po-scale));
-  --tpl-described-lead: calc(1.5pt * var(--po-scale));
-  --tpl-described-title-ink: var(--po-accent);
+  --tpl-described-gap: calc(10pt * var(--po-scale));
+  --tpl-described-lead: calc(2pt * var(--po-scale));
+  --tpl-described-title-ink: var(--po-ink);
+  --tpl-described-title-size: calc(9.6pt * var(--po-scale));
+  --tpl-described-title-weight: 400;
+  --tpl-described-title-leading: 1.25;
+  --tpl-described-body-size: calc(7.8pt * var(--po-scale));
   --tpl-described-span: calc(14pt * var(--po-scale));
   --tpl-language-gap: calc(6pt * var(--po-scale));
   --tpl-language-lead: calc(4pt * var(--po-scale));
@@ -293,9 +303,25 @@
   --tpl-language-meter-ink: var(--po-accent);
 }
 
-/* One repeated mark, never one per entry: nothing in the résumé says which
-   glyph an achievement deserves. */
-.tpl-polished .tpl-described--marked {
-  --tpl-described-mark: '\25C6';
-  --tpl-described-mark-gap: calc(4pt * var(--po-scale));
+/*
+ * One repeated glyph in a hanging column, never one per entry: nothing in the
+ * resume says which picture an achievement deserves. A drawn mask with no
+ * content, so it adds no character to the extracted text.
+ */
+.tpl-polished .tpl-described--marked .tpl-described__entry {
+  position: relative;
+  padding-left: calc(17pt * var(--po-scale));
+}
+
+.tpl-polished .tpl-described--marked .tpl-described__title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  margin: calc(1.5pt * var(--po-scale)) 0 0;
+  width: calc(9pt * var(--po-scale));
+  height: calc(9pt * var(--po-scale));
+  background: currentcolor;
+  mask: var(--po-mark) center / contain no-repeat;
+  -webkit-mask: var(--po-mark) center / contain no-repeat;
+  --po-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2h12v2h4v3a5 5 0 0 1-5 5h-.3A6 6 0 0 1 13 15.9V19h4v3H7v-3h4v-3.1A6 6 0 0 1 7.3 12H7a5 5 0 0 1-5-5V4h4zM4 6v1a3 3 0 0 0 2 2.8V6zm16 0h-2v3.8A3 3 0 0 0 20 7z'/%3E%3C/svg%3E");
 }

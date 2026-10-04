@@ -7,7 +7,7 @@ import type { ResumeObject } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
@@ -25,6 +25,7 @@ import {
   CreativeExperienceEntry,
 } from './entries.js';
 import '../../kit/layout.css';
+import '../../kit/contact-icons.css';
 import './creative.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
@@ -68,9 +69,12 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
           )}
 
           {(contact.length > 0 || resume.links.length > 0 || authoring) && (
-            <p className="tpl-creative__contact">
-              {contact.map(({ path, value, placeholder }) => (
-                <span key={path} className="tpl-creative__contact-item">
+            <p className="tpl-creative__contact tpl-contact-icons">
+              {contact.map(({ field, path, value, placeholder }) => (
+                <span
+                  key={path}
+                  className={`tpl-creative__contact-item tpl-contact--${field}`}
+                >
                   <EditableText
                     path={path}
                     value={value}
@@ -85,7 +89,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
                 emptyAdd="inline"
               >
                 {({ item, path, chrome, itemProps, justAdded }) => (
-                  <span className="tpl-creative__contact-item">
+                  <span className="tpl-creative__contact-item tpl-contact--link">
                     <span {...itemProps}>
                       {chrome}
                       <LinkField
@@ -239,13 +243,13 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
               className="tpl-creative__section"
               headingClassName="tpl-creative__heading"
             >
-              <p className="tpl-creative__prose" data-block>
-                <EditableInlineList
+              <div data-block data-split>
+                <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={placeholder('certifications')}
+                  placeholder={placeholder('certification')}
                 />
-              </p>
+              </div>
             </DocumentSection>
           )}
 

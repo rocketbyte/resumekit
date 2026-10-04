@@ -8,32 +8,34 @@
  */
 
 .tpl-modern {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(5pt * var(--md-scale));
   --tpl-space-unit: calc(2.2pt * var(--md-scale) * var(--md-density));
   --tpl-space-margin: var(--md-margin);
   --tpl-marker: calc(8pt * var(--md-scale));
-  --tpl-avatar-size: calc(56pt * var(--md-scale));
-  --tpl-avatar-text: calc(18pt * var(--md-scale));
+  --tpl-avatar-size: calc(70pt * var(--md-scale));
+  --tpl-avatar-text: calc(22pt * var(--md-scale));
 
   --md-scale: 1;
-  --md-ink: #1b2a52;
+  --md-ink: #14317f;
   --md-font:
     'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   --md-accent: #f2682a;
   --md-density: 1;
-  --md-margin: 0.5in;
-  --md-body: #34404f;
-  --md-muted: #6c7787;
-  --md-line: #d3d8e0;
+  --md-margin: 0.6in;
+  --md-body: #2f3640;
+  --md-muted: #5f6670;
+  --md-line: #d4d7dc;
 
   box-sizing: border-box;
   width: 8.5in;
-  padding: 0.45in var(--md-margin);
+  padding: 0.4in var(--md-margin);
   margin: 0 auto;
   background: #ffffff;
   color: var(--md-body);
   font-family: var(--md-font);
   font-size: calc(8pt * var(--md-scale));
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
@@ -47,7 +49,7 @@
 
 .tpl-modern__name {
   margin: 0;
-  font-size: calc(16pt * var(--md-scale));
+  font-size: calc(24pt * var(--md-scale));
   font-weight: 700;
   line-height: 1.1;
   color: var(--md-ink);
@@ -55,22 +57,21 @@
 }
 
 .tpl-modern__headline {
-  margin: calc(1pt * var(--md-scale)) 0 0;
-  font-size: calc(11pt * var(--md-scale));
-  font-weight: 700;
+  margin: calc(2pt * var(--md-scale)) 0 0;
+  font-size: calc(12.5pt * var(--md-scale));
+  font-weight: 400;
+  line-height: 1.2;
   color: var(--md-accent);
 }
 
 .tpl-modern__contact {
-  margin: calc(3pt * var(--md-scale)) 0 0;
+  margin: calc(6pt * var(--md-scale)) 0 0;
   font-size: calc(8pt * var(--md-scale));
-  color: var(--md-muted);
+  color: var(--md-body);
 }
 
-.tpl-modern__contact-item + .tpl-modern__contact-item::before {
-  content: '';
-  display: inline-block;
-  width: calc(10pt * var(--md-scale));
+.tpl-modern__contact-item + .tpl-modern__contact-item {
+  margin-left: calc(14pt * var(--md-scale));
 }
 
 /* The initials, in the slot the design gives a portrait. */
@@ -83,9 +84,9 @@
 
 .tpl-modern__body {
   display: grid;
-  grid-template-columns: 57fr 43fr;
-  column-gap: calc(20pt * var(--md-scale));
-  margin-top: calc(12pt * var(--md-scale) * var(--md-density));
+  grid-template-columns: 60fr 40fr;
+  column-gap: calc(30pt * var(--md-scale));
+  margin-top: calc(14pt * var(--md-scale) * var(--md-density));
 }
 
 .tpl-modern__main,
@@ -108,17 +109,17 @@
 
 .tpl-modern__section + .tpl-modern__section {
   margin-top: calc(
-    11pt * var(--md-scale) * var(--md-density) + var(--tpl-space-height, 0px)
+    16pt * var(--md-scale) * var(--md-density) + var(--tpl-space-height, 0px)
   );
 }
 
 .tpl-modern__heading {
-  margin: 0 0 calc(4pt * var(--md-scale));
-  padding-bottom: calc(2pt * var(--md-scale));
-  border-bottom: 0.75pt solid var(--md-line);
-  font-size: calc(7.6pt * var(--md-scale));
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  margin: 0 0 calc(5pt * var(--md-scale));
+  padding-bottom: calc(2.5pt * var(--md-scale));
+  border-bottom: 1.5pt solid var(--md-line);
+  font-size: calc(8.5pt * var(--md-scale));
+  font-weight: 400;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--md-muted);
 }
@@ -131,7 +132,7 @@
 
 .tpl-modern__entry {
   margin-top: calc(
-    8pt * var(--md-scale) * var(--md-density) + var(--tpl-space-height, 0px)
+    9pt * var(--md-scale) * var(--md-density) + var(--tpl-space-height, 0px)
   );
   break-inside: avoid;
 }
@@ -139,50 +140,83 @@
 /* The heading's own margin, restated: the two collapse, so a recorded gap adds
    to it rather than being lost inside it. */
 .tpl-modern__entry:first-of-type {
-  margin-top: calc(4pt * var(--md-scale) + var(--tpl-space-height, 0px));
+  margin-top: calc(5pt * var(--md-scale) + var(--tpl-space-height, 0px));
 }
 
 .tpl-modern__role {
   margin: 0;
-  font-size: calc(9.6pt * var(--md-scale));
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: calc(11pt * var(--md-scale));
+  font-weight: 400;
+  line-height: 1.25;
   color: var(--md-ink);
 }
 
 .tpl-modern__meta {
-  margin: 0;
-  font-size: calc(8pt * var(--md-scale));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: calc(9pt * var(--md-scale));
+  margin: calc(1pt * var(--md-scale)) 0 0;
+  font-size: calc(7.6pt * var(--md-scale));
   color: var(--md-muted);
   font-variant-numeric: tabular-nums;
 }
 
+/* The employer at the left, the dates and the place gathered at the right. */
 .tpl-modern__org {
-  font-weight: 700;
+  margin-right: auto;
+  font-size: calc(9pt * var(--md-scale));
   color: var(--md-accent);
 }
 
-/* A REAL character between the facts: a parser extracts characters, and a gap
-   made of CSS is not one. */
-.tpl-modern__meta-item::before {
-  content: ' · ';
-  color: var(--md-muted);
+/*
+ * A calendar before the dates and a pin before the place, as the reference
+ * marks them. Each glyph is a mask over a no-break space, so the extracted
+ * line still has a character between the employer and its facts.
+ */
+.tpl-modern__dates::before,
+.tpl-modern__place::before {
+  content: '\00a0';
+  display: inline-block;
+  width: calc(8pt * var(--md-scale));
+  height: calc(8pt * var(--md-scale));
+  margin-right: calc(3pt * var(--md-scale));
+  vertical-align: -0.05em;
+  background: var(--md-body);
+  mask: var(--md-glyph) center / contain no-repeat;
+  -webkit-mask: var(--md-glyph) center / contain no-repeat;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-modern__dates {
+  --md-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 2h2v2h6V2h2v2h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3zm-2 7v10h14V9z'/%3E%3C/svg%3E");
+}
+
+.tpl-modern__place {
+  --md-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E");
+}
+
+/* No place, no pin. */
+.tpl-modern__place:has(> [data-empty])::before {
+  display: none;
 }
 
 .tpl-modern .tpl-bullets {
-  margin: calc(2.5pt * var(--md-scale)) 0 0;
-  padding: 0;
+  margin: calc(2pt * var(--md-scale)) 0 0;
+  padding: 0 0 0 calc(4pt * var(--md-scale));
   list-style: none;
 }
 
 .tpl-modern .tpl-bullet {
   display: grid;
   grid-template-columns: calc(8pt * var(--md-scale)) 1fr;
-  margin-top: calc(1pt * var(--md-scale));
+  margin-top: calc(0.5pt * var(--md-scale));
 }
 
 .tpl-modern .tpl-bullet::before {
-  content: '·';
+  content: '•';
+  font-size: 0.8em;
   color: var(--md-muted);
 }
 
@@ -215,7 +249,7 @@
 
 /* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
    template states only its colour and its rhythm. */
-.tpl-keywords {
+.tpl-modern .tpl-keywords {
   --tpl-keyword-line: var(--md-line);
   --tpl-keyword-gap: calc(5pt * var(--md-scale));
   --tpl-keyword-lead: calc(1.5pt * var(--md-scale));
@@ -230,9 +264,11 @@
  * arrive looking like they were always here.
  */
 .tpl-modern {
-  --tpl-described-gap: calc(7pt * var(--md-scale));
+  --tpl-described-gap: calc(9pt * var(--md-scale));
   --tpl-described-lead: calc(1.5pt * var(--md-scale));
   --tpl-described-title-ink: var(--md-accent);
+  --tpl-described-title-weight: 400;
+  --tpl-described-title-size: calc(9pt * var(--md-scale));
   --tpl-described-span: calc(14pt * var(--md-scale));
   --tpl-language-gap: calc(6pt * var(--md-scale));
   --tpl-language-lead: calc(4pt * var(--md-scale));
@@ -240,9 +276,34 @@
   --tpl-language-meter-ink: var(--md-accent);
 }
 
-/* One repeated mark, never one per entry: nothing in the résumé says which
-   glyph an achievement deserves. */
+/*
+ * One repeated mark, never one per entry: nothing in the resume says which
+ * glyph an achievement deserves. It sits in a pale disc to the left of the
+ * entry, and the title and its paragraph share the indent beside it.
+ */
 .tpl-modern .tpl-described--marked {
-  --tpl-described-mark: '\25C6';
-  --tpl-described-mark-gap: calc(4pt * var(--md-scale));
+  --tpl-described-mark: '\2605';
+  --tpl-described-mark-ink: var(--md-accent);
+  --tpl-described-title-ink: var(--md-ink);
+}
+
+.tpl-modern .tpl-described--marked .tpl-described__entry {
+  position: relative;
+  min-height: calc(24pt * var(--md-scale));
+  padding-left: calc(33pt * var(--md-scale));
+}
+
+.tpl-modern .tpl-described--marked .tpl-described__title::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: calc(24pt * var(--md-scale));
+  height: calc(24pt * var(--md-scale));
+  margin: 0;
+  border-radius: 50%;
+  background: #eef0f3;
+  font-size: calc(10pt * var(--md-scale));
+  line-height: 1;
 }

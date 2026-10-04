@@ -7,7 +7,7 @@ import type { ResumeObject } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
@@ -24,6 +24,7 @@ import {
   CompactExperienceEntry,
 } from './entries.js';
 import '../../kit/layout.css';
+import '../../kit/contact-icons.css';
 import './compact.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
@@ -66,9 +67,12 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
         )}
 
         {(contact.length > 0 || resume.links.length > 0 || authoring) && (
-          <p className="tpl-compact__contact">
-            {contact.map(({ path, value, placeholder }) => (
-              <span key={path} className="tpl-compact__contact-item">
+          <p className="tpl-compact__contact tpl-contact-icons">
+            {contact.map(({ field, path, value, placeholder }) => (
+              <span
+                key={path}
+                className={`tpl-compact__contact-item tpl-contact--${field}`}
+              >
                 <EditableText
                   path={path}
                   value={value}
@@ -83,7 +87,7 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
               emptyAdd="inline"
             >
               {({ item, path, chrome, itemProps, justAdded }) => (
-                <span className="tpl-compact__contact-item">
+                <span className="tpl-compact__contact-item tpl-contact--link">
                   <span {...itemProps}>
                     {chrome}
                     <LinkField item={item} path={path} justAdded={justAdded} />
@@ -226,13 +230,13 @@ export function CompactDocument({ resume }: CompactDocumentProps) {
               className="tpl-compact__section"
               headingClassName="tpl-compact__heading"
             >
-              <p className="tpl-compact__prose" data-block>
-                <EditableInlineList
+              <div data-block data-split>
+                <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={placeholder('certifications')}
+                  placeholder={placeholder('certification')}
                 />
-              </p>
+              </div>
             </DocumentSection>
           )}
 

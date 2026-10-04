@@ -26,22 +26,15 @@ export function PolishedExperienceEntry({
   return (
     <article {...itemProps} className="tpl-polished__entry" data-block>
       {chrome}
-      <p className="tpl-polished__role">
-        <EditableText
-          path={`${path}.title`}
-          value={item.title}
-          placeholder={placeholder('title')}
-        />
-      </p>
-      <p className="tpl-polished__meta">
-        <span className="tpl-polished__org">
+      <div className="tpl-polished__head">
+        <span className="tpl-polished__role">
           <EditableText
-            path={`${path}.company`}
-            value={item.company}
-            placeholder={placeholder('company')}
+            path={`${path}.title`}
+            value={item.title}
+            placeholder={placeholder('title')}
           />
         </span>
-        <span className="tpl-polished__meta-item">
+        <span className="tpl-polished__dates">
           <EditableText
             path={`${path}.start`}
             value={item.start}
@@ -54,14 +47,21 @@ export function PolishedExperienceEntry({
             placeholder={placeholder('end')}
           />
         </span>
-        <span className="tpl-polished__meta-item">
+        <span className="tpl-polished__org">
+          <EditableText
+            path={`${path}.company`}
+            value={item.company}
+            placeholder={placeholder('company')}
+          />
+        </span>
+        <span className="tpl-polished__where">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
             placeholder={placeholder('location')}
           />
         </span>
-      </p>
+      </div>
       <EditableBulletList path={`${path}.bullets`} items={item.bullets} />
     </article>
   );
@@ -82,28 +82,21 @@ export function PolishedEducationEntry({
   return (
     <article {...itemProps} className="tpl-polished__entry" data-block>
       {chrome}
-      <p className="tpl-polished__role">
-        <EditableText
-          path={`${path}.degree`}
-          value={item.degree ?? ''}
-          placeholder={placeholder('degree')}
-        />
-        <Separator between={[item.degree, item.field]} word="degreeField" />
-        <EditableText
-          path={`${path}.field`}
-          value={item.field ?? ''}
-          placeholder={placeholder('field')}
-        />
-      </p>
-      <p className="tpl-polished__meta">
-        <span className="tpl-polished__org">
+      <div className="tpl-polished__head">
+        <span className="tpl-polished__role">
           <EditableText
-            path={`${path}.school`}
-            value={item.school}
-            placeholder={placeholder('school')}
+            path={`${path}.degree`}
+            value={item.degree ?? ''}
+            placeholder={placeholder('degree')}
+          />
+          <Separator between={[item.degree, item.field]} word="degreeField" />
+          <EditableText
+            path={`${path}.field`}
+            value={item.field ?? ''}
+            placeholder={placeholder('field')}
           />
         </span>
-        <span className="tpl-polished__meta-item">
+        <span className="tpl-polished__dates">
           <EditableText
             path={`${path}.start`}
             value={item.start ?? ''}
@@ -116,14 +109,21 @@ export function PolishedEducationEntry({
             placeholder={placeholder('end')}
           />
         </span>
-        <span className="tpl-polished__meta-item">
+        <span className="tpl-polished__org">
+          <EditableText
+            path={`${path}.school`}
+            value={item.school}
+            placeholder={placeholder('school')}
+          />
+        </span>
+        <span className="tpl-polished__where">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
             placeholder={placeholder('location')}
           />
         </span>
-      </p>
+      </div>
     </article>
   );
 }

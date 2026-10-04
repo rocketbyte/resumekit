@@ -127,8 +127,4 @@ export const RESUME: ResumeObject = {
   ],
   custom_sections: [],
   section_headings: {},
-  achievements: [],
-  courses: [],
-  passions: [],
-  languages: [],
 };

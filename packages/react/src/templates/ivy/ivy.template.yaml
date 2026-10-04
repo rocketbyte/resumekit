@@ -12,10 +12,10 @@ layout:
   - experience
   - education
   - { section: achievements, kit: [tpl-described--marked, tpl-described--grid] }
-  - { section: skills, groups: inline }
-  - courses
+  - { section: skills, groups: grid }
+  - { section: courses, sectionClass: courses }
   - languages
-  - { section: certifications, class: keywords, whenEmpty: hide }
+  - { section: certifications, as: bullets, split: true, whenEmpty: hide }
   - { section: passions, kit: [tpl-described--marked] }
   - custom
 

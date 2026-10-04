@@ -9,6 +9,7 @@ import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { useEditorText } from '../../i18n/index.js';
+import { Separator } from '../../kit/Separator.js';
 
 export function CobaltExperienceEntry({
   item,
@@ -21,6 +22,7 @@ export function CobaltExperienceEntry({
   chrome: ReactNode;
   itemProps: ItemRootProps;
 }) {
+  const { placeholder } = useEditorText();
   return (
     <article {...itemProps} className="tpl-cob__entry" data-block>
       {chrome}
@@ -31,6 +33,12 @@ export function CobaltExperienceEntry({
         <em className="tpl-cob__role">
           <EditableText path={`${path}.title`} value={item.title} />
         </em>
+        <Separator between={[item.title, item.location]} text=" | " />
+        <EditableText
+          path={`${path}.location`}
+          value={item.location ?? ''}
+          placeholder={placeholder('location')}
+        />
         <span className="tpl-cob__dates">
           <EditableText path={`${path}.start`} value={item.start} />
           {' - '}
@@ -66,6 +74,13 @@ export function CobaltEducationEntry({
       </p>
       <p className="tpl-cob__entry-org">
         <EditableText path={`${path}.school`} value={item.school} />
+      </p>
+      <p className="tpl-cob__entry-where">
+        <EditableText
+          path={`${path}.location`}
+          value={item.location ?? ''}
+          placeholder={placeholder('location')}
+        />
       </p>
       {(item.field || item.end) && (
         <p className="tpl-cob__entry-when">

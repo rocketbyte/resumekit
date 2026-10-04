@@ -7,7 +7,7 @@ import type { ResumeObject } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
@@ -23,6 +23,7 @@ import {
   TimelineEducationEntry,
   TimelineExperienceEntry,
 } from './entries.js';
+import '../../kit/contact-icons.css';
 import './timeline.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
@@ -65,9 +66,12 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
         )}
 
         {(contact.length > 0 || resume.links.length > 0 || authoring) && (
-          <p className="tpl-timeline__contact">
-            {contact.map(({ path, value, placeholder }) => (
-              <span key={path} className="tpl-timeline__contact-item">
+          <p className="tpl-timeline__contact tpl-contact-icons">
+            {contact.map(({ field, path, value, placeholder }) => (
+              <span
+                key={path}
+                className={`tpl-timeline__contact-item tpl-contact--${field}`}
+              >
                 <EditableText
                   path={path}
                   value={value}
@@ -82,7 +86,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
               emptyAdd="inline"
             >
               {({ item, path, chrome, itemProps, justAdded }) => (
-                <span className="tpl-timeline__contact-item">
+                <span className="tpl-timeline__contact-item tpl-contact--link">
                   <span {...itemProps}>
                     {chrome}
                     <LinkField item={item} path={path} justAdded={justAdded} />
@@ -223,13 +227,13 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
           className="tpl-timeline__section"
           headingClassName="tpl-timeline__heading"
         >
-          <p className="tpl-timeline__keywords" data-block>
-            <EditableInlineList
+          <div data-block data-split>
+            <EditableBulletList
               path="certifications"
               items={resume.certifications}
-              placeholder={placeholder('certifications')}
+              placeholder={placeholder('certification')}
             />
-          </p>
+          </div>
         </DocumentSection>
       )}
 

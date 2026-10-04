@@ -7,13 +7,13 @@ import type { ResumeObject } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
+import { GridSkillGroup } from '../../kit/GridSkillGroup.js';
 import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
@@ -25,6 +25,7 @@ import {
   ElegantExperienceEntry,
 } from './entries.js';
 import '../../kit/layout.css';
+import '../../kit/contact-icons.css';
 import './elegant.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
@@ -38,11 +39,9 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
   const style = useDocumentStyle();
   const authoring = useAuthoring() !== null;
 
-  const contact = useContactLines(
-    resume.contact,
-    ['phone', 'email', 'location'],
-    authoring,
-  );
+  const contact = useContactLines(resume.contact, ['phone'], authoring);
+  const contact2 = useContactLines(resume.contact, ['email'], authoring);
+  const contact3 = useContactLines(resume.contact, ['location'], authoring);
 
   return (
     <article
@@ -69,38 +68,75 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
                 </p>
               )}
 
-              {(contact.length > 0 || resume.links.length > 0 || authoring) && (
-                <p className="tpl-elegant__contact">
-                  {contact.map(({ path, value, placeholder }) => (
-                    <span key={path} className="tpl-elegant__contact-item">
+              <div className="tpl-elegant__contact" data-layout="row">
+                {contact.length > 0 && (
+                  <p className="tpl-elegant__phone tpl-contact--phone tpl-contact-icons">
+                    {contact.map(({ path, value, placeholder }) => (
                       <EditableText
+                        key={path}
                         path={path}
                         value={value}
                         placeholder={placeholder}
                       />
-                    </span>
-                  ))}
-                  <Collection
-                    section="links"
-                    items={resume.links}
-                    gap={false}
-                    emptyAdd="inline"
-                  >
-                    {({ item, path, chrome, itemProps, justAdded }) => (
-                      <span className="tpl-elegant__contact-item">
-                        <span {...itemProps}>
-                          {chrome}
-                          <LinkField
-                            item={item}
-                            path={path}
-                            justAdded={justAdded}
-                          />
-                        </span>
-                      </span>
-                    )}
-                  </Collection>
-                </p>
-              )}
+                    ))}
+                  </p>
+                )}
+
+                {contact2.length > 0 && (
+                  <p className="tpl-elegant__email tpl-contact--email tpl-contact-icons">
+                    {contact2.map(({ path, value, placeholder }) => (
+                      <EditableText
+                        key={path}
+                        path={path}
+                        value={value}
+                        placeholder={placeholder}
+                      />
+                    ))}
+                  </p>
+                )}
+
+                {(resume.links.length > 0 || authoring) && (
+                  <div className="tpl-elegant__link-line">
+                    <ul
+                      className="tpl-elegant__links tpl-contact-icons"
+                      data-block
+                    >
+                      <Collection
+                        section="links"
+                        items={resume.links}
+                        gap={false}
+                      >
+                        {({ item, path, chrome, itemProps, justAdded }) => (
+                          <li
+                            {...itemProps}
+                            className="tpl-elegant__link tpl-contact--link"
+                          >
+                            {chrome}
+                            <LinkField
+                              item={item}
+                              path={path}
+                              justAdded={justAdded}
+                            />
+                          </li>
+                        )}
+                      </Collection>
+                    </ul>
+                  </div>
+                )}
+
+                {contact3.length > 0 && (
+                  <p className="tpl-elegant__place tpl-contact--location tpl-contact-icons">
+                    {contact3.map(({ path, value, placeholder }) => (
+                      <EditableText
+                        key={path}
+                        path={path}
+                        value={value}
+                        placeholder={placeholder}
+                      />
+                    ))}
+                  </p>
+                )}
+              </div>
             </div>
           </header>
 
@@ -202,22 +238,18 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
               className="tpl-elegant__section"
               headingClassName="tpl-elegant__heading"
             >
-              <p className="tpl-elegant__keywords" data-block>
-                <Collection
-                  section="skills"
-                  items={resume.skills}
-                  noun="skill"
-                  gap={false}
-                >
-                  {({ item, path, index }) => (
-                    <InlineSkillGroup
+              <div className="tpl-skill-grid">
+                <Collection section="skills" items={resume.skills}>
+                  {({ item, path, chrome, itemProps }) => (
+                    <GridSkillGroup
                       item={item}
                       path={path}
-                      first={index === 0}
+                      chrome={chrome}
+                      itemProps={itemProps}
                     />
                   )}
                 </Collection>
-              </p>
+              </div>
             </DocumentSection>
           )}
 
@@ -239,13 +271,13 @@ export function ElegantDocument({ resume }: ElegantDocumentProps) {
               className="tpl-elegant__section"
               headingClassName="tpl-elegant__heading"
             >
-              <p className="tpl-elegant__prose" data-block>
-                <EditableInlineList
+              <div data-block data-split>
+                <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={placeholder('certifications')}
+                  placeholder={placeholder('certification')}
                 />
-              </p>
+              </div>
             </DocumentSection>
           )}
 

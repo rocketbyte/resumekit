@@ -164,18 +164,23 @@ describe('the Modern document', () => {
     expect(flows[1]?.className).toContain('tpl-modern__aside');
   });
 
-  /* One line for the facts: employer, dates and place, with real characters
-     between them so the extracted line reads as three things. */
+  /* One line for the facts: employer, dates and place. The dates and the
+     place are each marked by a glyph drawn over a real character, so the
+     extracted line still reads as three things. */
   it('puts the employer, the dates and the place on one line', () => {
     const { container } = draw(resume());
     const meta = container.querySelector(
       '.tpl-modern__entry .tpl-modern__meta',
     );
     expect(meta?.textContent).toContain('Unilever');
-    expect(meta?.textContent).toContain('2019-01');
-    expect(meta?.textContent).toContain('London, UK');
-    const sep = css.slice(css.indexOf('.tpl-modern__meta-item::before {'));
-    expect(sep.slice(0, sep.indexOf('}'))).toMatch(/content: '[^']*·[^']*'/);
+    expect(meta?.querySelector('.tpl-modern__dates')?.textContent).toContain(
+      '2019-01',
+    );
+    expect(meta?.querySelector('.tpl-modern__place')?.textContent).toBe(
+      'London, UK',
+    );
+    const mark = css.slice(css.indexOf('.tpl-modern__place::before {'));
+    expect(mark.slice(0, mark.indexOf('}'))).toMatch(/content: '\\00a0'/);
   });
 
   /*

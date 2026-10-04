@@ -10,6 +10,8 @@
  */
 
 .tpl-exec {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(7pt * var(--e-scale));
   /*
    * What ONE STEP of recorded space is worth here — `document-styling` (#36).
    *
@@ -237,9 +239,13 @@
 .tpl-exec__columns {
   columns: 2;
   column-gap: calc(28pt * var(--e-scale));
+  padding-top: calc(4pt * var(--e-scale));
 }
 
-.tpl-exec__columns .tpl-bullets {
+/* One list to the eye: no gap between groups, which would open at the head of
+   a column and nowhere else. Named under the root to outrank the bullets rule
+   below. */
+.tpl-exec .tpl-exec__columns .tpl-bullets {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -315,6 +321,13 @@
   margin-top: calc(2pt * var(--e-scale));
   /* Never split a bullet across the two columns. */
   break-inside: avoid;
+}
+
+/* A margin is truncated at a column break and padding is not, so the second
+   column's first skill would otherwise start higher than the first's. */
+.tpl-exec__columns .tpl-bullet {
+  margin-top: 0;
+  padding-top: calc(2pt * var(--e-scale));
 }
 
 .tpl-exec .tpl-bullet::before {

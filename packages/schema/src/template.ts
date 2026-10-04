@@ -68,7 +68,7 @@ export const TEMPLATES = {
     columns: 1,
     ats: [
       'Single column — no sidebar, no text boxes',
-      'Skills as one run of keywords, separated by real characters',
+      'Skills as a list, one keyword per item, under their categories',
       'No tables, images, or icon fonts carrying meaning',
       'Real selectable text, standard system typefaces',
       'Reverse-chronological sections with YYYY-MM dates',
@@ -173,15 +173,15 @@ export const TEMPLATES = {
   contemporary: {
     name: 'Contemporary',
     description:
-      'The candidate’s initials beside their name and a headline set in a ' +
-      'tinted pill, over two columns whose left rail carries the contact ' +
-      'details as a section of their own.',
+      'The candidate’s initials at the head of a left rail that carries the ' +
+      'contact details as a section of their own, beside the name and a ' +
+      'headline set in a tinted pill.',
     page: 'letter',
     columns: 2,
     ats: [
       'Two columns, written in the order they are read — the rail is on the left, so extracted text gives the contact details and highlights before the work history',
       'The headline’s pill is a background behind ordinary text — nothing is lost when the colour is not printed',
-      'Skills are chips by appearance and a list by structure — one skill per extracted line',
+      'Skills as a list, one keyword per item, under their categories',
       'No tables, images, or icon fonts carrying meaning',
       'Reverse-chronological sections with YYYY-MM dates',
     ],
@@ -189,9 +189,9 @@ export const TEMPLATES = {
   'double-column': {
     name: 'Double Column',
     description:
-      'The plainest two-column page in the catalog, and the loudest headings: ' +
-      'set at reading size over a heavy rule, with the work history in the ' +
-      'wide column and the highlights in a rail.',
+      'The plainest two-column page in the catalog: bold uppercase headings ' +
+      'over a heavy rule, with the work history in the wide column and the ' +
+      'highlights in a rail.',
     page: 'letter',
     columns: 2,
     ats: [

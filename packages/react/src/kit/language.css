@@ -9,10 +9,24 @@
  * backgrounds.
  */
 
+/*
+ * Three columns, placed explicitly: the name in a fixed one, so every row's
+ * level word and meter start where the row above's did. The authoring chrome
+ * is absolutely positioned and takes no cell.
+ */
 .tpl-language {
-  display: flex;
+  display: grid;
+  grid-template-columns:
+    minmax(0, var(--tpl-language-name, 7em))
+    minmax(0, 1fr)
+    auto;
   align-items: center;
-  gap: var(--tpl-language-gap, 6pt);
+  column-gap: var(--tpl-language-gap, 6pt);
+}
+
+/* Below the heading's restated margin, as `described.css` explains. */
+.tpl-language {
+  margin-top: calc(var(--tpl-heading-gap, 0px) + var(--tpl-space-height, 0px));
 }
 
 .tpl-language + .tpl-language {
@@ -29,7 +43,15 @@
 }
 
 .tpl-language__name {
+  grid-column: 1;
+  overflow-wrap: break-word;
   font-weight: var(--tpl-language-name-weight, 600);
+}
+
+.tpl-language__level,
+.tpl-language__choice {
+  grid-column: 2;
+  justify-self: start;
 }
 
 .tpl-language__level {
@@ -37,11 +59,11 @@
   font-size: var(--tpl-language-level-size, 0.9em);
 }
 
-/* The meter is pushed to the far edge, as every reference sets it. */
+/* The meter stands at the far edge, as every reference sets it. */
 .tpl-language__meter {
+  grid-column: 3;
   display: inline-flex;
   gap: var(--tpl-language-step-gap, 2pt);
-  margin-left: auto;
 }
 
 /*
