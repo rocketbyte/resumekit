@@ -11,6 +11,12 @@
     },
     "./document.css": "./src/document.css",
     "./fonts.css": "./src/fonts/fonts.css",
+    "./static": {
+      "types": "./src/static/api.ts",
+      "import": "./dist-static/static.mjs",
+      "default": "./dist-static/static.mjs"
+    },
+    "./static.css": "./dist-static/templates.css",
     "./package.json": "./package.json"
   },
   "nx": {
@@ -30,6 +36,24 @@
           "cwd": "{projectRoot}",
           "commands": [
             "vite build --config vite.export.config.mts"
+          ]
+        },
+        "dependsOn": [
+          "^build"
+        ]
+      },
+      "build-static": {
+        "executor": "nx:run-commands",
+        "outputs": [
+          "{projectRoot}/dist-static"
+        ],
+        "cache": true,
+        "options": {
+          "cwd": "{projectRoot}",
+          "parallel": false,
+          "commands": [
+            "vite build --config vite.static.config.mts",
+            "tsx scripts/build-static-css.ts"
           ]
         },
         "dependsOn": [
@@ -98,6 +122,8 @@
     "react": "^19.0.0"
   },
   "devDependencies": {
+    "esbuild": "^0.27.7",
+    "postcss": "^8.5.22",
     "prettier": "^3.8.1",
     "tsx": "^4.23.15",
     "yaml": "^2.9.0",
