@@ -7,6 +7,8 @@
  */
 
 .tpl-classic {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(3pt * var(--cl-scale));
   /* A fifth of the gap between two sections, so a drag lands between
      positions rather than jumping a whole one. */
   --tpl-space-unit: calc(2.4pt * var(--cl-scale) * var(--cl-density));
@@ -24,6 +26,10 @@
   --cl-margin: 0.5in;
   --cl-muted: #5c5c5c;
   --cl-quiet: #767676;
+  --cl-heading: #3d3d3d;
+  /* The lead line is the ink deepened toward the accent, as the reference
+     sets the role and the degree. */
+  --cl-lead: color-mix(in srgb, var(--cl-accent) 30%, #102018);
 
   box-sizing: border-box;
   width: 8.5in;
@@ -49,13 +55,13 @@
 .tpl-classic__headline {
   margin: calc(2pt * var(--cl-scale)) 0 0;
   font-size: calc(10pt * var(--cl-scale));
-  color: var(--cl-muted);
+  color: var(--cl-heading);
 }
 
 .tpl-classic__contact {
   margin: calc(3pt * var(--cl-scale)) 0 0;
   font-size: calc(7.6pt * var(--cl-scale));
-  color: var(--cl-quiet);
+  color: var(--cl-accent);
 }
 
 /* Spaced rather than punctuated — the reference sets the details apart with
@@ -76,16 +82,28 @@
 
 .tpl-classic__heading {
   margin: 0 0 calc(3pt * var(--cl-scale));
-  font-size: calc(7.8pt * var(--cl-scale));
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: calc(9pt * var(--cl-scale));
+  font-weight: 400;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--cl-muted);
+  color: var(--cl-heading);
 }
 
-.tpl-classic__prose,
-.tpl-classic__keywords {
+.tpl-classic__prose {
   margin: 0;
+}
+
+/* Skills as the kit's invisible table (`kit/skill-grid.css`), tuned to this
+   template's measure. */
+.tpl-classic {
+  --tpl-skill-grid-label: calc(78pt * var(--cl-scale));
+  --tpl-skill-grid-column: calc(96pt * var(--cl-scale));
+  --tpl-skill-grid-gutter: calc(10pt * var(--cl-scale));
+  --tpl-skill-grid-gap: calc(10pt * var(--cl-scale));
+  --tpl-skill-grid-lead: calc(1.5pt * var(--cl-scale));
+  --tpl-skill-grid-rhythm: calc(3pt * var(--cl-scale));
+  --tpl-skill-grid-label-weight: 700;
+  --tpl-skill-grid-label-ink: var(--cl-heading);
 }
 
 /* ── Entries ────────────────────────────────────────────────────────────── */
@@ -112,6 +130,7 @@
 
 .tpl-classic__lead,
 .tpl-classic__support,
+.tpl-classic__school,
 .tpl-classic__place,
 .tpl-classic__dates {
   margin: 0;
@@ -120,17 +139,22 @@
 .tpl-classic__lead {
   font-size: calc(10.5pt * var(--cl-scale));
   line-height: 1.25;
+  color: var(--cl-lead);
 }
 
 .tpl-classic__support {
-  font-weight: 700;
   color: var(--cl-accent);
+}
+
+.tpl-classic__school,
+.tpl-classic__support {
+  font-size: calc(9pt * var(--cl-scale));
 }
 
 .tpl-classic__aside {
   text-align: right;
   font-size: calc(7.6pt * var(--cl-scale));
-  color: var(--cl-quiet);
+  color: var(--cl-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -153,7 +177,7 @@
 }
 
 .tpl-classic .tpl-bullet::before {
-  content: '·';
+  content: '-';
   color: var(--cl-quiet);
 }
 

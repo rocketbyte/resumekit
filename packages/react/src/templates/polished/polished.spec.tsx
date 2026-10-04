@@ -138,16 +138,15 @@ describe('the Polished document', () => {
     expect(screen.queryByText('Languages')).toBeNull();
   });
 
-  /*
-   * Skills are ONE RUN of keywords in this template, which is how its
-   * reference sets them — and a field per stored group, so the separators a
-   * parser extracts are real characters.
-   */
-  it('prints skills as one run of keywords', () => {
+  /* Skills are the kit's invisible table — one skill per cell, no comma. */
+  it('prints skills as a grid, a skill to a list item', () => {
     const { container } = draw(resume());
-    const run = container.querySelector('.tpl-polished__keywords');
-    expect(run?.textContent).toContain('Supply Chain Management');
-    expect(container.querySelector('.tpl-keywords')).toBeNull();
+    const grid = container.querySelector('.tpl-skill-grid');
+    const skills = [...(grid?.querySelectorAll('li') ?? [])];
+    expect(skills.map((li) => li.textContent)).toContain(
+      'Supply Chain Management',
+    );
+    expect(grid?.textContent).not.toContain(',');
   });
 
   /*

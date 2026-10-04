@@ -6,7 +6,11 @@ styleKey: st
 layout:
   - row:
       - stack:
-          [name, headline, { contact: [phone, email, location], links: true }]
+          [
+            name,
+            headline,
+            { contact: [phone, email, location], links: true, icons: true },
+          ]
         class: identity
       - avatar
     tag: header
@@ -25,7 +29,12 @@ layout:
                 split: true,
               }
           - courses
-          - { section: certifications, whenEmpty: hide }
+          - {
+              section: certifications,
+              as: bullets,
+              split: true,
+              whenEmpty: hide,
+            }
           - { section: passions, kit: [tpl-described--marked] }
         tag: aside
         class: aside
@@ -54,13 +63,13 @@ entries:
             children:
               - field: company
           - tag: span
-            class: meta-item
+            class: dates
             children:
               - field: start
               - text: ' - '
               - field: end
           - tag: span
-            class: meta-item
+            class: place
             children:
               - field: location
                 optional: true
@@ -92,7 +101,7 @@ entries:
             children:
               - field: school
           - tag: span
-            class: meta-item
+            class: dates
             children:
               - field: start
                 optional: true
@@ -103,7 +112,7 @@ entries:
               - field: end
                 optional: true
           - tag: span
-            class: meta-item
+            class: place
             children:
               - field: location
                 optional: true

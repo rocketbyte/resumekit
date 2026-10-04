@@ -95,14 +95,14 @@ export function CompactEducationEntry({
           placeholder={placeholder('field')}
         />
       </p>
+      <p className="tpl-compact__school">
+        <EditableText
+          path={`${path}.school`}
+          value={item.school}
+          placeholder={placeholder('school')}
+        />
+      </p>
       <p className="tpl-compact__meta">
-        <span className="tpl-compact__org">
-          <EditableText
-            path={`${path}.school`}
-            value={item.school}
-            placeholder={placeholder('school')}
-          />
-        </span>
         <span className="tpl-compact__meta-item">
           <EditableText
             path={`${path}.start`}

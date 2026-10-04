@@ -101,7 +101,7 @@ export function ClassicEducationEntry({
               placeholder={placeholder('field')}
             />
           </p>
-          <p className="tpl-classic__support">
+          <p className="tpl-classic__school">
             <EditableText
               path={`${path}.school`}
               value={item.school}

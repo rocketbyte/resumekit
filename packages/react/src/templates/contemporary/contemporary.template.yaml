@@ -20,24 +20,39 @@ layout:
                 class: contacts
                 itemTag: p
                 block: true
+                icons: true
             tag: section
             class: section
             heading: contacts
+            headingClass: heading--contacts
             when: contact
-          - summary
+          - { section: summary, headingClass: heading--summary }
           - {
               section: achievements,
               title: keyAchievements,
               kit: [tpl-described--marked],
+              headingClass: heading--achievements,
             }
           - custom
-          - { section: skills, groups: inline }
-          - courses
-          - { section: certifications, whenEmpty: hide }
-          - { section: passions, kit: [tpl-described--marked] }
+          - { section: skills, groups: grid }
+          - { section: courses, headingClass: heading--courses }
+          - {
+              section: certifications,
+              as: bullets,
+              split: true,
+              whenEmpty: hide,
+            }
+          - {
+              section: passions,
+              kit: [tpl-described--marked],
+              headingClass: heading--passions,
+            }
         tag: aside
         class: aside
-      - stack: [experience, education, languages]
+      - stack:
+          - { section: experience, headingClass: heading--experience }
+          - { section: education, headingClass: heading--education }
+          - languages
         class: main
     class: body
 

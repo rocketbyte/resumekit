@@ -7,7 +7,7 @@ import type { ResumeObject } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
@@ -25,6 +25,7 @@ import {
   StylishExperienceEntry,
 } from './entries.js';
 import '../../kit/layout.css';
+import '../../kit/contact-icons.css';
 import './stylish.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
@@ -68,9 +69,12 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
           )}
 
           {(contact.length > 0 || resume.links.length > 0 || authoring) && (
-            <p className="tpl-stylish__contact">
-              {contact.map(({ path, value, placeholder }) => (
-                <span key={path} className="tpl-stylish__contact-item">
+            <p className="tpl-stylish__contact tpl-contact-icons">
+              {contact.map(({ field, path, value, placeholder }) => (
+                <span
+                  key={path}
+                  className={`tpl-stylish__contact-item tpl-contact--${field}`}
+                >
                   <EditableText
                     path={path}
                     value={value}
@@ -85,7 +89,7 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
                 emptyAdd="inline"
               >
                 {({ item, path, chrome, itemProps, justAdded }) => (
-                  <span className="tpl-stylish__contact-item">
+                  <span className="tpl-stylish__contact-item tpl-contact--link">
                     <span {...itemProps}>
                       {chrome}
                       <LinkField
@@ -168,13 +172,13 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
               className="tpl-stylish__section"
               headingClassName="tpl-stylish__heading"
             >
-              <p className="tpl-stylish__prose" data-block>
-                <EditableInlineList
+              <div data-block data-split>
+                <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={placeholder('certifications')}
+                  placeholder={placeholder('certification')}
                 />
-              </p>
+              </div>
             </DocumentSection>
           )}
 

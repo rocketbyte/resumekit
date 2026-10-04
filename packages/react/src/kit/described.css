@@ -7,6 +7,15 @@
  * copied block would quietly come apart.
  */
 
+/*
+ * The first entry sits against the heading, and their margins collapse: the
+ * template restates its heading's bottom margin in `--tpl-heading-gap` so the
+ * recorded space is added below it rather than lost inside it.
+ */
+.tpl-described__entry {
+  margin-top: calc(var(--tpl-heading-gap, 0px) + var(--tpl-space-height, 0px));
+}
+
 .tpl-described__entry + .tpl-described__entry {
   /*
    * The recorded space is ADDED to the rhythm, never substituted for it, which
@@ -96,9 +105,10 @@
 }
 
 /*
- * In a grid every entry is a first row, so the sibling margin above would
- * double the gap the grid already sets.
+ * In a grid no margin collapses and the grid sets the gaps, so every cell takes
+ * its recorded space alone.
  */
+.tpl-described--grid .tpl-described__entry,
 .tpl-described--grid .tpl-described__entry + .tpl-described__entry {
   margin-top: var(--tpl-space-height, 0px);
 }

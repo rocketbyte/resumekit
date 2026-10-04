@@ -7,6 +7,8 @@
  */
 
 .tpl-timeline {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(5pt * var(--tl-scale));
   --tpl-space-unit: calc(2.4pt * var(--tl-scale) * var(--tl-density));
   --tpl-space-margin: var(--tl-margin);
   --tpl-marker: calc(9pt * var(--tl-scale));
@@ -23,7 +25,7 @@
   --tl-line: #c9d0d8;
   /* The dated column, named once: the entry's grid and the spine's dot both
      measure from it, and two literals would disagree the first time it moved. */
-  --tl-when: calc(78pt * var(--tl-scale));
+  --tl-when: calc(96pt * var(--tl-scale));
 
   box-sizing: border-box;
   width: 8.5in;
@@ -40,7 +42,7 @@
 
 .tpl-timeline__name {
   margin: 0;
-  font-size: calc(16pt * var(--tl-scale));
+  font-size: calc(24pt * var(--tl-scale));
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: 0.01em;
@@ -55,30 +57,30 @@
 }
 
 .tpl-timeline__contact {
-  margin: calc(3pt * var(--tl-scale)) 0 0;
-  font-size: calc(8pt * var(--tl-scale));
-  color: var(--tl-muted);
-}
-
-.tpl-timeline__contact-item + .tpl-timeline__contact-item::before {
-  content: '';
-  display: inline-block;
-  width: calc(12pt * var(--tl-scale));
+  --tpl-contact-icon-ink: var(--tl-accent);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: calc(12pt * var(--tl-scale));
+  margin: calc(4pt * var(--tl-scale)) 0 0;
+  font-size: calc(7.6pt * var(--tl-scale));
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 /* ── Sections ───────────────────────────────────────────────────────────── */
 
 .tpl-timeline__section {
   margin-top: calc(
-    12pt * var(--tl-scale) * var(--tl-density) + var(--tpl-space-height, 0px)
+    21pt * var(--tl-scale) * var(--tl-density) + var(--tpl-space-height, 0px)
   );
 }
 
 .tpl-timeline__heading {
   margin: 0 0 calc(5pt * var(--tl-scale));
-  font-size: calc(11pt * var(--tl-scale));
+  font-size: calc(14pt * var(--tl-scale));
   font-weight: 700;
-  letter-spacing: 0.04em;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
 }
 
@@ -94,7 +96,7 @@
   display: grid;
   grid-template-columns: var(--tl-when) calc(10pt * var(--tl-scale)) 1fr;
   margin-top: calc(
-    9pt * var(--tl-scale) * var(--tl-density) + var(--tpl-space-height, 0px)
+    11pt * var(--tl-scale) * var(--tl-density) + var(--tpl-space-height, 0px)
   );
   break-inside: avoid;
 }
@@ -121,7 +123,9 @@
 }
 
 .tpl-timeline__place {
-  color: var(--tl-quiet);
+  margin-top: calc(3pt * var(--tl-scale));
+  font-size: calc(7.6pt * var(--tl-scale));
+  color: var(--tl-muted);
 }
 
 /*
@@ -135,33 +139,35 @@
 }
 
 /*
- * The line runs THROUGH the gap to the next entry, so the spine reads as one
- * line down the column rather than as a dash beside each job. The last entry
- * stops at its own foot, because there is nothing below it to reach.
+ * The line runs most of the way through the gap to the next entry, stopping
+ * just short of its dot, as the reference draws it. The last entry stops at
+ * its own foot, because there is nothing below it to reach.
  */
 .tpl-timeline__entry:not(:last-of-type) .tpl-timeline__spine {
-  margin-bottom: calc(-9pt * var(--tl-scale) * var(--tl-density));
+  margin-bottom: calc(
+    -11pt * var(--tl-scale) * var(--tl-density) + 3pt * var(--tl-scale)
+  );
 }
 
 .tpl-timeline__spine::before {
   content: '';
   position: absolute;
-  top: calc(3pt * var(--tl-scale));
-  left: calc(-2.5pt * var(--tl-scale));
-  width: calc(4pt * var(--tl-scale));
-  height: calc(4pt * var(--tl-scale));
+  top: calc(1.5pt * var(--tl-scale));
+  left: calc(-2.75pt * var(--tl-scale));
+  width: calc(4.5pt * var(--tl-scale));
+  height: calc(4.5pt * var(--tl-scale));
   background: var(--tl-ink);
   border-radius: 50%;
 }
 
 .tpl-timeline__what {
-  padding-left: calc(9pt * var(--tl-scale));
+  padding-left: calc(10pt * var(--tl-scale));
 }
 
 .tpl-timeline__role {
   margin: 0;
-  font-size: calc(11pt * var(--tl-scale));
-  line-height: 1.2;
+  font-size: calc(12.5pt * var(--tl-scale));
+  line-height: 1.15;
 }
 
 .tpl-timeline__org {
@@ -231,7 +237,7 @@
 
 /* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
    template states only its colour and its rhythm. */
-.tpl-keywords {
+.tpl-timeline .tpl-keywords {
   --tpl-keyword-line: var(--tl-line);
   --tpl-keyword-gap: calc(5pt * var(--tl-scale));
   --tpl-keyword-lead: calc(1.5pt * var(--tl-scale));
@@ -248,7 +254,8 @@
 .tpl-timeline {
   --tpl-described-gap: calc(7pt * var(--tl-scale));
   --tpl-described-lead: calc(1.5pt * var(--tl-scale));
-  --tpl-described-title-ink: var(--tl-accent);
+  --tpl-described-title-ink: var(--tl-ink);
+  --tpl-described-body-ink: var(--tl-muted);
   --tpl-described-span: calc(14pt * var(--tl-scale));
   --tpl-language-gap: calc(6pt * var(--tl-scale));
   --tpl-language-lead: calc(4pt * var(--tl-scale));
@@ -256,11 +263,26 @@
   --tpl-language-meter-ink: var(--tl-accent);
 }
 
-/* One repeated mark, never one per entry: nothing in the résumé says which
-   glyph an achievement deserves. */
+/* One repeated mark, never one per entry: nothing in the resume says which
+   glyph an achievement deserves. It hangs in the accent to the left of the
+   title, and the paragraph keeps the title's indent. */
 .tpl-timeline .tpl-described--marked {
   --tpl-described-mark: '\2691';
-  --tpl-described-mark-gap: calc(4pt * var(--tl-scale));
+  --tpl-described-mark-ink: var(--tl-accent);
+}
+
+.tpl-timeline .tpl-described--marked .tpl-described__entry {
+  position: relative;
+  padding-left: calc(24pt * var(--tl-scale));
+}
+
+.tpl-timeline .tpl-described--marked .tpl-described__title::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  font-size: calc(14pt * var(--tl-scale));
+  line-height: 1;
 }
 
 /* The reference sets these 2 to a row. */

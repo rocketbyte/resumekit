@@ -33,15 +33,15 @@ export function CreativeExperienceEntry({
           placeholder={placeholder('title')}
         />
       </p>
+      <p className="tpl-creative__org">
+        <EditableText
+          path={`${path}.company`}
+          value={item.company}
+          placeholder={placeholder('company')}
+        />
+      </p>
       <p className="tpl-creative__meta">
-        <span className="tpl-creative__org">
-          <EditableText
-            path={`${path}.company`}
-            value={item.company}
-            placeholder={placeholder('company')}
-          />
-        </span>
-        <span className="tpl-creative__meta-item">
+        <span className="tpl-creative__dates">
           <EditableText
             path={`${path}.start`}
             value={item.start}
@@ -54,7 +54,7 @@ export function CreativeExperienceEntry({
             placeholder={placeholder('end')}
           />
         </span>
-        <span className="tpl-creative__meta-item">
+        <span className="tpl-creative__place">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
@@ -95,15 +95,15 @@ export function CreativeEducationEntry({
           placeholder={placeholder('field')}
         />
       </p>
+      <p className="tpl-creative__org">
+        <EditableText
+          path={`${path}.school`}
+          value={item.school}
+          placeholder={placeholder('school')}
+        />
+      </p>
       <p className="tpl-creative__meta">
-        <span className="tpl-creative__org">
-          <EditableText
-            path={`${path}.school`}
-            value={item.school}
-            placeholder={placeholder('school')}
-          />
-        </span>
-        <span className="tpl-creative__meta-item">
+        <span className="tpl-creative__dates">
           <EditableText
             path={`${path}.start`}
             value={item.start ?? ''}
@@ -116,7 +116,7 @@ export function CreativeEducationEntry({
             placeholder={placeholder('end')}
           />
         </span>
-        <span className="tpl-creative__meta-item">
+        <span className="tpl-creative__place">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}

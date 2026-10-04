@@ -13,10 +13,10 @@ layout:
   - education
   - { section: achievements, kit: [tpl-described--grid] }
   - custom
-  - { section: skills, groups: inline }
+  - { section: skills, groups: grid }
   - courses
   - languages
-  - { section: certifications, class: keywords, whenEmpty: hide }
+  - { section: certifications, as: bullets, split: true, whenEmpty: hide }
   - passions
 
 entries:
@@ -81,7 +81,7 @@ entries:
                   - field: field
                     optional: true
               - tag: p
-                class: support
+                class: school
                 children:
                   - field: school
           - tag: div

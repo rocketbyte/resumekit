@@ -63,7 +63,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
           </Heading>
 
           {contact.length > 0 && (
-            <p className="tpl-exec__where">
+            <p className="tpl-exec__where tpl-contact--location">
               {contact.map(({ path, value, placeholder }) => (
                 <EditableText
                   key={path}
@@ -77,8 +77,11 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
 
           {contact2.length > 0 && (
             <p className="tpl-exec__contact">
-              {contact2.map(({ path, value, placeholder }) => (
-                <span key={path} className="tpl-exec__contact-item">
+              {contact2.map(({ field, path, value, placeholder }) => (
+                <span
+                  key={path}
+                  className={`tpl-exec__contact-item tpl-contact--${field}`}
+                >
                   <EditableText
                     path={path}
                     value={value}
@@ -216,6 +219,7 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
               <EditableBulletList
                 path="certifications"
                 items={resume.certifications}
+                placeholder={placeholder('certification')}
               />
             </div>
           </DocumentSection>
@@ -283,7 +287,10 @@ export function ExecutiveDocument({ resume }: ExecutiveDocumentProps) {
             <ul className="tpl-exec__links" data-block>
               <Collection section="links" items={resume.links} gap={false}>
                 {({ item, path, chrome, itemProps, justAdded }) => (
-                  <li {...itemProps} className="tpl-exec__link">
+                  <li
+                    {...itemProps}
+                    className="tpl-exec__link tpl-contact--link"
+                  >
                     {chrome}
                     <LinkField item={item} path={path} justAdded={justAdded} />
                   </li>

@@ -1,30 +1,34 @@
 /*
- * The Modern template: a navy name over an accented headline, the candidate's
- * initials where the reference shows a portrait, and two columns whose
- * headings are ruled across their own column.
+ * The Elegant template: a navy name over a blue headline and a contact line
+ * with an icon before each detail, a painted rail on the right, and
+ * the candidate's initials where the reference shows a portrait.
  *
- * The rule under each heading is what separates the columns — there is no
- * divider between them, which keeps the page from reading as a form.
+ * Each entry reads as two lines — the role with its dates set right, then the
+ * employer in blue with its place set right.
  */
 
 .tpl-elegant {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(6pt * var(--el-scale));
   --tpl-space-unit: calc(2.2pt * var(--el-scale) * var(--el-density));
   --tpl-space-margin: var(--el-margin);
   --tpl-marker: calc(8pt * var(--el-scale));
-  --tpl-avatar-size: calc(56pt * var(--el-scale));
-  --tpl-avatar-text: calc(18pt * var(--el-scale));
+  --tpl-avatar-size: calc(76pt * var(--el-scale));
+  --tpl-avatar-text: calc(24pt * var(--el-scale));
 
   --el-scale: 1;
-  --el-ink: #1d2733;
-  --el-rail: #1f3448;
+  --el-ink: #1e2a38;
+  --el-rail: #223751;
+  /* The reference is set in Rubik, which is not supplied; Arimo is the
+     supplied face closest to its width and x-height. */
   --el-font:
-    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  --el-accent: #2f72c4;
+    Arimo, Arial, 'Helvetica Neue', Helvetica, 'Liberation Sans', sans-serif;
+  --el-accent: #2f80ed;
   --el-density: 1;
   --el-margin: 0.5in;
-  --el-body: #34404f;
-  --el-muted: #6c7787;
-  --el-line: #d3d8e0;
+  --el-body: #343a40;
+  --el-muted: #4f565c;
+  --el-line: #e1e3e6;
 
   box-sizing: border-box;
   width: 8.5in;
@@ -41,13 +45,15 @@
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
 
-.tpl-elegant__head-block {
-  margin-bottom: calc(12pt * var(--el-scale));
+/* The header's gap is the first section's margin, so space recorded above
+   that section adds to it instead of collapsing into it. */
+.tpl-elegant__head-block + .tpl-elegant__section {
+  margin-top: calc(22pt * var(--el-scale) + var(--tpl-space-height, 0px));
 }
 
 .tpl-elegant__name {
   margin: 0;
-  font-size: calc(16pt * var(--el-scale));
+  font-size: calc(20pt * var(--el-scale));
   font-weight: 700;
   line-height: 1.1;
   color: var(--el-ink);
@@ -55,22 +61,47 @@
 }
 
 .tpl-elegant__headline {
-  margin: calc(1pt * var(--el-scale)) 0 0;
-  font-size: calc(11pt * var(--el-scale));
-  font-weight: 700;
+  margin: calc(3pt * var(--el-scale)) 0 0;
+  font-size: calc(12.5pt * var(--el-scale));
+  font-weight: 400;
+  line-height: 1.25;
   color: var(--el-accent);
 }
 
 .tpl-elegant__contact {
-  margin: calc(3pt * var(--el-scale)) 0 0;
-  font-size: calc(8pt * var(--el-scale));
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(2pt * var(--el-scale)) calc(11pt * var(--el-scale));
+  margin: calc(6pt * var(--el-scale)) 0 0;
+  font-size: calc(8.5pt * var(--el-scale));
   color: var(--el-muted);
 }
 
-.tpl-elegant__contact-item + .tpl-elegant__contact-item::before {
-  content: '';
-  display: inline-block;
-  width: calc(10pt * var(--el-scale));
+.tpl-elegant__phone,
+.tpl-elegant__email,
+.tpl-elegant__place,
+.tpl-elegant__links {
+  margin: 0;
+}
+
+.tpl-elegant__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 calc(11pt * var(--el-scale));
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Each detail's icon is the kit's (`kit/contact-icons.css`); the reference
+ * draws the address as an at sign rather than an envelope.
+ */
+.tpl-elegant {
+  --tpl-contact-icon-ink: #a0a6ad;
+  --tpl-contact-icon-size: calc(8.5pt * var(--el-scale));
+  --tpl-contact-icon-gap: calc(3.5pt * var(--el-scale));
+  --tpl-contact-icon-shift: -0.12em;
+  --tpl-contact-icon-email: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.9 7.9'/%3E%3C/svg%3E");
 }
 
 /* The initials, in the slot the design gives a portrait. */
@@ -84,7 +115,7 @@
 
 .tpl-elegant__body {
   display: grid;
-  grid-template-columns: 64fr 36fr;
+  grid-template-columns: 65fr 35fr;
   /* The rail covers every sheet the document runs to — `kit/panel.css` adds
      the height, because the arithmetic belongs with the sheets it measures. */
 }
@@ -129,13 +160,13 @@
 
 .tpl-elegant__section + .tpl-elegant__section {
   margin-top: calc(
-    11pt * var(--el-scale) * var(--el-density) + var(--tpl-space-height, 0px)
+    17pt * var(--el-scale) * var(--el-density) + var(--tpl-space-height, 0px)
   );
 }
 
 .tpl-elegant__aside .tpl-elegant__heading {
-  color: rgb(255 255 255 / 72%);
-  border-bottom-color: rgb(255 255 255 / 30%);
+  color: #ffffff;
+  border-bottom-color: rgb(255 255 255 / 35%);
 }
 
 .tpl-elegant__aside .tpl-elegant__note-title,
@@ -159,20 +190,15 @@
   --tpl-language-meter-ink: rgb(255 255 255 / 80%);
 }
 
-/* On the painted rail the keyword's rule is drawn in the panel's own ink. */
-.tpl-elegant__aside .tpl-keywords {
-  --tpl-keyword-line: rgb(255 255 255 / 45%);
-}
-
 .tpl-elegant__heading {
-  margin: 0 0 calc(4pt * var(--el-scale));
-  padding-bottom: calc(2pt * var(--el-scale));
-  border-bottom: 0.75pt solid var(--el-line);
-  font-size: calc(7.6pt * var(--el-scale));
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  margin: 0 0 calc(6pt * var(--el-scale));
+  padding-bottom: calc(3pt * var(--el-scale));
+  border-bottom: 1pt solid var(--el-line);
+  font-size: calc(13pt * var(--el-scale));
+  font-weight: 400;
+  line-height: 1.2;
   text-transform: uppercase;
-  color: var(--el-muted);
+  color: var(--el-ink);
 }
 
 .tpl-elegant__prose {
@@ -183,7 +209,7 @@
 
 .tpl-elegant__entry {
   margin-top: calc(
-    8pt * var(--el-scale) * var(--el-density) + var(--tpl-space-height, 0px)
+    10pt * var(--el-scale) * var(--el-density) + var(--tpl-space-height, 0px)
   );
   break-inside: avoid;
 }
@@ -191,51 +217,63 @@
 /* The heading's own margin, restated: the two collapse, so a recorded gap adds
    to it rather than being lost inside it. */
 .tpl-elegant__entry:first-of-type {
-  margin-top: calc(4pt * var(--el-scale) + var(--tpl-space-height, 0px));
+  margin-top: calc(6pt * var(--el-scale) + var(--tpl-space-height, 0px));
+}
+
+/* Role and dates on one line, the employer and its place on the next — each
+   a paragraph of its own, so extracted text keeps them apart. */
+.tpl-elegant__entry-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(10pt * var(--el-scale));
+  align-items: baseline;
+}
+
+.tpl-elegant__role,
+.tpl-elegant__dates,
+.tpl-elegant__org,
+.tpl-elegant__where {
+  margin: 0;
 }
 
 .tpl-elegant__role {
-  margin: 0;
-  font-size: calc(9.6pt * var(--el-scale));
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: calc(11pt * var(--el-scale));
+  line-height: 1.25;
   color: var(--el-ink);
 }
 
-.tpl-elegant__meta {
-  margin: 0;
-  font-size: calc(8pt * var(--el-scale));
+.tpl-elegant__dates,
+.tpl-elegant__where {
+  font-size: calc(8.5pt * var(--el-scale));
   color: var(--el-muted);
+  text-align: right;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
 .tpl-elegant__org {
-  font-weight: 700;
+  margin-top: calc(1pt * var(--el-scale));
+  font-size: calc(10pt * var(--el-scale));
+  line-height: 1.25;
   color: var(--el-accent);
 }
 
-/* A REAL character between the facts: a parser extracts characters, and a gap
-   made of CSS is not one. */
-.tpl-elegant__meta-item::before {
-  content: ' · ';
-  color: var(--el-muted);
-}
-
 .tpl-elegant .tpl-bullets {
-  margin: calc(2.5pt * var(--el-scale)) 0 0;
+  margin: calc(2pt * var(--el-scale)) 0 0;
   padding: 0;
   list-style: none;
 }
 
 .tpl-elegant .tpl-bullet {
+  --tpl-marker: calc(11pt * var(--el-scale));
+
   display: grid;
-  grid-template-columns: calc(8pt * var(--el-scale)) 1fr;
-  margin-top: calc(1pt * var(--el-scale));
+  grid-template-columns: calc(11pt * var(--el-scale)) 1fr;
 }
 
 .tpl-elegant .tpl-bullet::before {
-  content: '·';
-  color: var(--el-muted);
+  content: '•';
+  padding-left: calc(3pt * var(--el-scale));
 }
 
 /* ── The rail's notes and chips ─────────────────────────────────────────── */
@@ -248,7 +286,7 @@
 }
 
 .tpl-elegant__note:first-of-type {
-  margin-top: calc(3.5pt * var(--el-scale) + var(--tpl-space-height, 0px));
+  margin-top: calc(6pt * var(--el-scale) + var(--tpl-space-height, 0px));
 }
 
 .tpl-elegant__note-title,
@@ -265,9 +303,14 @@
   color: var(--el-body);
 }
 
-/* Skills as one run of keywords, as this template's reference sets them. */
-.tpl-elegant__keywords {
-  margin: 0;
+/* Skills as the kit's invisible table (`kit/skill-grid.css`). On the rail it
+   stacks, so the category is set apart from its skills by the accent. */
+.tpl-elegant {
+  --tpl-skill-grid-lead: calc(2pt * var(--el-scale));
+  --tpl-skill-grid-rhythm: calc(7pt * var(--el-scale));
+  --tpl-skill-grid-label-size: calc(7.5pt * var(--el-scale));
+  --tpl-skill-grid-label-weight: 700;
+  --tpl-skill-grid-label-ink: color-mix(in srgb, var(--el-accent) 45%, #ffffff);
 }
 
 /*
@@ -279,9 +322,13 @@
  * arrive looking like they were always here.
  */
 .tpl-elegant {
-  --tpl-described-gap: calc(7pt * var(--el-scale));
-  --tpl-described-lead: calc(1.5pt * var(--el-scale));
-  --tpl-described-title-ink: var(--el-accent);
+  --tpl-described-gap: calc(9pt * var(--el-scale));
+  --tpl-described-lead: calc(2pt * var(--el-scale));
+  --tpl-described-title-ink: var(--el-ink);
+  --tpl-described-title-size: calc(10.5pt * var(--el-scale));
+  --tpl-described-title-weight: 400;
+  --tpl-described-title-leading: 1.25;
+  --tpl-described-body-size: calc(7.8pt * var(--el-scale));
   --tpl-described-span: calc(14pt * var(--el-scale));
   --tpl-language-gap: calc(6pt * var(--el-scale));
   --tpl-language-lead: calc(4pt * var(--el-scale));
@@ -294,4 +341,18 @@
 .tpl-elegant .tpl-described--marked {
   --tpl-described-mark: '\25C6';
   --tpl-described-mark-gap: calc(4pt * var(--el-scale));
+}
+
+/* The mark hangs in a column of its own, and the title and its paragraph
+   share the indent beside it. */
+.tpl-elegant .tpl-described--marked .tpl-described__entry {
+  position: relative;
+  padding-left: calc(15pt * var(--el-scale));
+}
+
+.tpl-elegant .tpl-described--marked .tpl-described__title::before {
+  position: absolute;
+  left: 0;
+  margin: 0;
+  color: #ffffff;
 }

@@ -35,15 +35,15 @@ export function DoubleColumnLogosExperienceEntry({
           placeholder={placeholder('title')}
         />
       </p>
+      <p className="tpl-dcl__org">
+        <EditableText
+          path={`${path}.company`}
+          value={item.company}
+          placeholder={placeholder('company')}
+        />
+      </p>
       <p className="tpl-dcl__meta">
-        <span className="tpl-dcl__org">
-          <EditableText
-            path={`${path}.company`}
-            value={item.company}
-            placeholder={placeholder('company')}
-          />
-        </span>
-        <span className="tpl-dcl__meta-item">
+        <span className="tpl-dcl__dates">
           <EditableText
             path={`${path}.start`}
             value={item.start}
@@ -56,7 +56,8 @@ export function DoubleColumnLogosExperienceEntry({
             placeholder={placeholder('end')}
           />
         </span>
-        <span className="tpl-dcl__meta-item">
+        <Separator between={[item.end, item.location]} text=" " />
+        <span className="tpl-dcl__where">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
@@ -98,15 +99,15 @@ export function DoubleColumnLogosEducationEntry({
           placeholder={placeholder('field')}
         />
       </p>
+      <p className="tpl-dcl__org">
+        <EditableText
+          path={`${path}.school`}
+          value={item.school}
+          placeholder={placeholder('school')}
+        />
+      </p>
       <p className="tpl-dcl__meta">
-        <span className="tpl-dcl__org">
-          <EditableText
-            path={`${path}.school`}
-            value={item.school}
-            placeholder={placeholder('school')}
-          />
-        </span>
-        <span className="tpl-dcl__meta-item">
+        <span className="tpl-dcl__dates">
           <EditableText
             path={`${path}.start`}
             value={item.start ?? ''}
@@ -119,7 +120,8 @@ export function DoubleColumnLogosEducationEntry({
             placeholder={placeholder('end')}
           />
         </span>
-        <span className="tpl-dcl__meta-item">
+        <Separator between={[item.end, item.location]} text=" " />
+        <span className="tpl-dcl__where">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}

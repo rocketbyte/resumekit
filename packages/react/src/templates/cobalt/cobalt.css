@@ -30,6 +30,8 @@
  */
 
 .tpl-cob {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(6.5pt * var(--c-scale) * var(--c-density));
   /*
    * What ONE STEP of recorded space is worth here — `document-styling` (#36).
    *
@@ -343,6 +345,7 @@
 
 .tpl-cob__entry-lead,
 .tpl-cob__entry-org,
+.tpl-cob__entry-where,
 .tpl-cob__entry-when,
 .tpl-cob__entry-meta {
   margin: 0;

@@ -137,16 +137,15 @@ describe('the Contemporary document', () => {
     expect(screen.queryByText('Languages')).toBeNull();
   });
 
-  /*
-   * Skills are ONE RUN of keywords in this template, which is how its
-   * reference sets them — and a field per stored group, so the separators a
-   * parser extracts are real characters.
-   */
-  it('prints skills as one run of keywords', () => {
+  /* Skills are the kit's invisible table — one skill per cell, no comma. */
+  it('prints skills as a grid, a skill to a list item', () => {
     const { container } = draw(resume());
-    const run = container.querySelector('.tpl-contemporary__keywords');
-    expect(run?.textContent).toContain('Supply Chain Management');
-    expect(container.querySelector('.tpl-keywords')).toBeNull();
+    const grid = container.querySelector('.tpl-skill-grid');
+    const skills = [...(grid?.querySelectorAll('li') ?? [])];
+    expect(skills.map((li) => li.textContent)).toContain(
+      'Supply Chain Management',
+    );
+    expect(grid?.textContent).not.toContain(',');
   });
 
   /*
@@ -206,17 +205,21 @@ describe('the Contemporary document', () => {
     expect(TEMPLATES.contemporary.columns).toBe(2);
   });
 
-  /* A short accent rule under the word, not a line across the column: at this
-     weight a full rule would be the loudest thing on a page made of air. */
-  it('marks each heading with a short rule rather than ruling the column', () => {
+  /* A tinted badge beside the word, not a rule: the reference rules nothing,
+     and the badge is drawn rather than set in an icon font, so it extracts as
+     nothing. */
+  it('marks each heading with a drawn badge rather than a rule', () => {
     const heading = css.slice(css.indexOf('.tpl-contemporary__heading {'));
     const body = heading.slice(0, heading.indexOf('}'));
     expect(body).toMatch(/text-transform: uppercase/);
     expect(body).not.toMatch(/border-bottom/);
-    const mark = css.slice(css.indexOf('.tpl-contemporary__heading::after {'));
-    const markBody = mark.slice(0, mark.indexOf('}'));
-    expect(markBody).toMatch(/background: var\(--cn-accent\)/);
-    expect(markBody).toMatch(/width: calc\(/);
+    const badge = css.slice(
+      css.indexOf('.tpl-contemporary__heading::before {'),
+    );
+    expect(badge.slice(0, badge.indexOf('}'))).toMatch(
+      /background: var\(--cn-wash\)/,
+    );
+    expect(css).not.toMatch(/__heading::(before|after) \{[^}]*content: '[^']/);
   });
 
   /* The MAIN column is the one against the page's right edge here, so it is

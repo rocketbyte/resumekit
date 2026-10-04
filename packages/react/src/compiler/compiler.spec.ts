@@ -138,6 +138,33 @@ describe('the template description schema', () => {
   });
 
   describe('keeps the page paginatable', () => {
+    it('refuses a grid of skills kept or split as one block', () => {
+      const bad = {
+        ...NESTED,
+        layout: [
+          NESTED.layout[0],
+          {
+            row: [
+              {
+                stack: [
+                  {
+                    section: 'skills',
+                    groups: 'grid',
+                    wrapper: { tag: 'div', block: true },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      expect(
+        issues(bad)
+          .map((i) => i.message)
+          .join(),
+      ).toMatch(/grid groups are blocks of their own/);
+    });
+
     it('refuses sections after a row of sections', () => {
       const bad = { ...NESTED, layout: [...NESTED.layout, 'education'] };
       expect(
@@ -232,12 +259,81 @@ describe('the emitter', () => {
     expect(document).toContain('<CobaltCrest resume={resume} />');
   });
 
+  it('draws grid skills as entries of the kit’s grid list', () => {
+    const { document } = emit(
+      TemplateDescriptionSchema.parse({
+        ...NESTED,
+        layout: [
+          NESTED.layout[0],
+          {
+            row: [
+              {
+                stack: [
+                  {
+                    section: 'skills',
+                    groups: 'grid',
+                    wrapper: { tag: 'div', class: 'skills' },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    expect(document).toContain(
+      `import { GridSkillGroup } from '../../kit/GridSkillGroup.js';`,
+    );
+    expect(document).toMatch(
+      /<div className="tpl-n__skills tpl-skill-grid">\s*<Collection section="skills" items=\{resume\.skills\}>/,
+    );
+    expect(document).toContain(
+      '<GridSkillGroup item={item} path={path} chrome={chrome} itemProps={itemProps} />',
+    );
+    expect(document).not.toMatch(
+      /InlineSkillGroup|BulletSkillGroup|data-split/,
+    );
+  });
+
   it('gives each contact line its own details', () => {
     const { document } = emit(
       TemplateDescriptionSchema.parse(description('executive')),
     );
     expect(document).toContain(`const contact = useContactLines(`);
     expect(document).toContain(`const contact2 = useContactLines(`);
+  });
+
+  it('names each contact detail by its field, and draws icons only when asked', () => {
+    const line = (part: object) =>
+      emit(
+        TemplateDescriptionSchema.parse({
+          ...NESTED,
+          layout: [{ stack: ['name', part] }],
+        }),
+      ).document;
+    const plain = line({ contact: ['phone', 'email'], links: true });
+    expect(plain).toContain(
+      'className={`tpl-n__contact-item tpl-contact--${field}`}',
+    );
+    expect(plain).toContain(
+      'className="tpl-n__contact-item tpl-contact--link"',
+    );
+    expect(plain).not.toMatch(/tpl-contact-icons|contact-icons\.css/);
+
+    const bare = line({
+      contact: ['location'],
+      class: 'place',
+      item: false,
+      icons: true,
+    });
+    expect(bare).toContain(
+      'className="tpl-n__place tpl-contact--location tpl-contact-icons"',
+    );
+    expect(bare).toContain(`import '../../kit/contact-icons.css';`);
+
+    expect(line({ links: 'links', icons: true })).toMatch(
+      /className="tpl-n__links tpl-contact-icons"[\s\S]*className="tpl-n__link tpl-contact--link"/,
+    );
   });
 
   it('composes only the kit, and never a mutator', () => {

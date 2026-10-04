@@ -11,7 +11,7 @@ import { DocumentPresentationProvider } from '../../presentation-context.js';
 /**
  * The Double Column template.
  *
- * Its own claims: headings at reading size over a heavy rule, highlights
+ * Its own claims: large headings over a heavy rule, highlights
  * divided by a dotted rule rather than by space, and chips that are a FILL
  * behind list items — so the page reads the same in grey.
  */
@@ -165,16 +165,15 @@ describe('the Double Column document', () => {
     expect(flows[1]?.className).toContain('tpl-dc__aside');
   });
 
-  /* One line for the facts: employer, dates and place, with real characters
-     between them so the extracted line reads as three things. */
-  it('puts the employer, the dates and the place on one line', () => {
+  /* The employer on a line of its own under the role, as the reference sets
+     it, then the dates and the place joined by a real space: the icons
+     between them are drawn, and extract as nothing. */
+  it('puts the employer under the role, then the dates and the place', () => {
     const { container } = draw(resume());
-    const meta = container.querySelector('.tpl-dc__entry .tpl-dc__meta');
-    expect(meta?.textContent).toContain('Unilever');
-    expect(meta?.textContent).toContain('2019-01');
-    expect(meta?.textContent).toContain('London, UK');
-    const sep = css.slice(css.indexOf('.tpl-dc__meta-item::before {'));
-    expect(sep.slice(0, sep.indexOf('}'))).toMatch(/content: '[^']*·[^']*'/);
+    const entry = container.querySelector('.tpl-dc__entry');
+    expect(entry?.querySelector('.tpl-dc__org')?.textContent).toBe('Unilever');
+    const meta = entry?.querySelector('.tpl-dc__meta');
+    expect(meta?.textContent).toMatch(/2019-01 - 2022-12\s+London, UK/);
   });
 
   /*
@@ -220,13 +219,14 @@ describe('the Double Column document', () => {
     expect(TEMPLATES['double-column'].columns).toBe(2);
   });
 
-  /* Headings at reading size over a heavy rule: the eye finds a section
-     before it finds a word, which is this page's whole idea. */
-  it('sets its headings at reading size over a heavy rule', () => {
+  /* Large, heavy headings over a heavy rule: the eye finds a section before
+     it finds a word, which is this page's whole idea. */
+  it('sets its headings large and heavy over a heavy rule', () => {
     const heading = css.slice(css.indexOf('.tpl-dc__heading {'));
     const body = heading.slice(0, heading.indexOf('}'));
-    expect(body).toMatch(/font-size: calc\(11pt/);
-    expect(body).toMatch(/border-bottom: 1.25pt solid/);
+    expect(body).toMatch(/font-size: calc\(15pt/);
+    expect(body).toMatch(/font-weight: 700/);
+    expect(body).toMatch(/border-bottom: 2pt solid/);
   });
 
   /* One highlight is divided from the next by a rule, not by space. */

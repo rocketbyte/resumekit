@@ -4,7 +4,12 @@ prefix: tpl-compact
 styleKey: cp
 
 layout:
-  - stack: [name, headline, { contact: [phone, email, location], links: true }]
+  - stack:
+      [
+        name,
+        headline,
+        { contact: [phone, email, location], links: true, icons: true },
+      ]
     tag: header
     class: head-block
     block: true
@@ -16,7 +21,12 @@ layout:
           - custom
           - { section: skills, groups: bullets }
           - courses
-          - { section: certifications, whenEmpty: hide }
+          - {
+              section: certifications,
+              as: bullets,
+              split: true,
+              whenEmpty: hide,
+            }
           - { section: passions, kit: [tpl-described--marked] }
         tag: aside
         class: aside
@@ -74,12 +84,12 @@ entries:
           - field: field
             optional: true
       - tag: p
+        class: school
+        children:
+          - field: school
+      - tag: p
         class: meta
         children:
-          - tag: span
-            class: org
-            children:
-              - field: school
           - tag: span
             class: meta-item
             children:

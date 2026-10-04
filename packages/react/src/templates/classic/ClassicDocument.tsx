@@ -7,13 +7,13 @@ import type { ResumeObject } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
+import { GridSkillGroup } from '../../kit/GridSkillGroup.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import { Heading } from '../../kit/Heading.js';
@@ -66,8 +66,11 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
 
         {(contact.length > 0 || resume.links.length > 0 || authoring) && (
           <p className="tpl-classic__contact">
-            {contact.map(({ path, value, placeholder }) => (
-              <span key={path} className="tpl-classic__contact-item">
+            {contact.map(({ field, path, value, placeholder }) => (
+              <span
+                key={path}
+                className={`tpl-classic__contact-item tpl-contact--${field}`}
+              >
                 <EditableText
                   path={path}
                   value={value}
@@ -82,7 +85,7 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
               emptyAdd="inline"
             >
               {({ item, path, chrome, itemProps, justAdded }) => (
-                <span className="tpl-classic__contact-item">
+                <span className="tpl-classic__contact-item tpl-contact--link">
                   <span {...itemProps}>
                     {chrome}
                     <LinkField item={item} path={path} justAdded={justAdded} />
@@ -180,18 +183,18 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
           className="tpl-classic__section"
           headingClassName="tpl-classic__heading"
         >
-          <p className="tpl-classic__keywords" data-block>
-            <Collection
-              section="skills"
-              items={resume.skills}
-              noun="skill"
-              gap={false}
-            >
-              {({ item, path, index }) => (
-                <InlineSkillGroup item={item} path={path} first={index === 0} />
+          <div className="tpl-skill-grid">
+            <Collection section="skills" items={resume.skills}>
+              {({ item, path, chrome, itemProps }) => (
+                <GridSkillGroup
+                  item={item}
+                  path={path}
+                  chrome={chrome}
+                  itemProps={itemProps}
+                />
               )}
             </Collection>
-          </p>
+          </div>
         </DocumentSection>
       )}
 
@@ -221,13 +224,13 @@ export function ClassicDocument({ resume }: ClassicDocumentProps) {
           className="tpl-classic__section"
           headingClassName="tpl-classic__heading"
         >
-          <p className="tpl-classic__keywords" data-block>
-            <EditableInlineList
+          <div data-block data-split>
+            <EditableBulletList
               path="certifications"
               items={resume.certifications}
-              placeholder={placeholder('certifications')}
+              placeholder={placeholder('certification')}
             />
-          </p>
+          </div>
         </DocumentSection>
       )}
 

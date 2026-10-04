@@ -1,0 +1,70 @@
+/*
+ * An icon before each contact detail, for the references that draw them.
+ *
+ * Opted into with `icons: true` on a `contact` or `links` part; the emitter
+ * gives every detail its field's class (`tpl-contact--phone`, `--email`,
+ * `--location`, `--link`), which the picture render keeps.
+ *
+ * Drawn, never typed: the icon is generated content with no text, so a parser
+ * extracts the detail and nothing beside it. A mask over the ink rather than a
+ * coloured image, so a template paints it with `--tpl-contact-icon-ink`, and
+ * `print-color-adjust: exact` so it reaches paper.
+ */
+
+.tpl-contact-icons
+  :is(
+    .tpl-contact--phone,
+    .tpl-contact--email,
+    .tpl-contact--location,
+    .tpl-contact--link
+  )::before,
+.tpl-contact-icons:is(
+    .tpl-contact--phone,
+    .tpl-contact--email,
+    .tpl-contact--location,
+    .tpl-contact--link
+  )::before {
+  content: '';
+  display: inline-block;
+  width: var(--tpl-contact-icon-size, 0.95em);
+  height: var(--tpl-contact-icon-size, 0.95em);
+  margin-right: var(--tpl-contact-icon-gap, 0.4em);
+  vertical-align: var(--tpl-contact-icon-shift, -0.14em);
+  background-color: var(--tpl-contact-icon-ink, currentcolor);
+  mask: var(--tpl-contact-icon) center / contain no-repeat;
+  -webkit-mask: var(--tpl-contact-icon) center / contain no-repeat;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-contact-icons .tpl-contact--phone,
+.tpl-contact-icons.tpl-contact--phone {
+  --tpl-contact-icon: var(
+    --tpl-contact-icon-phone,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z'/%3E%3C/svg%3E")
+  );
+}
+
+.tpl-contact-icons .tpl-contact--email,
+.tpl-contact-icons.tpl-contact--email {
+  --tpl-contact-icon: var(
+    --tpl-contact-icon-email,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.5' y='4.5' width='19' height='15' rx='2'/%3E%3Cpath d='m3 6.5 9 6.5 9-6.5'/%3E%3C/svg%3E")
+  );
+}
+
+.tpl-contact-icons .tpl-contact--location,
+.tpl-contact-icons.tpl-contact--location {
+  --tpl-contact-icon: var(
+    --tpl-contact-icon-location,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E")
+  );
+}
+
+.tpl-contact-icons .tpl-contact--link,
+.tpl-contact-icons.tpl-contact--link {
+  --tpl-contact-icon: var(
+    --tpl-contact-icon-link,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7'/%3E%3C/svg%3E")
+  );
+}

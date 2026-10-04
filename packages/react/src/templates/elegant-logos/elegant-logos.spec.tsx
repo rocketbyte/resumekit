@@ -139,16 +139,15 @@ describe('the Elegant with Logos document', () => {
     expect(screen.queryByText('Languages')).toBeNull();
   });
 
-  /*
-   * Skills are ONE RUN of keywords in this template, which is how its
-   * reference sets them — and a field per stored group, so the separators a
-   * parser extracts are real characters.
-   */
-  it('prints skills as one run of keywords', () => {
+  /* Skills are the kit's invisible table — one skill per cell, no comma. */
+  it('prints skills as a grid, a skill to a list item', () => {
     const { container } = draw(resume());
-    const run = container.querySelector('.tpl-ell__keywords');
-    expect(run?.textContent).toContain('Supply Chain Management');
-    expect(container.querySelector('.tpl-keywords')).toBeNull();
+    const grid = container.querySelector('.tpl-skill-grid');
+    const skills = [...(grid?.querySelectorAll('li') ?? [])];
+    expect(skills.map((li) => li.textContent)).toContain(
+      'Supply Chain Management',
+    );
+    expect(grid?.textContent).not.toContain(',');
   });
 
   /*
@@ -167,13 +166,11 @@ describe('the Elegant with Logos document', () => {
     );
   });
 
-  it('draws initials where the reference shows a portrait, and no image', () => {
+  /* Unlike Elegant's, this reference opens the rail with its first heading:
+     there is no portrait slot to fill. */
+  it('draws no portrait, and no image', () => {
     const { container } = draw(resume());
-    const avatar = container.querySelector('.tpl-avatar');
-    expect(avatar?.textContent).toBe('JT');
-    /* On the rail, where the reference puts a portrait. */
-    expect(avatar?.closest('.tpl-ell__aside')).toBeTruthy();
-    expect(avatar?.getAttribute('aria-hidden')).toBe('true');
+    expect(container.querySelector('.tpl-avatar')).toBeNull();
     expect(container.querySelector('img')).toBeNull();
     expect(container.querySelector('svg image')).toBeNull();
   });

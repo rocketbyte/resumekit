@@ -41,7 +41,7 @@ export function StylishExperienceEntry({
             placeholder={placeholder('company')}
           />
         </span>
-        <span className="tpl-stylish__meta-item">
+        <span className="tpl-stylish__dates">
           <EditableText
             path={`${path}.start`}
             value={item.start}
@@ -54,7 +54,7 @@ export function StylishExperienceEntry({
             placeholder={placeholder('end')}
           />
         </span>
-        <span className="tpl-stylish__meta-item">
+        <span className="tpl-stylish__place">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}
@@ -103,7 +103,7 @@ export function StylishEducationEntry({
             placeholder={placeholder('school')}
           />
         </span>
-        <span className="tpl-stylish__meta-item">
+        <span className="tpl-stylish__dates">
           <EditableText
             path={`${path}.start`}
             value={item.start ?? ''}
@@ -116,7 +116,7 @@ export function StylishEducationEntry({
             placeholder={placeholder('end')}
           />
         </span>
-        <span className="tpl-stylish__meta-item">
+        <span className="tpl-stylish__place">
           <EditableText
             path={`${path}.location`}
             value={item.location ?? ''}

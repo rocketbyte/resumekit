@@ -76,6 +76,12 @@ entries:
                   - text: /
               - field: company
                 placeholder: false
+              - separator: ' - '
+                between:
+                  - company
+                  - location
+              - field: location
+                optional: true
           - tag: span
             class: dates
             children:
@@ -120,6 +126,12 @@ entries:
         children:
           - field: school
             placeholder: false
+          - separator: ' - '
+            between:
+              - school
+              - location
+          - field: location
+            optional: true
   custom:
     name: CustomEntry
     type: CustomEntry

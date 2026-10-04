@@ -7,14 +7,13 @@ import type { ResumeObject } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
 import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
-import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
 import { Heading } from '../../kit/Heading.js';
@@ -25,6 +24,7 @@ import {
   DoubleColumnLogosExperienceEntry,
 } from './entries.js';
 import '../../kit/layout.css';
+import '../../kit/contact-icons.css';
 import './double-column-logos.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
@@ -53,57 +53,52 @@ export function DoubleColumnLogosDocument({
       aria-label={doc.t.resume}
       lang={doc.locale}
     >
-      <header className="tpl-dcl__head-block" data-layout="row" data-block>
-        <div className="tpl-dcl__identity">
-          <Heading level={1} className="tpl-dcl__name">
-            <EditableText path="name" value={resume.name} />
-          </Heading>
+      <header className="tpl-dcl__head-block" data-block>
+        <Heading level={1} className="tpl-dcl__name">
+          <EditableText path="name" value={resume.name} />
+        </Heading>
 
-          {(resume.headline || authoring) && (
-            <p className="tpl-dcl__headline">
-              <EditableText
-                path="headline"
-                value={resume.headline ?? ''}
-                placeholder={placeholder('headline')}
-              />
-            </p>
-          )}
+        {(resume.headline || authoring) && (
+          <p className="tpl-dcl__headline">
+            <EditableText
+              path="headline"
+              value={resume.headline ?? ''}
+              placeholder={placeholder('headline')}
+            />
+          </p>
+        )}
 
-          {(contact.length > 0 || resume.links.length > 0 || authoring) && (
-            <p className="tpl-dcl__contact">
-              {contact.map(({ path, value, placeholder }) => (
-                <span key={path} className="tpl-dcl__contact-item">
-                  <EditableText
-                    path={path}
-                    value={value}
-                    placeholder={placeholder}
-                  />
-                </span>
-              ))}
-              <Collection
-                section="links"
-                items={resume.links}
-                gap={false}
-                emptyAdd="inline"
+        {(contact.length > 0 || resume.links.length > 0 || authoring) && (
+          <p className="tpl-dcl__contact tpl-contact-icons">
+            {contact.map(({ field, path, value, placeholder }) => (
+              <span
+                key={path}
+                className={`tpl-dcl__contact-item tpl-contact--${field}`}
               >
-                {({ item, path, chrome, itemProps, justAdded }) => (
-                  <span className="tpl-dcl__contact-item">
-                    <span {...itemProps}>
-                      {chrome}
-                      <LinkField
-                        item={item}
-                        path={path}
-                        justAdded={justAdded}
-                      />
-                    </span>
+                <EditableText
+                  path={path}
+                  value={value}
+                  placeholder={placeholder}
+                />
+              </span>
+            ))}
+            <Collection
+              section="links"
+              items={resume.links}
+              gap={false}
+              emptyAdd="inline"
+            >
+              {({ item, path, chrome, itemProps, justAdded }) => (
+                <span className="tpl-dcl__contact-item tpl-contact--link">
+                  <span {...itemProps}>
+                    {chrome}
+                    <LinkField item={item} path={path} justAdded={justAdded} />
                   </span>
-                )}
-              </Collection>
-            </p>
-          )}
-        </div>
-
-        <InitialsAvatar name={resume.name} className="tpl-dcl__avatar" />
+                </span>
+              )}
+            </Collection>
+          </p>
+        )}
       </header>
 
       <div className="tpl-dcl__body" data-layout="row">
@@ -241,13 +236,13 @@ export function DoubleColumnLogosDocument({
               className="tpl-dcl__section"
               headingClassName="tpl-dcl__heading"
             >
-              <p className="tpl-dcl__prose" data-block>
-                <EditableInlineList
+              <div data-block data-split>
+                <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={placeholder('certifications')}
+                  placeholder={placeholder('certification')}
                 />
-              </p>
+              </div>
             </DocumentSection>
           )}
 

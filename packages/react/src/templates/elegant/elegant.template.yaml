@@ -8,11 +8,32 @@ layout:
       - stack:
           - stack:
               - stack:
-                  [
-                    name,
-                    headline,
-                    { contact: [phone, email, location], links: true },
-                  ]
+                  - name
+                  - headline
+                  - row:
+                      - {
+                          contact: [phone],
+                          class: phone,
+                          item: false,
+                          icons: true,
+                        }
+                      - {
+                          contact: [email],
+                          class: email,
+                          item: false,
+                          icons: true,
+                        }
+                      - stack:
+                          - { links: links, icons: true }
+                        class: link-line
+                        when: links
+                      - {
+                          contact: [location],
+                          class: place,
+                          item: false,
+                          icons: true,
+                        }
+                    class: contact
                 class: identity
             tag: header
             class: head-block
@@ -26,9 +47,14 @@ layout:
           - avatar
           - { section: achievements, kit: [tpl-described--marked] }
           - custom
-          - { section: skills, groups: inline }
+          - { section: skills, groups: grid }
           - courses
-          - { section: certifications, whenEmpty: hide }
+          - {
+              section: certifications,
+              as: bullets,
+              split: true,
+              whenEmpty: hide,
+            }
           - { section: passions, kit: [tpl-described--marked] }
         tag: aside
         class: aside
@@ -44,25 +70,25 @@ entries:
       class: entry
       block: true
     children:
-      - tag: p
-        class: role
+      - tag: div
+        class: entry-head
         children:
-          - field: title
-      - tag: p
-        class: meta
-        children:
-          - tag: span
-            class: org
+          - tag: p
+            class: role
             children:
-              - field: company
-          - tag: span
-            class: meta-item
+              - field: title
+          - tag: p
+            class: dates
             children:
               - field: start
               - text: ' - '
               - field: end
-          - tag: span
-            class: meta-item
+          - tag: p
+            class: org
+            children:
+              - field: company
+          - tag: p
+            class: where
             children:
               - field: location
                 optional: true
@@ -75,26 +101,22 @@ entries:
       class: entry
       block: true
     children:
-      - tag: p
-        class: role
+      - tag: div
+        class: entry-head
         children:
-          - field: degree
-            optional: true
-          - word: degreeField
-            between:
-              - degree
-              - field
-          - field: field
-            optional: true
-      - tag: p
-        class: meta
-        children:
-          - tag: span
-            class: org
+          - tag: p
+            class: role
             children:
-              - field: school
-          - tag: span
-            class: meta-item
+              - field: degree
+                optional: true
+              - word: degreeField
+                between:
+                  - degree
+                  - field
+              - field: field
+                optional: true
+          - tag: p
+            class: dates
             children:
               - field: start
                 optional: true
@@ -104,8 +126,12 @@ entries:
                   - end
               - field: end
                 optional: true
-          - tag: span
-            class: meta-item
+          - tag: p
+            class: org
+            children:
+              - field: school
+          - tag: p
+            class: where
             children:
               - field: location
                 optional: true

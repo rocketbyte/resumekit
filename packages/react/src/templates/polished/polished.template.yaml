@@ -10,14 +10,26 @@ layout:
           - { section: achievements, kit: [tpl-described--marked] }
           - custom
           - courses
-          - { section: certifications, whenEmpty: hide }
+          - {
+              section: certifications,
+              as: bullets,
+              split: true,
+              whenEmpty: hide,
+            }
           - { section: passions, kit: [tpl-described--marked] }
         tag: aside
         class: aside
       - stack:
           - stack:
               - stack:
-                  [headline, { contact: [phone, email, location], links: true }]
+                  [
+                    headline,
+                    {
+                      contact: [phone, email, location],
+                      links: true,
+                      icons: true,
+                    },
+                  ]
                 class: identity
             tag: header
             class: head-block
@@ -25,7 +37,7 @@ layout:
           - summary
           - experience
           - education
-          - { section: skills, groups: inline }
+          - { section: skills, groups: grid }
           - languages
         class: main
     class: body
@@ -40,28 +52,22 @@ entries:
       class: entry
       block: true
     children:
-      - tag: p
-        class: role
+      - tag: div
+        class: head
         children:
-          - field: title
-      - tag: p
-        class: meta
-        children:
+          - { tag: span, class: role, children: [{ field: title }] }
           - tag: span
-            class: org
+            class: dates
             children:
-              - field: company
-          - tag: span
-            class: meta-item
-            children:
-              - field: start
-              - text: ' - '
-              - field: end
-          - tag: span
-            class: meta-item
-            children:
-              - field: location
-                optional: true
+              - { field: start }
+              - { text: ' - ' }
+              - { field: end }
+          - { tag: span, class: org, children: [{ field: company }] }
+          - {
+              tag: span,
+              class: where,
+              children: [{ field: location, optional: true }],
+            }
       - bullets: bullets
   education:
     name: EducationEntry
@@ -71,40 +77,27 @@ entries:
       class: entry
       block: true
     children:
-      - tag: p
-        class: role
-        children:
-          - field: degree
-            optional: true
-          - word: degreeField
-            between:
-              - degree
-              - field
-          - field: field
-            optional: true
-      - tag: p
-        class: meta
+      - tag: div
+        class: head
         children:
           - tag: span
-            class: org
+            class: role
             children:
-              - field: school
+              - { field: degree, optional: true }
+              - { word: degreeField, between: [degree, field] }
+              - { field: field, optional: true }
           - tag: span
-            class: meta-item
+            class: dates
             children:
-              - field: start
-                optional: true
-              - separator: ' - '
-                between:
-                  - start
-                  - end
-              - field: end
-                optional: true
-          - tag: span
-            class: meta-item
-            children:
-              - field: location
-                optional: true
+              - { field: start, optional: true }
+              - { separator: ' - ', between: [start, end] }
+              - { field: end, optional: true }
+          - { tag: span, class: org, children: [{ field: school }] }
+          - {
+              tag: span,
+              class: where,
+              children: [{ field: location, optional: true }],
+            }
   custom:
     name: CustomEntry
     type: CustomEntry

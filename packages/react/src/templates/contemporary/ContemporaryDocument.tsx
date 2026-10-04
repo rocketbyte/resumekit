@@ -7,13 +7,13 @@ import type { ResumeObject } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';
-import { EditableInlineList } from '../../nodes/EditableInlineList.js';
+import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { CustomSections } from '../../nodes/CustomSections.js';
 import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';
+import { GridSkillGroup } from '../../kit/GridSkillGroup.js';
 import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
@@ -25,6 +25,7 @@ import {
   ContemporaryExperienceEntry,
 } from './entries.js';
 import '../../kit/layout.css';
+import '../../kit/contact-icons.css';
 import './contemporary.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
@@ -84,16 +85,22 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             <section className="tpl-contemporary__section">
               <Heading
                 level={2}
-                className="tpl-contemporary__heading"
+                className="tpl-contemporary__heading tpl-contemporary__heading--contacts"
                 data-block
                 data-keep-with-next
               >
                 {doc.t.panels.contacts}
               </Heading>
               {(contact.length > 0 || resume.links.length > 0 || authoring) && (
-                <div className="tpl-contemporary__contacts" data-block>
-                  {contact.map(({ path, value, placeholder }) => (
-                    <p key={path} className="tpl-contemporary__contact-item">
+                <div
+                  className="tpl-contemporary__contacts tpl-contact-icons"
+                  data-block
+                >
+                  {contact.map(({ field, path, value, placeholder }) => (
+                    <p
+                      key={path}
+                      className={`tpl-contemporary__contact-item tpl-contact--${field}`}
+                    >
                       <EditableText
                         path={path}
                         value={value}
@@ -108,7 +115,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
                     emptyAdd="inline"
                   >
                     {({ item, path, chrome, itemProps, justAdded }) => (
-                      <p className="tpl-contemporary__contact-item">
+                      <p className="tpl-contemporary__contact-item tpl-contact--link">
                         <span {...itemProps}>
                           {chrome}
                           <LinkField
@@ -131,7 +138,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
               heading={resume.section_headings?.summary}
               title={doc.t.sections.summary}
               className="tpl-contemporary__section"
-              headingClassName="tpl-contemporary__heading"
+              headingClassName="tpl-contemporary__heading tpl-contemporary__heading--summary"
             >
               <p className="tpl-contemporary__prose" data-block>
                 <EditableText
@@ -149,7 +156,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             heading={resume.section_headings?.achievements}
             title={doc.t.sections.keyAchievements}
             className="tpl-contemporary__section tpl-described--marked"
-            headingClassName="tpl-contemporary__heading"
+            headingClassName="tpl-contemporary__heading tpl-contemporary__heading--achievements"
             items={resume.achievements}
             entryClassName="tpl-contemporary__described"
           />
@@ -169,22 +176,18 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
             >
-              <p className="tpl-contemporary__keywords" data-block>
-                <Collection
-                  section="skills"
-                  items={resume.skills}
-                  noun="skill"
-                  gap={false}
-                >
-                  {({ item, path, index }) => (
-                    <InlineSkillGroup
+              <div className="tpl-skill-grid">
+                <Collection section="skills" items={resume.skills}>
+                  {({ item, path, chrome, itemProps }) => (
+                    <GridSkillGroup
                       item={item}
                       path={path}
-                      first={index === 0}
+                      chrome={chrome}
+                      itemProps={itemProps}
                     />
                   )}
                 </Collection>
-              </p>
+              </div>
             </DocumentSection>
           )}
 
@@ -193,7 +196,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             heading={resume.section_headings?.courses}
             title={doc.t.sections.courses}
             className="tpl-contemporary__section"
-            headingClassName="tpl-contemporary__heading"
+            headingClassName="tpl-contemporary__heading tpl-contemporary__heading--courses"
             items={resume.courses}
             entryClassName="tpl-contemporary__described"
           />
@@ -206,13 +209,13 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
               className="tpl-contemporary__section"
               headingClassName="tpl-contemporary__heading"
             >
-              <p className="tpl-contemporary__prose" data-block>
-                <EditableInlineList
+              <div data-block data-split>
+                <EditableBulletList
                   path="certifications"
                   items={resume.certifications}
-                  placeholder={placeholder('certifications')}
+                  placeholder={placeholder('certification')}
                 />
-              </p>
+              </div>
             </DocumentSection>
           )}
 
@@ -221,7 +224,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
             heading={resume.section_headings?.passions}
             title={doc.t.sections.passions}
             className="tpl-contemporary__section tpl-described--marked"
-            headingClassName="tpl-contemporary__heading"
+            headingClassName="tpl-contemporary__heading tpl-contemporary__heading--passions"
             items={resume.passions}
             entryClassName="tpl-contemporary__described"
           />
@@ -234,7 +237,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
               heading={resume.section_headings?.experience}
               title={doc.t.sections.experience}
               className="tpl-contemporary__section"
-              headingClassName="tpl-contemporary__heading"
+              headingClassName="tpl-contemporary__heading tpl-contemporary__heading--experience"
             >
               <Collection section="experience" items={resume.experience}>
                 {({ item, path, chrome, itemProps }) => (
@@ -255,7 +258,7 @@ export function ContemporaryDocument({ resume }: ContemporaryDocumentProps) {
               heading={resume.section_headings?.education}
               title={doc.t.sections.education}
               className="tpl-contemporary__section"
-              headingClassName="tpl-contemporary__heading"
+              headingClassName="tpl-contemporary__heading tpl-contemporary__heading--education"
             >
               <Collection section="education" items={resume.education}>
                 {({ item, path, chrome, itemProps }) => (

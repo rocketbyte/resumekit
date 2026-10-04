@@ -8,6 +8,8 @@
  */
 
 .tpl-ivy {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(5pt * var(--i-scale));
   /* What ONE STEP of recorded space is worth here — a fifth of the gap between
      two sections, so a drag lands between positions rather than jumping one. */
   --tpl-space-unit: calc(2.4pt * var(--i-scale) * var(--i-density));
@@ -107,8 +109,16 @@
   text-align: unset;
 }
 
-.tpl-ivy__keywords {
-  margin: 0;
+/* Skills as the kit's invisible table (`kit/skill-grid.css`), tuned to this
+   template's measure. */
+.tpl-ivy {
+  --tpl-skill-grid-label: calc(78pt * var(--i-scale));
+  --tpl-skill-grid-column: calc(96pt * var(--i-scale));
+  --tpl-skill-grid-gutter: calc(10pt * var(--i-scale));
+  --tpl-skill-grid-gap: calc(10pt * var(--i-scale));
+  --tpl-skill-grid-lead: calc(1.5pt * var(--i-scale));
+  --tpl-skill-grid-rhythm: calc(3pt * var(--i-scale));
+  --tpl-skill-grid-label-weight: 700;
 }
 
 /* ── Entries ────────────────────────────────────────────────────────────── */
@@ -244,4 +254,39 @@
 /* The reference sets these 3 to a row. */
 .tpl-ivy .tpl-described--grid {
   --tpl-described-columns: 3;
+}
+
+/* Achievements: a plain title beside its mark, over a smaller, quieter note
+   set in under the title rather than under the mark. */
+.tpl-ivy .tpl-described--grid {
+  --tpl-described-title-weight: 400;
+  --tpl-described-title-size: calc(9pt * var(--i-scale));
+  --tpl-described-body-size: calc(7.5pt * var(--i-scale));
+  --tpl-described-body-ink: var(--i-muted);
+}
+
+.tpl-ivy .tpl-described--grid .tpl-described__body {
+  padding-left: calc(1em + 4pt * var(--i-scale));
+}
+
+/* Courses: the course, quiet, at the left; a dash; then what it covered,
+   wrapping in its own column. */
+.tpl-ivy__courses .tpl-described__entry {
+  display: grid;
+  grid-template-columns: fit-content(45%) 1fr;
+  column-gap: calc(4pt * var(--i-scale));
+}
+
+.tpl-ivy__courses .tpl-described__title {
+  font-size: calc(9pt * var(--i-scale));
+  font-weight: 400;
+  color: var(--i-muted);
+}
+
+.tpl-ivy__courses .tpl-described__title::after {
+  content: ' \2014';
+}
+
+.tpl-ivy__courses .tpl-described__body {
+  margin: 0;
 }

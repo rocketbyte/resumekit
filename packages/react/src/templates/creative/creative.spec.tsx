@@ -163,18 +163,25 @@ describe('the Creative document', () => {
     expect(flows[1]?.className).toContain('tpl-creative__aside');
   });
 
-  /* One line for the facts: employer, dates and place, with real characters
-     between them so the extracted line reads as three things. */
-  it('puts the employer, the dates and the place on one line', () => {
+  /* The employer on its own line under the role, then the dates and the place
+     together, each marked by a glyph drawn over a real character so the
+     extracted line still reads as two things. */
+  it('puts the employer above a line of dates and place', () => {
     const { container } = draw(resume());
-    const meta = container.querySelector(
-      '.tpl-creative__entry .tpl-creative__meta',
+    const entry = container.querySelector('.tpl-creative__entry');
+    expect(entry?.querySelector('.tpl-creative__org')?.textContent).toBe(
+      'Unilever',
     );
-    expect(meta?.textContent).toContain('Unilever');
-    expect(meta?.textContent).toContain('2019-01');
-    expect(meta?.textContent).toContain('London, UK');
-    const sep = css.slice(css.indexOf('.tpl-creative__meta-item::before {'));
-    expect(sep.slice(0, sep.indexOf('}'))).toMatch(/content: '[^']*·[^']*'/);
+    const meta = entry?.querySelector('.tpl-creative__meta');
+    expect(meta?.textContent).not.toContain('Unilever');
+    expect(meta?.querySelector('.tpl-creative__dates')?.textContent).toContain(
+      '2019-01',
+    );
+    expect(meta?.querySelector('.tpl-creative__place')?.textContent).toBe(
+      'London, UK',
+    );
+    const mark = css.slice(css.indexOf('.tpl-creative__place::before {'));
+    expect(mark.slice(0, mark.indexOf('}'))).toMatch(/content: '\\00a0'/);
   });
 
   /*

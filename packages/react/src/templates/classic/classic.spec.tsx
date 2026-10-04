@@ -138,12 +138,12 @@ describe('the Classic document', () => {
   });
 
   /* Languages is `resume.languages` — its own section, with a level per
-     language, and never a keyword in the skills run. */
-  it('keeps languages out of the keyword run', () => {
+     language, and never a skill. */
+  it('keeps languages out of the skills', () => {
     const { container } = draw(resume());
-    const keywords = container.querySelectorAll('.tpl-classic__keywords');
-    expect(keywords[0]?.textContent).toContain('Supply Chain Management');
-    expect(keywords[0]?.textContent).not.toContain('English');
+    const skills = container.querySelectorAll('.tpl-skill-grid');
+    expect(skills[0]?.textContent).toContain('Supply Chain Management');
+    expect(skills[0]?.textContent).not.toContain('English');
 
     const languages = container.querySelector('.tpl-languages');
     expect(languages?.textContent).toContain('English');
