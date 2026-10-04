@@ -1,3 +1,8 @@
+/*
+ * GENERATED from harvard.template.yaml by @cvgs/resume-templates' template compiler.
+ * Do not edit: change the description and run the package's
+ * `generate-templates` script. `check-templates` fails when they disagree.
+ */
 import type { ResumeObject } from '@cvgs/core';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
@@ -20,22 +25,6 @@ import {
 import './harvard.css';
 import { useEditorText, useDocumentText } from '../../i18n/index.js';
 
-/**
- * The Harvard template.
- *
- * The whole document is ONE Craft.js node. Its structure — the header block, the
- * rule-underlined headings, the two-column entry rows — is plain JSX inside this
- * render, which means it is not merely locked but **not addressable**: there is
- * no node to select, no rule to relax, and no serialized entry for a layout the
- * candidate could change.
- *
- * Editable text is declared with `<Element id=…>`, which makes each field a
- * Craft.js **linked node** with its own selection state and props. The `id` is
- * the field's own domain path, so the tree cannot contain two nodes claiming to
- * edit the same thing, and `serialize.ts` can read the overlay straight off it.
- *
- * A section the resume has no data for is omitted, never rendered empty.
- */
 export interface HarvardDocumentProps {
   resume: ResumeObject;
 }
@@ -43,15 +32,7 @@ export interface HarvardDocumentProps {
 export function HarvardDocument({ resume }: HarvardDocumentProps) {
   const { placeholder } = useEditorText();
   const doc = useDocumentText();
-  // Live, for the reason `presentation-context.tsx` explains: a node prop would
-  // be frozen at mount and no style change would ever appear.
   const style = useDocumentStyle();
-  /*
-   * A section with nothing in it is omitted from the DOCUMENT and offered in
-   * the EDITOR, because a candidate cannot add their first role to a section
-   * that is not drawn. The read-only page is unchanged: with no authoring
-   * context this is false and an empty section stays absent.
-   */
   const authoring = useAuthoring() !== null;
 
   const contact = useContactLines(
@@ -84,8 +65,6 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
 
         {(contact.length > 0 || resume.links.length > 0 || authoring) && (
           <p className="tpl-harvard__contact">
-            {/* The separator is drawn by CSS between siblings, so a detail the
-                writer did not have cannot leave a stray bar behind it. */}
             {contact.map(({ path, value, placeholder }) => (
               <span key={path} className="tpl-harvard__contact-item">
                 <EditableText
@@ -95,20 +74,6 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
                 />
               </span>
             ))}
-
-            {/*
-             * Links are a COLLECTION, like every other repeatable part of the
-             * résumé, and for the reason the contact fields above are always
-             * offered: a candidate whose writer produced none had no way to add
-             * one. The collection brings the add control with it — including
-             * the in-flow "+ Add link" it shows when there are none at all —
-             * so LinkedIn and GitHub are a click away rather than absent.
-             */}
-            {/*
-             * `inline`, because this collection lives INSIDE the contact line.
-             * The block add control drew a dashed button on a second line the
-             * preview does not have — see `CollectionItems`.
-             */}
             <Collection
               section="links"
               items={resume.links}
@@ -117,26 +82,8 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
             >
               {({ item, path, chrome, itemProps, justAdded }) => (
                 <span className="tpl-harvard__contact-item">
-                  {/*
-                   * Two spans, because the separator belongs to the LINE and
-                   * the ring belongs to the LINK.
-                   *
-                   * The bar between contact details is drawn by
-                   * `.tpl-harvard__contact-item + …::before`, which puts it
-                   * inside this element's box, at its leading edge. The editor
-                   * rings whichever element carries `itemProps` — so with both
-                   * on one span the ring enclosed the bar that divides this
-                   * link from the one before it, and reached back over the
-                   * phone number. One span in, and it is round the link alone.
-                   *
-                   * It renders in both states, so the edited document and the
-                   * read one still differ by nothing: an inline span with no
-                   * styles of its own occupies exactly what its content does.
-                   */}
                   <span {...itemProps}>
                     {chrome}
-                    {/* The guidance is the field's own default now, so all four
-                        templates read the same word. */}
                     <LinkField item={item} path={path} justAdded={justAdded} />
                   </span>
                 </span>
@@ -211,11 +158,12 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         id="achievements"
         heading={resume.section_headings?.achievements}
         title={doc.t.sections.achievements}
-        items={resume.achievements}
         className="tpl-harvard__section"
         headingClassName="tpl-harvard__section-title"
+        items={resume.achievements}
         entryClassName="tpl-harvard__described"
       />
+
       {(resume.skills.length > 0 || authoring) && (
         <DocumentSection
           id="skills"
@@ -243,11 +191,12 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         id="courses"
         heading={resume.section_headings?.courses}
         title={doc.t.sections.courses}
-        items={resume.courses}
         className="tpl-harvard__section"
         headingClassName="tpl-harvard__section-title"
+        items={resume.courses}
         entryClassName="tpl-harvard__described"
       />
+
       <LanguageList
         items={resume.languages}
         heading={resume.section_headings?.languages}
@@ -255,6 +204,7 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
         headingClassName="tpl-harvard__section-title"
         rowClassName="tpl-harvard__language"
       />
+
       {resume.certifications.length > 0 && (
         <DocumentSection
           id="certifications"
@@ -272,20 +222,17 @@ export function HarvardDocument({ resume }: HarvardDocumentProps) {
           </p>
         </DocumentSection>
       )}
+
       <DescribedEntries
         id="passions"
         heading={resume.section_headings?.passions}
         title={doc.t.sections.passions}
-        items={resume.passions}
         className="tpl-harvard__section"
         headingClassName="tpl-harvard__section-title"
+        items={resume.passions}
         entryClassName="tpl-harvard__described"
       />
-      {/*
-       * The candidate's own sections, after every section this template
-       * knows. Heading in the template's own style; entries in the shared
-       * neutral layout — see `CustomSections.tsx`.
-       */}
+
       <CustomSections
         sections={resume.custom_sections}
         sectionClass="tpl-harvard__section"

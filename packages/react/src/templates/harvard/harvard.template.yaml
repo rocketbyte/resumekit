@@ -1,0 +1,174 @@
+# The Harvard template: the classic single-column resume — centred name block,
+# rule-underlined section headings, two-column entry rows.
+#
+# Compiled into HarvardDocument.tsx and entries.tsx by
+#   pnpm nx run resume-templates:generate-templates
+# The design is harvard.css; this file only says which of the kit's editable
+# pieces the template uses and how they are arranged. Class names are relative
+# to the prefix: `org` is `tpl-harvard__org`.
+#
+# The whole document is ONE Craft.js node: its structure is plain markup inside
+# the render, so it is not addressable — no node to select, no layout the
+# candidate could change. Each editable field is its own linked node, keyed by
+# its domain path. A section the resume has no data for is omitted from the
+# read-only page and offered in the editor (a candidate cannot add their first
+# role to a section that is not drawn).
+
+id: harvard
+component: Harvard
+prefix: tpl-harvard
+styleKey: h
+
+header:
+  # The separator between contact details is drawn by CSS between siblings, so
+  # a detail the writer did not have cannot leave a stray bar behind it.
+  contact: [location, email, phone]
+  # Links are a collection, inline in the contact line, with their own add
+  # control, so LinkedIn and GitHub are a click away rather than absent.
+  links: true
+
+classes:
+  section: section
+  sectionTitle: section-title
+  described: described
+
+sections:
+  - kind: text
+    section: summary
+    title: professionalSummary
+    class: summary
+    multiline: true
+  - kind: entries
+    section: experience
+    title: experience
+    entry: experience
+  - kind: entries
+    section: education
+    title: education
+    entry: education
+  - kind: described
+    section: achievements
+    title: achievements
+  - kind: entries
+    section: skills
+    title: technicalSkills
+    entry: skillGroup
+    wrapper: { tag: ul, class: skills, block: true }
+    gap: false
+  - kind: described
+    section: courses
+    title: courses
+  - kind: languages
+    rowClass: language
+  # Certifications appear only when there are some; they are not offered empty.
+  - kind: inline-list
+    section: certifications
+    title: certifications
+    class: inline-list
+    offerWhenEmpty: false
+  - kind: described
+    section: passions
+    title: passions
+  # The candidate's own sections, after every section this template knows: the
+  # heading in Harvard's style, the entries in Harvard's own grid.
+  - kind: custom
+    entry: custom
+
+entries:
+  # WHERE on the employer's line, WHEN on the role's — the grid places them in
+  # the order written here, the same order the education entry uses.
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: entry-head
+        children:
+          - { tag: span, class: org, children: [{ field: company }] }
+          - {
+              tag: span,
+              class: where,
+              children: [{ field: location, optional: true }],
+            }
+          - { tag: span, class: role, children: [{ field: title }] }
+          - tag: span
+            class: dates
+            children:
+              - { field: start }
+              - { text: ' – ' }
+              - { field: end }
+      - { bullets: bullets }
+
+  # Every field editable: a candidate who can add an education entry must be
+  # able to type into it.
+  education:
+    name: EducationEntry
+    type: Education
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: entry-head
+        children:
+          - { tag: span, class: org, children: [{ field: school }] }
+          - {
+              tag: span,
+              class: where,
+              children: [{ field: location, optional: true }],
+            }
+          - tag: span
+            class: role
+            children:
+              - { field: degree, optional: true }
+              - { separator: ', ', between: [degree, field] }
+              - { field: field, optional: true }
+          # The dash is real text, so it appears only where there is a range
+          # to punctuate (a qualification may have no dates); in the editor it
+          # stays, so the two guided fields do not run together.
+          - tag: span
+            class: dates
+            children:
+              - { field: start, optional: true }
+              - { separator: ' – ', between: [start, end] }
+              - { field: end, optional: true }
+
+  # A REAL space between the category and its skills, not a CSS gap: a parser
+  # reading the exported PDF extracts words in order and would otherwise get
+  # "Backend:Node.js".
+  skillGroup:
+    name: SkillGroup
+    type: SkillGroup
+    root: { tag: li, class: skill-group }
+    children:
+      - tag: span
+        class: skill-label
+        children:
+          - { field: category }
+          - { text: ':' }
+      - { text: ' ' }
+      - { inlineList: items }
+
+  # A candidate's own section entry, in Harvard's own grid. The bullet list
+  # renders itself empty while authoring, so an entry with none still has
+  # somewhere to put the first one.
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: entry-head
+        children:
+          - {
+              tag: span,
+              class: org,
+              children: [{ field: title, placeholder: heading }],
+            }
+          - { tag: span, class: dates }
+          - {
+              tag: span,
+              class: role,
+              children: [{ field: detail, optional: true }],
+            }
+          - { tag: span, class: where }
+      - { bullets: bullets }

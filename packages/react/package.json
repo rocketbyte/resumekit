@@ -45,6 +45,43 @@
             "vite --config gallery/vite.config.mts"
           ]
         }
+      },
+      "generate-templates": {
+        "executor": "nx:run-commands",
+        "cache": false,
+        "options": {
+          "cwd": "{projectRoot}",
+          "commands": [
+            "tsx scripts/generate-templates.ts"
+          ]
+        }
+      },
+      "check-templates": {
+        "executor": "nx:run-commands",
+        "cache": true,
+        "inputs": [
+          "{projectRoot}/src/templates/**/*.template.yaml",
+          "{projectRoot}/src/templates/**/*.tsx",
+          "{projectRoot}/src/compiler/**",
+          "{projectRoot}/scripts/**"
+        ],
+        "options": {
+          "cwd": "{projectRoot}",
+          "commands": [
+            "tsx scripts/generate-templates.ts --check"
+          ]
+        }
+      },
+      "watch-templates": {
+        "executor": "nx:run-commands",
+        "cache": false,
+        "continuous": true,
+        "options": {
+          "cwd": "{projectRoot}",
+          "commands": [
+            "tsx scripts/generate-templates.ts --watch"
+          ]
+        }
       }
     }
   },
@@ -59,5 +96,16 @@
   },
   "peerDependencies": {
     "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1",
+    "tsx": "^4.23.15",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
+  },
+  "scripts": {
+    "generate-templates": "tsx scripts/generate-templates.ts",
+    "watch-templates": "tsx scripts/generate-templates.ts --watch",
+    "check-templates": "tsx scripts/generate-templates.ts --check"
   }
 }
