@@ -185,7 +185,7 @@ export function TimelineDocument({ resume }: TimelineDocumentProps) {
           headingClassName="tpl-timeline__heading"
         >
           <div
-            className="tpl-keywords tpl-keywords--inline"
+            className="tpl-keywords tpl-keywords--tags"
             data-block
             data-split
           >

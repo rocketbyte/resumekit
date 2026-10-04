@@ -13,7 +13,7 @@ import { Collection } from '../../collections/Collection.js';
 import { DocumentSection } from '../../kit/DocumentSection.js';
 import { DescribedEntries } from '../../kit/DescribedEntries.js';
 import { LanguageList } from '../../kit/LanguageList.js';
-import { BulletSkillGroup } from '../../kit/BulletSkillGroup.js';
+import { TagSkillGroup } from '../../kit/TagSkillGroup.js';
 import { InitialsAvatar } from '../../kit/InitialsAvatar.js';
 import { useContactLines } from '../../kit/contact.js';
 import { documentStyle } from '../../kit/documentStyle.js';
@@ -135,19 +135,15 @@ export function StylishDocument({ resume }: StylishDocumentProps) {
               className="tpl-stylish__section"
               headingClassName="tpl-stylish__heading"
             >
-              <div
-                className="tpl-keywords tpl-keywords--boxed"
-                data-block
-                data-split
-              >
-                <Collection
-                  section="skills"
-                  items={resume.skills}
-                  noun="skill"
-                  gap={false}
-                >
-                  {({ item, path }) => (
-                    <BulletSkillGroup item={item} path={path} />
+              <div className="tpl-skill-tags">
+                <Collection section="skills" items={resume.skills}>
+                  {({ item, path, chrome, itemProps }) => (
+                    <TagSkillGroup
+                      item={item}
+                      path={path}
+                      chrome={chrome}
+                      itemProps={itemProps}
+                    />
                   )}
                 </Collection>
               </div>

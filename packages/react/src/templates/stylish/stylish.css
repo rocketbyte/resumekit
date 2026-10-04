@@ -266,12 +266,23 @@
   color: var(--st-body);
 }
 
-/* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
-   template states only its colour and its rhythm. */
+/* Skills as each group's category over its underlined tags — the shape is
+   `kit/skill-tags.css` and `kit/keywords.css`; this template states the
+   measures of its reference. */
+.tpl-stylish .tpl-skill-tags {
+  --tpl-skill-tags-label-ink: var(--st-accent);
+  --tpl-skill-tags-label-size: 1.12em;
+  --tpl-skill-tags-label-gap: 0.94em;
+  --tpl-skill-tags-rhythm: 1.6em;
+}
+
 .tpl-stylish .tpl-keywords {
-  --tpl-keyword-line: var(--st-line);
-  --tpl-keyword-gap: calc(5pt * var(--st-scale));
-  --tpl-keyword-lead: calc(1.5pt * var(--st-scale));
+  --tpl-keyword-ink: var(--st-ink);
+  --tpl-keyword-weight: 400;
+  --tpl-keyword-pad: 0.59em;
+  --tpl-keyword-span: 0.78em;
+  --tpl-keyword-gap: 1.12em;
+  --tpl-keyword-lead: 0.11em;
 }
 
 /*

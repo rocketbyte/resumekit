@@ -207,7 +207,7 @@ export function CreativeDocument({ resume }: CreativeDocumentProps) {
               headingClassName="tpl-creative__heading"
             >
               <div
-                className="tpl-keywords tpl-keywords--boxed"
+                className="tpl-keywords tpl-keywords--tags"
                 data-block
                 data-split
               >

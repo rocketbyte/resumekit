@@ -206,7 +206,11 @@ export function DoubleColumnDocument({ resume }: DoubleColumnDocumentProps) {
               className="tpl-dc__section"
               headingClassName="tpl-dc__heading"
             >
-              <div className="tpl-keywords" data-block data-split>
+              <div
+                className="tpl-keywords tpl-keywords--tags"
+                data-block
+                data-split
+              >
                 <Collection
                   section="skills"
                   items={resume.skills}

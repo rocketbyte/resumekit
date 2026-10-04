@@ -20,8 +20,7 @@ layout:
   - custom
   - section: skills
     groups: bullets
-    wrapper:
-      { tag: div, kit: [tpl-keywords, tpl-keywords--inline], split: true }
+    wrapper: { tag: div, kit: [tpl-keywords, tpl-keywords--tags], split: true }
   - courses
   - languages
   - { section: certifications, as: bullets, split: true, whenEmpty: hide }
