@@ -200,7 +200,7 @@ export function DoubleColumnLogosDocument({
               headingClassName="tpl-dcl__heading"
             >
               <div
-                className="tpl-keywords tpl-keywords--boxed"
+                className="tpl-keywords tpl-keywords--tags"
                 data-block
                 data-split
               >

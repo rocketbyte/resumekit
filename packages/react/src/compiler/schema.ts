@@ -47,6 +47,7 @@ const KeywordsKit = z.enum([
   'tpl-keywords',
   'tpl-keywords--boxed',
   'tpl-keywords--inline',
+  'tpl-keywords--tags',
 ]);
 
 /** The kit's page classes a container may carry (`paged.css`). */
@@ -230,8 +231,8 @@ const SECTION_OPTIONS = [
   collection('experience'),
   collection('education'),
   /**
-   * Skill groups: the template's own `entry`, or the kit's `bullets`, `inline`
-   * or `grid` groups. A grid's groups are blocks of their own.
+   * Skill groups: the template's own `entry`, or the kit's `bullets`, `inline`,
+   * `grid` or `tags` groups. A grid's or tags' groups are blocks of their own.
    */
   z
     .object({
@@ -239,7 +240,7 @@ const SECTION_OPTIONS = [
       ...sectionStyle,
       title: SectionTitle.default('skills'),
       entry: Ident.optional(),
-      groups: z.enum(['bullets', 'inline', 'grid']).optional(),
+      groups: z.enum(['bullets', 'inline', 'grid', 'tags']).optional(),
       wrapper: z
         .object({
           tag: Tag,
@@ -588,14 +589,13 @@ export const TemplateDescriptionSchema = z
       }
       if (
         s.section === 'skills' &&
-        s.groups === 'grid' &&
+        (s.groups === 'grid' || s.groups === 'tags') &&
         (s.wrapper?.block || s.wrapper?.split)
       ) {
         ctx.addIssue({
           code: 'custom',
           path: ['layout'],
-          message:
-            'grid groups are blocks of their own — the wrapper takes no block or split',
+          message: `${s.groups} groups are blocks of their own — the wrapper takes no block or split`,
         });
       }
       const entry = 'entry' in s ? s.entry : undefined;

@@ -24,11 +24,7 @@ layout:
           - section: skills
             groups: bullets
             wrapper:
-              {
-                tag: div,
-                kit: [tpl-keywords, tpl-keywords--boxed],
-                split: true,
-              }
+              { tag: div, kit: [tpl-keywords, tpl-keywords--tags], split: true }
           - courses
           - {
               section: certifications,

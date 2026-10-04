@@ -25,7 +25,10 @@ layout:
       - stack:
           - { section: achievements, kit: [tpl-described--marked] }
           - custom
-          - { section: skills, groups: bullets }
+          - section: skills
+            groups: bullets
+            wrapper:
+              { tag: div, kit: [tpl-keywords, tpl-keywords--tags], split: true }
           - courses
           - {
               section: certifications,

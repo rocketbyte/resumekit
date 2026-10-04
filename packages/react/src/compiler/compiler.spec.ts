@@ -259,41 +259,49 @@ describe('the emitter', () => {
     expect(document).toContain('<CobaltCrest resume={resume} />');
   });
 
-  it('draws grid skills as entries of the kit’s grid list', () => {
-    const { document } = emit(
-      TemplateDescriptionSchema.parse({
-        ...NESTED,
-        layout: [
-          NESTED.layout[0],
-          {
-            row: [
-              {
-                stack: [
-                  {
-                    section: 'skills',
-                    groups: 'grid',
-                    wrapper: { tag: 'div', class: 'skills' },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      }),
-    );
-    expect(document).toContain(
-      `import { GridSkillGroup } from '../../kit/GridSkillGroup.js';`,
-    );
-    expect(document).toMatch(
-      /<div className="tpl-n__skills tpl-skill-grid">\s*<Collection section="skills" items=\{resume\.skills\}>/,
-    );
-    expect(document).toContain(
-      '<GridSkillGroup item={item} path={path} chrome={chrome} itemProps={itemProps} />',
-    );
-    expect(document).not.toMatch(
-      /InlineSkillGroup|BulletSkillGroup|data-split/,
-    );
-  });
+  it.each([
+    ['grid', 'tpl-skill-grid', 'GridSkillGroup'],
+    ['tags', 'tpl-skill-tags', 'TagSkillGroup'],
+  ])(
+    'draws %s skills as entries of the kit’s list',
+    (groups, list, component) => {
+      const { document } = emit(
+        TemplateDescriptionSchema.parse({
+          ...NESTED,
+          layout: [
+            NESTED.layout[0],
+            {
+              row: [
+                {
+                  stack: [
+                    {
+                      section: 'skills',
+                      groups,
+                      wrapper: { tag: 'div', class: 'skills' },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        }),
+      );
+      expect(document).toContain(
+        `import { ${component} } from '../../kit/${component}.js';`,
+      );
+      expect(document).toMatch(
+        new RegExp(
+          `<div className="tpl-n__skills ${list}">\\s*<Collection section="skills" items=\\{resume\\.skills\\}>`,
+        ),
+      );
+      expect(document).toContain(
+        `<${component} item={item} path={path} chrome={chrome} itemProps={itemProps} />`,
+      );
+      expect(document).not.toMatch(
+        /InlineSkillGroup|BulletSkillGroup|data-split/,
+      );
+    },
+  );
 
   it('gives each contact line its own details', () => {
     const { document } = emit(

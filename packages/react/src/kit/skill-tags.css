@@ -1,0 +1,36 @@
+/*
+ * Skills groups as LABELLED TAGS (`TagSkillGroup`): each group's category as a
+ * subheading, its skills below as `tpl-keywords--tags`. The tags are styled
+ * there; this file places the label and spaces the groups.
+ *
+ * A template sets `--tpl-skill-tags-label-ink` / `-size` / `-weight`,
+ * `--tpl-skill-tags-label-gap` (label to its tags) and
+ * `--tpl-skill-tags-rhythm` (one group's last rule to the next label).
+ */
+.tpl-skill-tags {
+  /*
+   * Its own formatting context, so the first group's recorded space is added
+   * below the heading rather than collapsing into the heading's margin.
+   */
+  display: flow-root;
+}
+
+.tpl-skill-tags .tpl-skill-tags__group {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-skill-tags .tpl-skill-tags__group + .tpl-skill-tags__group {
+  margin-top: calc(
+    var(--tpl-skill-tags-rhythm, 1.6em) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-skill-tags__label {
+  display: block;
+  margin-bottom: var(--tpl-skill-tags-label-gap, 0.7em);
+  overflow-wrap: break-word;
+  font-size: var(--tpl-skill-tags-label-size, inherit);
+  font-weight: var(--tpl-skill-tags-label-weight, 400);
+  line-height: 1.2;
+  color: var(--tpl-skill-tags-label-ink, currentcolor);
+}

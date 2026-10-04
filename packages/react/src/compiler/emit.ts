@@ -298,20 +298,24 @@ const offered = (field: string) => `(resume.${field}.length > 0 || authoring)`;
 /** The kit's skill groups, in the wrapper each style is drawn in by default. */
 function skillGroups(
   d: TemplateDescription,
-  groups: 'bullets' | 'inline' | 'grid',
+  groups: 'bullets' | 'inline' | 'grid' | 'tags',
   wrapper: Wrapper | undefined,
 ): string {
-  if (groups === 'grid') {
+  if (groups === 'grid' || groups === 'tags') {
+    const [list, group] =
+      groups === 'grid'
+        ? ['tpl-skill-grid', 'GridSkillGroup']
+        : ['tpl-skill-tags', 'TagSkillGroup'];
     return wrap(
       d,
       {
         tag: wrapper?.tag ?? 'div',
         class: wrapper?.class,
-        kit: ['tpl-skill-grid', ...(wrapper?.kit ?? [])],
+        kit: [list, ...(wrapper?.kit ?? [])],
       },
       `<Collection section="skills" items={resume.skills}>\n` +
         `{({ item, path, chrome, itemProps }) => (\n` +
-        `<GridSkillGroup item={item} path={path} chrome={chrome} itemProps={itemProps} />\n` +
+        `<${group} item={item} path={path} chrome={chrome} itemProps={itemProps} />\n` +
         `)}\n</Collection>`,
     );
   }
@@ -648,6 +652,8 @@ function emitDocument(d: TemplateDescription): string {
       `import { InlineSkillGroup } from '../../kit/InlineSkillGroup.js';`,
     groups === 'grid' &&
       `import { GridSkillGroup } from '../../kit/GridSkillGroup.js';`,
+    groups === 'tags' &&
+      `import { TagSkillGroup } from '../../kit/TagSkillGroup.js';`,
     has('avatar') &&
       `import { InitialsAvatar } from '../../kit/InitialsAvatar.js';`,
     has('monogram') && `import { monogram } from '../../kit/monogram.js';`,
