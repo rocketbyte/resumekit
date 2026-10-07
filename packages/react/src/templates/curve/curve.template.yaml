@@ -1,0 +1,102 @@
+# CurVe, customised (docs/template-references/curve.png): the name and an icon
+# contact row at the left, the initials in a square at the right, headings over
+# a fading rule, and every entry hung off its dates beside a crimson bookmark.
+# Custom sections and achievements are numbered, as the reference's
+# publications are.
+id: curve
+component: Curve
+prefix: tpl-curve
+styleKey: cv
+
+layout:
+  - row:
+      - stack:
+          - name
+          - headline
+          - contact: [email, phone, location]
+            links: true
+            icons: true
+            tag: div
+        class: identity
+      - avatar
+    tag: header
+    class: head
+    block: true
+  - summary
+  - experience
+  - education
+  - { section: skills, groups: grid }
+  - { section: achievements, sectionClass: section--numbered }
+  - { section: courses, sectionClass: section--marked }
+  - { section: certifications, as: bullets, class: hung, split: true }
+  - languages
+  - { section: passions, sectionClass: section--marked }
+  - custom
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: when
+        children:
+          - { field: start }
+          - { separator: ' – ', between: [start, end] }
+          - { field: end }
+      - tag: div
+        class: what
+        children:
+          - tag: p
+            class: lead
+            children:
+              - { tag: strong, class: title, children: [{ field: title }] }
+              - { separator: ', ', between: [title, company] }
+              - { field: company }
+              - { separator: ', ', between: [company, location] }
+              - { field: location, optional: true }
+          - { bullets: bullets }
+
+  education:
+    name: EducationEntry
+    type: Education
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: when
+        children:
+          - { field: start, optional: true }
+          - { separator: ' – ', between: [start, end] }
+          - { field: end, optional: true }
+      - tag: div
+        class: what
+        children:
+          - tag: p
+            class: lead
+            children:
+              - tag: strong
+                class: title
+                children:
+                  - { field: degree, optional: true }
+                  - { word: degreeField, between: [degree, field] }
+                  - { field: field, optional: true }
+                  - { separator: ', ', between: [degree, school] }
+                  - { field: school }
+              - { separator: ', ', between: [school, location] }
+              - { field: location, optional: true }
+
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root: { tag: article, class: entry--numbered, block: true }
+    children:
+      - tag: p
+        class: lead
+        children:
+          - tag: strong
+            class: title
+            children: [{ field: title, placeholder: heading }]
+          - { separator: ', ', between: [title, detail] }
+          - { field: detail, optional: true }
+      - { bullets: bullets }

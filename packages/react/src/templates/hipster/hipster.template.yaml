@@ -1,0 +1,134 @@
+# Hipster: Simple Hipster CV — docs/template-references/hipster.png.
+#
+# A charcoal band carries the name, light then bold, over its job line. Below
+# it a grey sidebar, written first, holds the initials in a large circle and
+# short right-aligned notes, each under a small cyan label; the body beside it
+# sets small-capital headings over a rule, the work history hung off a dated
+# spine, and pairs of short sections side by side.
+id: hipster
+component: Hipster
+prefix: tpl-hipster
+styleKey: hp
+
+layout:
+  - stack:
+      - { name: name, split: true }
+      - headline
+    tag: header
+    class: head
+    block: true
+  - row:
+      - stack:
+          - avatar
+          - summary
+          - stack:
+              - contact: [location, phone, email]
+                links: true
+                icons: true
+                tag: div
+                class: contact
+                itemTag: p
+            tag: section
+            class: section
+            heading: contacts
+            when: contact
+          - { section: passions, title: interests }
+        tag: aside
+        class: aside
+      - stack:
+          - { section: experience, sectionClass: spine }
+          - education
+          - achievements
+          - courses
+          - custom
+          - row:
+              - stack:
+                  - { section: certifications, as: bullets, split: true }
+                  - languages
+                class: half
+              - stack:
+                  - { section: skills, groups: tags }
+                class: half
+            class: pair
+        class: main
+    class: body
+    kit: [tpl-sheet-tall]
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: when
+        children:
+          - { field: start }
+          - { text: '–' }
+          - { field: end }
+      - tag: div
+        class: event
+        children:
+          - { tag: p, class: title, children: [{ field: title }] }
+          - tag: p
+            class: meta
+            children:
+              - { tag: span, class: org, children: [{ field: company }] }
+              - { separator: ' · ', between: [company, location] }
+              - {
+                  tag: span,
+                  class: place,
+                  children: [{ field: location, optional: true }],
+                }
+          - { bullets: bullets }
+
+  education:
+    name: EducationEntry
+    type: Education
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: when
+        children:
+          - { field: start, optional: true }
+          - { separator: '–', between: [start, end] }
+          - { field: end, optional: true }
+      - tag: div
+        class: event
+        children:
+          - tag: p
+            class: title
+            children:
+              - { field: degree, optional: true }
+              - { word: degreeField, between: [degree, field] }
+              - { field: field, optional: true }
+          - tag: p
+            class: meta
+            children:
+              - { tag: span, class: school, children: [{ field: school }] }
+              - { separator: ' · ', between: [school, location] }
+              - {
+                  tag: span,
+                  class: place,
+                  children: [{ field: location, optional: true }],
+                }
+
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: event
+        children:
+          - {
+              tag: p,
+              class: title,
+              children: [{ field: title, placeholder: heading }],
+            }
+          - {
+              tag: p,
+              class: meta,
+              children: [{ field: detail, optional: true }],
+            }
+          - { bullets: bullets }

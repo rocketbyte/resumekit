@@ -230,8 +230,14 @@ function sectionProps(
     `heading={resume.section_headings?.${id}}\n` +
     `title={doc.t.sections.${title}}\n` +
     `className=${q(sectionClasses(d, style, kit))}\n` +
-    `headingClassName=${q(headingClasses(d, style))}`
+    `headingClassName=${q(headingClasses(d, style))}` +
+    leadProp(d)
   );
+}
+
+/** Every heading's lead, when the description accents headings. */
+function leadProp(d: TemplateDescription): string {
+  return d.headingAccent === undefined ? '' : `\nheadingLead={headingLead}`;
 }
 
 function entryCollection(
@@ -401,15 +407,17 @@ function emitSection(d: TemplateDescription, s: Section): string {
         `<LanguageList\nitems={resume.languages}\n` +
         `heading={resume.section_headings?.languages}\n` +
         `className=${q(sectionClasses(d, s))}\n` +
-        `headingClassName=${q(headingClasses(d, s))}\n` +
-        `rowClassName=${q(cls(d, s.row))}\n/>`
+        `headingClassName=${q(headingClasses(d, s))}` +
+        leadProp(d) +
+        `\nrowClassName=${q(cls(d, s.row))}\n/>`
       );
     case 'custom':
       return (
         `<CustomSections\nsections={resume.custom_sections}\n` +
         `sectionClass=${q(sectionClasses(d, s))}\n` +
-        `headingClass=${q(headingClasses(d, s))}\n` +
-        `Entry={${entryComponentName(d, d.entries[s.entry] as Entry)}}\n/>`
+        `headingClass=${q(headingClasses(d, s))}` +
+        leadProp(d) +
+        `\nEntry={${entryComponentName(d, d.entries[s.entry] as Entry)}}\n/>`
       );
   }
 }
@@ -448,11 +456,16 @@ function containerCondition(c: Ctx, n: Container): string | undefined {
     case 'links':
       return '(resume.links.length > 0 || authoring)';
     case 'contact': {
-      const inner = nodesOf(n.children).find(
+      /* Every contact line inside, not the first: a block that opens with the
+         address alone must still show for a resume that has only links. */
+      const inner = nodesOf(n.children).filter(
         (x): x is ContactNode => x.kind === 'contact',
       );
-      if (!inner) throw new Error('when: contact needs a contact line inside');
-      return contactCondition(c, inner);
+      if (inner.length === 0)
+        throw new Error('when: contact needs a contact line inside');
+      return inner.length === 1
+        ? contactCondition(c, inner[0])
+        : `(${inner.map((x) => contactCondition(c, x)).join(' || ')})`;
     }
   }
 }
@@ -483,7 +496,11 @@ function emitContainer(c: Ctx, n: Container, flow: boolean): string {
           [d.classes.heading, ...(n.headingClass ? [n.headingClass] : [])]
             .map((x) => cls(d, x))
             .join(' '),
-        )} data-block data-keep-with-next>\n{doc.t.panels.${n.heading}}\n</Heading>\n`
+        )} data-block data-keep-with-next>\n${
+          d.headingAccent === undefined
+            ? `{doc.t.panels.${n.heading}}`
+            : `{leadLetters(headingLead)(doc.t.panels.${n.heading})}`
+        }\n</Heading>\n`
       : '';
   /* A row of sections makes each of its columns a flow of its own. */
   const flows = n.kind === 'row' && holdsSections(n);
@@ -502,7 +519,11 @@ function emitLayout(c: Ctx, n: LayoutNode, flow = false): string {
     case 'name':
       return (
         `<Heading level={1} className=${q(cls(d, n.class))}${n.block ? ' data-block' : ''}>\n` +
-        `<EditableText path="name" value={resume.name} />\n</Heading>`
+        `<EditableText path="name" value={resume.name}${
+          n.split
+            ? ` shape={nameParts(${q(cls(d, 'name-first'))}, ${q(cls(d, 'name-last'))})}`
+            : ''
+        } />\n</Heading>`
       );
     case 'headline':
       return (
@@ -608,6 +629,13 @@ function emitDocument(d: TemplateDescription): string {
       (n.kind === 'row' || n.kind === 'stack') && containerStyle(n).length > 0,
   );
   const linkFields = has('links') || contactNodes.some((n) => n.links);
+  const panelHeadings = nodes.some(
+    (n) => (n.kind === 'row' || n.kind === 'stack') && n.heading !== undefined,
+  );
+  const textShapes = [
+    ...(d.headingAccent !== undefined && panelHeadings ? ['leadLetters'] : []),
+    ...(nodes.some((n) => n.kind === 'name' && n.split) ? ['nameParts'] : []),
+  ];
   const entryNames = [
     ...new Set(
       sections.flatMap((s) =>
@@ -657,6 +685,8 @@ function emitDocument(d: TemplateDescription): string {
     has('avatar') &&
       `import { InitialsAvatar } from '../../kit/InitialsAvatar.js';`,
     has('monogram') && `import { monogram } from '../../kit/monogram.js';`,
+    textShapes.length > 0 &&
+      `import { ${textShapes.join(', ')} } from '../../kit/textShapes.js';`,
     contactNodes.length > 0 &&
       `import { useContactLines } from '../../kit/contact.js';`,
     `import { documentStyle } from '../../kit/documentStyle.js';`,
@@ -695,6 +725,9 @@ function emitDocument(d: TemplateDescription): string {
     `  const style = useDocumentStyle();\n` +
     `  const authoring = useAuthoring() !== null;\n\n` +
     (hooks ? `${hooks}\n` : '') +
+    (d.headingAccent !== undefined
+      ? `  const headingLead = { count: ${d.headingAccent}, className: ${q(cls(d, 'heading-lead'))} };\n\n`
+      : '') +
     `  return (\n<article\nclassName=${q(d.prefix)}\nstyle={documentStyle(${q(d.styleKey)}, style)}\n` +
     `aria-label={doc.t.resume}\nlang={doc.locale}\n>\n` +
     d.layout.map((n) => emitLayout(c, n)).join('\n\n') +

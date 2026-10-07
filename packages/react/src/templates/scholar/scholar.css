@@ -1,0 +1,279 @@
+/*
+ * Scholar — Overleaf's Elegant Resume Template
+ * (docs/template-references/scholar.png), measured off its Letter page:
+ * 0.75in side margins, 10.95pt Latin Modern body, headings in bold italic blue
+ * over a full-width rule, entries hung 16.4pt in from the heading. Vertical
+ * distances are the reference's baseline pitches turned into margins against
+ * these line boxes.
+ */
+
+.tpl-scholar {
+  --tpl-heading-gap: calc(3.7pt * var(--sc-scale));
+  --tpl-space-unit: calc(2pt * var(--sc-scale) * var(--sc-density));
+  --tpl-space-margin: var(--sc-margin);
+  --tpl-marker: calc(21.8pt * var(--sc-scale));
+
+  --sc-scale: 1;
+  --sc-ink: #000000;
+  --sc-font: 'Latin Modern Roman', Tinos, 'Times New Roman', serif;
+  --sc-accent: #00367b;
+  --sc-density: 1;
+  --sc-margin: 0.75in;
+  --sc-indent: calc(16.4pt * var(--sc-scale));
+  --sc-body: calc(10.95pt * var(--sc-scale));
+  /* The pitch of an entry's lines, and of a list item's (itemize opens up). */
+  --sc-row: calc(13.5pt * var(--sc-scale));
+  --sc-item: calc(14.7pt * var(--sc-scale));
+  --sc-contact: calc(16.4pt * var(--sc-scale));
+  /* The space LaTeX's itemize leaves after its last item. */
+  --sc-list-tail: calc(6pt * var(--sc-scale) * var(--sc-density));
+  /* Where the reference's second row ends: its tabular stops short. */
+  --sc-sub-inset: calc(7.5pt * var(--sc-scale));
+  --sc-label: calc(130pt * var(--sc-scale));
+  --sc-gutter: calc(12pt * var(--sc-scale));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: calc(37.7pt * var(--sc-scale)) var(--sc-margin) 0.75in;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--sc-ink);
+  font-family: var(--sc-font);
+  font-size: var(--sc-body);
+  line-height: var(--sc-row);
+}
+
+.tpl-scholar *,
+.tpl-scholar *::before,
+.tpl-scholar *::after {
+  box-sizing: inherit;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-scholar__head {
+  text-align: center;
+}
+
+.tpl-scholar__name {
+  margin: 0;
+  font-size: calc(20.66pt * var(--sc-scale));
+  font-style: italic;
+  font-weight: 700;
+  line-height: calc(24pt * var(--sc-scale));
+  color: var(--sc-accent);
+}
+
+.tpl-scholar__headline {
+  margin: calc(2pt * var(--sc-scale)) 0 0;
+  font-style: italic;
+  line-height: var(--sc-contact);
+  color: var(--sc-accent);
+}
+
+.tpl-scholar__contact {
+  margin: 0;
+  line-height: var(--sc-contact);
+}
+
+.tpl-scholar__name + .tpl-scholar__contact,
+.tpl-scholar__name + .tpl-scholar__headline {
+  margin-top: calc(12.7pt * var(--sc-scale));
+}
+
+/* A drawn asterisk, not a typed one: nothing extractable, nothing left stray. */
+.tpl-scholar__contact-item + .tpl-scholar__contact-item::before,
+.tpl-scholar__contact-item + .tpl-collection__add-inline::before {
+  content: '';
+  display: inline-block;
+  width: 0.72em;
+  height: 0.72em;
+  margin: 0 0.33em;
+  vertical-align: -0.02em;
+  background-color: var(--sc-accent);
+  -webkit-mask: var(--sc-star) center / contain no-repeat;
+  mask: var(--sc-star) center / contain no-repeat;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-scholar {
+  --sc-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.5v6.2M12 15.3v6.2M3.8 7.25l5.4 3.1M14.8 13.65l5.4 3.1M3.8 16.75l5.4-3.1M14.8 10.35l5.4-3.1' stroke='%23000' stroke-width='3.6' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.tpl-scholar__contact .tpl-text__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-scholar__section {
+  margin-top: calc(
+    5.2pt * var(--sc-scale) * var(--sc-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-scholar__section + .tpl-scholar__section {
+  margin-top: calc(
+    12.5pt * var(--sc-scale) * var(--sc-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-scholar__heading {
+  margin: 0 0 var(--tpl-heading-gap);
+  padding-bottom: calc(2.4pt * var(--sc-scale));
+  border-bottom: 0.4pt solid var(--sc-accent);
+  font-size: var(--sc-body);
+  font-style: italic;
+  font-weight: 700;
+  line-height: var(--sc-row);
+  color: var(--sc-accent);
+}
+
+.tpl-scholar__prose {
+  margin: 0 0 0 var(--sc-indent);
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-scholar__entry {
+  margin-top: calc(
+    6.8pt * var(--sc-scale) * var(--sc-density) + var(--tpl-space-height, 0px)
+  );
+  padding-left: var(--sc-indent);
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse. */
+.tpl-scholar__entry:first-of-type {
+  margin-top: calc(var(--tpl-heading-gap) + var(--tpl-space-height, 0px));
+}
+
+.tpl-scholar__rows {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: calc(12pt * var(--sc-scale));
+  break-after: avoid;
+}
+
+.tpl-scholar__title {
+  grid-column: 1;
+  font-weight: 700;
+}
+
+.tpl-scholar__sub {
+  grid-column: 1;
+}
+
+.tpl-scholar__title-aside,
+.tpl-scholar__sub-aside {
+  grid-column: 2;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tpl-scholar__sub-aside {
+  padding-right: var(--sc-sub-inset);
+}
+
+.tpl-scholar__title-aside,
+.tpl-scholar__sub,
+.tpl-scholar__sub-aside {
+  font-style: italic;
+}
+
+/* ── Bullets ────────────────────────────────────────────────────────────── */
+
+.tpl-scholar .tpl-bullets {
+  margin: calc(3.1pt * var(--sc-scale)) 0 0;
+  padding: 0 0 var(--sc-list-tail);
+  list-style: none;
+  line-height: var(--sc-item);
+}
+
+.tpl-scholar__section > .tpl-bullets,
+.tpl-scholar__section > div[data-block] > .tpl-bullets {
+  margin-top: 0;
+  margin-left: var(--sc-indent);
+}
+
+/* The reference's section gap follows its last list more closely than the next entry does. */
+.tpl-scholar__entry:last-of-type .tpl-bullets {
+  padding-bottom: calc(4.4pt * var(--sc-scale) * var(--sc-density));
+}
+
+/* Hanging: a wrapped line aligns with the text, not with the marker. */
+.tpl-scholar .tpl-bullet {
+  display: grid;
+  grid-template-columns: var(--tpl-marker) minmax(0, 1fr);
+}
+
+.tpl-scholar .tpl-bullet::before {
+  content: '•';
+  padding-left: calc(6.4pt * var(--sc-scale));
+  font-size: 0.75em;
+}
+
+/* ── Skills, languages and the described sections ─────────────────────── */
+
+/* Category, language or title in a bold label column, its matter beside it. */
+.tpl-scholar {
+  --tpl-skill-grid-label: var(--sc-label);
+  --tpl-skill-grid-gutter: var(--sc-gutter);
+  --tpl-skill-grid-column: calc(112pt * var(--sc-scale));
+  --tpl-skill-grid-gap: calc(10pt * var(--sc-scale));
+  --tpl-skill-grid-lead: 0px;
+  --tpl-skill-grid-rhythm: calc(2pt * var(--sc-scale));
+  --tpl-skill-grid-label-weight: 700;
+  --tpl-described-gap: calc(2pt * var(--sc-scale) * var(--sc-density));
+  --tpl-described-lead: 0px;
+  --tpl-language-name-weight: 700;
+  --tpl-language-level-size: 1em;
+  --tpl-language-lead: 0px;
+}
+
+.tpl-scholar .tpl-skill-grid {
+  margin-left: var(--sc-indent);
+}
+
+.tpl-scholar .tpl-skill-grid .tpl-bullets {
+  padding-bottom: 0;
+  line-height: var(--sc-row);
+}
+
+.tpl-scholar__languages .tpl-language {
+  grid-template-columns: calc(60pt * var(--sc-scale)) minmax(0, 1fr);
+  column-gap: calc(8pt * var(--sc-scale));
+  align-items: baseline;
+  margin-left: var(--sc-indent);
+}
+
+.tpl-scholar__languages .tpl-language__meter {
+  display: none;
+}
+
+.tpl-scholar .tpl-described__entry {
+  display: grid;
+  grid-template-columns: var(--sc-label) minmax(0, 1fr);
+  column-gap: var(--sc-gutter);
+  align-items: baseline;
+  margin-left: var(--sc-indent);
+}
+
+.tpl-scholar .tpl-described__title {
+  grid-column: 1;
+}
+
+.tpl-scholar .tpl-described__body {
+  grid-column: 2;
+}
+
+/* ── Print ──────────────────────────────────────────────────────────────── */
+
+@media print {
+  .tpl-scholar {
+    width: auto;
+    margin: 0;
+  }
+}

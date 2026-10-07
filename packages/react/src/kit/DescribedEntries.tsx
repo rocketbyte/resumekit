@@ -1,5 +1,6 @@
 import type { DescribedEntry } from '@cvgs/core';
 import { DocumentSection } from './DocumentSection.js';
+import type { HeadingLead } from './textShapes.js';
 import { Collection } from '../collections/Collection.js';
 import { useAuthoring } from '../collections/authoring-context.js';
 import { EditableText } from '../nodes/EditableText.js';
@@ -43,6 +44,8 @@ export interface DescribedEntriesProps {
   className: string;
   headingClassName: string;
   entryClassName: string;
+  /** As `DocumentSection`'s. */
+  headingLead?: HeadingLead;
 }
 
 /**
@@ -73,6 +76,7 @@ export function DescribedEntries({
   className,
   headingClassName,
   entryClassName,
+  headingLead,
 }: DescribedEntriesProps) {
   const authoring = useAuthoring() !== null;
   const { placeholder } = useEditorText();
@@ -95,6 +99,7 @@ export function DescribedEntries({
       heading={heading}
       className={`tpl-described ${className}`}
       headingClassName={headingClassName}
+      headingLead={headingLead}
     >
       <Collection section={id} items={entries}>
         {({ item, path, chrome, itemProps }) => (

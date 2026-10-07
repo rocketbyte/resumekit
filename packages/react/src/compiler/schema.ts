@@ -35,6 +35,7 @@ const PanelHeading = z.enum([
   'personalInformation',
   'locations',
   'websites',
+  'links',
 ]);
 
 /** The labels a part may print before its value (`doc.t.labels`). */
@@ -361,7 +362,13 @@ export type Container = {
 
 export type LayoutNode =
   | Container
-  | { kind: 'name'; class: string; block?: boolean }
+  | {
+      kind: 'name';
+      class: string;
+      block?: boolean;
+      /** Given names and surname in spans of their own: `__name-first`, `__name-last`. */
+      split?: boolean;
+    }
   | {
       kind: 'headline';
       class: string;
@@ -477,6 +484,7 @@ export const LayoutNodeSchema: z.ZodType<LayoutNode, unknown> = z.lazy(() =>
           kind: z.literal('name'),
           class: ClassName.default('name'),
           block: z.boolean().optional(),
+          split: z.boolean().optional(),
         })
         .strict(),
       z
@@ -564,6 +572,12 @@ export const TemplateDescriptionSchema = z
         heading: 'heading',
         described: 'described',
       }),
+    /**
+     * The first letters of every heading — sections, custom sections, panels —
+     * in a span of their own, `__heading-lead`, for the stylesheet to colour or
+     * box. The heading stays one field.
+     */
+    headingAccent: z.number().int().min(1).max(12).optional(),
     /** The page, top to bottom: a stack of layout nodes. */
     layout: z.array(LayoutNodeSchema).min(1),
     entries: z.record(Ident, EntrySchema).default({}),

@@ -1,0 +1,97 @@
+# AltaCV (docs/template-references/alta.png): a slab-serif name over a red
+# tagline and a band of contact icons, the initials in a sand disc, and two
+# columns under gold-ruled headings. The work history column is written first,
+# so it is read before the rail.
+id: alta
+component: Alta
+prefix: tpl-alta
+styleKey: al
+
+layout:
+  - row:
+      - stack:
+          - name
+          - headline
+          - { contact: [email, phone, location], links: true, icons: true }
+        class: ident
+      - avatar
+    tag: header
+    class: head
+    block: true
+  - row:
+      - stack:
+          - experience
+          - custom
+          - education
+          - { section: courses, sectionClass: section--courses }
+          - { section: certifications, as: bullets, split: true }
+        class: main
+      - stack:
+          - { section: summary, sectionClass: section--quote }
+          - { section: achievements, sectionClass: section--proud }
+          - { section: skills, groups: tags }
+          - languages
+          - { section: passions, sectionClass: section--passions }
+        tag: aside
+        class: aside
+    class: body
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root: { tag: article, class: entry, block: true }
+    children:
+      - { tag: p, class: title, children: [{ field: title }] }
+      - { tag: p, class: org, children: [{ field: company }] }
+      - tag: p
+        class: meta
+        children:
+          - tag: span
+            class: when
+            children:
+              - { field: start }
+              - { text: ' – ' }
+              - { field: end }
+          - tag: span
+            class: where
+            children: [{ field: location, optional: true }]
+      - { bullets: bullets }
+
+  education:
+    name: EducationEntry
+    type: Education
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: title
+        children:
+          - { field: degree, optional: true }
+          - { word: degreeField, between: [degree, field] }
+          - { field: field, optional: true }
+      - { tag: p, class: org, children: [{ field: school }] }
+      - tag: p
+        class: meta
+        children:
+          - tag: span
+            class: when
+            children:
+              - { field: start, optional: true }
+              - { separator: ' – ', between: [start, end] }
+              - { field: end, optional: true }
+          - tag: span
+            class: where
+            children: [{ field: location, optional: true }]
+
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root: { tag: article, class: entry, block: true }
+    children:
+      - {
+          tag: p,
+          class: title,
+          children: [{ field: title, placeholder: heading }],
+        }
+      - { tag: p, class: org, children: [{ field: detail, optional: true }] }
+      - { bullets: bullets }

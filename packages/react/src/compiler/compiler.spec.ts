@@ -344,6 +344,57 @@ describe('the emitter', () => {
     );
   });
 
+  it('splits the name only when asked, in one field', () => {
+    const split = emit(
+      TemplateDescriptionSchema.parse({
+        ...NESTED,
+        layout: [{ stack: [{ name: 'name', split: true }] }],
+      }),
+    ).document;
+    expect(split).toContain(
+      `<EditableText path="name" value={resume.name} shape={nameParts("tpl-n__name-first", "tpl-n__name-last")} />`,
+    );
+    expect(split).toContain(
+      `import { nameParts } from '../../kit/textShapes.js';`,
+    );
+    expect(nested).not.toMatch(/nameParts|textShapes/);
+  });
+
+  it('accents the lead of every heading it draws, sections and panels alike', () => {
+    const accented = emit(
+      TemplateDescriptionSchema.parse({
+        ...NESTED,
+        headingAccent: 3,
+        layout: [
+          { stack: ['name', 'location'], heading: 'contacts' },
+          'summary',
+          'experience',
+          'courses',
+          'passions',
+          { section: 'skills', groups: 'bullets' },
+          'languages',
+          'custom',
+        ],
+        entries: {
+          ...NESTED.entries,
+          custom: { ...DOUBLE_COLUMN.entries.custom },
+        },
+      }),
+    ).document;
+    expect(accented).toContain(
+      `const headingLead = { count: 3, className: "tpl-n__heading-lead" };`,
+    );
+    /* summary, experience, courses, passions, skills, languages, custom */
+    expect(accented.match(/headingLead=\{headingLead\}/g)).toHaveLength(7);
+    expect(accented).toContain(
+      '{leadLetters(headingLead)(doc.t.panels.contacts)}',
+    );
+    expect(nested).not.toMatch(/headingLead/);
+    expect(issues({ ...NESTED, headingAccent: 0 })[0]?.path).toEqual([
+      'headingAccent',
+    ]);
+  });
+
   it('composes only the kit, and never a mutator', () => {
     for (const source of [...Object.values(emit(d)), nested]) {
       for (const [, path] of source.matchAll(/from '([^']+)'/g)) {

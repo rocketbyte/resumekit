@@ -1,0 +1,106 @@
+# ModernCV "classic" (docs/template-references/academic.png): the name and the
+# title at the left, the contact block right-aligned beside a framed portrait,
+# and every section hung off a date margin led by an accent bar.
+id: academic
+component: Academic
+prefix: tpl-academic
+styleKey: ac
+
+layout:
+  - row:
+      - stack: [name, headline]
+        class: identity
+      - contact: [location, phone, email]
+        links: true
+        tag: div
+        itemTag: p
+        icons: true
+      - avatar
+    tag: header
+    class: head
+    block: true
+  - summary
+  - education
+  - experience
+  - { section: achievements, sectionClass: section--hung }
+  - custom
+  - { section: courses, sectionClass: section--hung }
+  - { section: certifications, as: bullets, class: hung, split: true }
+  - languages
+  - { section: skills, groups: grid }
+  - { section: passions, sectionClass: section--items }
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: when
+        children:
+          - { field: start }
+          - { separator: '–', between: [start, end] }
+          - { field: end }
+      - tag: div
+        class: what
+        children:
+          - tag: p
+            class: lead
+            children:
+              - { tag: strong, class: title, children: [{ field: title }] }
+              - { separator: ', ', between: [title, company] }
+              - { tag: em, class: org, children: [{ field: company }] }
+              - { separator: ', ', between: [company, location] }
+              - { field: location, optional: true }
+          - { bullets: bullets }
+
+  education:
+    name: EducationEntry
+    type: Education
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: when
+        children:
+          - { field: start, optional: true }
+          - { separator: '–', between: [start, end] }
+          - { field: end, optional: true }
+      - tag: div
+        class: what
+        children:
+          - tag: p
+            class: lead
+            children:
+              - tag: strong
+                class: title
+                children:
+                  - { field: degree, optional: true }
+                  - { word: degreeField, between: [degree, field] }
+                  - { field: field, optional: true }
+              - { separator: ', ', between: [degree, school] }
+              - { tag: em, class: org, children: [{ field: school }] }
+              - { separator: ', ', between: [school, location] }
+              - { field: location, optional: true }
+
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: what
+        children:
+          - tag: p
+            class: lead
+            children:
+              - tag: strong
+                class: title
+                children: [{ field: title, placeholder: heading }]
+              - { separator: ', ', between: [title, detail] }
+              - {
+                  tag: em,
+                  class: org,
+                  children: [{ field: detail, optional: true }],
+                }
+          - { bullets: bullets }

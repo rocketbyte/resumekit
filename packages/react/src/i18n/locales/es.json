@@ -327,7 +327,8 @@
       "contacts": "Contactos",
       "personalInformation": "Información personal",
       "locations": "Ubicaciones",
-      "websites": "Sitios web, portafolios y perfiles"
+      "websites": "Sitios web, portafolios y perfiles",
+      "links": "Enlaces"
     },
     "labels": {
       "title": "Cargo: "

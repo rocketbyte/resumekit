@@ -20,6 +20,16 @@ import { PolishedDocument } from './templates/polished/PolishedDocument.js';
 import { ExecutiveDocument } from './templates/executive/ExecutiveDocument.js';
 import { MeridianDocument } from './templates/meridian/MeridianDocument.js';
 import { CobaltDocument } from './templates/cobalt/CobaltDocument.js';
+import { CrimsonDocument } from './templates/crimson/CrimsonDocument.js';
+import { EngineerDocument } from './templates/engineer/EngineerDocument.js';
+import { SplitDocument } from './templates/split/SplitDocument.js';
+import { AcademicDocument } from './templates/academic/AcademicDocument.js';
+import { AltaDocument } from './templates/alta/AltaDocument.js';
+import { PrismDocument } from './templates/prism/PrismDocument.js';
+import { HipsterDocument } from './templates/hipster/HipsterDocument.js';
+import { ScholarDocument } from './templates/scholar/ScholarDocument.js';
+import { PortraitDocument } from './templates/portrait/PortraitDocument.js';
+import { CurveDocument } from './templates/curve/CurveDocument.js';
 import './nodes/template-node.css';
 
 /**
@@ -63,6 +73,16 @@ export const TEMPLATE_RENDERERS: Record<TemplateId, TemplateRenderer> = {
   executive: { Document: ExecutiveDocument },
   meridian: { Document: MeridianDocument },
   cobalt: { Document: CobaltDocument },
+  crimson: { Document: CrimsonDocument },
+  engineer: { Document: EngineerDocument },
+  split: { Document: SplitDocument },
+  academic: { Document: AcademicDocument },
+  alta: { Document: AltaDocument },
+  prism: { Document: PrismDocument },
+  hipster: { Document: HipsterDocument },
+  scholar: { Document: ScholarDocument },
+  portrait: { Document: PortraitDocument },
+  curve: { Document: CurveDocument },
 };
 
 /**

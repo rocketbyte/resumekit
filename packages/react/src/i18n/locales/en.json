@@ -327,7 +327,8 @@
       "contacts": "Contacts",
       "personalInformation": "Personal Information",
       "locations": "Locations",
-      "websites": "Websites, Portfolios, Profiles"
+      "websites": "Websites, Portfolios, Profiles",
+      "links": "Links"
     },
     "labels": {
       "title": "Title: "

@@ -17,6 +17,7 @@
       "default": "./dist-static/static.mjs"
     },
     "./static.css": "./dist-static/templates.css",
+    "./static/*.css": "./dist-static/templates/*.css",
     "./package.json": "./package.json"
   },
   "nx": {

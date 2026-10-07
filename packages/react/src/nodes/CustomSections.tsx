@@ -3,6 +3,7 @@ import type { CustomEntry, CustomSection } from '@cvgs/core';
 import { useEditorText } from '../i18n/index.js';
 import { EditableText } from './EditableText.js';
 import { Heading } from '../kit/Heading.js';
+import { leadLetters, type HeadingLead } from '../kit/textShapes.js';
 import {
   CollectionItems,
   type ItemRootProps,
@@ -43,6 +44,8 @@ export interface CustomSectionsProps {
    * section is set in the same pattern as the sections above it.
    */
   Entry: CustomEntryComponent;
+  /** As `DocumentSection`'s. */
+  headingLead?: HeadingLead;
 }
 
 /** One declared section: the template's heading, the template's entries. */
@@ -51,12 +54,14 @@ function AuthoredSection({
   index,
   sectionClass,
   headingClass,
+  headingLead,
   Entry,
 }: {
   section: CustomSection;
   index: number;
   sectionClass: string;
   headingClass: string;
+  headingLead?: HeadingLead;
   Entry: CustomEntryComponent;
 }) {
   const collection = useCustomEntries(section.id, section.entries);
@@ -75,6 +80,7 @@ function AuthoredSection({
           path={`${base}.heading`}
           value={section.heading}
           placeholder={t.placeholders.heading}
+          shape={headingLead && leadLetters(headingLead)}
         />
       </Heading>
 
@@ -111,6 +117,7 @@ export function CustomSections({
   sections = [],
   sectionClass,
   headingClass,
+  headingLead,
   Entry,
 }: CustomSectionsProps) {
   return (
@@ -122,6 +129,7 @@ export function CustomSections({
           index={i}
           sectionClass={sectionClass}
           headingClass={headingClass}
+          headingLead={headingLead}
           Entry={Entry}
         />
       ))}

@@ -355,6 +355,182 @@ export const TEMPLATES = {
       'Reverse-chronological sections with YYYY-MM dates',
     ],
   },
+  /*
+   * The ten below reproduce widely used LaTeX designs (`ten-new-templates`,
+   * #116; origins and licences in `docs/template-references/README.md`). Their
+   * references are A4 or Letter, but the paginator and the export are Letter
+   * only, so each states the page it is actually rendered on.
+   */
+  crimson: {
+    name: 'Crimson',
+    description:
+      'A centred name set light then bold over a job line in crimson and the ' +
+      'contact details behind small icons, then section headings that open in ' +
+      'crimson beside a rule running to the margin. Each entry puts the ' +
+      'employer and place over the role and dates.',
+    page: 'letter',
+    columns: 1,
+    ats: [
+      'Single column — no sidebar, no text boxes',
+      'Skills under their categories, one keyword per extracted unit — never a comma run',
+      'Contact icons are drawn marks with no text of their own to extract',
+      'Real selectable text, set in typefaces embedded in the file',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
+  engineer: {
+    name: 'Engineer',
+    description:
+      'A dense one-page layout for a first technical job: a large serif name ' +
+      'over a single contact line, small-capital headings over a hairline, and ' +
+      'every entry set as four corners, its title and place over the detail and dates.',
+    page: 'letter',
+    columns: 1,
+    ats: [
+      'Single column — no sidebar, no text boxes',
+      'Skills under their categories, one keyword per extracted unit — never a comma run',
+      'No tables, images, or icon fonts carrying meaning',
+      'Real selectable text, set in typefaces embedded in the file',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
+  split: {
+    name: 'Split',
+    description:
+      'An oversized light name over the contact lines and a full-width ' +
+      'hairline, then two columns under large light uppercase headings: a ' +
+      'narrow one on the left for education, skills and links, and a wide one ' +
+      'for the work history.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns, written in the order they are read — the narrow column is on the left, so extracted text gives education, skills and links before the work history',
+      'Skills under their categories, one keyword per extracted unit — never a comma run',
+      'No tables, images, or icon fonts carrying meaning',
+      'Real selectable text, set in typefaces embedded in the file',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
+  academic: {
+    name: 'Academic',
+    description:
+      'A traditional European curriculum vitae: a large serif name and an ' +
+      'italic title beside a right-aligned contact block and the candidate’s ' +
+      'initials, headings led by a green bar, and every entry hung off its ' +
+      'dates in a margin of their own.',
+    page: 'letter',
+    columns: 1,
+    ats: [
+      'Single column — the date margin is part of each entry, not a layout',
+      'Each entry extracts as its dates first, then the role, the organisation and the details',
+      'Skills under their categories, one keyword per extracted unit — never a comma run',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
+  alta: {
+    name: 'Alta',
+    description:
+      'A bold slab-serif name over a coloured tagline and a band of contact ' +
+      'icons, the initials in a disc at the right, and two columns under ' +
+      'headings ruled in gold: the work history in the wide one, highlights, ' +
+      'skills and languages with level dots in the other.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns — the work history is written first, so extracted text reads it through before the rail',
+      'Language levels print as words; the dots beside them are decoration',
+      'Contact icons are drawn marks with no text of their own to extract',
+      'Real selectable text, set in typefaces embedded in the file',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
+  prism: {
+    name: 'Prism',
+    description:
+      'A charcoal band across the top with the name set light then bold, a ' +
+      'narrow right-aligned column of contact details and skills at the left, ' +
+      'and section headings whose opening letters change colour from one ' +
+      'section to the next.',
+    page: 'letter',
+    columns: 2,
+    /*
+     * A disclosure first: this is a design for a reader, and saying so plainly
+     * is the honest guarantee. What is still true of it follows.
+     */
+    ats: [
+      'Two columns, written in the order they are read — the label column is on the left, so extracted text gives the contact details and skills before the work history',
+      'Not built for screening systems — a design to hand to a reader, not to upload to a job portal',
+      'The header band is forced to print, so white-on-charcoal never vanishes',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
+  hipster: {
+    name: 'Hipster',
+    description:
+      'A charcoal name band over a grey sidebar carrying the candidate’s ' +
+      'initials in a circle and short notes under small coloured labels, ' +
+      'beside a work history hung off a dated spine under small-capital ' +
+      'headings.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns, written in the order they are read — the sidebar is on the left, so extracted text gives the summary and skills before the work history',
+      'Not built for screening systems — a design to hand to a reader, not to upload to a job portal',
+      'The header band is forced to print, so white-on-charcoal never vanishes',
+      'The rail is a column with a background, not a box the text is placed inside',
+      'The initials are decoration with no text of their own to extract',
+    ],
+  },
+  scholar: {
+    name: 'Scholar',
+    description:
+      'A formal serif page: the name in bold blue italics centred over the ' +
+      'contact details, italic blue section headings over a full-width rule, ' +
+      'and each entry set as four corners with its details in italics.',
+    page: 'letter',
+    columns: 1,
+    ats: [
+      'Single column — no sidebar, no text boxes',
+      'Skills under their categories, one keyword per extracted unit — never a comma run',
+      'Contact details in one centred block of plain text, with no icons',
+      'Real selectable text, set in typefaces embedded in the file',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
+  portrait: {
+    name: 'Portrait',
+    description:
+      'A grey sidebar down the left with the candidate’s initials in a large ' +
+      'circle, the name in blue, the contact details beside round icons, the ' +
+      'summary and the skills, next to a body whose headings set their opening ' +
+      'letters in a filled tab.',
+    page: 'letter',
+    columns: 2,
+    ats: [
+      'Two columns, written in the order they are read — the sidebar is on the left, so extracted text opens with the name, the contact details and the skills',
+      'Not built for screening systems — a design to hand to a reader, not to upload to a job portal',
+      'The rail is a column with a background, not a box the text is placed inside',
+      'The initials are decoration with no text of their own to extract',
+    ],
+  },
+  curve: {
+    name: 'Curve',
+    description:
+      'One column for a research record: bold headings over a fading green ' +
+      'rule, and every entry hung off its dates at the left beside a small ' +
+      'crimson marker — a layout that suits publications kept as a section of ' +
+      'their own.',
+    page: 'letter',
+    columns: 1,
+    ats: [
+      'Single column — the date margin is part of each entry, not a layout',
+      'Each entry extracts as its dates first, then the role, the organisation and the details',
+      'Entry markers are drawn shapes with no text of their own to extract',
+      'No tables, images, or icon fonts carrying meaning',
+      'Reverse-chronological sections with YYYY-MM dates',
+    ],
+  },
 } as const;
 
 export type TemplateId = keyof typeof TEMPLATES;

@@ -3,6 +3,7 @@ import type { ResumeSectionId } from '@cvgs/core';
 import { useSpaceSlot } from '../spacing/useSpaceSlot.js';
 import { EditableText } from '../nodes/EditableText.js';
 import { Heading } from './Heading.js';
+import { leadLetters, type HeadingLead } from './textShapes.js';
 
 export interface DocumentSectionProps {
   /** The stored section this is, which gives it an adjustable gap and a rail. */
@@ -26,6 +27,11 @@ export interface DocumentSectionProps {
   /** The template's own section and heading classes. */
   className: string;
   headingClassName: string;
+  /**
+   * The heading's first letters set apart for the template's stylesheet
+   * (`headingAccent`). The heading stays one field.
+   */
+  headingLead?: HeadingLead;
   children: ReactNode;
 }
 
@@ -59,6 +65,7 @@ export function DocumentSection({
   heading,
   className,
   headingClassName,
+  headingLead,
   children,
 }: DocumentSectionProps) {
   /*
@@ -81,6 +88,7 @@ export function DocumentSection({
           value={printed}
           placeholder={title}
           defaultValue={title}
+          shape={headingLead && leadLetters(headingLead)}
         />
       </Heading>
       {children}

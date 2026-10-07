@@ -47,6 +47,16 @@
 @import './templates/executive/executive.css';
 @import './templates/meridian/meridian.css';
 @import './templates/cobalt/cobalt.css';
+@import './templates/crimson/crimson.css';
+@import './templates/engineer/engineer.css';
+@import './templates/split/split.css';
+@import './templates/academic/academic.css';
+@import './templates/alta/alta.css';
+@import './templates/prism/prism.css';
+@import './templates/hipster/hipster.css';
+@import './templates/scholar/scholar.css';
+@import './templates/portrait/portrait.css';
+@import './templates/curve/curve.css';
 .tpl-editor {
   /*
    * The editing palette, taken from the APP's primary rather than stated here.

@@ -33,7 +33,8 @@ describe('a picture of the page', () => {
   for (const id of Object.keys(TEMPLATE_RENDERERS) as TemplateId[]) {
     it(`${id} has no links, headings or editor attributes`, () => {
       const html = renderStatic(id, FULL, { picture: true });
-      expect(html).toContain('Ada Lovelace');
+      /* As text: a two-weight name is two spans around the typed space. */
+      expect(html.replace(/<[^>]+>/g, '')).toContain('Ada Lovelace');
       expect(html).not.toMatch(/<a\b|<h[1-6]\b|data-path=|data-placeholder=/);
     });
   }

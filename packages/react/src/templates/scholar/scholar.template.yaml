@@ -1,0 +1,99 @@
+# Scholar: Overleaf's Elegant Resume Template — docs/template-references/scholar.png.
+# A centred bold italic blue name over centred contact lines, bold italic blue
+# headings over a full-width blue rule, and entries indented under them: a bold
+# title with an italic detail at the right, italic role and dates below.
+id: scholar
+component: Scholar
+prefix: tpl-scholar
+styleKey: sc
+
+layout:
+  - stack:
+      - name
+      - headline
+      - { contact: [location], class: contact }
+      - { contact: [email, phone], links: true, class: contact }
+    tag: header
+    class: head
+    block: true
+  - summary
+  - education
+  - experience
+  - custom
+  - { section: skills, title: technicalSkills, groups: grid }
+  - { section: languages, sectionClass: languages }
+  - achievements
+  - courses
+  - { section: certifications, as: bullets }
+  - passions
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: rows
+        children:
+          - { tag: span, class: title, children: [{ field: company }] }
+          - tag: span
+            class: title-aside
+            children:
+              - { field: start }
+              - { text: ' – ' }
+              - { field: end }
+          - { tag: span, class: sub, children: [{ field: title }] }
+          - {
+              tag: span,
+              class: sub-aside,
+              children: [{ field: location, optional: true }],
+            }
+      - { bullets: bullets }
+
+  education:
+    name: EducationEntry
+    type: Education
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: rows
+        children:
+          - tag: span
+            class: title
+            children:
+              - { field: degree, optional: true }
+              - { word: degreeField, between: [degree, field] }
+              - { field: field, optional: true }
+          - { tag: span, class: title-aside, children: [{ field: school }] }
+          - {
+              tag: span,
+              class: sub,
+              children: [{ field: location, optional: true }],
+            }
+          - tag: span
+            class: sub-aside
+            children:
+              - { field: start, optional: true }
+              - { separator: ' – ', between: [start, end] }
+              - { field: end, optional: true }
+
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: rows
+        children:
+          - {
+              tag: span,
+              class: title,
+              children: [{ field: title, placeholder: heading }],
+            }
+          - {
+              tag: span,
+              class: sub,
+              children: [{ field: detail, optional: true }],
+            }
+      - { bullets: bullets }
