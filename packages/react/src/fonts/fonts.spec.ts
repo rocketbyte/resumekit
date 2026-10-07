@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOCUMENT_FONTS } from '@cvgs/core';
@@ -34,6 +34,89 @@ const REQUIRED = [
   { weight: '700', style: 'italic' },
 ];
 
+/**
+ * Faces a TEMPLATE sets, which the catalog does not offer.
+ *
+ * A design whose identity is its typeface — Computer Modern, Raleway — is drawn
+ * in that face, but it is not a typeface the candidate picks, so it is no entry
+ * in `DOCUMENT_FONTS`. Each ships only the styles its templates set, rather
+ * than the catalog's four; `README.md` says which template sets which.
+ *
+ * `Lato` is also a catalog entry: what is listed here is only what it ships
+ * beyond the catalog's four.
+ */
+const TEMPLATE_FACES: Record<
+  string,
+  { licence: string; styles: readonly string[] }
+> = {
+  'Latin Modern Roman': {
+    licence: 'latinmodern-GUST-FONT-LICENSE.txt',
+    styles: ['400 normal', '400 italic', '700 normal', '700 italic'],
+  },
+  'Latin Modern Roman Caps': {
+    licence: 'latinmodern-GUST-FONT-LICENSE.txt',
+    styles: ['400 normal'],
+  },
+  'Latin Modern Mono': {
+    licence: 'latinmodern-GUST-FONT-LICENSE.txt',
+    styles: ['400 normal'],
+  },
+  'Source Sans 3': {
+    licence: 'sourcesans3-OFL.txt',
+    styles: [
+      '300 normal',
+      '300 italic',
+      '400 normal',
+      '400 italic',
+      '700 normal',
+    ],
+  },
+  Roboto: {
+    licence: 'roboto-OFL.txt',
+    styles: [
+      '100 normal',
+      '300 normal',
+      '300 italic',
+      '400 normal',
+      '400 italic',
+      '700 normal',
+    ],
+  },
+  Raleway: {
+    licence: 'raleway-OFL.txt',
+    styles: [
+      '300 normal',
+      '400 normal',
+      '400 italic',
+      '500 normal',
+      '700 normal',
+    ],
+  },
+  Lato: {
+    licence: 'lato-OFL.txt',
+    styles: ['100 normal', '300 normal', '300 italic'],
+  },
+  'Roboto Slab': {
+    licence: 'robotoslab-APACHE-2.0.txt',
+    styles: ['700 normal'],
+  },
+  'Clear Sans': {
+    licence: 'clearsans-APACHE-2.0.txt',
+    styles: ['400 normal', '400 italic'],
+  },
+  Cabin: { licence: 'cabin-OFL.txt', styles: ['700 normal'] },
+  Cochineal: {
+    licence: 'cochineal-OFL.txt',
+    styles: ['400 normal', '400 italic', '700 normal'],
+  },
+  Inconsolata: { licence: 'inconsolata-OFL.txt', styles: ['400 normal'] },
+};
+
+const templateFamilies = Object.keys(TEMPLATE_FACES);
+const catalogFamilies = new Set(
+  Object.values(DOCUMENT_FONTS).map((f) => f.supplied as string),
+);
+
 describe('the supplied typefaces', () => {
   it.each(fontIds)('%s is supplied as files this library ships', (id) => {
     const { supplied } = DOCUMENT_FONTS[id];
@@ -65,13 +148,34 @@ describe('the supplied typefaces', () => {
     expect(found, `no licence recorded for ${supplied}`).toBe(true);
   });
 
+  it.each(templateFamilies)(
+    '%s ships exactly the styles its templates set, with its licence',
+    (family) => {
+      const { licence, styles } = TEMPLATE_FACES[family];
+      const catalog = catalogFamilies.has(family)
+        ? REQUIRED.map((r) => `${r.weight} ${r.style}`)
+        : [];
+      const declared = faces.filter((f) => f.family === family);
+      expect(declared.map((f) => `${f.weight} ${f.style}`).sort()).toEqual(
+        [...catalog, ...styles].sort(),
+      );
+      for (const face of declared) {
+        expect(
+          existsSync(join(here, face.file)),
+          `${face.file} is declared but not shipped`,
+        ).toBe(true);
+      }
+      expect(existsSync(join(here, 'licenses', licence))).toBe(true);
+    },
+  );
+
   it('declares nothing it does not ship, and ships nothing it does not declare', () => {
-    const suppliedFamilies = new Set(
-      fontIds.map((id) => DOCUMENT_FONTS[id].supplied),
-    );
     const declaredFamilies = new Set(faces.map((f) => f.family));
-    expect([...declaredFamilies].sort()).toEqual([...suppliedFamilies].sort());
-    expect(faces).toHaveLength(fontIds.length * REQUIRED.length);
+    expect([...declaredFamilies].sort()).toEqual(
+      [...new Set([...catalogFamilies, ...templateFamilies])].sort(),
+    );
+    const files = readdirSync(here).filter((n) => n.endsWith('.woff2'));
+    expect(faces.map((f) => f.file).sort()).toEqual(files.sort());
   });
 
   it('lets every face swap in, so a slow font never blanks the document', () => {

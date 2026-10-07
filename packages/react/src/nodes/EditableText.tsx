@@ -7,6 +7,7 @@ import { useAutosave } from '../autosave-context.js';
 import { useDateIssue } from '../fields/date-issues-context.js';
 import { useEditorText } from '../i18n/index.js';
 import { usePicture } from '../picture-context.js';
+import type { TextShape } from '../kit/textShapes.js';
 
 export interface EditableTextProps {
   /** Where this text lives in the `ResumeObject` — e.g. `experience.0.title`. */
@@ -62,6 +63,15 @@ export interface EditableTextProps {
    * document from reading as an edit. See `FieldRegistry.defaults`.
    */
   defaultValue?: string;
+  /**
+   * How the printed text is divided into spans a stylesheet can set apart — a
+   * surname in bold, a heading's first letters in the accent (`kit/textShapes`).
+   *
+   * Applied wherever the text is drawn, so the editor and the page agree; not
+   * while the field is being typed into, where it is one plain run in the
+   * field's own style. The characters never change.
+   */
+  shape?: TextShape;
 }
 
 /**
@@ -84,6 +94,7 @@ export function EditableText({
   href,
   readOnly = false,
   defaultValue,
+  shape,
 }: EditableTextProps) {
   // Read live, so a formatting change shows the instant it is made — a field's
   // value is the text, and only the text.
@@ -163,7 +174,7 @@ export function EditableText({
      * editor, switched off for the read-only document and for paper, and never
      * part of the text at all.
      */
-    const text = value;
+    const text = shape && value.length > 0 ? shape(value) : value;
     /*
      * The résumé's own link wins over a candidate-applied one: a `links[]` entry
      * IS the address for that field, and a format that disagreed with it would

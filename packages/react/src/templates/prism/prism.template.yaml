@@ -1,0 +1,126 @@
+# Prism: Friggeri CV — docs/template-references/prism.png.
+id: prism
+component: Prism
+prefix: tpl-prism
+styleKey: pr
+headingAccent: 3
+
+layout:
+  - stack:
+      - { name: name, split: true }
+      - headline
+    tag: header
+    class: head
+    block: true
+  - row:
+      - stack:
+          - stack:
+              - { contact: [location], item: false, class: address }
+              - contact: [email, phone]
+                links: true
+                tag: div
+                class: contact
+                itemTag: p
+            tag: section
+            class: section
+            heading: contacts
+            when: contact
+          - { section: skills, groups: grid }
+          - languages
+          - { section: certifications, as: bullets, split: true }
+          - passions
+        tag: aside
+        class: aside
+      - stack:
+          - { section: summary, headingClass: hue-blue }
+          - { section: experience, headingClass: hue-red }
+          - { section: education, headingClass: hue-orange }
+          - { section: achievements, headingClass: hue-green }
+          - { section: courses, headingClass: hue-purple }
+          - { section: custom, headingClass: hue-blue }
+        class: main
+    class: body
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: when
+        children:
+          - { field: start }
+          - { separator: '–', between: [start, end] }
+          - { field: end }
+      - tag: div
+        class: what
+        children:
+          - tag: div
+            class: top
+            children:
+              - tag: p
+                class: lead
+                children:
+                  - { field: company }
+                  - { separator: ', ', between: [company, location] }
+                  - { field: location, optional: true }
+              - { tag: p, class: aside-note, children: [{ field: title }] }
+          - { bullets: bullets }
+
+  education:
+    name: EducationEntry
+    type: Education
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: when
+        children:
+          - { field: start, optional: true }
+          - { separator: '–', between: [start, end] }
+          - { field: end, optional: true }
+      - tag: div
+        class: what
+        children:
+          - tag: div
+            class: top
+            children:
+              - tag: p
+                class: lead
+                children:
+                  - {
+                      tag: strong,
+                      class: degree,
+                      children: [{ field: degree, optional: true }],
+                    }
+                  - { word: degreeField, between: [degree, field] }
+                  - { field: field, optional: true }
+              - tag: p
+                class: aside-note
+                children:
+                  - { field: school }
+                  - { separator: ', ', between: [school, location] }
+                  - { field: location, optional: true }
+
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: what
+        children:
+          - tag: div
+            class: top
+            children:
+              - {
+                  tag: p,
+                  class: lead,
+                  children: [{ field: title, placeholder: heading }],
+                }
+              - {
+                  tag: p,
+                  class: aside-note,
+                  children: [{ field: detail, optional: true }],
+                }
+          - { bullets: bullets }

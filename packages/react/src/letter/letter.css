@@ -1,4 +1,9 @@
-@import '../fonts/fonts.css';
+/*
+ * No `@import` of `fonts.css` here: every surface that draws a letter already
+ * declares the faces (the export through `document.css`, the app through its
+ * global stylesheet), and a second import inlined every face into the export
+ * bundle twice.
+ */
 
 /*
  * A bundled face rather than the app's own serif, so the exported file is

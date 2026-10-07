@@ -49,8 +49,8 @@ export default defineConfig(() => ({
     sourcemap: false,
     cssCodeSplit: false,
     /*
-     * Above the largest shipped face (EB Garamond bold italic, ~24KB) with room
-     * to spare, so no font is ever emitted as a separate file the renderer
+     * Above the largest shipped face (Cochineal italic, ~31KB) with room to
+     * spare, so no font is ever emitted as a separate file the renderer
      * cannot fetch. A face that exceeded this would fail as a missing glyph run
      * rather than as a build error, so the margin is deliberate.
      */

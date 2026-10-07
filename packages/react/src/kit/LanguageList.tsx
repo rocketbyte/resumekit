@@ -1,5 +1,6 @@
 import { LANGUAGE_LEVELS, type Language } from '@cvgs/core';
 import { DocumentSection } from './DocumentSection.js';
+import type { HeadingLead } from './textShapes.js';
 import { Collection } from '../collections/Collection.js';
 import { useAuthoring } from '../collections/authoring-context.js';
 import { EditableText } from '../nodes/EditableText.js';
@@ -86,6 +87,8 @@ export interface LanguageListProps {
   title?: string;
   /** What the candidate renamed it to, from `resume.section_headings.languages`. */
   heading?: string;
+  /** As `DocumentSection`'s. */
+  headingLead?: HeadingLead;
 }
 
 /**
@@ -104,6 +107,7 @@ export function LanguageList({
   rowClassName,
   title,
   heading,
+  headingLead,
 }: LanguageListProps) {
   const authoring = useAuthoring() !== null;
   const { placeholder } = useEditorText();
@@ -118,6 +122,7 @@ export function LanguageList({
       heading={heading}
       className={`tpl-languages ${className}`}
       headingClassName={headingClassName}
+      headingLead={headingLead}
     >
       <Collection section="languages" items={entries}>
         {({ item, path, chrome, itemProps }) => (

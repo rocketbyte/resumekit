@@ -1,0 +1,427 @@
+/*
+ * Portrait: Twenty Seconds CV (docs/template-references/portrait.png).
+ *
+ * A light grey sidebar a third of the page wide holds the initials in a large
+ * circle, the name in blue, the headline set right, the contact details beside
+ * round blue badges, then the summary and the skills under large headings with
+ * a rule running on. The body's headings are lower case with their first three
+ * letters reversed out of a rounded tab, grey and blue in turn; each entry hangs
+ * off a date column with its place set small at the right.
+ *
+ * Measured from the reference's own PDF (Letter, Clear Sans, no bold anywhere).
+ */
+
+.tpl-portrait {
+  --tpl-heading-gap: calc(6.5pt * var(--pt-scale) * var(--pt-density));
+  --tpl-space-unit: calc(2pt * var(--pt-scale) * var(--pt-density));
+  --tpl-space-margin: var(--pt-margin);
+  --tpl-marker: calc(9pt * var(--pt-scale));
+  --tpl-avatar-size: calc(134pt * var(--pt-scale));
+  --tpl-avatar-text: calc(46pt * var(--pt-scale));
+
+  --pt-scale: 1;
+  --pt-ink: #000000;
+  --pt-font:
+    'Clear Sans', Arimo, Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  --pt-accent: #0e5484;
+  --pt-density: 1;
+  --pt-margin: 15pt;
+  --pt-grey: #4d4d4d;
+  --pt-dark: #333333;
+  --pt-tab: #b9b9b9;
+  --pt-rail: #e7e7e7;
+  --pt-date: calc(60pt * var(--pt-scale));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  /* No padding on the root: the sidebar reaches the paper's edge, so each
+     column carries its own. */
+  padding: 0;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--pt-ink);
+  font-family: var(--pt-font);
+  font-size: calc(9.96pt * var(--pt-scale));
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+/* ── Columns ────────────────────────────────────────────────────────────── */
+
+/* The sidebar covers every sheet because it is a grid item stretched by the
+   row (`kit/panel.css` adds the height), not a panel given one. */
+.tpl-portrait__body {
+  display: grid;
+  grid-template-columns: calc(205pt * var(--pt-scale)) minmax(0, 1fr);
+}
+
+.tpl-portrait__aside,
+.tpl-portrait__main {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.tpl-portrait__aside {
+  padding: calc(18.6pt * var(--pt-scale)) calc(9pt * var(--pt-scale)) 0.5in
+    calc(14.2pt * var(--pt-scale));
+  background: var(--pt-rail);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-portrait__main {
+  padding: calc(6pt * var(--pt-scale)) var(--pt-margin) 0.5in
+    calc(1.9pt * var(--pt-scale));
+}
+
+/* Against the page's right edge, so its rails stand in the right margin. */
+.tpl-portrait__main {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sidebar head ───────────────────────────────────────────────────────── */
+
+.tpl-portrait__head {
+  margin: 0;
+}
+
+.tpl-portrait__avatar {
+  border: 0;
+  background: var(--pt-accent);
+  color: #ffffff;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-portrait__name {
+  margin: calc(15pt * var(--pt-scale)) 0 0;
+  color: var(--pt-accent);
+  font-size: calc(24.8pt * var(--pt-scale));
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.tpl-portrait__headline {
+  margin: calc(-1pt * var(--pt-scale)) calc(13pt * var(--pt-scale)) 0 0;
+  color: var(--pt-grey);
+  font-size: calc(14.35pt * var(--pt-scale));
+  line-height: 1.2;
+  text-align: right;
+}
+
+.tpl-portrait__contact {
+  margin: calc(5pt * var(--pt-scale)) 0 0;
+}
+
+.tpl-portrait__contact-item {
+  display: grid;
+  grid-template-columns: calc(18pt * var(--pt-scale)) minmax(0, 1fr);
+  column-gap: calc(10.5pt * var(--pt-scale));
+  align-items: center;
+  margin: 0;
+  min-height: calc(18pt * var(--pt-scale));
+  overflow-wrap: anywhere;
+}
+
+.tpl-portrait__contact-item + .tpl-portrait__contact-item,
+.tpl-portrait__contact-item + * .tpl-portrait__contact-item,
+.tpl-portrait__contact * + .tpl-portrait__contact-item {
+  margin-top: calc(1.3pt * var(--pt-scale));
+}
+
+.tpl-portrait__contact .tpl-text__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/*
+ * A round blue badge with the kit's icon cut out of it: the icon is the mask,
+ * excluded from a full disc, so the sidebar shows through as the glyph. Still
+ * generated content with no text, forced to print.
+ */
+.tpl-portrait {
+  --tpl-contact-icon-ink: var(--pt-accent);
+  --tpl-contact-icon-size: calc(18pt * var(--pt-scale));
+  --tpl-contact-icon-gap: 0px;
+  --tpl-contact-icon-shift: 0px;
+}
+
+.tpl-portrait .tpl-contact-icons .tpl-contact-item::before,
+.tpl-portrait .tpl-contact-icons .tpl-portrait__contact-item::before {
+  border-radius: 50%;
+  mask:
+    var(--tpl-contact-icon) center / 58% no-repeat,
+    linear-gradient(#000000 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    var(--tpl-contact-icon) center / 58% no-repeat,
+    linear-gradient(#000000 0 0);
+  -webkit-mask-composite: xor;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-portrait__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-portrait__section + .tpl-portrait__section,
+.tpl-portrait__head + .tpl-portrait__section {
+  margin-top: calc(
+    10pt * var(--pt-scale) * var(--pt-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-portrait__heading {
+  margin: 0 0 var(--tpl-heading-gap);
+  font-size: calc(17.22pt * var(--pt-scale));
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--pt-grey);
+  text-transform: lowercase;
+}
+
+/*
+ * The tab: the letters' own box, painted. Inline-block so its height is the
+ * tab's rather than the font's whole content area; no horizontal padding or
+ * margin after it, so nothing opens a gap inside the word. The small lead on
+ * the left only moves the word's first letter.
+ */
+.tpl-portrait__main .tpl-portrait__heading-lead {
+  display: inline-block;
+  padding: 0 0 0 calc(1.8pt * var(--pt-scale));
+  border-radius: calc(3.5pt * var(--pt-scale));
+  background: var(--pt-tab);
+  color: #ffffff;
+  line-height: 0.92;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-portrait__main
+  > .tpl-portrait__section:nth-of-type(even)
+  .tpl-portrait__heading-lead {
+  background: var(--pt-accent);
+}
+
+/* The sidebar's headings: larger, as typed, with a rule running on. */
+.tpl-portrait__aside .tpl-portrait__heading {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: calc(10pt * var(--pt-scale) * var(--pt-density));
+  color: var(--pt-dark);
+  font-size: calc(20.66pt * var(--pt-scale));
+  text-transform: none;
+}
+
+.tpl-portrait__aside .tpl-portrait__heading::after {
+  content: '';
+  flex: 1;
+  min-width: calc(12pt * var(--pt-scale));
+  margin: 0 0 0.23em 0.25em;
+  border-top: 0.8pt solid var(--pt-dark);
+}
+
+.tpl-portrait__aside {
+  --tpl-heading-gap: calc(10pt * var(--pt-scale) * var(--pt-density));
+}
+
+.tpl-portrait__aside .tpl-portrait__section + .tpl-portrait__section,
+.tpl-portrait__head + .tpl-portrait__section {
+  margin-top: calc(
+    13pt * var(--pt-scale) * var(--pt-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-portrait__prose {
+  margin: 0;
+}
+
+.tpl-portrait__aside .tpl-portrait__prose {
+  text-align: justify;
+  text-indent: 1.5em;
+  hyphens: auto;
+}
+
+.tpl-portrait__prose:has(.is-left, .is-center, .is-right) {
+  text-align: unset;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+/* The date column, then the event; the place is set small at the right. */
+.tpl-portrait__entry {
+  display: grid;
+  grid-template-columns: var(--pt-date) minmax(0, 1fr);
+  margin-top: calc(
+    4.3pt * var(--pt-scale) * var(--pt-density) + var(--tpl-space-height, 0px)
+  );
+  padding-left: calc(5pt * var(--pt-scale));
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse. */
+.tpl-portrait__heading + .tpl-portrait__entry,
+.tpl-portrait__heading + * > .tpl-portrait__entry:first-child {
+  margin-top: calc(var(--tpl-heading-gap) + var(--tpl-space-height, 0px));
+}
+
+.tpl-portrait__when {
+  grid-column: 1;
+  margin: 0;
+  padding-right: calc(4pt * var(--pt-scale));
+}
+
+.tpl-portrait__event {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.tpl-portrait__line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(8pt * var(--pt-scale));
+}
+
+.tpl-portrait__title,
+.tpl-portrait__org,
+.tpl-portrait__where {
+  margin: 0;
+}
+
+.tpl-portrait__title {
+  color: var(--pt-grey);
+}
+
+.tpl-portrait__where {
+  flex: none;
+  max-width: 40%;
+  font-size: calc(7.97pt * var(--pt-scale));
+  text-align: right;
+}
+
+.tpl-portrait .tpl-bullets {
+  margin: calc(1pt * var(--pt-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The marker column the shared grip centres on is `--tpl-marker`. */
+.tpl-portrait .tpl-bullet {
+  display: grid;
+  grid-template-columns: var(--tpl-marker) 1fr;
+}
+
+.tpl-portrait .tpl-bullet::before {
+  content: '';
+  width: calc(3pt * var(--pt-scale));
+  height: calc(3pt * var(--pt-scale));
+  margin-top: 0.45em;
+  border-radius: calc(0.8pt * var(--pt-scale));
+  background: var(--pt-tab);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* Certifications line up with the events, past the date column. */
+.tpl-portrait__main .tpl-portrait__section > [data-block] {
+  padding-left: calc(5pt * var(--pt-scale) + var(--pt-date));
+}
+
+/* ── Kit sections ───────────────────────────────────────────────────────── */
+
+/* Achievements, courses and interests hang where the events do. */
+.tpl-portrait__main .tpl-portrait__described {
+  padding-left: calc(5pt * var(--pt-scale) + var(--pt-date));
+}
+
+.tpl-portrait {
+  --tpl-described-gap: calc(4.3pt * var(--pt-scale) * var(--pt-density));
+  --tpl-described-lead: 0px;
+  --tpl-described-title-weight: 400;
+  --tpl-described-title-ink: var(--pt-grey);
+}
+
+/*
+ * Skills: no bars (the resume holds no rating). In the sidebar the kit's grid
+ * stacks each category over its skills; here two to a row, each after a small
+ * blue square, the one mark the section repeats.
+ */
+.tpl-portrait {
+  --tpl-skill-grid-label-weight: 400;
+  --tpl-skill-grid-label-ink: var(--pt-grey);
+  --tpl-skill-grid-rhythm: calc(6pt * var(--pt-scale) * var(--pt-density));
+  --tpl-skill-grid-lead: calc(2pt * var(--pt-scale));
+  --tpl-skill-grid-gap: calc(8pt * var(--pt-scale));
+  --tpl-skill-grid-column: calc(80pt * var(--pt-scale));
+}
+
+.tpl-portrait .tpl-skill-grid .tpl-skill-grid__group .tpl-bullets {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tpl-portrait .tpl-skill-grid .tpl-skill-grid__group .tpl-bullet {
+  position: relative;
+  padding-left: calc(7.3pt * var(--pt-scale));
+}
+
+.tpl-portrait .tpl-skill-grid .tpl-skill-grid__group .tpl-bullet::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.42em;
+  width: calc(3.5pt * var(--pt-scale));
+  height: calc(3.5pt * var(--pt-scale));
+  background: var(--pt-accent);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/*
+ * Languages: the reference's skill bar, drawn only because a stored level backs
+ * every step of it — the name and the level word over a five-step bar on a
+ * grey track, filled in blue.
+ */
+.tpl-portrait__aside .tpl-portrait__language {
+  grid-template-columns: minmax(0, 1fr) auto;
+  row-gap: calc(3pt * var(--pt-scale));
+  padding-left: calc(3pt * var(--pt-scale));
+}
+
+.tpl-portrait__aside .tpl-portrait__language .tpl-language__level,
+.tpl-portrait__aside .tpl-portrait__language .tpl-language__choice {
+  grid-column: 2;
+  justify-self: end;
+  color: var(--pt-grey);
+}
+
+.tpl-portrait__aside .tpl-portrait__language .tpl-language__meter {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: calc(0.8pt * var(--pt-scale));
+}
+
+.tpl-portrait__aside .tpl-portrait__language .tpl-language__step {
+  width: auto;
+  height: calc(9pt * var(--pt-scale));
+  border: 0;
+  border-radius: 0;
+  background: var(--pt-tab);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-portrait__aside .tpl-portrait__language .tpl-language__step--on {
+  background: var(--pt-accent);
+}
+
+.tpl-portrait {
+  --tpl-language-name-weight: 400;
+  --tpl-language-level-size: 1em;
+  --tpl-language-lead: calc(6pt * var(--pt-scale) * var(--pt-density));
+}

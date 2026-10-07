@@ -1,9 +1,20 @@
 /**
- * `dist-static/templates.css`: the library's CSS pruned to the rules some
- * fixture page can match, in every template, language and mode, then minified.
- * Fonts are dropped; a static page uses each template's fallback stack.
+ * `dist-static/templates.css` and `dist-static/templates/<id>.css`: the
+ * library's CSS pruned to the rules some fixture page can match, in every
+ * template, language and mode, then minified. Fonts are dropped; a static page
+ * uses each template's fallback stack.
+ *
+ * The shared sheet (kit, nodes, paged canvas) is one file and each template's
+ * own stylesheet is another, so a site that shows some templates links only
+ * theirs rather than paying for the whole catalog.
  */
-import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postcss, { type AtRule, type Rule } from 'postcss';
@@ -59,7 +70,13 @@ function canMatch(selector: string): boolean {
 }
 
 const files = cssFiles(SRC).sort();
-const root = postcss.root();
+const TEMPLATE_DIR = join(SRC, 'templates');
+const roots = new Map<string, postcss.Root>([['', postcss.root()]]);
+/** The template a stylesheet belongs to, or '' for the shared sheet. */
+const ownerOf = (file: string): string => {
+  const rel = relative(TEMPLATE_DIR, file);
+  return rel.startsWith('..') ? '' : (rel.split(/[\\/]/)[0] ?? '');
+};
 for (const file of files) {
   const sheet = postcss.parse(readFileSync(file, 'utf8'), { from: file });
   sheet.walkAtRules((at: AtRule) => {
@@ -81,15 +98,20 @@ for (const file of files) {
   sheet.walkAtRules((at: AtRule) => {
     if (at.nodes && at.nodes.length === 0) at.remove();
   });
-  root.append(sheet.nodes);
+  const owner = ownerOf(file);
+  if (!roots.has(owner)) roots.set(owner, postcss.root());
+  roots.get(owner)?.append(sheet.nodes);
 }
 
-const { code } = await transform(root.toString(), {
-  loader: 'css',
-  minify: true,
-});
-writeFileSync(join(OUT, 'templates.css'), code);
-console.log(
-  `wrote ${relative(process.cwd(), join(OUT, 'templates.css'))} — ` +
-    `${code.length} bytes from ${files.length} files`,
-);
+mkdirSync(join(OUT, 'templates'), { recursive: true });
+for (const [owner, root] of roots) {
+  const { code } = await transform(root.toString(), {
+    loader: 'css',
+    minify: true,
+  });
+  const out = owner
+    ? join(OUT, 'templates', `${owner}.css`)
+    : join(OUT, 'templates.css');
+  writeFileSync(out, code);
+  console.log(`wrote ${relative(process.cwd(), out)} — ${code.length} bytes`);
+}
