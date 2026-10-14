@@ -123,12 +123,12 @@
     "react": "^19.0.0"
   },
   "devDependencies": {
-    "esbuild": "^0.27.7",
-    "postcss": "^8.5.22",
-    "prettier": "^3.8.1",
+    "esbuild": "^0.28.2",
+    "postcss": "^8.5.29",
+    "prettier": "^3.9.10",
     "tsx": "^4.23.15",
-    "yaml": "^2.9.0",
-    "zod": "^4.4.3"
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
   },
   "scripts": {
     "generate-templates": "tsx scripts/generate-templates.ts",
