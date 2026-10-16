@@ -3,6 +3,7 @@ import {
   type ResumePresentation,
   type ResumeObject,
 } from '@resumekit/schema';
+import { Suspense } from 'react';
 import { TEMPLATE_RENDERERS } from './registry.js';
 import { presentedResume } from './presented.js';
 import { PagedSheet } from './PagedSheet.js';
@@ -94,16 +95,19 @@ export function TemplateDocument({
           <DocumentSpacingProvider
             value={{ sections: presentation?.section_spacing }}
           >
-            <PagedSheet
-              sheetGap={sheetGap}
-              minZoom={shrinkToFit ? SHRINK_MIN : 1}
-              measureKey={JSON.stringify([
-                presentation?.style,
-                presentation?.section_spacing,
-              ])}
-            >
-              <Document resume={presented} />
-            </PagedSheet>
+            {/* A template loads on first use; the sheet mounts once it has. */}
+            <Suspense fallback={null}>
+              <PagedSheet
+                sheetGap={sheetGap}
+                minZoom={shrinkToFit ? SHRINK_MIN : 1}
+                measureKey={JSON.stringify([
+                  presentation?.style,
+                  presentation?.section_spacing,
+                ])}
+              >
+                <Document resume={presented} />
+              </PagedSheet>
+            </Suspense>
           </DocumentSpacingProvider>
         </DocumentOverlayProvider>
       </DocumentPresentationProvider>

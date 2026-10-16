@@ -1,7 +1,7 @@
 {
   "name": "@resumekit/react",
   "version": "0.1.0",
-  "description": "Editable, paginated resume templates for React: about thirty print-accurate designs, an in-place editing kit, a static renderer and a self-contained export bundle.",
+  "description": "Editable, print-accurate resume templates for React: paginated documents, an in-place editing kit and the typefaces they are set in. Each template loads, with its stylesheet, on first use.",
   "keywords": [
     "resume",
     "cv",
@@ -21,17 +21,12 @@
   "bugs": "https://github.com/rocketbyte/resumekit/issues",
   "type": "module",
   "sideEffects": [
-    "**/*.css"
+    "**/*.css",
+    "./dist/all-templates.js",
+    "./src/all-templates.ts"
   ],
   "files": [
     "dist",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "!src/**/*.spec.ts",
-    "!src/**/*.spec.tsx",
-    "!src/test-setup.ts",
-    "!src/compiler",
-    "!src/export",
     "!dist/*.tsbuildinfo"
   ],
   "exports": {
@@ -40,15 +35,13 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./all-templates": {
+      "@resumekit/source": "./src/all-templates.ts",
+      "types": "./dist/all-templates.d.ts",
+      "default": "./dist/all-templates.js"
+    },
     "./document.css": "./dist/document.css",
     "./fonts.css": "./dist/fonts/fonts.css",
-    "./static": {
-      "types": "./dist/static/api.d.ts",
-      "default": "./dist/static/static.mjs"
-    },
-    "./static.css": "./dist/static/templates.css",
-    "./static/*.css": "./dist/static/templates/*.css",
-    "./export/*": "./dist/export-bundle/*",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -58,27 +51,24 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       },
+      "./all-templates": {
+        "types": "./dist/all-templates.d.ts",
+        "default": "./dist/all-templates.js"
+      },
       "./document.css": "./dist/document.css",
       "./fonts.css": "./dist/fonts/fonts.css",
-      "./static": {
-        "types": "./dist/static/api.d.ts",
-        "default": "./dist/static/static.mjs"
-      },
-      "./static.css": "./dist/static/templates.css",
-      "./static/*.css": "./dist/static/templates/*.css",
-      "./export/*": "./dist/export-bundle/*",
       "./package.json": "./package.json"
     }
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -b tsconfig.lib.json && tsx scripts/copy-assets.ts && vite build --config vite.static.config.mts && tsx --conditions=@resumekit/source scripts/build-static-css.ts && vite build --config vite.export.config.mts",
+    "build": "rm -rf dist && tsc -b tsconfig.lib.json && tsx scripts/copy-assets.ts",
     "dev": "tsx scripts/generate-templates.ts --watch",
     "gallery": "vite --config gallery/vite.config.mts",
     "typecheck": "tsc -b tsconfig.spec.json",
     "test": "vitest run",
     "generate-templates": "tsx scripts/generate-templates.ts",
     "check-templates": "tsx scripts/generate-templates.ts --check",
-    "check:package": "rm -rf out-tsc/pack && pnpm pack --pack-destination out-tsc/pack >/dev/null && publint --strict --pack pnpm && attw out-tsc/pack/*.tgz --profile esm-only --exclude-entrypoints ./document.css ./fonts.css ./static.css ./static/templates.css ./export/bundle.js ./export/bundle.css"
+    "check:package": "rm -rf out-tsc/pack && pnpm pack --pack-destination out-tsc/pack >/dev/null && publint --strict --pack pnpm && attw out-tsc/pack/*.tgz --profile esm-only --exclude-entrypoints ./document.css ./fonts.css ./package.json"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

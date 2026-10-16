@@ -20,6 +20,8 @@
 export {
   TEMPLATE_RENDERERS,
   REGISTERED_NODES,
+  preloadTemplate,
+  preloadTemplates,
   type TemplateRenderer,
   type TemplateDocumentProps,
 } from './registry.js';
@@ -91,6 +93,9 @@ export {
   useDocumentStyle,
   useFieldFormat,
 } from './presentation-context.js';
+
+/** Draw a document as a picture of itself, for embedding in another page. */
+export { PictureProvider, usePicture } from './picture-context.js';
 
 /**
  * Authoring: what a candidate may do to a repeatable part of the document.

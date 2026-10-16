@@ -7,27 +7,77 @@
   "separate-pull-requests": false,
   "group-pull-request-title-pattern": "chore: release ${version}",
   "changelog-sections": [
-    { "type": "feat", "section": "Features" },
-    { "type": "fix", "section": "Bug Fixes" },
-    { "type": "perf", "section": "Performance" },
-    { "type": "revert", "section": "Reverts" },
-    { "type": "docs", "section": "Documentation", "hidden": true },
-    { "type": "chore", "section": "Miscellaneous", "hidden": true },
-    { "type": "build", "section": "Build", "hidden": true },
-    { "type": "ci", "section": "CI", "hidden": true },
-    { "type": "test", "section": "Tests", "hidden": true },
-    { "type": "refactor", "section": "Refactoring", "hidden": true },
-    { "type": "style", "section": "Style", "hidden": true }
+    {
+      "type": "feat",
+      "section": "Features"
+    },
+    {
+      "type": "fix",
+      "section": "Bug Fixes"
+    },
+    {
+      "type": "perf",
+      "section": "Performance"
+    },
+    {
+      "type": "revert",
+      "section": "Reverts"
+    },
+    {
+      "type": "docs",
+      "section": "Documentation",
+      "hidden": true
+    },
+    {
+      "type": "chore",
+      "section": "Miscellaneous",
+      "hidden": true
+    },
+    {
+      "type": "build",
+      "section": "Build",
+      "hidden": true
+    },
+    {
+      "type": "ci",
+      "section": "CI",
+      "hidden": true
+    },
+    {
+      "type": "test",
+      "section": "Tests",
+      "hidden": true
+    },
+    {
+      "type": "refactor",
+      "section": "Refactoring",
+      "hidden": true
+    },
+    {
+      "type": "style",
+      "section": "Style",
+      "hidden": true
+    }
   ],
   "packages": {
-    "packages/schema": { "component": "schema" },
-    "packages/react": { "component": "react" }
+    "packages/schema": {
+      "component": "schema"
+    },
+    "packages/react": {
+      "component": "react"
+    },
+    "packages/static": {
+      "component": "static"
+    },
+    "packages/export": {
+      "component": "export"
+    }
   },
   "plugins": [
     {
       "type": "linked-versions",
       "groupName": "resumekit",
-      "components": ["schema", "react"]
+      "components": ["schema", "react", "static", "export"]
     }
   ]
 }

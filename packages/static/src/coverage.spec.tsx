@@ -3,11 +3,14 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type { TemplateId } from '@resumekit/schema';
-import { TEMPLATE_RENDERERS } from '../registry.js';
+import { TEMPLATE_RENDERERS } from '@resumekit/react';
 import { renderStatic } from './render.js';
 import { FIXTURES } from './fixtures.js';
 
-const TEMPLATES = join(dirname(fileURLToPath(import.meta.url)), '../templates');
+const TEMPLATES = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '../../react/src/templates',
+);
 
 /*
  * The static stylesheet keeps only rules some fixture page can match

@@ -28,7 +28,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['packages/react/**/*.tsx'],
+    files: ['packages/*/src/**/*.tsx', 'packages/react/gallery/**/*.tsx'],
     ...react.configs.flat.recommended,
     ...react.configs.flat['jsx-runtime'],
     plugins: { react, 'react-hooks': reactHooks, 'jsx-a11y': jsxA11y },

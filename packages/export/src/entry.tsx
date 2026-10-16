@@ -27,8 +27,8 @@
  * already starting a browser, that is not the expensive part.
  */
 import { createRoot } from 'react-dom/client';
-import { TemplateDocument } from '../TemplateDocument.js';
-import { LetterDocument } from '../letter/LetterDocument.js';
+import '@resumekit/react/all-templates';
+import { LetterDocument, TemplateDocument } from '@resumekit/react';
 import {
   EXPORT_PAGES_GLOBAL,
   EXPORT_PAYLOAD_GLOBAL,

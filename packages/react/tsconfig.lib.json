@@ -4,6 +4,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "emitDeclarationOnly": false,
+    "declarationMap": false,
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "jsx": "react-jsx",
     "module": "esnext",
@@ -17,9 +18,8 @@
     "src/**/*.spec.ts",
     "src/**/*.spec.tsx",
     "src/test-setup.ts",
+    "src/test-setup.eager.ts",
     "src/compiler/**",
-    "src/export/**",
-    "src/static/render.tsx",
     "src/static/fixtures.ts"
   ],
   "references": [{ "path": "../schema/tsconfig.lib.json" }]

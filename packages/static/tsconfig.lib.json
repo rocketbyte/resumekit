@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "declarationMap": false,
+    "tsBuildInfoFile": "out-tsc/tsconfig.lib.tsbuildinfo",
+    "types": []
+  },
+  "include": ["src/api.ts"],
+  "references": [{ "path": "../schema/tsconfig.lib.json" }]
+}

@@ -218,7 +218,7 @@ describe('nothing is measured before the faces are ready', () => {
 
   it.each([
     ['the screen', 'PagedSheet.tsx'],
-    ['the export', 'export/entry.tsx'],
+    ['the export', '../../export/src/entry.tsx'],
   ])('%s waits for document.fonts.ready', (_surface, file) => {
     expect(read(file)).toMatch(/fonts\??\.ready|fonts\.ready/);
   });

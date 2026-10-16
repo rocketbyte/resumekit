@@ -20,7 +20,7 @@ missing option belongs in the format (`src/compiler/`), not in one template. The
 [docs/template-contract.md](docs/template-contract.md).
 
 Every registered template runs through `templates/conformance.spec.tsx`; the static renderer is
-held to the browser render by `static/parity.spec.tsx`.
+held to the browser render by `packages/static/src/parity.spec.tsx`.
 
 ## Commits and versions
 
@@ -61,8 +61,10 @@ from the published manifest (`publishConfig.exports`), so installs from npm alwa
 3. allows Vite to serve the checkout (`server.fs.allow`);
 4. links it: `pnpm link ../resumekit/packages/schema ../resumekit/packages/react`.
 
-`/static` and `/export` are prebuilt artifacts, not source: while linked, rebuild them with
-`pnpm build` when you change what they render.
+`@resumekit/static` and `@resumekit/export` are prebuilt artifacts, not source. While linked, keep
+`pnpm dev` running at the root: it regenerates templates from their descriptions and rebuilds
+both packages' `dist` (the static renderer with its pruned CSS, and the export bundle) on every
+save.
 
 ## Releasing
 

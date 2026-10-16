@@ -1,8 +1,10 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { TemplateId } from '@resumekit/schema';
-import { TEMPLATE_RENDERERS } from '../registry.js';
-import { DocumentPresentationProvider } from '../presentation-context.js';
+import {
+  DocumentPresentationProvider,
+  TEMPLATE_RENDERERS,
+} from '@resumekit/react';
 import { renderStatic } from './render.js';
 import { AWKWARD, EMPTY, FULL } from './fixtures.js';
 

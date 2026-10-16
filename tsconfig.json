@@ -4,6 +4,8 @@
   "files": [],
   "references": [
     { "path": "./packages/schema" },
-    { "path": "./packages/react" }
+    { "path": "./packages/react" },
+    { "path": "./packages/static" },
+    { "path": "./packages/export" }
   ]
 }

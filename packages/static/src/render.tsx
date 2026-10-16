@@ -1,7 +1,10 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import { TEMPLATE_RENDERERS } from '../registry.js';
-import { DocumentPresentationProvider } from '../presentation-context.js';
-import { PictureProvider } from '../picture-context.js';
+import '@resumekit/react/all-templates';
+import {
+  DocumentPresentationProvider,
+  PictureProvider,
+  TEMPLATE_RENDERERS,
+} from '@resumekit/react';
 import type { RenderStatic } from './api.js';
 
 /**
