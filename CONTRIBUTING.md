@@ -61,8 +61,9 @@ from the published manifest (`publishConfig.exports`), so installs from npm alwa
 3. allows Vite to serve the checkout (`server.fs.allow`);
 4. links it: `pnpm link ../resumekit/packages/schema ../resumekit/packages/react`.
 
-`/static` and `/export` are prebuilt artifacts, not source: while linked, rebuild them with
-`pnpm build` when you change what they render.
+`/static` and `/export` are prebuilt artifacts, not source. While linked, keep `pnpm dev` running:
+it regenerates templates from their descriptions and rebuilds `dist/static` (with its pruned CSS)
+and `dist/export-bundle` on every save.
 
 ## Releasing
 

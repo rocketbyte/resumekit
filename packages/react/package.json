@@ -72,7 +72,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc -b tsconfig.lib.json && tsx scripts/copy-assets.ts && vite build --config vite.static.config.mts && tsx --conditions=@resumekit/source scripts/build-static-css.ts && vite build --config vite.export.config.mts",
-    "dev": "tsx scripts/generate-templates.ts --watch",
+    "dev": "tsx scripts/dev.ts",
     "gallery": "vite --config gallery/vite.config.mts",
     "typecheck": "tsc -b tsconfig.spec.json",
     "test": "vitest run",
