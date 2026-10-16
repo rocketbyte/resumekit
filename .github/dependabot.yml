@@ -1,21 +1,49 @@
+# Weekly dependency updates: at most one pull request per ecosystem per week, with every minor
+# and patch update bundled into it. Majors are not proposed, because each one is a migration of
+# its own. Security updates are still opened whatever version they need, grouped likewise.
 version: 2
 updates:
+  # pnpm workspace: Dependabot's `npm` ecosystem reads pnpm-lock.yaml.
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Etc/UTC
     open-pull-requests-limit: 1
     groups:
-      npm:
+      npm-weekly:
+        applies-to: version-updates
         patterns: ['*']
         update-types: [minor, patch]
+      npm-security:
+        applies-to: security-updates
+        patterns: ['*']
     ignore:
       - dependency-name: '*'
         update-types: ['version-update:semver-major']
+    commit-message:
+      prefix: chore(deps)
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Etc/UTC
+    open-pull-requests-limit: 1
     groups:
-      actions:
+      actions-weekly:
+        applies-to: version-updates
         patterns: ['*']
+        update-types: [minor, patch]
+      actions-security:
+        applies-to: security-updates
+        patterns: ['*']
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    commit-message:
+      prefix: chore(ci)
