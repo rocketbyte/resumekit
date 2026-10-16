@@ -1,0 +1,370 @@
+/*
+ * The Elegant template: a navy name over a blue headline and a contact line
+ * with an icon before each detail, a painted rail on the right, and
+ * an initials mark beside every employer.
+ *
+ * Each entry reads as two lines — the role with its dates set right, then the
+ * employer in blue with its place set right.
+ */
+
+.tpl-ell {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(6pt * var(--ell-scale));
+  --tpl-space-unit: calc(2.2pt * var(--ell-scale) * var(--ell-density));
+  --tpl-space-margin: var(--ell-margin);
+  --tpl-marker: calc(8pt * var(--ell-scale));
+  --ell-scale: 1;
+  --ell-ink: #1e2a38;
+  --ell-rail: #223751;
+  /* The reference is set in Rubik, which is not supplied; Arimo is the
+     supplied face closest to its width and x-height. */
+  --ell-font:
+    Arimo, Arial, 'Helvetica Neue', Helvetica, 'Liberation Sans', sans-serif;
+  --ell-accent: #2f80ed;
+  --ell-density: 1;
+  --ell-margin: 0.5in;
+  --ell-body: #343a40;
+  --ell-muted: #4f565c;
+  --ell-line: #e1e3e6;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  /* No padding on the root: the rail must reach the paper's edge, so each
+     column carries its own. */
+  padding: 0;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--ell-body);
+  font-family: var(--ell-font);
+  font-size: calc(8pt * var(--ell-scale));
+  line-height: 1.4;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+/* The header's gap is the first section's margin, so space recorded above
+   that section adds to it instead of collapsing into it. */
+.tpl-ell__head-block + .tpl-ell__section {
+  margin-top: calc(22pt * var(--ell-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-ell__name {
+  margin: 0;
+  font-size: calc(20pt * var(--ell-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ell-ink);
+  text-transform: uppercase;
+}
+
+.tpl-ell__headline {
+  margin: calc(3pt * var(--ell-scale)) 0 0;
+  font-size: calc(12.5pt * var(--ell-scale));
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--ell-accent);
+}
+
+.tpl-ell__contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(2pt * var(--ell-scale)) calc(11pt * var(--ell-scale));
+  margin: calc(6pt * var(--ell-scale)) 0 0;
+  font-size: calc(8.5pt * var(--ell-scale));
+  color: var(--ell-muted);
+}
+
+.tpl-ell__phone,
+.tpl-ell__email,
+.tpl-ell__place,
+.tpl-ell__links {
+  margin: 0;
+}
+
+.tpl-ell__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 calc(11pt * var(--ell-scale));
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Each detail's icon is the kit's (`kit/contact-icons.css`); the reference
+ * draws the address as an at sign rather than an envelope.
+ */
+.tpl-ell {
+  --tpl-contact-icon-ink: #a0a6ad;
+  --tpl-contact-icon-size: calc(8.5pt * var(--ell-scale));
+  --tpl-contact-icon-gap: calc(3.5pt * var(--ell-scale));
+  --tpl-contact-icon-shift: -0.12em;
+  --tpl-contact-icon-email: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.9 7.9'/%3E%3C/svg%3E");
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+.tpl-ell__body {
+  display: grid;
+  grid-template-columns: 65fr 35fr;
+  /* The rail covers every sheet the document runs to — `kit/panel.css` adds
+     the height, because the arithmetic belongs with the sheets it measures. */
+}
+
+.tpl-ell__main,
+.tpl-ell__aside {
+  min-width: 0;
+}
+
+.tpl-ell__main {
+  padding: 0.45in calc(22pt * var(--ell-scale)) 0.45in var(--ell-margin);
+}
+
+/*
+ * The rail: painted, reversed, and running the full height of the sheet
+ * because it is a grid item stretched by the row rather than a panel given a
+ * height of its own.
+ */
+.tpl-ell__aside {
+  padding: 0.45in var(--ell-margin) 0.45in calc(20pt * var(--ell-scale));
+  background: var(--ell-rail);
+  color: #ffffff;
+
+  /* Reversed type: unpainted, the words are not faint, they are absent. */
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* The rail stands against the page's right edge, so its controls belong in the
+   right margin rather than over the column beside them — and clear of its own
+   padding, which is wider than the page margin the default measures from. */
+.tpl-ell__aside {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--ell-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-ell__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-ell__section + .tpl-ell__section {
+  margin-top: calc(
+    17pt * var(--ell-scale) * var(--ell-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-ell__aside .tpl-ell__heading {
+  color: #ffffff;
+  border-bottom-color: rgb(255 255 255 / 35%);
+}
+
+.tpl-ell__aside .tpl-ell__note-title,
+.tpl-ell__aside .tpl-described__title {
+  color: #ffffff;
+}
+
+.tpl-ell__aside .tpl-ell__note-detail,
+.tpl-ell__aside .tpl-ell__prose,
+.tpl-ell__aside .tpl-described__body,
+.tpl-ell__aside .tpl-language {
+  color: rgb(255 255 255 / 86%);
+}
+
+/*
+ * On the painted rail the meter is drawn in the panel's own ink, like the
+ * keyword rule below. The accent the root sets is a dark-on-white colour and
+ * would all but vanish here.
+ */
+.tpl-ell__aside .tpl-languages {
+  --tpl-language-meter-ink: rgb(255 255 255 / 80%);
+}
+
+.tpl-ell__heading {
+  margin: 0 0 calc(6pt * var(--ell-scale));
+  padding-bottom: calc(3pt * var(--ell-scale));
+  border-bottom: 1pt solid var(--ell-line);
+  font-size: calc(13pt * var(--ell-scale));
+  font-weight: 400;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--ell-ink);
+}
+
+.tpl-ell__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-ell__entry {
+  display: grid;
+  grid-template-columns: calc(24pt * var(--ell-scale)) 1fr;
+  column-gap: calc(8pt * var(--ell-scale));
+  margin-top: calc(
+    10pt * var(--ell-scale) * var(--ell-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The mark sits in the first column and the rest of the entry in the second,
+   so a role that wraps keeps its hanging indent. */
+.tpl-ell__entry > :not(.tpl-ell__mark) {
+  grid-column: 2;
+}
+
+.tpl-ell__mark {
+  --tpl-chip-size: calc(24pt * var(--ell-scale));
+  --tpl-chip-text: calc(8pt * var(--ell-scale));
+
+  grid-row: 1;
+  border-radius: 50%;
+  color: var(--ell-muted);
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-ell__entry:first-of-type {
+  margin-top: calc(6pt * var(--ell-scale) + var(--tpl-space-height, 0px));
+}
+
+/* Role and dates on one line, the employer and its place on the next — each
+   a paragraph of its own, so extracted text keeps them apart. */
+.tpl-ell__entry-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(10pt * var(--ell-scale));
+  align-items: baseline;
+}
+
+.tpl-ell__role,
+.tpl-ell__dates,
+.tpl-ell__org,
+.tpl-ell__where {
+  margin: 0;
+}
+
+.tpl-ell__role {
+  font-size: calc(11pt * var(--ell-scale));
+  line-height: 1.25;
+  color: var(--ell-ink);
+}
+
+.tpl-ell__dates,
+.tpl-ell__where {
+  font-size: calc(8.5pt * var(--ell-scale));
+  color: var(--ell-muted);
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-ell__org {
+  margin-top: calc(1pt * var(--ell-scale));
+  font-size: calc(10pt * var(--ell-scale));
+  line-height: 1.25;
+  color: var(--ell-accent);
+}
+
+.tpl-ell .tpl-bullets {
+  margin: calc(2pt * var(--ell-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-ell .tpl-bullet {
+  --tpl-marker: calc(11pt * var(--ell-scale));
+
+  display: grid;
+  grid-template-columns: calc(11pt * var(--ell-scale)) 1fr;
+}
+
+.tpl-ell .tpl-bullet::before {
+  content: '•';
+  padding-left: calc(3pt * var(--ell-scale));
+}
+
+/* ── The rail's notes and chips ─────────────────────────────────────────── */
+
+.tpl-ell__note {
+  margin-top: calc(
+    6pt * var(--ell-scale) * var(--ell-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+.tpl-ell__note:first-of-type {
+  margin-top: calc(6pt * var(--ell-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-ell__note-title,
+.tpl-ell__note-detail {
+  margin: 0;
+}
+
+.tpl-ell__note-title {
+  font-weight: 700;
+  color: var(--ell-ink);
+}
+
+.tpl-ell__note-detail {
+  color: var(--ell-body);
+}
+
+/* Skills as the kit's invisible table (`kit/skill-grid.css`). On the rail it
+   stacks, so the category is set apart from its skills by the accent. */
+.tpl-ell {
+  --tpl-skill-grid-lead: calc(2pt * var(--ell-scale));
+  --tpl-skill-grid-rhythm: calc(7pt * var(--ell-scale));
+  --tpl-skill-grid-label-size: calc(7.5pt * var(--ell-scale));
+  --tpl-skill-grid-label-weight: 700;
+  --tpl-skill-grid-label-ink: color-mix(
+    in srgb,
+    var(--ell-accent) 45%,
+    #ffffff
+  );
+}
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-ell {
+  --tpl-described-gap: calc(9pt * var(--ell-scale));
+  --tpl-described-lead: calc(2pt * var(--ell-scale));
+  --tpl-described-title-ink: var(--ell-ink);
+  --tpl-described-title-size: calc(10.5pt * var(--ell-scale));
+  --tpl-described-title-weight: 400;
+  --tpl-described-title-leading: 1.25;
+  --tpl-described-body-size: calc(7.8pt * var(--ell-scale));
+  --tpl-described-span: calc(14pt * var(--ell-scale));
+  --tpl-language-gap: calc(6pt * var(--ell-scale));
+  --tpl-language-lead: calc(4pt * var(--ell-scale));
+  --tpl-language-step: calc(4pt * var(--ell-scale));
+  --tpl-language-meter-ink: var(--ell-accent);
+}
+
+/* One repeated mark, never one per entry: nothing in the résumé says which
+   glyph an achievement deserves. */
+.tpl-ell .tpl-described--marked {
+  --tpl-described-mark: '\2766';
+  --tpl-described-mark-gap: calc(4pt * var(--ell-scale));
+}
+
+/* The mark hangs in a column of its own, and the title and its paragraph
+   share the indent beside it. */
+.tpl-ell .tpl-described--marked .tpl-described__entry {
+  position: relative;
+  padding-left: calc(15pt * var(--ell-scale));
+}
+
+.tpl-ell .tpl-described--marked .tpl-described__title::before {
+  position: absolute;
+  left: 0;
+  margin: 0;
+  color: #ffffff;
+}

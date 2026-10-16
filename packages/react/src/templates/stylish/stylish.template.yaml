@@ -1,0 +1,130 @@
+id: stylish
+component: Stylish
+prefix: tpl-stylish
+styleKey: st
+
+layout:
+  - row:
+      - stack:
+          [
+            name,
+            headline,
+            { contact: [phone, email, location], links: true, icons: true },
+          ]
+        class: identity
+      - avatar
+    tag: header
+    class: head-block
+    block: true
+  - row:
+      - stack:
+          - { section: achievements, kit: [tpl-described--marked] }
+          - custom
+          - { section: skills, groups: tags }
+          - courses
+          - {
+              section: certifications,
+              as: bullets,
+              split: true,
+              whenEmpty: hide,
+            }
+          - { section: passions, kit: [tpl-described--marked] }
+        tag: aside
+        class: aside
+      - stack: [summary, experience, education, languages]
+        class: main
+    class: body
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: p
+        class: role
+        children:
+          - field: title
+      - tag: p
+        class: meta
+        children:
+          - tag: span
+            class: org
+            children:
+              - field: company
+          - tag: span
+            class: dates
+            children:
+              - field: start
+              - text: ' - '
+              - field: end
+          - tag: span
+            class: place
+            children:
+              - field: location
+                optional: true
+      - bullets: bullets
+  education:
+    name: EducationEntry
+    type: Education
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: p
+        class: role
+        children:
+          - field: degree
+            optional: true
+          - word: degreeField
+            between:
+              - degree
+              - field
+          - field: field
+            optional: true
+      - tag: p
+        class: meta
+        children:
+          - tag: span
+            class: org
+            children:
+              - field: school
+          - tag: span
+            class: dates
+            children:
+              - field: start
+                optional: true
+              - separator: ' - '
+                between:
+                  - start
+                  - end
+              - field: end
+                optional: true
+          - tag: span
+            class: place
+            children:
+              - field: location
+                optional: true
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root:
+      tag: article
+      class: note
+      block: true
+    children:
+      - tag: p
+        class: note-title
+        children:
+          - field: title
+            placeholder: heading
+      - tag: p
+        class: note-detail
+        children:
+          - field: detail
+            optional: true
+      - bullets: bullets

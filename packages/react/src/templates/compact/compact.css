@@ -1,0 +1,240 @@
+/*
+ * The Compact template: two columns, the résumé in the wide one.
+ *
+ * Density is a property of the ENTRY here rather than of the type size — the
+ * role on its own line, then employer, dates and place sharing the next — so
+ * the page holds more without being harder to read.
+ */
+
+.tpl-compact {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(3.5pt * var(--cp-scale));
+  --tpl-space-unit: calc(2.2pt * var(--cp-scale) * var(--cp-density));
+  --tpl-space-margin: var(--cp-margin);
+  --tpl-marker: calc(8pt * var(--cp-scale));
+
+  --cp-scale: 1;
+  --cp-ink: #1c1c1c;
+  --cp-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --cp-accent: #2f6df6;
+  --cp-density: 1;
+  --cp-margin: 0.45in;
+  --cp-muted: #565656;
+  --cp-quiet: #7b7b7b;
+  --cp-line: #dcdcdc;
+  --cp-faint: #8f8f8f;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.4in var(--cp-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--cp-ink);
+  font-family: var(--cp-font);
+  font-size: calc(7.8pt * var(--cp-scale));
+  line-height: 1.38;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-compact__name {
+  margin: 0;
+  font-size: calc(19pt * var(--cp-scale));
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.tpl-compact__headline {
+  margin: calc(1pt * var(--cp-scale)) 0 0;
+  font-size: calc(11pt * var(--cp-scale));
+  color: var(--cp-accent);
+}
+
+.tpl-compact__contact {
+  margin: calc(2pt * var(--cp-scale)) 0 0;
+  font-size: calc(8pt * var(--cp-scale));
+  color: var(--cp-muted);
+}
+
+.tpl-compact__contact-item + .tpl-compact__contact-item {
+  margin-left: calc(9pt * var(--cp-scale));
+}
+
+/* ── Body: the résumé, then the rail ────────────────────────────────────── */
+
+.tpl-compact__body {
+  display: grid;
+  grid-template-columns: 58fr 42fr;
+  column-gap: calc(22pt * var(--cp-scale));
+  margin-top: calc(10pt * var(--cp-scale) * var(--cp-density));
+}
+
+.tpl-compact__main,
+.tpl-compact__aside {
+  min-width: 0;
+}
+
+/* The rail stands against the page's right edge, so its rails belong in the
+   right margin rather than over the column beside them. */
+.tpl-compact__aside {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-compact__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-compact__section + .tpl-compact__section {
+  margin-top: calc(
+    11pt * var(--cp-scale) * var(--cp-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-compact__heading {
+  margin: 0 0 calc(3.5pt * var(--cp-scale));
+  font-size: calc(7pt * var(--cp-scale));
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cp-faint);
+}
+
+.tpl-compact__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-compact__entry {
+  margin-top: calc(
+    7pt * var(--cp-scale) * var(--cp-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-compact__entry:first-of-type {
+  margin-top: calc(3.5pt * var(--cp-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-compact__role {
+  margin: 0;
+  font-size: calc(10.5pt * var(--cp-scale));
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.tpl-compact__meta {
+  margin: 0;
+  font-size: calc(8pt * var(--cp-scale));
+  color: var(--cp-quiet);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-compact__org,
+.tpl-compact__school {
+  color: var(--cp-accent);
+}
+
+.tpl-compact__school {
+  margin: 0;
+  font-size: calc(8pt * var(--cp-scale));
+}
+
+/* A REAL space between the facts, widened by a margin rather than replaced by
+   one: a parser reading the exported PDF extracts the characters, and a gap
+   made only of CSS is not one. */
+.tpl-compact__meta-item::before {
+  content: ' ';
+  margin-left: calc(5pt * var(--cp-scale));
+}
+
+.tpl-compact__meta-item:first-child::before {
+  content: none;
+}
+
+.tpl-compact .tpl-bullets {
+  margin: calc(2.5pt * var(--cp-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-compact .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(8pt * var(--cp-scale)) 1fr;
+  margin-top: calc(1pt * var(--cp-scale));
+}
+
+.tpl-compact .tpl-bullet::before {
+  content: '·';
+  color: var(--cp-quiet);
+}
+
+/* ── The rail's notes and chips ─────────────────────────────────────────── */
+
+.tpl-compact__note {
+  margin-top: calc(
+    6pt * var(--cp-scale) * var(--cp-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+.tpl-compact__note:first-of-type {
+  margin-top: calc(3.5pt * var(--cp-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-compact__note-title,
+.tpl-compact__note-detail {
+  margin: 0;
+}
+
+.tpl-compact__note-title {
+  font-weight: 600;
+}
+
+.tpl-compact__note-detail {
+  color: var(--cp-muted);
+}
+
+/* Skills as keywords over a rule — the shape is `kit/keywords.css`; this
+   template states only its colour and its rhythm. */
+.tpl-compact .tpl-keywords {
+  --tpl-keyword-line: var(--cp-line);
+  --tpl-keyword-gap: calc(5pt * var(--cp-scale));
+  --tpl-keyword-lead: calc(1.5pt * var(--cp-scale));
+}
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-compact {
+  --tpl-described-gap: calc(7pt * var(--cp-scale));
+  --tpl-described-lead: calc(1.5pt * var(--cp-scale));
+  --tpl-described-title-ink: var(--cp-ink);
+  --tpl-described-title-weight: 400;
+  --tpl-described-title-size: calc(8.8pt * var(--cp-scale));
+  --tpl-described-body-ink: var(--cp-muted);
+  --tpl-described-mark-ink: var(--cp-accent);
+  --tpl-described-span: calc(14pt * var(--cp-scale));
+  --tpl-language-gap: calc(6pt * var(--cp-scale));
+  --tpl-language-lead: calc(4pt * var(--cp-scale));
+  --tpl-language-step: calc(4pt * var(--cp-scale));
+  --tpl-language-meter-ink: var(--cp-accent);
+}
+
+/* One repeated mark, never one per entry: nothing in the résumé says which
+   glyph an achievement deserves. */
+.tpl-compact .tpl-described--marked {
+  --tpl-described-mark: '\2713';
+  --tpl-described-mark-gap: calc(4pt * var(--cp-scale));
+}

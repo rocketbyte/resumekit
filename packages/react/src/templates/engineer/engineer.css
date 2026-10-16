@@ -1,0 +1,261 @@
+/*
+ * Engineer — Jake's Resume (docs/template-references/engineer.png), measured
+ * off the Letter page: 0.5in side margins, 11pt Latin Modern body with 10pt
+ * ("small") detail lines, small-capital 12pt headings over a 0.4pt rule, and
+ * entries indented 0.15in under them. Vertical distances are baseline to
+ * baseline in the reference, turned into margins against these line boxes.
+ */
+
+.tpl-engineer {
+  --tpl-heading-gap: calc(3pt * var(--eng-scale));
+  --tpl-space-unit: calc(2pt * var(--eng-scale) * var(--eng-density));
+  --tpl-space-margin: var(--eng-margin);
+  --tpl-marker: calc(10pt * var(--eng-scale));
+
+  --eng-scale: 1;
+  --eng-ink: #000000;
+  --eng-font: 'Latin Modern Roman', Tinos, 'Times New Roman', serif;
+  --eng-caps: 'Latin Modern Roman Caps', var(--eng-font);
+  --eng-accent: currentcolor;
+  --eng-density: 1;
+  --eng-margin: 0.5in;
+  /* The 0.15in the reference's lists hang every entry in by. */
+  --eng-indent: calc(10.8pt * var(--eng-scale));
+  --eng-body: calc(11pt * var(--eng-scale));
+  --eng-small: calc(10pt * var(--eng-scale));
+  /* Pitch of an entry's two rows (a tabular line at 11pt). */
+  --eng-row: calc(13.7pt * var(--eng-scale));
+  --eng-line: calc(12pt * var(--eng-scale));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: calc(30pt * var(--eng-scale)) var(--eng-margin) 0.5in;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--eng-ink);
+  font-family: var(--eng-font);
+  font-size: var(--eng-body);
+  line-height: var(--eng-row);
+}
+
+.tpl-engineer *,
+.tpl-engineer *::before,
+.tpl-engineer *::after {
+  box-sizing: inherit;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-engineer__head {
+  text-align: center;
+}
+
+.tpl-engineer__name {
+  margin: 0;
+  font-size: calc(24.88pt * var(--eng-scale));
+  font-weight: 700;
+  line-height: 1;
+}
+
+.tpl-engineer__headline {
+  margin: calc(1pt * var(--eng-scale)) 0 0;
+  font-size: var(--eng-small);
+  font-style: italic;
+  line-height: var(--eng-line);
+}
+
+.tpl-engineer__contact {
+  margin: calc(0.5pt * var(--eng-scale)) 0 0;
+  font-size: var(--eng-small);
+  line-height: var(--eng-line);
+}
+
+/* Drawn, not typed, so a missing detail leaves no stray bar. */
+.tpl-engineer__contact-item + .tpl-engineer__contact-item::before,
+.tpl-engineer__contact-item + .tpl-collection__add-inline::before {
+  content: '|';
+  margin: 0 0.4em;
+  text-decoration: none;
+}
+
+.tpl-engineer__contact .tpl-contact--email .tpl-text,
+.tpl-engineer__contact .tpl-text__link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 0.4pt;
+  text-underline-offset: 2pt;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-engineer__section {
+  margin-top: calc(
+    13.5pt * var(--eng-scale) * var(--eng-density) +
+      var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-engineer__section + .tpl-engineer__section {
+  margin-top: calc(
+    7.5pt * var(--eng-scale) * var(--eng-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+/* Latin Modern Roman Caps' lowercase ARE the small capitals. */
+.tpl-engineer__heading {
+  margin: 0 0 var(--tpl-heading-gap);
+  padding-bottom: calc(0.7pt * var(--eng-scale));
+  border-bottom: 0.4pt solid var(--eng-accent);
+  font-family: var(--eng-caps);
+  font-size: calc(12pt * var(--eng-scale));
+  font-weight: 400;
+  font-variant: normal;
+  line-height: calc(14pt * var(--eng-scale));
+  color: var(--eng-accent);
+}
+
+.tpl-engineer__prose {
+  margin: 0 0 0 var(--eng-indent);
+  font-size: var(--eng-small);
+  line-height: var(--eng-line);
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-engineer__entry {
+  margin-top: calc(
+    4.6pt * var(--eng-scale) * var(--eng-density) + var(--tpl-space-height, 0px)
+  );
+  padding-left: var(--eng-indent);
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse. */
+.tpl-engineer__entry:first-of-type {
+  margin-top: calc(var(--tpl-heading-gap) + var(--tpl-space-height, 0px));
+}
+
+.tpl-engineer__corners {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: calc(12pt * var(--eng-scale));
+  padding-right: calc(5.4pt * var(--eng-scale));
+  break-after: avoid;
+}
+
+.tpl-engineer__title {
+  font-weight: 700;
+}
+
+.tpl-engineer__dates,
+.tpl-engineer__where,
+.tpl-engineer__place {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tpl-engineer__org,
+.tpl-engineer__place {
+  font-size: var(--eng-small);
+  font-style: italic;
+}
+
+.tpl-engineer__project {
+  margin: 0;
+  font-size: var(--eng-small);
+}
+
+.tpl-engineer__stack {
+  font-style: italic;
+}
+
+/* ── Bullets ────────────────────────────────────────────────────────────── */
+
+.tpl-engineer .tpl-bullets {
+  margin: calc(1.4pt * var(--eng-scale)) 0 0;
+  padding: 0 0 0 calc(14pt * var(--eng-scale));
+  list-style: none;
+  font-size: var(--eng-small);
+  line-height: var(--eng-line);
+}
+
+.tpl-engineer__section > .tpl-bullets {
+  margin-left: var(--eng-indent);
+}
+
+/* Hanging: a wrapped line aligns with the text, not with the marker. */
+.tpl-engineer .tpl-bullet {
+  display: grid;
+  grid-template-columns: var(--tpl-marker) 1fr;
+}
+
+.tpl-engineer .tpl-bullet + .tpl-bullet {
+  margin-top: calc(2pt * var(--eng-scale));
+}
+
+.tpl-engineer .tpl-bullet::before {
+  content: '•';
+}
+
+/* ── Skills ─────────────────────────────────────────────────────────────── */
+
+.tpl-engineer .tpl-skill-grid {
+  margin-left: var(--eng-indent);
+  font-size: var(--eng-small);
+  line-height: var(--eng-line);
+}
+
+.tpl-engineer .tpl-skill-grid .tpl-bullet + .tpl-bullet {
+  margin-top: 0;
+}
+
+.tpl-engineer .tpl-skill-grid__label::after {
+  content: ':';
+}
+
+/* ── Languages ──────────────────────────────────────────────────────────── */
+
+.tpl-engineer__languages .tpl-language {
+  grid-template-columns: var(--tpl-skill-grid-label) minmax(0, 1fr);
+  column-gap: var(--tpl-skill-grid-gutter);
+  align-items: baseline;
+  margin-left: var(--eng-indent);
+  font-size: var(--eng-small);
+  line-height: var(--eng-line);
+}
+
+.tpl-engineer__languages .tpl-language__meter {
+  display: none;
+}
+
+/* ── Kit sections ───────────────────────────────────────────────────────── */
+
+.tpl-engineer {
+  --tpl-skill-grid-label: calc(90pt * var(--eng-scale));
+  --tpl-skill-grid-column: calc(96pt * var(--eng-scale));
+  --tpl-skill-grid-gutter: calc(6pt * var(--eng-scale));
+  --tpl-skill-grid-gap: calc(8pt * var(--eng-scale));
+  --tpl-skill-grid-lead: 0px;
+  --tpl-skill-grid-rhythm: 0px;
+  --tpl-skill-grid-label-weight: 700;
+  --tpl-described-gap: calc(4.6pt * var(--eng-scale));
+  --tpl-described-lead: 0px;
+  --tpl-described-body-size: var(--eng-small);
+  --tpl-described-body-leading: var(--eng-line);
+  --tpl-language-name-weight: 700;
+  --tpl-language-level-size: 1em;
+  --tpl-language-lead: 0px;
+}
+
+.tpl-engineer .tpl-described__entry {
+  padding-left: var(--eng-indent);
+}
+
+/* ── Print ──────────────────────────────────────────────────────────────── */
+
+@media print {
+  .tpl-engineer {
+    width: auto;
+    margin: 0;
+  }
+}

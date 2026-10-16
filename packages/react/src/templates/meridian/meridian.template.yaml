@@ -1,0 +1,156 @@
+id: meridian
+component: Meridian
+prefix: tpl-mer
+styleKey: m
+
+layout:
+  - stack:
+      - { monogram: monogram, tag: p, inner: true }
+      - name
+    tag: header
+    class: crown
+    block: true
+  - { contact: [location, phone, email], block: true }
+  - row:
+      - stack:
+          - { section: summary, title: professionalSummary }
+          - { section: achievements, kit: [tpl-described--marked] }
+          - experience
+          - education
+          - { section: certifications, as: bullets, whenEmpty: hide }
+          - courses
+          - languages
+          - { section: passions, kit: [tpl-described--marked] }
+          - stack:
+              - { headline: prose, block: true, prefix: title }
+            tag: section
+            class: section
+            heading: personalInformation
+            when: headline
+          - stack:
+              - stack: [location]
+                tag: p
+                class: prose
+                block: true
+            tag: section
+            class: section
+            heading: locations
+            when: location
+          - custom
+        class: main
+      - stack:
+          - section: skills
+            title: technicalSkills
+            headingClass: heading--marked
+            groups: bullets
+            wrapper: { tag: div, split: true }
+          - stack:
+              - { links: links, split: true }
+            tag: section
+            class: section
+            heading: websites
+            headingClass: heading--marked
+            when: links
+        tag: aside
+        class: aside
+    class: body
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: p
+        class: entry-line
+        children:
+          - tag: strong
+            class: role
+            children:
+              - field: title
+                placeholder: false
+          - tag: span
+            class: dates
+            children:
+              - text: ', '
+              - field: start
+                placeholder: false
+              - text: ' - '
+              - field: end
+                placeholder: false
+      - tag: p
+        class: entry-org
+        children:
+          - field: company
+            placeholder: false
+          - separator: ' - '
+            between:
+              - company
+              - location
+          - field: location
+            optional: true
+      - bullets: bullets
+  education:
+    name: EducationEntry
+    type: Education
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: p
+        class: entry-when
+        children:
+          - field: end
+            placeholder: false
+        when: end
+      - tag: p
+        class: entry-line
+        children:
+          - tag: strong
+            class: role
+            children:
+              - field: degree
+                optional: true
+                placeholder: degree
+          - fragment:
+              - text: ', '
+              - field: field
+                placeholder: false
+            when: field
+      - tag: p
+        class: entry-org
+        children:
+          - field: school
+            placeholder: false
+          - separator: ' - '
+            between:
+              - school
+              - location
+          - field: location
+            optional: true
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: p
+        class: entry-line
+        children:
+          - tag: strong
+            class: role
+            children:
+              - field: title
+                placeholder: heading
+          - tag: span
+            class: dates
+            children:
+              - field: detail
+                optional: true
+      - bullets: bullets

@@ -1,0 +1,337 @@
+/*
+ * Split, after Deedy Resume (docs/template-references/split.png, Letter at
+ * 200 dpi; lengths below are the source PDF's, in points).
+ *
+ * Lato for the name, the headings and the text; Raleway Medium for the contact
+ * lines, the roles (true small capitals) and the dates, whose old-style figures
+ * are Raleway's default.
+ */
+
+.tpl-split {
+  --sp-pt: calc(1pt * var(--sp-scale));
+  --sp-rhythm: calc(var(--sp-pt) * var(--sp-density));
+
+  --tpl-heading-gap: calc(3 * var(--sp-pt));
+  --tpl-space-unit: calc(2pt * var(--sp-scale) * var(--sp-density));
+  --tpl-space-margin: var(--sp-margin);
+  --tpl-marker: calc(25 * var(--sp-pt));
+
+  --sp-scale: 1;
+  --sp-ink: #2b2b2b;
+  --sp-font: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  --sp-accent: #666666;
+  --sp-density: 1;
+  --sp-margin: 35.4pt;
+  --sp-strong: #333333;
+  --sp-label-font: 'Raleway', var(--sp-font);
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: calc(11 * var(--sp-pt)) var(--sp-margin) 0.5in;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--sp-ink);
+  font-family: var(--sp-font);
+  font-size: calc(10 * var(--sp-pt));
+  font-weight: 300;
+  line-height: calc(12 * var(--sp-pt));
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+/*
+ * The hairline runs the full width of the paper, past both margins, as the
+ * reference draws it.
+ */
+.tpl-split__head {
+  margin: 0 calc(-1 * var(--sp-margin));
+  padding: 0 var(--sp-margin) calc(9 * var(--sp-pt));
+  border-bottom: 0.4pt solid var(--sp-accent);
+  text-align: center;
+}
+
+.tpl-split__name {
+  margin: 0;
+  font-size: calc(40 * var(--sp-pt));
+  font-weight: 100;
+  line-height: calc(44 * var(--sp-pt));
+  color: #000000;
+}
+
+.tpl-split__name-last {
+  font-weight: 300;
+}
+
+.tpl-split__headline {
+  margin: calc(1 * var(--sp-pt)) 0 0;
+  font-family: var(--sp-label-font);
+  font-size: calc(11 * var(--sp-pt));
+  font-weight: 500;
+  font-variant: small-caps;
+  line-height: calc(12 * var(--sp-pt));
+  color: var(--sp-strong);
+}
+
+.tpl-split__contact {
+  margin: 0;
+  font-family: var(--sp-label-font);
+  font-size: calc(11 * var(--sp-pt));
+  font-weight: 500;
+  line-height: calc(12 * var(--sp-pt));
+  color: var(--sp-accent);
+}
+
+.tpl-split__headline + .tpl-split__contact,
+.tpl-split__name + .tpl-split__contact {
+  margin-top: calc(1 * var(--sp-pt));
+}
+
+/*
+ * The pipe between two details is a drawn stroke rather than a character:
+ * the gap either side is wide enough to keep the details apart in extracted
+ * text, and nothing is added to it.
+ */
+.tpl-split__contact-item + .tpl-split__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: 0.5pt;
+  height: 0.85em;
+  margin: 0 0.3em;
+  vertical-align: -0.1em;
+  background: currentcolor;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-split__contact .tpl-text__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+.tpl-split__body {
+  display: grid;
+  grid-template-columns: 33% minmax(0, 1fr);
+  column-gap: calc(3.5 * var(--sp-pt));
+}
+
+.tpl-split__main,
+.tpl-split__aside {
+  min-width: 0;
+}
+
+/* Against the page's right edge, so its rails stand in the right margin. */
+.tpl-split__main {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-split__section {
+  margin-top: calc(10 * var(--sp-rhythm) + var(--tpl-space-height, 0px));
+}
+
+.tpl-split__section + .tpl-split__section {
+  margin-top: calc(14 * var(--sp-rhythm) + var(--tpl-space-height, 0px));
+}
+
+.tpl-split__heading {
+  margin: 0 0 var(--tpl-heading-gap);
+  font-family: var(--sp-font);
+  font-size: calc(16 * var(--sp-pt));
+  font-weight: 300;
+  line-height: calc(18 * var(--sp-pt));
+  text-transform: uppercase;
+  color: var(--sp-accent);
+}
+
+.tpl-split__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-split__entry {
+  margin-top: calc(8 * var(--sp-rhythm) + var(--tpl-space-height, 0px));
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse. */
+.tpl-split__entry:first-of-type {
+  margin-top: calc(var(--tpl-heading-gap) + var(--tpl-space-height, 0px));
+}
+
+.tpl-split__lead,
+.tpl-split__org,
+.tpl-split__role,
+.tpl-split__meta {
+  margin: 0;
+}
+
+.tpl-split__lead {
+  font-family: var(--sp-label-font);
+  font-size: calc(11 * var(--sp-pt));
+  font-weight: 500;
+  line-height: calc(13 * var(--sp-pt));
+  color: var(--sp-strong);
+}
+
+.tpl-split__org {
+  font-family: var(--sp-font);
+  font-size: calc(12 * var(--sp-pt));
+  font-weight: 700;
+  line-height: calc(13 * var(--sp-pt));
+  text-transform: uppercase;
+  color: var(--sp-strong);
+}
+
+.tpl-split__lead .tpl-split__org {
+  margin-right: calc(4 * var(--sp-pt));
+}
+
+.tpl-split__role {
+  font-family: var(--sp-label-font);
+  font-size: calc(11 * var(--sp-pt));
+  font-weight: 500;
+  font-variant: small-caps;
+  line-height: calc(13 * var(--sp-pt));
+  color: var(--sp-strong);
+}
+
+.tpl-split__meta {
+  font-family: var(--sp-label-font);
+  font-size: calc(10 * var(--sp-pt));
+  font-weight: 500;
+  line-height: calc(12.5 * var(--sp-pt));
+  color: var(--sp-accent);
+}
+
+.tpl-split .tpl-bullets {
+  margin: calc(0.5 * var(--sp-pt)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The marker column the shared grip centres on is `--tpl-marker`. */
+.tpl-split .tpl-bullet {
+  display: grid;
+  grid-template-columns: var(--tpl-marker) 1fr;
+  margin-top: calc(1 * var(--sp-pt));
+}
+
+.tpl-split .tpl-bullet::before {
+  content: '•';
+  padding-left: calc(14 * var(--sp-pt));
+}
+
+/* ── Links ──────────────────────────────────────────────────────────────── */
+
+.tpl-split__links {
+  margin: var(--tpl-heading-gap) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-split__link .tpl-text__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Kit sections ───────────────────────────────────────────────────────── */
+
+/*
+ * Achievements, courses and passions: a title in the entries' bold capitals
+ * over a light paragraph, as Deedy sets a sub-section.
+ */
+.tpl-split {
+  --tpl-described-gap: calc(7 * var(--sp-rhythm));
+  --tpl-described-lead: 0px;
+  --tpl-described-title-size: calc(12 * var(--sp-pt));
+  --tpl-described-title-leading: calc(13 * var(--sp-pt));
+  --tpl-described-title-ink: var(--sp-strong);
+
+  --tpl-language-name: 8em;
+  --tpl-language-gap: calc(6 * var(--sp-pt));
+  --tpl-language-lead: calc(1 * var(--sp-pt));
+  --tpl-language-name-weight: 300;
+  --tpl-language-level-size: 1em;
+  --tpl-language-level-ink: var(--sp-accent);
+}
+
+.tpl-split .tpl-described__title {
+  text-transform: uppercase;
+}
+
+/* Courses as Deedy's coursework: a light line each, a note in small italics. */
+.tpl-split__courses {
+  --tpl-described-gap: calc(2 * var(--sp-rhythm));
+  --tpl-described-title-size: 1em;
+  --tpl-described-title-leading: calc(12 * var(--sp-pt));
+  --tpl-described-title-weight: 300;
+  --tpl-described-title-ink: var(--sp-ink);
+  --tpl-described-body-size: calc(9 * var(--sp-pt));
+  --tpl-described-body-leading: calc(11 * var(--sp-pt));
+}
+
+.tpl-split__courses .tpl-described__title {
+  text-transform: none;
+}
+
+.tpl-split__courses .tpl-described__body {
+  font-style: italic;
+}
+
+.tpl-split .tpl-language__level {
+  font-family: var(--sp-label-font);
+  font-weight: 500;
+}
+
+/* Deedy draws no meter; the level word carries it. */
+.tpl-split .tpl-language__meter {
+  display: none;
+}
+
+/*
+ * Skills: each group's category in the entries' bold capitals over its
+ * skills, one to a line, as Deedy sets the coursework beside them. Its
+ * "Java • Shell • Python" runs would wrap in this column with a dot leading
+ * the next line; one skill a line extracts each as a unit of its own.
+ */
+.tpl-split {
+  --tpl-skill-tags-label-ink: var(--sp-strong);
+  --tpl-skill-tags-label-size: calc(12 * var(--sp-pt));
+  --tpl-skill-tags-label-weight: 700;
+  --tpl-skill-tags-label-gap: calc(1 * var(--sp-pt));
+  --tpl-skill-tags-rhythm: calc(7 * var(--sp-rhythm));
+
+  --tpl-keyword-gap: 0px;
+  --tpl-keyword-span: 0px;
+  --tpl-keyword-pad: 0px;
+  --tpl-keyword-lead: 0px;
+  --tpl-keyword-rule: 0px;
+  --tpl-keyword-weight: 300;
+  --tpl-keyword-ink: var(--sp-ink);
+  --tpl-keyword-leading: calc(12 * var(--sp-pt));
+}
+
+.tpl-split .tpl-skill-tags {
+  margin-top: var(--tpl-heading-gap);
+}
+
+.tpl-split .tpl-skill-tags__label {
+  font-family: var(--sp-font);
+  line-height: calc(13 * var(--sp-pt));
+  text-transform: uppercase;
+}
+
+.tpl-split .tpl-keywords--tags {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.tpl-split .tpl-keywords--tags .tpl-bullets .tpl-bullet {
+  margin: 0;
+  white-space: normal;
+}

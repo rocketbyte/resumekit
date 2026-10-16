@@ -1,0 +1,127 @@
+/*
+ * Skills as KEYWORDS OVER A RULE — one to a line, which is how every
+ * reference in this catalog sets them.
+ *
+ * They were boxes, and boxes were wrong twice: the references draw a rule
+ * under a keyword rather than a border around it, and a row of boxes invites a
+ * reader to skim them as tags, which is the opposite of what a résumé's skills
+ * section is for.
+ *
+ * The structure is still a LIST — each keyword is an `li` — so a parser reads
+ * one skill per line rather than a run of joined words, which is the property
+ * that makes a keyword rail safe to print at all. The rule is a border on that
+ * item, so it is foreground ink and survives a page that prints no
+ * backgrounds.
+ *
+ * A template sets the two variables and nothing else: this file decides the
+ * shape, the template decides its colour and its rhythm.
+ */
+.tpl-keywords .tpl-bullets {
+  display: grid;
+  gap: var(--tpl-keyword-gap, 5pt);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-keywords .tpl-bullets .tpl-bullet {
+  display: block;
+  margin: 0;
+  padding-bottom: var(--tpl-keyword-lead, 2pt);
+  border-bottom: 0.75pt solid var(--tpl-keyword-line, currentcolor);
+  font-weight: 600;
+}
+
+/*
+ * The marker belongs to a bullet list, not to a keyword.
+ *
+ * Named one level deeper than a template's own `.tpl-x .tpl-bullet::before`,
+ * which carries the same specificity and is imported after this file — so
+ * without the extra step the dot would win and every keyword would wear one.
+ */
+.tpl-keywords .tpl-bullets .tpl-bullet::before {
+  content: none;
+}
+
+/*
+ * The same keywords on ONE line, for a template whose skills run across the
+ * page rather than down a rail. Each still carries its own rule, so the run
+ * reads as separate words rather than as a sentence.
+ */
+.tpl-keywords--inline .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tpl-keyword-gap, 5pt) var(--tpl-keyword-span, 14pt);
+}
+
+/*
+ * The same keywords in BOXES, for the templates whose references draw one
+ * around each rather than a rule under it.
+ *
+ * Still list items, and the box is still a border — foreground ink, so a page
+ * that prints no backgrounds loses nothing but the outline's colour.
+ */
+.tpl-keywords--boxed .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tpl-keyword-gap, 4pt);
+}
+
+.tpl-keywords--boxed .tpl-bullets .tpl-bullet {
+  padding: var(--tpl-keyword-lead, 2pt) calc(var(--tpl-keyword-lead, 2pt) * 2.5);
+  border: 0.75pt solid var(--tpl-keyword-line, currentcolor);
+  border-radius: 2pt;
+  font-weight: 400;
+
+  /*
+   * One keyword, one box. A box that wrapped would split a skill down the
+   * middle — "Sentr" over "y" — which reads as two skills and extracts as
+   * neither. A keyword too long for the column overhangs it instead, which is
+   * visible and fixable by the candidate; a broken word is neither.
+   */
+  white-space: nowrap;
+}
+
+/*
+ * The same keywords as UNDERLINED TAGS: each skill a word with room either
+ * side, standing on a rule exactly as wide as itself, several to a row. Every
+ * group's skills join one run — the list is `display: contents` — because the
+ * references draw one run however the candidate grouped them.
+ *
+ * What keeps the run safe for a parser is the distance between two skills'
+ * glyphs: both paddings plus the gap, about two ems. Printed by Chromium,
+ * `pdftotext` reads that as a boundary, so each skill extracts as a unit of
+ * its own rather than as "Python SQL Tableau".
+ *
+ * Measured on the Enhancv references at 200 dpi: a 0.75pt rule of `#aaa`,
+ * about 0.6em of padding and 0.75em between tags, and room above the word
+ * that sets the first row lower under its heading than other sections' first
+ * lines (`--tpl-keyword-top`). A template sets the variables; the size is the
+ * template's, so every length here is in ems of it.
+ */
+.tpl-keywords--tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tpl-keyword-gap, 0.9em) var(--tpl-keyword-span, 0.75em);
+  font-size: var(--tpl-keyword-size, inherit);
+
+  /* No marker column: a tag's drag handle sits on its left edge. */
+  --tpl-marker: 0px;
+}
+
+.tpl-keywords--tags .tpl-bullets {
+  display: contents;
+}
+
+.tpl-keywords--tags .tpl-bullets .tpl-bullet {
+  padding: var(--tpl-keyword-top, 0) var(--tpl-keyword-pad, 0.6em)
+    var(--tpl-keyword-lead, 0.3em);
+  border-bottom: var(--tpl-keyword-rule, 0.75pt) solid
+    var(--tpl-keyword-line, #aaaaaa);
+  line-height: var(--tpl-keyword-leading, 1.2);
+  font-weight: var(--tpl-keyword-weight, 700);
+  color: var(--tpl-keyword-ink, inherit);
+
+  /* One skill, one rule: a tag that wrapped would read as two skills. */
+  white-space: nowrap;
+}

@@ -1,0 +1,413 @@
+/*
+ * Alta, after AltaCV (docs/template-references/alta.png, A4 at 200 dpi).
+ *
+ * Measured as proportions of the A4 width and set on Letter, so every length
+ * is the reference's ×1.0286: 1.25cm side margins, a 60/40 split with a
+ * 1.2cm gutter, 10pt Lato body, a \Huge Roboto Slab name and \LARGE headings
+ * over a 2pt gold rule. Colours are AltaCV's own palette.
+ */
+
+.tpl-alta {
+  --tpl-heading-gap: calc(7.8pt * var(--al-scale));
+  --tpl-space-unit: calc(2pt * var(--al-scale) * var(--al-density));
+  --tpl-space-margin: var(--al-margin);
+  --tpl-marker: calc(10.5pt * var(--al-scale));
+
+  --al-scale: 1;
+  --al-ink: #2e2e2e;
+  --al-font: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  --al-display: 'Roboto Slab', 'Bitter', Georgia, serif;
+  --al-accent: #8f0d0d;
+  --al-density: 1;
+  --al-margin: calc(36.3pt * var(--al-scale));
+  --al-heading-ink: #450808;
+  --al-rule: #e7d192;
+  --al-muted: #666666;
+  --al-line: #d1d1d1;
+  --al-disc: #e7e4d0;
+
+  /* The dashed divider AltaCV draws between entries: 2.5pt on, 2.5pt off. */
+  --al-dash: repeating-linear-gradient(
+    to right,
+    var(--al-line) 0 calc(2.5pt * var(--al-scale)),
+    transparent 0 calc(5pt * var(--al-scale))
+  );
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: calc(41pt * var(--al-scale)) var(--al-margin) 0.6in;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--al-muted);
+  font-family: var(--al-font);
+  font-size: calc(10.3pt * var(--al-scale));
+  line-height: 1.2;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-alta__head {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(14pt * var(--al-scale));
+}
+
+.tpl-alta__ident {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tpl-alta__name {
+  margin: 0;
+  font-family: var(--al-display);
+  font-size: calc(25.6pt * var(--al-scale));
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #000000;
+}
+
+.tpl-alta__headline {
+  margin: calc(5.6pt * var(--al-scale)) 0 0;
+  font-size: calc(12.3pt * var(--al-scale));
+  font-weight: 700;
+  color: var(--al-accent);
+}
+
+.tpl-alta__contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 calc(21pt * var(--al-scale));
+  margin: calc(7.2pt * var(--al-scale)) 0 0;
+  font-size: calc(8.2pt * var(--al-scale));
+  line-height: 1.19;
+
+  --tpl-contact-icon-ink: var(--al-accent);
+  --tpl-contact-icon-size: 1em;
+  --tpl-contact-icon-gap: 0.3em;
+  --tpl-contact-icon-shift: -0.15em;
+  --tpl-contact-icon-email: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10h5v-2h-5c-4.34 0-8-3.66-8-8s3.66-8 8-8 8 3.66 8 8v1.43c0 .79-.71 1.57-1.5 1.57s-1.5-.78-1.5-1.57V12c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5c1.38 0 2.64-.56 3.54-1.47.65.89 1.77 1.47 2.96 1.47 1.97 0 3.5-1.6 3.5-3.57V12c0-5.52-4.48-10-10-10zm0 13c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z'/%3E%3C/svg%3E");
+  --tpl-contact-icon-phone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 15.5c-1.25 0-2.45-.2-3.57-.57a1 1 0 0 0-1.02.24l-2.2 2.2a15.07 15.07 0 0 1-6.59-6.59l2.2-2.21a.96.96 0 0 0 .25-1A11.36 11.36 0 0 1 8.5 4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1 17 17 0 0 0 17 17 1 1 0 0 0 1-1v-3.5a1 1 0 0 0-1-1z'/%3E%3C/svg%3E");
+  --tpl-contact-icon-location: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z'/%3E%3C/svg%3E");
+  --tpl-contact-icon-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='M2.5 12h19M12 2.5c-5 5.5-5 13.5 0 19M12 2.5c5 5.5 5 13.5 0 19'/%3E%3C/svg%3E");
+}
+
+.tpl-alta__contact .tpl-text__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.tpl-alta__avatar {
+  --tpl-avatar-size: calc(81.5pt * var(--al-scale));
+  --tpl-avatar-text: calc(26pt * var(--al-scale));
+
+  flex: none;
+  margin-top: calc(2.7pt * var(--al-scale));
+  border-color: var(--al-disc);
+  background: var(--al-disc);
+  color: var(--al-heading-ink);
+  font-family: var(--al-display);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+.tpl-alta__body {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  column-gap: calc(35.2pt * var(--al-scale));
+  margin-top: calc(4.2pt * var(--al-scale));
+}
+
+.tpl-alta__main,
+.tpl-alta__aside {
+  min-width: 0;
+}
+
+/* Against the page's right edge, so its rails stand in the right margin. */
+.tpl-alta__aside {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-alta__section {
+  margin-top: calc(
+    10.7pt * var(--al-scale) * var(--al-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-alta__section + .tpl-alta__section {
+  margin-top: calc(
+    10.7pt * var(--al-scale) * var(--al-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-alta__heading {
+  margin: 0 0 var(--tpl-heading-gap);
+  padding-bottom: calc(3.6pt * var(--al-scale));
+  border-bottom: calc(2pt * var(--al-scale)) solid var(--al-rule);
+  font-family: var(--al-display);
+  font-size: calc(17.8pt * var(--al-scale));
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--al-heading-ink);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-alta__prose {
+  margin: 0;
+}
+
+/* The life philosophy: AltaCV's quote, large italic in the accent. */
+.tpl-alta__section--quote .tpl-alta__prose {
+  font-size: calc(12.3pt * var(--al-scale));
+  font-style: italic;
+  line-height: 1.16;
+  color: var(--al-accent);
+}
+
+/* ── Divider ────────────────────────────────────────────────────────────── */
+
+.tpl-alta__entry + .tpl-alta__entry::before,
+.tpl-alta__described + .tpl-alta__described::before,
+.tpl-alta .tpl-language + .tpl-language::before,
+.tpl-alta .tpl-skill-tags__group + .tpl-skill-tags__group::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: calc(4pt * var(--al-scale));
+  height: calc(0.75pt * var(--al-scale));
+  background-image: var(--al-dash);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-alta__entry {
+  position: relative;
+  margin-top: calc(var(--tpl-heading-gap) + var(--tpl-space-height, 0px));
+}
+
+.tpl-alta__entry + .tpl-alta__entry {
+  margin-top: calc(
+    12.1pt * var(--al-scale) * var(--al-density) + var(--tpl-space-height, 0px)
+  );
+  padding-top: calc(10.2pt * var(--al-scale) * var(--al-density));
+}
+
+.tpl-alta__title,
+.tpl-alta__org,
+.tpl-alta__meta {
+  margin: 0;
+}
+
+.tpl-alta__title {
+  font-size: calc(12.3pt * var(--al-scale));
+  color: var(--al-ink);
+}
+
+.tpl-alta__org {
+  margin-top: calc(3.4pt * var(--al-scale));
+  font-weight: 700;
+  color: var(--al-accent);
+}
+
+.tpl-alta__meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: calc(8pt * var(--al-scale));
+  margin-top: calc(5.1pt * var(--al-scale));
+  font-size: calc(9.26pt * var(--al-scale));
+}
+
+.tpl-alta__when,
+.tpl-alta__where {
+  grid-row: 1;
+}
+
+.tpl-alta__when {
+  grid-column: 1;
+
+  --al-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z'/%3E%3C/svg%3E");
+}
+
+.tpl-alta__where {
+  grid-column: 2;
+
+  --al-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z'/%3E%3C/svg%3E");
+}
+
+.tpl-alta__when::before,
+.tpl-alta__where::before {
+  content: '';
+  display: inline-block;
+  width: calc(8pt * var(--al-scale));
+  height: calc(8pt * var(--al-scale));
+  margin: 0 calc(3.6pt * var(--al-scale)) 0 calc(2.9pt * var(--al-scale));
+  vertical-align: -0.05em;
+  background-color: var(--al-muted);
+  mask: var(--al-glyph) center / contain no-repeat;
+  -webkit-mask: var(--al-glyph) center / contain no-repeat;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* No place, no pin; no dates, no calendar. */
+.tpl-alta__where:has(> [data-empty])::before,
+.tpl-alta__when:not(:has(> .tpl-text:not([data-empty])))::before {
+  display: none;
+}
+
+.tpl-alta .tpl-bullets {
+  margin: calc(6.4pt * var(--al-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The marker column the shared grip centres on is `--tpl-marker`. */
+.tpl-alta .tpl-bullet {
+  display: grid;
+  grid-template-columns: var(--tpl-marker) 1fr;
+}
+
+.tpl-alta .tpl-bullet + .tpl-bullet {
+  margin-top: calc(3pt * var(--al-scale) * var(--al-density));
+}
+
+.tpl-alta .tpl-bullet::before {
+  content: '•';
+}
+
+/* ── Highlights: Most proud of, Courses, Passions ───────────────────────── */
+
+.tpl-alta {
+  --tpl-described-lead: 0;
+  --tpl-described-gap: calc(5.5pt * var(--al-scale) * var(--al-density));
+  --tpl-described-title-ink: var(--al-ink);
+  --tpl-described-title-leading: 1.17;
+  --tpl-described-body-leading: 1.17;
+}
+
+.tpl-alta__described {
+  position: relative;
+  padding-left: calc(25.7pt * var(--al-scale));
+}
+
+.tpl-alta__described + .tpl-alta__described {
+  padding-top: calc(6.5pt * var(--al-scale) * var(--al-density));
+}
+
+/* One mark per section, never one per entry. */
+.tpl-alta__described::after {
+  content: '';
+  position: absolute;
+  left: calc(2.7pt * var(--al-scale));
+  width: calc(14.8pt * var(--al-scale));
+  height: calc(14.8pt * var(--al-scale));
+  background-color: var(--al-accent);
+  mask: var(--al-mark) center / contain no-repeat;
+  -webkit-mask: var(--al-mark) center / contain no-repeat;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-alta__described:first-of-type::after {
+  top: calc(1pt * var(--al-scale));
+}
+
+.tpl-alta__described + .tpl-alta__described::after {
+  top: calc(7.5pt * var(--al-scale) * var(--al-density));
+}
+
+.tpl-alta__section--proud {
+  --al-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-2V2H7v1H5C3.9 3 3 3.9 3 5v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V18H7v3h10v-3h-4v-4.1a5.01 5.01 0 0 0 3.61-2.96C19.08 10.63 21 8.55 21 6V5c0-1.1-.9-2-2-2zM5 6V5h2v3.82C5.84 8.4 5 7.3 5 6zm14 0c0 1.3-.84 2.4-2 2.82V5h2v1z'/%3E%3C/svg%3E");
+}
+
+.tpl-alta__section--passions {
+  --al-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cmask id='m'%3E%3Crect width='24' height='24' fill='white'/%3E%3Cpath d='M3 12h5l2-3.5 3 6.5 2-3h6' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'/%3E%3C/mask%3E%3Cpath mask='url(%23m)' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
+}
+
+.tpl-alta__section--courses {
+  --al-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z'/%3E%3C/svg%3E");
+}
+
+/* ── Strengths: AltaCV's outlined tags ──────────────────────────────────── */
+
+.tpl-alta {
+  --tpl-skill-tags-label-ink: var(--al-ink);
+  --tpl-skill-tags-label-weight: 700;
+  --tpl-skill-tags-label-gap: calc(5pt * var(--al-scale));
+  --tpl-skill-tags-rhythm: calc(9.1pt * var(--al-scale) * var(--al-density));
+  --tpl-keyword-gap: calc(5.8pt * var(--al-scale));
+  --tpl-keyword-span: calc(5.3pt * var(--al-scale));
+}
+
+.tpl-alta .tpl-skill-tags__group {
+  position: relative;
+}
+
+.tpl-alta .tpl-skill-tags__group + .tpl-skill-tags__group {
+  padding-top: calc(12.1pt * var(--al-scale) * var(--al-density));
+}
+
+.tpl-alta .tpl-skill-tags {
+  margin-top: calc(0.8pt * var(--al-scale));
+}
+
+/* A box, not the kit's underline: AltaCV's `\cvtag` draws a rounded frame. */
+.tpl-alta .tpl-keywords--tags .tpl-bullets .tpl-bullet {
+  display: block;
+  margin: 0;
+  padding: calc(0.7pt * var(--al-scale)) calc(5.2pt * var(--al-scale)) 0;
+  border: calc(0.5pt * var(--al-scale)) solid var(--al-line);
+  border-radius: calc(3pt * var(--al-scale));
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--al-muted);
+}
+
+/* ── Languages ──────────────────────────────────────────────────────────── */
+
+.tpl-alta {
+  --tpl-language-name: 5.2em;
+  --tpl-language-name-weight: 700;
+  --tpl-language-gap: calc(6pt * var(--al-scale));
+  --tpl-language-lead: calc(9pt * var(--al-scale) * var(--al-density));
+  --tpl-language-step: calc(10.3pt * var(--al-scale));
+  --tpl-language-step-gap: calc(4.8pt * var(--al-scale));
+  --tpl-language-meter-ink: var(--al-accent);
+  --tpl-language-level-ink: var(--al-muted);
+}
+
+.tpl-alta .tpl-language {
+  position: relative;
+  padding-right: calc(2.5pt * var(--al-scale));
+}
+
+.tpl-alta .tpl-language + .tpl-language {
+  padding-top: calc(9.5pt * var(--al-scale) * var(--al-density));
+}
+
+.tpl-alta .tpl-language__name {
+  color: var(--al-ink);
+}
+
+/* An empty step is a grey dot, as AltaCV draws it, rather than a ring. */
+.tpl-alta .tpl-language__step {
+  border-color: var(--al-line);
+  background-color: var(--al-line);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-alta .tpl-language__step--on {
+  border-color: var(--al-accent);
+  background-color: var(--al-accent);
+}

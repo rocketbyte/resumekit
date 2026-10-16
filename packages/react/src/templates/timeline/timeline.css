@@ -1,0 +1,295 @@
+/*
+ * The Timeline template: one column, with every entry hung off a dated spine.
+ *
+ * The spine is a BORDER on the entry's own middle column with a dot drawn on
+ * it, so the line exists exactly where an entry does. A rule positioned
+ * against the section's height would drift the first time a page broke.
+ */
+
+.tpl-timeline {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(5pt * var(--tl-scale));
+  --tpl-space-unit: calc(2.4pt * var(--tl-scale) * var(--tl-density));
+  --tpl-space-margin: var(--tl-margin);
+  --tpl-marker: calc(9pt * var(--tl-scale));
+
+  --tl-scale: 1;
+  --tl-ink: #22303f;
+  --tl-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --tl-accent: #d99328;
+  --tl-density: 1;
+  --tl-margin: 0.55in;
+  --tl-muted: #55606c;
+  --tl-quiet: #7c8794;
+  --tl-line: #c9d0d8;
+  /* The dated column, named once: the entry's grid and the spine's dot both
+     measure from it, and two literals would disagree the first time it moved. */
+  --tl-when: calc(96pt * var(--tl-scale));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.5in var(--tl-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--tl-ink);
+  font-family: var(--tl-font);
+  font-size: calc(8.2pt * var(--tl-scale));
+  line-height: 1.38;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-timeline__name {
+  margin: 0;
+  font-size: calc(24pt * var(--tl-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.tpl-timeline__headline {
+  margin: calc(2pt * var(--tl-scale)) 0 0;
+  font-size: calc(11pt * var(--tl-scale));
+  font-weight: 700;
+  color: var(--tl-accent);
+}
+
+.tpl-timeline__contact {
+  --tpl-contact-icon-ink: var(--tl-accent);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: calc(12pt * var(--tl-scale));
+  margin: calc(4pt * var(--tl-scale)) 0 0;
+  font-size: calc(7.6pt * var(--tl-scale));
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-timeline__section {
+  margin-top: calc(
+    21pt * var(--tl-scale) * var(--tl-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-timeline__heading {
+  margin: 0 0 calc(5pt * var(--tl-scale));
+  font-size: calc(14pt * var(--tl-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.tpl-timeline__prose,
+.tpl-timeline__keywords {
+  margin: 0;
+  color: var(--tl-muted);
+}
+
+/* ── Entries: dates, spine, work ────────────────────────────────────────── */
+
+.tpl-timeline__entry {
+  display: grid;
+  grid-template-columns: var(--tl-when) calc(10pt * var(--tl-scale)) 1fr;
+  margin-top: calc(
+    11pt * var(--tl-scale) * var(--tl-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-timeline__entry:first-of-type {
+  margin-top: calc(5pt * var(--tl-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-timeline__when {
+  padding-right: calc(6pt * var(--tl-scale));
+}
+
+.tpl-timeline__dates,
+.tpl-timeline__place {
+  margin: 0;
+  font-size: calc(8.4pt * var(--tl-scale));
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-timeline__dates {
+  font-weight: 700;
+}
+
+.tpl-timeline__place {
+  margin-top: calc(3pt * var(--tl-scale));
+  font-size: calc(7.6pt * var(--tl-scale));
+  color: var(--tl-muted);
+}
+
+/*
+ * The spine, and the dot that marks this entry on it. Both are foreground ink
+ * — a border and a filled dot — so the page prints complete with the browser's
+ * background graphics switched off.
+ */
+.tpl-timeline__spine {
+  position: relative;
+  border-left: 1pt solid var(--tl-line);
+}
+
+/*
+ * The line runs most of the way through the gap to the next entry, stopping
+ * just short of its dot, as the reference draws it. The last entry stops at
+ * its own foot, because there is nothing below it to reach.
+ */
+.tpl-timeline__entry:not(:last-of-type) .tpl-timeline__spine {
+  margin-bottom: calc(
+    -11pt * var(--tl-scale) * var(--tl-density) + 3pt * var(--tl-scale)
+  );
+}
+
+.tpl-timeline__spine::before {
+  content: '';
+  position: absolute;
+  top: calc(1.5pt * var(--tl-scale));
+  left: calc(-2.75pt * var(--tl-scale));
+  width: calc(4.5pt * var(--tl-scale));
+  height: calc(4.5pt * var(--tl-scale));
+  background: var(--tl-ink);
+  border-radius: 50%;
+}
+
+.tpl-timeline__what {
+  padding-left: calc(10pt * var(--tl-scale));
+}
+
+.tpl-timeline__role {
+  margin: 0;
+  font-size: calc(12.5pt * var(--tl-scale));
+  line-height: 1.15;
+}
+
+.tpl-timeline__org {
+  margin: 0;
+  font-weight: 700;
+  color: var(--tl-accent);
+}
+
+.tpl-timeline .tpl-bullets {
+  margin: calc(2.5pt * var(--tl-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-timeline .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(9pt * var(--tl-scale)) 1fr;
+  margin-top: calc(1pt * var(--tl-scale));
+  color: var(--tl-muted);
+}
+
+.tpl-timeline .tpl-bullet::before {
+  content: '·';
+  color: var(--tl-quiet);
+}
+
+/* ── The candidate's own sections: two notes to a row ───────────────────── */
+
+/* A GRID rather than CSS columns: a note is an editable container, and a
+   container that spans a column break is fragmented. */
+.tpl-timeline__section:has(> .tpl-timeline__note) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: calc(22pt * var(--tl-scale));
+}
+
+.tpl-timeline__section:has(> .tpl-timeline__note) > .tpl-timeline__heading {
+  grid-column: 1 / -1;
+}
+
+.tpl-timeline__note {
+  margin-top: calc(
+    6pt * var(--tl-scale) * var(--tl-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The right-hand note stands against the page's right edge, so its rail
+   belongs in the right margin. */
+.tpl-timeline__note:nth-of-type(even) {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+.tpl-timeline__note-title,
+.tpl-timeline__note-detail {
+  margin: 0;
+}
+
+.tpl-timeline__note-title {
+  font-weight: 700;
+}
+
+.tpl-timeline__note-detail {
+  color: var(--tl-muted);
+}
+
+/* Skills as underlined tags — the shape is `kit/keywords.css`; this template
+   states the measures of its reference. */
+.tpl-timeline .tpl-keywords {
+  --tpl-keyword-size: 1.12em;
+  --tpl-keyword-ink: var(--tl-ink);
+  --tpl-keyword-pad: 0.55em;
+  --tpl-keyword-span: 0.68em;
+  --tpl-keyword-gap: 0.53em;
+  --tpl-keyword-top: 0.63em;
+  --tpl-keyword-lead: 0.22em;
+}
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-timeline {
+  --tpl-described-gap: calc(7pt * var(--tl-scale));
+  --tpl-described-lead: calc(1.5pt * var(--tl-scale));
+  --tpl-described-title-ink: var(--tl-ink);
+  --tpl-described-body-ink: var(--tl-muted);
+  --tpl-described-span: calc(14pt * var(--tl-scale));
+  --tpl-language-gap: calc(6pt * var(--tl-scale));
+  --tpl-language-lead: calc(4pt * var(--tl-scale));
+  --tpl-language-step: calc(4pt * var(--tl-scale));
+  --tpl-language-meter-ink: var(--tl-accent);
+}
+
+/* One repeated mark, never one per entry: nothing in the resume says which
+   glyph an achievement deserves. It hangs in the accent to the left of the
+   title, and the paragraph keeps the title's indent. */
+.tpl-timeline .tpl-described--marked {
+  --tpl-described-mark: '\2691';
+  --tpl-described-mark-ink: var(--tl-accent);
+}
+
+.tpl-timeline .tpl-described--marked .tpl-described__entry {
+  position: relative;
+  padding-left: calc(24pt * var(--tl-scale));
+}
+
+.tpl-timeline .tpl-described--marked .tpl-described__title::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  font-size: calc(14pt * var(--tl-scale));
+  line-height: 1;
+}
+
+/* The reference sets these 2 to a row. */
+.tpl-timeline .tpl-described--grid {
+  --tpl-described-columns: 2;
+}

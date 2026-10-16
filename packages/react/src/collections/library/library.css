@@ -1,0 +1,435 @@
+/*
+ * "Add from career profile": a dialog over the editor. Chrome, not document —
+ * portalled out of the page and never printed — so it uses the app's own
+ * tokens, with fallbacks, rather than any template's.
+ */
+
+.tpl-library__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--color-scrim, rgb(15 23 42 / 0.35));
+  animation: tpl-library-fade 140ms ease-out both;
+}
+
+.tpl-library {
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 36rem;
+  max-height: min(86vh, 44rem);
+  overflow: hidden;
+  border: 1px solid var(--color-border, rgb(0 0 0 / 0.08));
+  border-radius: 24px;
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #1f2330);
+  box-shadow: var(--shadow-lg, 0 24px 64px -16px rgb(15 23 42 / 0.28));
+  font-family: var(--font-sans, system-ui, sans-serif);
+  animation: tpl-library-rise 200ms ease-out both;
+}
+
+/* --- Head --- */
+.tpl-library__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 22px 22px 16px;
+}
+.tpl-library__heading {
+  flex: 1;
+  min-width: 0;
+}
+.tpl-library__subtitle {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-text-muted, #5b6170);
+}
+.tpl-library__close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: -4px -6px 0 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text-muted, #5b6170);
+  cursor: pointer;
+}
+.tpl-library__close:hover {
+  background: var(--color-surface-2, #f1f2f5);
+  color: var(--color-text, #1f2330);
+}
+.tpl-library__close svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+.tpl-library__mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--gradient-ai, linear-gradient(135deg, #5b8cff, #8b5cf6));
+  color: #fff;
+  box-shadow: 0 8px 20px -8px rgb(91 140 255 / 0.7);
+}
+.tpl-library__mark svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tpl-library__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-text, #1f2330);
+}
+
+/* --- Body: groups, scrolled as one --- */
+.tpl-library__body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+  padding: 4px 22px 16px;
+  overflow-y: auto;
+}
+.tpl-library__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tpl-library__group-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tpl-library__group-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text, #1f2330);
+}
+.tpl-library__group-hint {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--color-text-muted, #5b6170);
+}
+.tpl-library__count {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--color-accent-weak, #e8efff);
+  color: var(--color-accent, #2f6bff);
+  font-size: 11px;
+  letter-spacing: 0;
+  color: var(--color-text-muted, #5b6170);
+}
+.tpl-library__all {
+  margin-left: auto;
+  padding: 2px 4px;
+  border: 0;
+  background: none;
+  color: var(--color-accent, #2f6bff);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.tpl-library__all:hover {
+  text-decoration: underline;
+}
+
+.tpl-library__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A selectable card: a drawn checkbox and the words, the whole card clickable. */
+.tpl-library__option {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border, rgb(0 0 0 / 0.08));
+  border-radius: 14px;
+  background: var(--color-surface, #fff);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+.tpl-library__option:hover {
+  border-color: var(--color-accent-line, #c9d8ff);
+  background: var(--color-surface-2, #f7f8fa);
+}
+.tpl-library__option[data-on] {
+  border-color: var(--color-accent, #2f6bff);
+  background: var(--color-accent-surface, #f2f6ff);
+  box-shadow: 0 0 0 3px var(--color-accent-tint, rgb(47 107 255 / 0.1));
+}
+
+/* The native input stays the control — keyboard, forms, screen readers — and
+   is hidden; the box beside it is what is drawn. */
+.tpl-library__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.tpl-library__check {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border: 1.5px solid var(--color-border-strong, #c4c8d0);
+  border-radius: 6px;
+  background: var(--color-surface, #fff);
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+.tpl-library__check[data-small] {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+}
+.tpl-library__check svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: var(--color-on-accent, #fff);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 14;
+  stroke-dashoffset: 14;
+  transition: stroke-dashoffset 200ms ease 40ms;
+}
+.tpl-library__option:hover .tpl-library__check,
+.tpl-library__part:hover .tpl-library__check {
+  border-color: var(--color-accent, #2f6bff);
+}
+.tpl-library__input:checked + .tpl-library__check {
+  border-color: var(--color-accent, #2f6bff);
+  background: var(--color-accent, #2f6bff);
+  transform: scale(1.04);
+}
+.tpl-library__input:checked + .tpl-library__check svg {
+  stroke-dashoffset: 0;
+}
+.tpl-library__input:focus-visible + .tpl-library__check {
+  box-shadow: 0 0 0 3px var(--color-accent-tint, rgb(47 107 255 / 0.25));
+}
+
+.tpl-library__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.tpl-library__name {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text, #1f2330);
+}
+/* A named entry reads as a title; a sentence (a bullet) reads as prose. */
+.tpl-library__option:has(.tpl-library__detail) .tpl-library__name {
+  font-weight: 600;
+}
+.tpl-library__detail {
+  overflow: hidden;
+  font-size: 12.5px;
+  color: var(--color-text-muted, #5b6170);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* A chosen role's bullets, hanging under it. */
+.tpl-library__parts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 8px 0 4px 26px;
+  padding: 0 0 0 12px;
+  border-left: 2px solid var(--color-accent-line, #c9d8ff);
+  list-style: none;
+  animation: tpl-library-rise 160ms ease-out both;
+}
+.tpl-library__part {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-text, #1f2330);
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+.tpl-library__part:hover {
+  background: var(--color-surface-2, #f5f6f8);
+}
+.tpl-library__part:has(.tpl-library__input:not(:checked)) > span:last-child {
+  color: var(--color-text-subtle, #8a8f9c);
+  text-decoration: line-through;
+}
+
+.tpl-library__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 22px 12px;
+  padding: 26px 20px;
+  border-radius: 16px;
+  background: var(--color-surface-2, #f5f6f8);
+  text-align: center;
+}
+.tpl-library__empty-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  background: var(--color-success-weak, #e3f6ea);
+  color: var(--color-success, #1f9d55);
+}
+.tpl-library__empty-mark svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tpl-library__empty-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text, #1f2330);
+}
+.tpl-library__empty-text {
+  margin: 0;
+  max-width: 24rem;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-text-muted, #5b6170);
+}
+
+/* --- Foot --- */
+.tpl-library__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 22px 18px;
+  border-top: 1px solid var(--color-border, rgb(0 0 0 / 0.06));
+}
+.tpl-library__selected {
+  margin-right: auto;
+  font-size: 13px;
+  color: var(--color-text-muted, #5b6170);
+  font-variant-numeric: tabular-nums;
+}
+.tpl-library__btn {
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--color-text, #1f2330);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.tpl-library__btn:hover {
+  background: var(--color-surface-2, #f1f2f5);
+}
+.tpl-library__btn--primary {
+  background: var(--color-accent, #2f6bff);
+  color: var(--color-on-accent, #fff);
+  font-weight: 600;
+}
+.tpl-library__btn--primary:hover {
+  background: var(--color-accent-hover, #2459e0);
+}
+.tpl-library__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.tpl-library__btn--primary:not(:disabled) {
+  box-shadow: 0 6px 16px -6px var(--color-accent, #2f6bff);
+}
+.tpl-library__btn:focus-visible,
+.tpl-library__all:focus-visible {
+  outline: 2px solid var(--color-focus-ring, #2f6bff);
+  outline-offset: 2px;
+}
+
+@keyframes tpl-library-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes tpl-library-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tpl-library__scrim,
+  .tpl-library,
+  .tpl-library__parts {
+    animation: none;
+  }
+  .tpl-library__check,
+  .tpl-library__check svg {
+    transition: none;
+  }
+}
+@media print {
+  .tpl-library__scrim {
+    display: none !important;
+  }
+}

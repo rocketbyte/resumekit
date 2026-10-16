@@ -1,0 +1,330 @@
+/*
+ * Curve: a customised CurVe CV (docs/template-references/curve.png).
+ *
+ * The reference is A4; every length here is its measurement scaled to the
+ * Letter page's width (× 1.028). One column: each entry is a grid of its dates,
+ * a bookmark and its text, so the dates extract first and the bookmark, a
+ * drawn shape, extracts nothing. The date column is wider than the reference's
+ * because a month range ("2018-01 – Present") must hold one line.
+ */
+
+.tpl-curve {
+  --tpl-heading-gap: calc(11pt * var(--cv-scale) * var(--cv-density));
+  --tpl-space-unit: calc(2pt * var(--cv-scale) * var(--cv-density));
+  --tpl-space-margin: var(--cv-margin);
+  --tpl-marker: calc(10pt * var(--cv-scale));
+
+  --cv-scale: 1;
+  --cv-ink: #000000;
+  --cv-font: 'Cochineal', 'EB Garamond', Garamond, 'Times New Roman', serif;
+  --cv-sans: 'Cabin', 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  --cv-mono: 'Inconsolata', 'Courier New', monospace;
+  --cv-accent: #920632;
+  --cv-rule: #b9ce6e;
+  --cv-photo: #cdebff;
+  --cv-density: 1;
+  --cv-margin: 65.6pt;
+  --cv-dates: calc(88pt * var(--cv-scale));
+  --cv-mark: calc(7.7pt * var(--cv-scale));
+  --cv-mark-gap: calc(8pt * var(--cv-scale));
+  --cv-gutter: calc(10.8pt * var(--cv-scale));
+  --cv-hang: calc(
+    var(--cv-dates) + var(--cv-mark-gap) + var(--cv-mark) + var(--cv-gutter)
+  );
+  --cv-disc: calc(17pt * var(--cv-scale));
+  --cv-disc-hang: calc(28pt * var(--cv-scale));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: calc(58.2pt * var(--cv-scale)) var(--cv-margin) 0.75in;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--cv-ink);
+  font-family: var(--cv-font);
+  font-size: calc(11.26pt * var(--cv-scale));
+  font-variant-numeric: oldstyle-nums;
+  line-height: calc(13.98pt * var(--cv-scale));
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-curve__head {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(14pt * var(--cv-scale));
+}
+
+.tpl-curve__identity {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-top: calc(7.6pt * var(--cv-scale));
+}
+
+.tpl-curve__name {
+  margin: 0;
+  font-family: var(--cv-sans);
+  font-size: calc(17.76pt * var(--cv-scale));
+  font-weight: 700;
+  line-height: calc(19pt * var(--cv-scale));
+}
+
+.tpl-curve__headline {
+  margin: calc(1pt * var(--cv-scale)) 0 0;
+  font-style: italic;
+}
+
+.tpl-curve__contact {
+  --tpl-contact-icon-ink: var(--cv-accent);
+  --tpl-contact-icon-size: calc(10.8pt * var(--cv-scale));
+  --tpl-contact-icon-gap: calc(5pt * var(--cv-scale));
+  --tpl-contact-icon-shift: -0.2em;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 calc(29pt * var(--cv-scale));
+  margin: calc(1.5pt * var(--cv-scale)) 0 0;
+  padding-left: calc(2.8pt * var(--cv-scale));
+  font-family: var(--cv-mono);
+  font-size: calc(10.1pt * var(--cv-scale));
+  font-variant-numeric: normal;
+  line-height: calc(13.9pt * var(--cv-scale));
+}
+
+.tpl-curve__contact .tpl-text__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The portrait's square, in the pale blue of the reference's photograph. */
+.tpl-curve__avatar {
+  --tpl-avatar-size: calc(62.4pt * var(--cv-scale));
+  --tpl-avatar-text: calc(22pt * var(--cv-scale));
+
+  flex: none;
+  border: 0;
+  border-radius: 0;
+  background: var(--cv-photo);
+  color: var(--cv-accent);
+  font-family: var(--cv-sans);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-curve__section {
+  margin-top: calc(
+    12pt * var(--cv-scale) * var(--cv-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-curve__head + .tpl-curve__section {
+  margin-top: calc(
+    11pt * var(--cv-scale) * var(--cv-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-curve__section + .tpl-curve__section {
+  margin-top: calc(
+    12pt * var(--cv-scale) * var(--cv-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+/* The rule fades out to the right, as the reference's does. */
+.tpl-curve__heading {
+  margin: 0 0 var(--tpl-heading-gap);
+  padding-bottom: calc(2.9pt * var(--cv-scale));
+  background: linear-gradient(to right, var(--cv-rule), transparent) left
+    bottom / 100% calc(2.6pt * var(--cv-scale)) no-repeat;
+  font-family: var(--cv-sans);
+  font-size: calc(14.8pt * var(--cv-scale));
+  font-weight: 700;
+  line-height: calc(17pt * var(--cv-scale));
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-curve__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-curve__entry {
+  display: grid;
+  grid-template-columns: var(--cv-dates) var(--cv-mark) minmax(0, 1fr);
+  column-gap: var(--cv-mark-gap);
+  align-items: start;
+  margin-top: calc(
+    3.4pt * var(--cv-scale) * var(--cv-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+/* The heading's own margin, restated: the two collapse. */
+.tpl-curve__entry:first-of-type {
+  margin-top: calc(var(--tpl-heading-gap) + var(--tpl-space-height, 0px));
+}
+
+/* The bookmark: a drawn shape, so it extracts nothing. */
+.tpl-curve__entry::before,
+.tpl-curve__section--marked .tpl-described__entry::before,
+.tpl-curve__hung .tpl-bullet::before {
+  content: '';
+  width: var(--cv-mark);
+  height: calc(9.8pt * var(--cv-scale));
+  margin-top: calc(1.6pt * var(--cv-scale));
+  background: var(--cv-accent);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-curve__entry::before {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.tpl-curve__when {
+  grid-row: 1;
+  grid-column: 1;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.tpl-curve__what {
+  grid-row: 1;
+  grid-column: 3;
+  min-width: 0;
+  margin-left: calc(var(--cv-gutter) - var(--cv-mark-gap));
+}
+
+.tpl-curve__lead {
+  margin: 0;
+}
+
+.tpl-curve__title {
+  font-weight: 700;
+}
+
+.tpl-curve .tpl-bullets {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-curve .tpl-bullet {
+  display: grid;
+  grid-template-columns: var(--tpl-marker) minmax(0, 1fr);
+}
+
+.tpl-curve__what .tpl-bullet::before,
+.tpl-curve__entry--numbered .tpl-bullet::before {
+  content: '–';
+  color: var(--cv-accent);
+}
+
+/* ── Numbered entries: custom sections and achievements ─────────────────── */
+
+.tpl-curve__section {
+  counter-reset: cv-item;
+}
+
+.tpl-curve__entry--numbered,
+.tpl-curve__section--numbered .tpl-described__entry {
+  position: relative;
+  padding-left: var(--cv-disc-hang);
+  counter-increment: cv-item;
+}
+
+.tpl-curve__entry--numbered {
+  margin-top: calc(
+    7pt * var(--cv-scale) * var(--cv-density) + var(--tpl-space-height, 0px)
+  );
+  min-height: var(--cv-disc);
+}
+
+.tpl-curve__entry--numbered:first-of-type {
+  margin-top: calc(var(--tpl-heading-gap) + var(--tpl-space-height, 0px));
+}
+
+/* The disc's figure is the entry's place in the list, not text of the resume. */
+.tpl-curve__entry--numbered::before,
+.tpl-curve__section--numbered .tpl-described__entry::before {
+  content: counter(cv-item);
+  position: absolute;
+  top: calc(-2.2pt * var(--cv-scale));
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cv-disc);
+  height: var(--cv-disc);
+  border-radius: 50%;
+  background: var(--cv-accent);
+  color: #ffffff;
+  font-family: var(--cv-sans);
+  font-size: calc(8pt * var(--cv-scale));
+  font-weight: 700;
+  line-height: 1;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-curve__entry--numbered .tpl-bullets {
+  margin-top: calc(1pt * var(--cv-scale));
+}
+
+/* ── Kit sections ───────────────────────────────────────────────────────── */
+
+/* Skills and languages: the category in the date column, the rest hung. */
+.tpl-curve {
+  --tpl-skill-grid-label: calc(var(--cv-hang) - var(--cv-gutter));
+  --tpl-skill-grid-gutter: var(--cv-gutter);
+  --tpl-skill-grid-column: calc(118pt * var(--cv-scale));
+  --tpl-skill-grid-gap: calc(10pt * var(--cv-scale));
+  --tpl-skill-grid-lead: 0pt;
+  --tpl-skill-grid-rhythm: calc(3.4pt * var(--cv-scale) * var(--cv-density));
+  --tpl-skill-grid-label-weight: 400;
+  --tpl-described-gap: calc(7pt * var(--cv-scale) * var(--cv-density));
+  --tpl-described-lead: 0pt;
+  --tpl-language-name: calc(var(--cv-hang) - var(--cv-gutter));
+  --tpl-language-gap: var(--cv-gutter);
+  --tpl-language-lead: calc(3.4pt * var(--cv-scale) * var(--cv-density));
+  --tpl-language-name-weight: 400;
+  --tpl-language-level-size: 1em;
+  --tpl-language-step: calc(6pt * var(--cv-scale));
+  --tpl-language-step-gap: calc(2.5pt * var(--cv-scale));
+  --tpl-language-meter-ink: var(--cv-accent);
+}
+
+/* Courses, passions and certifications: a bookmark, then the text hung. */
+.tpl-curve__section--marked .tpl-described__entry {
+  display: grid;
+  grid-template-columns: var(--cv-mark) minmax(0, 1fr);
+  column-gap: var(--cv-gutter);
+  margin-left: calc(var(--cv-dates) + var(--cv-mark-gap));
+}
+
+.tpl-curve__section--marked .tpl-described__entry::before {
+  grid-row: 1 / span 2;
+  grid-column: 1;
+}
+
+.tpl-curve__section--marked .tpl-described__title,
+.tpl-curve__section--marked .tpl-described__body {
+  grid-column: 2;
+}
+
+.tpl-curve__hung {
+  margin-left: calc(var(--cv-dates) + var(--cv-mark-gap));
+}
+
+.tpl-curve__hung .tpl-bullets {
+  display: grid;
+  row-gap: calc(3.4pt * var(--cv-scale) * var(--cv-density));
+}
+
+.tpl-curve__hung .tpl-bullet {
+  grid-template-columns: var(--cv-mark) minmax(0, 1fr);
+  column-gap: var(--cv-gutter);
+}

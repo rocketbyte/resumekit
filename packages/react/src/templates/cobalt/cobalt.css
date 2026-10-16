@@ -1,0 +1,478 @@
+/*
+ * The Cobalt template — the single place its design is decided.
+ *
+ * Same three rules as the templates before it: no node can reach this file,
+ * paper is not a theme, and every size is one multiplier off `--c-scale` so the
+ * type relationships are the design and scaling cannot break them.
+ *
+ * The numbers are MEASURED, not estimated. Both supplied reference pages render
+ * an 8.5in page at 611px, which is one CSS pixel to one point, so every
+ * measurement taken off them is written here in points unchanged. See
+ * `design.md`, decision 7.
+ *
+ * ── The rule that governs this whole file ──────────────────────────────────
+ *
+ * NOTHING HERE IS A BACKGROUND. No `background`, and no `print-color-adjust`.
+ *
+ * That is not a stylistic preference, it is the template's ATS guarantee: every
+ * mark it makes is a glyph, a border, or a stroked outline, so the document
+ * prints complete when the browser's background graphics are disabled. Executive
+ * and Meridian both have to force a colour to print, which is a promise about a
+ * hint the browser may decline — and when it is declined, reversed type on an
+ * unpainted band does not degrade, it vanishes. `cobalt.spec.tsx` reads this
+ * file and fails if either token appears in it, so the guarantee cannot quietly
+ * stop being true when somebody adds a highlight later.
+ *
+ * Two inks and one rule colour, sampled from the reference: `--c-accent` for the
+ * crest, the name and every heading; `--c-ink` for every word of the body,
+ * including the bullet markers; `--c-rule` for the header hairline and every
+ * heading underline.
+ */
+
+.tpl-cob {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(6.5pt * var(--c-scale) * var(--c-density));
+  /*
+   * What ONE STEP of recorded space is worth here — `document-styling` (#36).
+   *
+   * This template's OWN section gap, so the same stored token is a different
+   * distance in each template — which is what the token is for. It follows
+   * the type scale and the density for the same reason the gap it is measured
+   * against does.
+   */
+  --tpl-space-unit: calc(3.3pt * var(--c-scale) * var(--c-density));
+  /* This template's own side margin — see `spacing.css`. */
+  --tpl-space-margin: var(--c-margin);
+
+  --c-scale: 1;
+  /* The template's own rhythm. `document-styling` (#36) writes a multiplier
+     here; absent means what the reference measures. */
+  --c-density: 1;
+
+  --c-accent: #1f58bc;
+  /*
+   * TRUE BLACK, because this is a document rather than a screen.
+   *
+   * It was #111111 — 93% black, the near-black a UI uses to take the harshness
+   * off a large light surface. A résumé is not that surface: it is printed, it
+   * is scanned by an ATS, and it is read beside other résumés that ARE set in
+   * black. Measured against a candidate's own PDF, the difference reads as a
+   * washed-out page rather than as a softer one.
+   *
+   * Safe to state absolutely here: this token colours TEXT and nothing else —
+   * one `color` declaration in this file. `meridian` deliberately keeps its
+   * near-black, because there the same token also FILLS a band, and pure black
+   * behind white text is a redesign of that template rather than a fidelity fix.
+   */
+  --c-ink: #000000;
+  /* Light on purpose — the reference's own value. The rules separate sections
+     that an accent-coloured heading already separates, so nothing is lost if a
+     printer drops them. See `design.md`, risks. */
+  --c-rule: #e9e9e9;
+
+  /*
+   * The DEFAULT body face, and it must name the supplied one first.
+   *
+   * A résumé whose owner never opened the typeface control has no `font` in its
+   * stored style, so nothing sets this variable inline and this literal is what
+   * draws the document. While it named only system families, the default
+   * document was drawn in whatever the reader's machine had — Helvetica Neue on
+   * macOS, Liberation Sans in the render container — so the screen and the
+   * exported file disagreed for every résumé that had not chosen a typeface,
+   * which is most of them. Same stack as `DOCUMENT_FONTS.helvetica`, so the
+   * default and an explicit "Helvetica" are the same document.
+   */
+  --c-font:
+    'TeX Gyre Heros', 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans',
+    sans-serif;
+
+  /*
+   * The display face is the TEMPLATE's, not the candidate's — the serif crest,
+   * name and headings over a sans body are what make this template this
+   * template, and setting them in Calibri does not produce a differently-fonted
+   * Cobalt but a different design. A system stack, from the same family of
+   * choices as `DOCUMENT_FONTS`: nothing to download, nothing that extracts
+   * badly. See `design.md`, decision 4.
+   *
+   * NARROW on purpose, and Georgia is deliberately not in it. The reference
+   * sets "Professional Summary" 148pt wide at an 11pt cap — a width-per-cap of
+   * 13.45, narrower than any face a system stack can reach. Georgia is 16.97
+   * and overruns the 160pt rail by 27pt, which the first render did: the
+   * heading wrapped to two lines and took the whole rail's rhythm with it.
+   * Cambria (14.32) is the closest available and Times (14.61) is the fallback
+   * everywhere it is missing, so the heading fits the rail on every machine.
+   * See `design.md`, decision 4.
+   */
+  --c-display: Cambria, 'Times New Roman', Times, serif;
+
+  --c-margin: calc(50pt * var(--c-scale));
+  --c-body: calc(9pt * var(--c-scale));
+  --c-lead: calc(14pt * var(--c-scale) * var(--c-density));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  /*
+   * 50pt at the sides, measured. 36pt top and bottom, which is NOT the
+   * reference's — the supplied images are scroll captures with no visible page
+   * boundary, so the top margin cannot be read off them, and 36pt is the
+   * `PAGE_MARGIN` every template shares with the paginator. Unscaled, because
+   * the paginator places pushed content on later sheets at exactly that offset:
+   * a vertical margin of our own would give page 2 a different top margin from
+   * page 1. The asymmetry is deliberate — see `design.md`, decision 7.
+   */
+  padding: 36pt var(--c-margin);
+  margin: 0 auto;
+  color: var(--c-ink);
+  font-family: var(--c-font);
+  font-size: var(--c-body);
+  line-height: var(--c-lead);
+}
+
+.tpl-cob *,
+.tpl-cob *::before,
+.tpl-cob *::after {
+  box-sizing: inherit;
+}
+
+.tpl-cob [data-ink] {
+  color: var(--f-ink);
+}
+
+.tpl-cob .is-bold {
+  font-weight: 700;
+}
+
+.tpl-cob .tpl-text.is-left,
+.tpl-cob .tpl-text.is-center,
+.tpl-cob .tpl-text.is-right {
+  display: block;
+}
+
+.tpl-cob .tpl-text.is-left.tpl-grow,
+.tpl-cob .tpl-text.is-center.tpl-grow,
+.tpl-cob .tpl-text.is-right.tpl-grow {
+  display: grid;
+}
+
+.tpl-cob .is-left {
+  text-align: left;
+}
+
+.tpl-cob .is-center {
+  text-align: center;
+}
+
+.tpl-cob .is-right {
+  text-align: right;
+}
+
+/* ── Header: crest, name, contact ───────────────────────────────────────── */
+
+/*
+ * Three columns: the crest at its measured size, the name taking the slack, and
+ * the contact block flush to the right margin. Centred against each other,
+ * because the reference centres them — the crest spans 26–118, the name 39–98
+ * and the contact 41–90, all about the same middle.
+ *
+ * Closed by a 2pt hairline across the full 512pt text width, 26pt below the
+ * crest. A border, not a drawn strip: it prints as ink.
+ */
+.tpl-cob__head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  column-gap: calc(16pt * var(--c-scale));
+  align-items: center;
+  padding-bottom: calc(25pt * var(--c-scale) * var(--c-density));
+  border-bottom: 2pt solid var(--c-rule);
+}
+
+/*
+ * A regular hexagon, flat top and bottom, 107 × 93pt — the reference's left and
+ * right vertices are 107pt apart and its top edge runs 53pt, which is a regular
+ * hexagon to within a point.
+ */
+.tpl-cob__crest {
+  position: relative;
+  flex: none;
+  width: calc(107pt * var(--c-scale));
+  height: calc(93pt * var(--c-scale));
+  /* The polygon strokes `currentColor`, so the outline follows the accent
+     without the SVG having to know what the accent is. */
+  color: var(--c-accent);
+}
+
+.tpl-cob__crest-shape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+ * Real text over the outline, centred on it.
+ *
+ * The SAME size as the name, which is a measurement rather than a guess: the
+ * reference's initials stand 25pt from cap to baseline (y 59–83) and so does
+ * its name (y 39–64). Regular weight, not the name's bold — the reference draws
+ * them in thin strokes, so they recede behind the name the crest sits beside
+ * rather than competing with it.
+ */
+.tpl-cob__initials {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  font-family: var(--c-display);
+  font-size: calc(37pt * var(--c-scale));
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--c-accent);
+}
+
+/* Cap height 25pt over a 34pt line, measured — the two-line break is the
+   name wrapping in the space the crest and the contact block leave it, not a
+   break written into the markup. */
+.tpl-cob__name {
+  margin: 0;
+  font-family: var(--c-display);
+  font-size: calc(36pt * var(--c-scale));
+  font-weight: 700;
+  line-height: calc(34pt * var(--c-scale));
+  color: var(--c-accent);
+}
+
+.tpl-cob__contact {
+  font-size: calc(10pt * var(--c-scale));
+  line-height: calc(20pt * var(--c-scale) * var(--c-density));
+  text-align: right;
+}
+
+.tpl-cob__contact-item {
+  margin: 0;
+}
+
+/* ── Body: two columns, rail first, no divider ──────────────────────────── */
+
+/*
+ * 160pt of rail, a 40pt gutter, 312pt of main — 512pt in all, measured. The
+ * `fr` units resolve to exactly those widths once the gutter is taken out.
+ *
+ * The rail is FIRST because it is drawn first. Nothing here reorders the grid,
+ * and nothing may: document order is the page's order, which is the template's
+ * ATS guarantee (`design.md`, decision 1).
+ *
+ * No divider. The reference draws none, and adding one "for balance" would be
+ * inventing a mark it does not make.
+ */
+.tpl-cob__body {
+  display: grid;
+  grid-template-columns: 160fr 312fr;
+  column-gap: calc(40pt * var(--c-scale));
+  padding-top: calc(22pt * var(--c-scale) * var(--c-density));
+}
+
+.tpl-cob__rail,
+.tpl-cob__main {
+  min-width: 0;
+}
+
+/* Against the page's right edge, so its rails stand in the right margin. */
+.tpl-cob__main {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-cob__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-cob__section + .tpl-cob__section {
+  margin-top: calc(
+    16.5pt * var(--c-scale) * var(--c-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+/*
+ * The heading and its rule are one element: the rule is the heading's own
+ * `border-bottom`, so it spans that heading's column and can never be drawn
+ * without a heading to sit under — or at a width the column does not have.
+ */
+.tpl-cob__heading {
+  margin: 0 0 calc(6.5pt * var(--c-scale) * var(--c-density));
+  padding-bottom: calc(3.5pt * var(--c-scale));
+  font-family: var(--c-display);
+  font-size: calc(15.5pt * var(--c-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--c-accent);
+  border-bottom: 2pt solid var(--c-rule);
+}
+
+/* Ragged right, measured — the reference's summary lines end at 206, 203, 199,
+   163, 198, so it is not justified. */
+.tpl-cob__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-cob__entry {
+  /* The heading's own margin, restated: the two collapse, so the gap is added
+     to it rather than lost inside it. */
+  margin-top: calc(
+    6.5pt * var(--c-scale) * var(--c-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+
+  /*
+   * Both columns carry entries — education in the rail, experience in the main
+   * — so two rings face each other across the 40pt gutter and this has to cover
+   * the PAIR, not one of them. Every ring is the same size now, so it is simply
+   * doubled: 36px, inside the ~45px the gutter comes to at the smallest scale.
+   */
+  --tpl-ring-room: 18px;
+}
+
+.tpl-cob__entry + .tpl-cob__entry {
+  margin-top: calc(
+    16pt * var(--c-scale) * var(--c-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-cob__entry-lead,
+.tpl-cob__entry-org,
+.tpl-cob__entry-where,
+.tpl-cob__entry-when,
+.tpl-cob__entry-meta {
+  margin: 0;
+}
+
+/* The employer, and the degree, are the one bold thing in an entry. */
+.tpl-cob__entry-lead {
+  font-weight: 700;
+}
+
+/* The whole meta line slopes — the role AND the dates, as in the reference. */
+.tpl-cob__entry-meta {
+  font-style: italic;
+}
+
+/*
+ * The dates are set apart by a constant 25pt, measured across every entry on
+ * the reference's first page, and they are NOT flush to the right margin — one
+ * entry's ended at 503pt in a column that ends at 568pt. An inline margin, so
+ * that a line too full to hold them carries the gap onto the next line with
+ * them, which is what the reference's own wrapped entry does.
+ */
+.tpl-cob__dates {
+  margin-left: calc(25pt * var(--c-scale));
+  white-space: nowrap;
+}
+
+/* ── Bullets ────────────────────────────────────────────────────────────── */
+
+.tpl-cob .tpl-bullets {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Under an entry's meta line, measured at a 17pt step against the 14pt line. */
+.tpl-cob__entry .tpl-bullets {
+  margin-top: calc(3pt * var(--c-scale) * var(--c-density));
+}
+
+.tpl-cob .tpl-bullet {
+  /*
+   * The marker column, named so the drag handle can sit centred in it.
+   *
+   * `template-node.css` draws the handle for every template and cannot know how
+   * wide this one's gutter is — so the stylesheet that DECIDES the width is the
+   * one that states it. Repeating the value would be two places to disagree,
+   * which is why it is the same expression rather than a rounded copy.
+   */
+  --tpl-marker: calc(12pt * var(--c-scale));
+
+  /* Hanging indent, as in every template: a wrapped line aligns with the text
+     above it, not under the marker. 12pt to the text, 2pt to the marker. */
+  display: grid;
+  grid-template-columns: calc(12pt * var(--c-scale)) 1fr;
+  break-inside: avoid;
+}
+
+/*
+ * Nothing between two bullets. Measured: the reference's bullets run at the
+ * same 14pt pitch as a wrapped line, so a three-line bullet and three
+ * one-line bullets occupy identical space. That is the density the page is
+ * designed at, not an oversight.
+ */
+.tpl-cob .tpl-bullet::before {
+  content: '•';
+  line-height: inherit;
+}
+
+/* ── Links ──────────────────────────────────────────────────────────────── */
+
+.tpl-cob__links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-cob__link {
+  display: grid;
+  grid-template-columns: calc(12pt * var(--c-scale)) 1fr;
+  /* A URL has no spaces to break at. */
+  overflow-wrap: anywhere;
+}
+
+.tpl-cob__link::before {
+  content: '•';
+}
+
+@page {
+  size: letter;
+  margin: 0;
+}
+
+/*
+ * No `print-color-adjust` here, and that omission is the template's guarantee
+ * rather than an oversight: there is no background to force. See the file
+ * header.
+ */
+@media print {
+  .tpl-cob {
+    width: auto;
+    margin: 0;
+  }
+}
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-cob {
+  --tpl-described-gap: calc(7pt * var(--c-scale));
+  --tpl-described-lead: calc(1.5pt * var(--c-scale));
+  --tpl-described-title-ink: var(--c-accent);
+  --tpl-described-span: calc(14pt * var(--c-scale));
+  --tpl-language-gap: calc(6pt * var(--c-scale));
+  --tpl-language-lead: calc(4pt * var(--c-scale));
+  --tpl-language-step: calc(4pt * var(--c-scale));
+  --tpl-language-meter-ink: var(--c-accent);
+}
+
+/* One repeated mark, never one per entry: nothing in the résumé says which
+   glyph an achievement deserves. */
+.tpl-cob .tpl-described--marked {
+  --tpl-described-mark: '\25C6';
+  --tpl-described-mark-gap: calc(4pt * var(--c-scale));
+}

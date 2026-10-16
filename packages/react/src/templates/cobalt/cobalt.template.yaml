@@ -1,0 +1,158 @@
+id: cobalt
+component: Cobalt
+prefix: tpl-cob
+styleKey: c
+
+layout:
+  - stack:
+      - { component: CobaltCrest, from: ./crest.js }
+      - name
+      - { contact: [email, phone, location], tag: div, itemTag: p }
+    tag: header
+    class: head
+    block: true
+  - row:
+      - stack:
+          - { section: summary, title: professionalSummary }
+          - { section: achievements, kit: [tpl-described--marked] }
+          - section: skills
+            title: technicalSkills
+            groups: bullets
+            wrapper: { tag: div, split: true }
+          - education
+          - courses
+          - {
+              section: certifications,
+              as: bullets,
+              split: true,
+              whenEmpty: hide,
+            }
+          - { section: passions, kit: [tpl-described--marked] }
+        class: rail
+      - stack:
+          - experience
+          - languages
+          - stack:
+              - { headline: prose, block: true, prefix: title }
+            tag: section
+            class: section
+            heading: personalInformation
+            when: headline
+          - stack:
+              - stack: [location]
+                tag: p
+                class: prose
+                block: true
+            tag: section
+            class: section
+            heading: locations
+            when: location
+          - stack:
+              - { links: links, split: true }
+            tag: section
+            class: section
+            heading: websites
+            when: links
+          - custom
+        class: main
+    class: body
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: p
+        class: entry-lead
+        children:
+          - field: company
+            placeholder: false
+      - tag: p
+        class: entry-meta
+        children:
+          - tag: em
+            class: role
+            children:
+              - field: title
+                placeholder: false
+          - separator: ' | '
+            between:
+              - title
+              - location
+          - field: location
+            optional: true
+          - tag: span
+            class: dates
+            children:
+              - field: start
+                placeholder: false
+              - text: ' - '
+              - field: end
+                placeholder: false
+      - bullets: bullets
+  education:
+    name: EducationEntry
+    type: Education
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: p
+        class: entry-lead
+        children:
+          - field: degree
+            optional: true
+            placeholder: degree
+      - tag: p
+        class: entry-org
+        children:
+          - field: school
+            placeholder: false
+      - tag: p
+        class: entry-where
+        children:
+          - field: location
+            optional: true
+      - tag: p
+        class: entry-when
+        children:
+          - field: field
+            placeholder: false
+            when: field
+          - text: ', '
+            when:
+              - field
+              - end
+          - field: end
+            placeholder: false
+            when: end
+        whenAny:
+          - field
+          - end
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: p
+        class: entry-lead
+        children:
+          - field: title
+            placeholder: heading
+      - tag: p
+        class: entry-meta
+        children:
+          - tag: em
+            class: role
+            children:
+              - field: detail
+                optional: true
+      - bullets: bullets

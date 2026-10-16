@@ -1,0 +1,284 @@
+/*
+ * Academic: ModernCV "classic" (docs/template-references/academic.png).
+ *
+ * The reference is A4; every length here is its measurement scaled to the
+ * Letter page's width (× 1.028). The page is one column with a date margin of
+ * its own: each entry is a two-column grid, so the dates are part of the entry
+ * and extract before it, and the headings' bars stand in that margin.
+ */
+
+.tpl-academic {
+  --tpl-heading-gap: calc(5pt * var(--ac-scale) * var(--ac-density));
+  --tpl-space-unit: calc(2pt * var(--ac-scale) * var(--ac-density));
+  --tpl-space-margin: var(--ac-margin);
+  --tpl-marker: calc(11.25pt * var(--ac-scale));
+
+  --ac-scale: 1;
+  --ac-ink: #000000;
+  --ac-font: 'Latin Modern Roman', Tinos, 'Times New Roman', serif;
+  --ac-accent: #59b24c;
+  --ac-density: 1;
+  --ac-margin: 75.7pt;
+  --ac-muted: #737373;
+  --ac-dates: calc(80pt * var(--ac-scale));
+  --ac-gutter: calc(9.2pt * var(--ac-scale));
+  --ac-hang: calc(var(--ac-dates) + var(--ac-gutter));
+  --ac-small: calc(10.3pt * var(--ac-scale));
+  --ac-small-lead: calc(12.3pt * var(--ac-scale));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: calc(84pt * var(--ac-scale)) var(--ac-margin) 0.75in;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--ac-ink);
+  font-family: var(--ac-font);
+  font-size: calc(11.26pt * var(--ac-scale));
+  line-height: 1.2;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-academic__head {
+  display: flex;
+  align-items: flex-end;
+  gap: calc(12.6pt * var(--ac-scale));
+}
+
+.tpl-academic__identity {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tpl-academic__name {
+  margin: 0;
+  font-size: calc(35pt * var(--ac-scale));
+  font-weight: 400;
+  line-height: 1;
+}
+
+.tpl-academic__headline {
+  margin: calc(7pt * var(--ac-scale)) 0 0;
+  color: var(--ac-muted);
+  font-size: calc(17.7pt * var(--ac-scale));
+  font-style: italic;
+  line-height: 1;
+}
+
+.tpl-academic__contact {
+  --tpl-contact-icon-ink: var(--ac-muted);
+  --tpl-contact-icon-size: 0.85em;
+  --tpl-contact-icon-gap: 0.35em;
+
+  flex: none;
+  max-width: 50%;
+  margin: 0;
+  color: var(--ac-muted);
+  font-size: var(--ac-small);
+  font-style: italic;
+  line-height: var(--ac-small-lead);
+  text-align: right;
+}
+
+.tpl-academic__contact-item {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.tpl-academic__contact .tpl-text__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The portrait's frame: a hairline of the accent around the initials. */
+.tpl-academic__avatar {
+  --tpl-avatar-size: calc(72pt * var(--ac-scale));
+  --tpl-avatar-text: calc(26pt * var(--ac-scale));
+
+  flex: none;
+  border: calc(0.4pt * var(--ac-scale)) solid var(--ac-accent);
+  border-radius: 0;
+  color: var(--ac-muted);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-academic__section {
+  margin-top: calc(
+    13pt * var(--ac-scale) * var(--ac-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-academic__head + .tpl-academic__section {
+  margin-top: calc(
+    30pt * var(--ac-scale) * var(--ac-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-academic__section + .tpl-academic__section {
+  margin-top: calc(
+    13pt * var(--ac-scale) * var(--ac-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+/* The heading starts in the content column; its bar fills the date margin. */
+.tpl-academic__heading {
+  position: relative;
+  margin: 0 0 var(--tpl-heading-gap);
+  padding-left: var(--ac-hang);
+  color: var(--ac-accent);
+  font-size: calc(14.8pt * var(--ac-scale));
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.tpl-academic__heading::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--ac-dates);
+  height: calc(4.6pt * var(--ac-scale));
+  transform: translateY(-50%);
+  background: var(--ac-accent);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-academic__prose {
+  margin: 0 0 0 var(--ac-hang);
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-academic__entry {
+  display: grid;
+  grid-template-columns: var(--ac-dates) minmax(0, 1fr);
+  column-gap: var(--ac-gutter);
+  align-items: baseline;
+  margin-top: calc(
+    4pt * var(--ac-scale) * var(--ac-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+/* The heading's own margin, restated: the two collapse. */
+.tpl-academic__entry:first-of-type {
+  margin-top: calc(var(--tpl-heading-gap) + var(--tpl-space-height, 0px));
+}
+
+.tpl-academic__when {
+  grid-column: 1;
+  margin: 0;
+  text-align: right;
+}
+
+.tpl-academic__what {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.tpl-academic__lead {
+  margin: 0;
+}
+
+.tpl-academic__title {
+  font-weight: 700;
+}
+
+.tpl-academic__org {
+  font-style: italic;
+}
+
+.tpl-academic .tpl-bullets {
+  margin: calc(1.5pt * var(--ac-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--ac-small);
+  line-height: var(--ac-small-lead);
+}
+
+.tpl-academic .tpl-bullet {
+  display: grid;
+  grid-template-columns: var(--tpl-marker) minmax(0, 1fr);
+}
+
+/* ModernCV's item mark: a small open circle in the accent. */
+.tpl-academic .tpl-bullet::before {
+  content: '';
+  box-sizing: border-box;
+  width: calc(4.6pt * var(--ac-scale));
+  height: calc(4.6pt * var(--ac-scale));
+  margin-top: calc(4pt * var(--ac-scale));
+  border: calc(0.6pt * var(--ac-scale)) solid var(--ac-accent);
+  border-radius: 50%;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-academic__hung {
+  margin-left: var(--ac-hang);
+}
+
+/* ── Kit sections ───────────────────────────────────────────────────────── */
+
+/* ModernCV's `\cvitem` rows: the category in the date margin, then the skills. */
+.tpl-academic {
+  --tpl-skill-grid-label: var(--ac-dates);
+  --tpl-skill-grid-gutter: var(--ac-gutter);
+  --tpl-skill-grid-column: calc(84pt * var(--ac-scale));
+  --tpl-skill-grid-gap: calc(9pt * var(--ac-scale));
+  --tpl-skill-grid-lead: calc(1pt * var(--ac-scale));
+  --tpl-skill-grid-rhythm: calc(3.2pt * var(--ac-scale) * var(--ac-density));
+  --tpl-skill-grid-label-weight: 400;
+  --tpl-described-gap: calc(7pt * var(--ac-scale) * var(--ac-density));
+  --tpl-described-lead: calc(1.5pt * var(--ac-scale));
+  --tpl-described-body-size: var(--ac-small);
+  --tpl-described-body-leading: var(--ac-small-lead);
+  --tpl-language-name: var(--ac-dates);
+  --tpl-language-gap: var(--ac-gutter);
+  --tpl-language-lead: calc(3.2pt * var(--ac-scale) * var(--ac-density));
+  --tpl-language-name-weight: 400;
+  --tpl-language-level-size: inherit;
+  --tpl-language-step: calc(4.6pt * var(--ac-scale));
+  --tpl-language-step-gap: calc(2.5pt * var(--ac-scale));
+  --tpl-language-meter-ink: var(--ac-accent);
+}
+
+.tpl-academic .tpl-skill-grid {
+  margin-top: var(--tpl-heading-gap);
+}
+
+.tpl-academic .tpl-skill-grid__label,
+.tpl-academic .tpl-language__name {
+  text-align: right;
+}
+
+.tpl-academic__language .tpl-language__level {
+  font-weight: 700;
+}
+
+/* Achievements and courses hang in the content column, like an entry. */
+.tpl-academic__section--hung .tpl-academic__described {
+  margin-left: var(--ac-hang);
+}
+
+/* Interests are `\cvitem` rows: the title in the date margin. */
+.tpl-academic__section--items .tpl-academic__described {
+  display: grid;
+  grid-template-columns: var(--ac-dates) minmax(0, 1fr);
+  column-gap: var(--ac-gutter);
+  align-items: baseline;
+}
+
+.tpl-academic__section--items .tpl-described__title {
+  font-weight: 400;
+  text-align: right;
+}
+
+.tpl-academic__section--items .tpl-described__body {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}

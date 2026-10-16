@@ -1,0 +1,326 @@
+/*
+ * The Creative template: the name, headline and contact reversed out of a navy
+ * band, the candidate's initials where the reference shows a portrait, and two
+ * columns whose headings are ruled in the ink across their own column.
+ *
+ * The rule under each heading is what separates the columns — there is no
+ * divider between them, which keeps the page from reading as a form.
+ */
+
+.tpl-creative {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(5pt * var(--cr-scale));
+  --tpl-space-unit: calc(2.2pt * var(--cr-scale) * var(--cr-density));
+  --tpl-space-margin: var(--cr-margin);
+  --tpl-marker: calc(8pt * var(--cr-scale));
+  --tpl-avatar-size: calc(80pt * var(--cr-scale));
+  --tpl-avatar-text: calc(24pt * var(--cr-scale));
+
+  --cr-scale: 1;
+  --cr-ink: #2c3e5c;
+  --cr-band: #22405a;
+  --cr-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --cr-accent: #3f7fb5;
+  --cr-density: 1;
+  --cr-margin: 0.6in;
+  --cr-body: #2f3640;
+  --cr-muted: #5f6670;
+  --cr-line: #d4d7dc;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.45in var(--cr-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--cr-body);
+  font-family: var(--cr-font);
+  font-size: calc(8pt * var(--cr-scale));
+  line-height: 1.3;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-creative__band {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(16pt * var(--cr-scale));
+  align-items: center;
+  margin: calc(-0.45in) calc(-1 * var(--cr-margin)) 0;
+  padding: calc(26pt * var(--cr-scale)) var(--cr-margin);
+  background: var(--cr-band);
+  color: #ffffff;
+
+  /* Reversed type: if the ground is not printed the words are not there, so
+     the band asks to be painted. A hint, and the catalog says as much. */
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-creative__name {
+  margin: 0;
+  font-size: calc(24pt * var(--cr-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  color: inherit;
+  text-transform: uppercase;
+}
+
+.tpl-creative__headline {
+  margin: calc(2pt * var(--cr-scale)) 0 0;
+  font-size: calc(11.5pt * var(--cr-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  color: inherit;
+}
+
+.tpl-creative__contact {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  column-gap: calc(90pt * var(--cr-scale));
+  margin: calc(4pt * var(--cr-scale)) 0 0;
+  font-size: calc(7.6pt * var(--cr-scale));
+  font-weight: 700;
+  line-height: 1.45;
+  color: inherit;
+}
+
+/* The initials, in the slot the design gives a portrait — on the band, so
+   they are drawn in the band's own ink. */
+.tpl-creative__avatar {
+  color: inherit;
+  border-color: currentcolor;
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+.tpl-creative__body {
+  display: grid;
+  grid-template-columns: 60fr 40fr;
+  column-gap: calc(30pt * var(--cr-scale));
+  margin-top: calc(26pt * var(--cr-scale) * var(--cr-density));
+}
+
+.tpl-creative__main,
+.tpl-creative__aside {
+  min-width: 0;
+}
+
+/* The rail stands against the page's right edge, so its controls belong in the
+   right margin rather than over the column beside them. */
+.tpl-creative__aside {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-creative__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-creative__section + .tpl-creative__section {
+  margin-top: calc(
+    18pt * var(--cr-scale) * var(--cr-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-creative__heading {
+  margin: 0 0 calc(5pt * var(--cr-scale));
+  padding-bottom: calc(1pt * var(--cr-scale));
+  border-bottom: 2pt solid var(--cr-ink);
+  font-size: calc(12pt * var(--cr-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--cr-ink);
+}
+
+.tpl-creative__prose {
+  margin: 0;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-creative__entry {
+  margin-top: calc(
+    6pt * var(--cr-scale) * var(--cr-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-creative__entry:first-of-type {
+  margin-top: calc(5pt * var(--cr-scale) + var(--tpl-space-height, 0px));
+}
+
+/* A dotted rule between one entry and the next, as the reference draws it. */
+.tpl-creative__entry + .tpl-creative__entry {
+  padding-top: calc(6pt * var(--cr-scale) * var(--cr-density));
+  border-top: 1pt dashed var(--cr-line);
+}
+
+.tpl-creative__role {
+  margin: 0;
+  font-size: calc(11pt * var(--cr-scale));
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--cr-ink);
+}
+
+.tpl-creative__org {
+  margin: calc(1.5pt * var(--cr-scale)) 0 0;
+  font-weight: 700;
+  color: var(--cr-ink);
+}
+
+.tpl-creative__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: calc(10pt * var(--cr-scale));
+  margin: calc(1.5pt * var(--cr-scale)) 0 0;
+  font-size: calc(7.2pt * var(--cr-scale));
+  color: var(--cr-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * A calendar before the dates and a pin before the place, as the reference
+ * marks them. Each glyph is a mask over a no-break space, so the extracted
+ * line still has a character between the employer and its facts.
+ */
+.tpl-creative__dates::before,
+.tpl-creative__place::before {
+  content: '\00a0';
+  display: inline-block;
+  width: calc(8pt * var(--cr-scale));
+  height: calc(8pt * var(--cr-scale));
+  margin-right: calc(3pt * var(--cr-scale));
+  vertical-align: -0.05em;
+  background: var(--cr-body);
+  mask: var(--cr-glyph) center / contain no-repeat;
+  -webkit-mask: var(--cr-glyph) center / contain no-repeat;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-creative__dates {
+  --cr-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 2h2v2h6V2h2v2h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3zm-2 7v10h14V9z'/%3E%3C/svg%3E");
+}
+
+.tpl-creative__place {
+  --cr-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E");
+}
+
+/* No place, no pin. */
+.tpl-creative__place:has(> [data-empty])::before {
+  display: none;
+}
+
+.tpl-creative .tpl-bullets {
+  margin: calc(2pt * var(--cr-scale)) 0 0;
+  padding: 0 0 0 calc(2pt * var(--cr-scale));
+  list-style: none;
+}
+
+.tpl-creative .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(9pt * var(--cr-scale)) 1fr;
+  margin-top: calc(0.5pt * var(--cr-scale));
+}
+
+.tpl-creative .tpl-bullet::before {
+  content: '•';
+  color: var(--cr-ink);
+}
+
+/* ── The rail's notes and chips ─────────────────────────────────────────── */
+
+.tpl-creative__note {
+  margin-top: calc(
+    6pt * var(--cr-scale) * var(--cr-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+.tpl-creative__note:first-of-type {
+  margin-top: calc(3.5pt * var(--cr-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-creative__note-title,
+.tpl-creative__note-detail {
+  margin: 0;
+}
+
+.tpl-creative__note-title {
+  font-weight: 700;
+  color: var(--cr-ink);
+}
+
+.tpl-creative__note-detail {
+  color: var(--cr-body);
+}
+
+/* Skills as underlined tags — the shape is `kit/keywords.css`; this template
+   states the measures of its reference. */
+.tpl-creative .tpl-keywords {
+  --tpl-keyword-ink: var(--cr-body);
+  --tpl-keyword-pad: 0.6em;
+  --tpl-keyword-span: 0.7em;
+  --tpl-keyword-gap: 0.41em;
+  --tpl-keyword-top: 0.72em;
+  --tpl-keyword-lead: 0.19em;
+}
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-creative {
+  --tpl-described-gap: calc(7pt * var(--cr-scale));
+  --tpl-described-lead: calc(1.5pt * var(--cr-scale));
+  --tpl-described-title-ink: var(--cr-ink);
+  --tpl-described-body-ink: var(--cr-body);
+  --tpl-described-span: calc(14pt * var(--cr-scale));
+  --tpl-language-gap: calc(6pt * var(--cr-scale));
+  --tpl-language-lead: calc(4pt * var(--cr-scale));
+  --tpl-language-step: calc(4pt * var(--cr-scale));
+  --tpl-language-meter-ink: var(--cr-accent);
+}
+
+/*
+ * One repeated mark, never one per entry: nothing in the resume says which
+ * glyph an achievement deserves. It hangs in the ink to the left of the title,
+ * the paragraph keeps the title's indent, and a dotted rule parts the entries.
+ */
+.tpl-creative .tpl-described--marked {
+  --tpl-described-mark: '\2605';
+  --tpl-described-mark-ink: var(--cr-ink);
+}
+
+.tpl-creative .tpl-described--marked .tpl-described__entry {
+  position: relative;
+  padding-left: calc(24pt * var(--cr-scale));
+}
+
+.tpl-creative
+  .tpl-described--marked
+  .tpl-described__entry
+  + .tpl-described__entry {
+  padding-top: calc(7pt * var(--cr-scale));
+  border-top: 1pt dashed var(--cr-line);
+}
+
+.tpl-creative .tpl-described--marked .tpl-described__title::before {
+  position: absolute;
+  left: calc(2pt * var(--cr-scale));
+  margin: 0;
+  font-size: calc(11pt * var(--cr-scale));
+  line-height: 1;
+}

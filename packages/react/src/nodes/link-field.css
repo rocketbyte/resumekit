@@ -1,0 +1,200 @@
+/*
+ * A link's editing chrome, and the rule it exists to obey.
+ *
+ * Every element here is absolutely positioned and `data-chrome`: it contributes
+ * no width and no height, so the line the link sits in is the same length in the
+ * editor as it is in the preview and in the exported file. That is the contract
+ * `SpaceHandle` and `EntryOverlay` already meet, and the reason `spacing.css`
+ * gives for meeting it — a control that occupies the flow "is present in the
+ * editor and absent from the preview, so the same document measured differently
+ * in the two".
+ *
+ * The link's own text is NOT styled here. It is an ordinary `EditableText` in
+ * whatever the template makes of it, which is what keeps it pixel-identical to
+ * the document it prints as.
+ */
+
+/*
+ * `position: relative` with no offsets moves nothing — the same trick
+ * `[data-gap]` uses to host a handle. `display: contents` would be wrong: the
+ * popover needs a positioned ancestor, and the templates lay these out as
+ * inline items.
+ */
+.tpl-link {
+  position: relative;
+}
+
+/*
+ * The link reads as pressable, because it is: the wrapper carries the handler.
+ *
+ * Stated against the field INSIDE it as well, and at the same specificity the
+ * shared rule uses. `template-node.css` gives every hovered field `cursor: text`
+ * — right for a field that takes a caret, and a lie here, where the press opens
+ * a panel instead. A promise the pointer makes and the click does not keep is
+ * how a control comes to feel broken.
+ */
+.tpl-link,
+.tpl-editor:not(.tpl-editor--static) .tpl-link .tpl-text:hover {
+  cursor: pointer;
+}
+
+/*
+ * The KEYBOARD's way in. Not an overlay.
+ *
+ * This was `position: absolute; inset: 0` drawn across the text, which asks the
+ * browser to resolve a containing block from the bounding box of an inline
+ * span's fragments — geometry jsdom cannot model, so the suite proved the
+ * handler ran while saying nothing about whether a pointer could reach it. The
+ * pointer now presses the link itself, and a handler has no box to get wrong.
+ *
+ * What is left is the part a click handler cannot do: give the affordance a
+ * name and a tab stop. Visually hidden, one pixel, taking no layout — a second
+ * VISIBLE control beside every link would be furniture the document did not ask
+ * for.
+ */
+.tpl-link__trigger {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  background: none;
+  border: 0;
+  opacity: 0;
+}
+
+/* Except under the keyboard, which must be able to see where it is. */
+.tpl-link__trigger:focus-visible {
+  width: auto;
+  height: auto;
+  opacity: 1;
+  outline: 2px solid var(--tpl-accent, #2563eb);
+}
+
+/* The link itself says it is pressable, and says which one is open. */
+.tpl-link:hover > .tpl-text,
+.tpl-link:has(.tpl-link__trigger[aria-expanded='true']) > .tpl-text {
+  background: var(--tpl-tint, rgb(0 0 0 / 4%));
+  border-radius: 3px;
+}
+
+/*
+ * The popover, drawn in `document.body` through a portal and placed with
+ * coordinates measured from the link when it opens.
+ *
+ * `position: absolute` inside `.tpl-link` is what this was, and it did not
+ * work: it asked the browser to resolve a containing block from the bounding
+ * box of an INLINE span's fragments, and `paged.css` masks `.tpl-pages__flow`
+ * on a multi-page document — a mask clips everything inside it, so a panel
+ * hanging below a link was cut off at the page edge or lost in the gutter
+ * between two sheets. Either way it looked exactly like a popover that never
+ * opened.
+ *
+ * `fixed`, so it is placed against the viewport the coordinates were measured
+ * in. The component supplies `top` and `left`.
+ */
+.tpl-link__pop {
+  position: fixed;
+  z-index: 6;
+  display: grid;
+  gap: 4px;
+  width: max-content;
+  max-width: 22rem;
+  padding: 5px 8px;
+  font:
+    400 11px/1.5 system-ui,
+    sans-serif;
+  color: var(--tpl-chrome-ink, #333);
+  background: var(--tpl-chrome, #fff);
+  border: 1px solid var(--tpl-line-hover, #d4d4d8);
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 14%);
+}
+
+/* The address's node lives in the document's own tree, hidden and taking no
+   space: a node outside the React tree is not collected when the résumé
+   saves, so it cannot travel to the portal with the panel. */
+.tpl-link__store {
+  display: none;
+}
+
+/* One row per field: its name, then the control. */
+.tpl-link__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tpl-link__label {
+  min-width: 2.4rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/*
+ * Real form controls, and they can be: nothing here is part of the document.
+ * `PlainTextField` exists because a control cannot be split across two lines of
+ * a résumé — a constraint that applies to the text IN the page, not to a panel
+ * floating above it.
+ */
+.tpl-link__input {
+  width: 15rem;
+  padding: 2px 5px;
+  font: inherit;
+  color: inherit;
+  background: var(--tpl-paper, #fff);
+  border: 1px solid var(--tpl-line-hover, #d4d4d8);
+  border-radius: 3px;
+}
+
+.tpl-link__input:focus-visible {
+  outline: 2px solid var(--tpl-accent, #2563eb);
+  outline-offset: -1px;
+}
+
+/*
+ * Ok, which is what SETS the link.
+ *
+ * The panel's inputs hold a draft and write nothing until this is pressed, so
+ * the button is the whole of "I meant this" — it is aligned to the trailing
+ * edge under both rows, where a two-field panel's confirm belongs, rather than
+ * sitting in a row of its own labels.
+ */
+.tpl-link__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.tpl-link__ok {
+  padding: 2px 12px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--tpl-on-accent, #fff);
+  cursor: pointer;
+  background: var(--tpl-accent, #2563eb);
+  border: 0;
+  border-radius: 4px;
+}
+
+.tpl-link__ok:focus-visible {
+  outline: 2px solid var(--tpl-accent, #2563eb);
+  outline-offset: 2px;
+}
+
+/* Nothing to set while both halves are blank — said rather than pretended. */
+.tpl-link__ok:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* On paper the document is the only thing on the page — the belt to the
+   editor's own `beforeprint` braces, asserted in `collections.spec.tsx`. */
+@media print {
+  .tpl-link__trigger,
+  .tpl-link__pop {
+    display: none !important;
+  }
+}

@@ -1,0 +1,622 @@
+/*
+ * The typefaces the product supplies.
+ *
+ * `DOCUMENT_FONTS` used to name six *system stacks*, which meant the document
+ * was drawn in whatever the reader's machine happened to substitute: a résumé
+ * set in "Calibri" reached macOS with no Calibri, no Candara, no Segoe and no
+ * Optima installed, fell through the whole stack, and was drawn in Arial. Two
+ * candidates never saw the same document, and a server could not have matched
+ * either of them.
+ *
+ * So the product ships the faces it offers. Each file below is bundled here,
+ * served to the browser from here, and installed into the render container from
+ * here — one set of bytes, so the screen and the PDF resolve the same face.
+ *
+ * Every family is *metrically compatible* with the typeface it stands in for
+ * wherever such a face exists, so a document keeps the line breaks the named
+ * typeface would have produced. See `licenses/` for provenance and terms, and
+ * `README.md` for the measured shift each entry causes.
+ *
+ * These declarations are the supplied face only. The catalog's original stack
+ * stays behind it in `DOCUMENT_FONTS`, so a file that fails to load degrades to
+ * the previous behaviour rather than to nothing.
+ *
+ * No `unicode-range`: these are body faces, so the download happens on any
+ * document regardless, and a character outside the subset already falls through
+ * to the next family in the stack by the browser's own per-glyph fallback.
+ */
+
+/* --- helvetica → TeX Gyre Heros (GUST Font License / LPPL 1.3c) --- */
+@font-face {
+  font-family: 'TeX Gyre Heros';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./heros-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'TeX Gyre Heros';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./heros-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'TeX Gyre Heros';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./heros-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'TeX Gyre Heros';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./heros-700i.woff2') format('woff2');
+}
+
+/* --- arial → Arimo (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Arimo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./arimo-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Arimo';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./arimo-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Arimo';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./arimo-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Arimo';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./arimo-700i.woff2') format('woff2');
+}
+
+/* --- calibri → Carlito (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Carlito';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./carlito-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Carlito';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./carlito-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Carlito';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./carlito-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Carlito';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./carlito-700i.woff2') format('woff2');
+}
+
+/* --- georgia → Gelasio (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Gelasio';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./gelasio-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Gelasio';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./gelasio-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Gelasio';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./gelasio-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Gelasio';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./gelasio-700i.woff2') format('woff2');
+}
+
+/* --- garamond → EB Garamond (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./ebgaramond-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./ebgaramond-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./ebgaramond-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./ebgaramond-700i.woff2') format('woff2');
+}
+
+/* --- times → Tinos (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Tinos';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./tinos-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Tinos';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./tinos-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Tinos';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./tinos-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Tinos';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./tinos-700i.woff2') format('woff2');
+}
+
+/* ---------------------------------------------------------------------------
+ * The product's OWN faces.
+ *
+ * Everything above stands in for a typeface a reader might have installed, and
+ * is metrically compatible with it. These stand in for nothing: they are here
+ * because the six above are a neo-grotesque sans and a transitional serif three
+ * times each, so a candidate could change the name of the typeface without much
+ * changing how the document reads.
+ *
+ * Same pipeline, same four styles, same `latin` cut — see `README.md`.
+ * ------------------------------------------------------------------------ */
+
+/* --- Lato (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./lato-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./lato-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./lato-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./lato-700i.woff2') format('woff2');
+}
+
+/* --- Roboto Condensed (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./robotocondensed-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./robotocondensed-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./robotocondensed-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./robotocondensed-700i.woff2') format('woff2');
+}
+
+/* --- PT Serif (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'PT Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./ptserif-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'PT Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./ptserif-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'PT Serif';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./ptserif-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'PT Serif';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./ptserif-700i.woff2') format('woff2');
+}
+
+/* --- Bitter (SIL OFL 1.1) --- */
+@font-face {
+  font-family: 'Bitter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./bitter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bitter';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./bitter-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bitter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./bitter-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bitter';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./bitter-700i.woff2') format('woff2');
+}
+
+/* ---------------------------------------------------------------------------
+ * TEMPLATE faces.
+ *
+ * Everything above is a catalog entry the candidate can pick. These are not:
+ * each is the typeface a particular template's design is drawn in, set by that
+ * template's own stylesheet, and offered in no picker. A template names one in
+ * its `--<key>-font` default, so a typeface the candidate picks still replaces
+ * it.
+ *
+ * Declared here with the rest so they are known before anything is measured,
+ * but a declaration is not a download: the browser fetches a face only when
+ * some text is set in that family, weight and style, so a résumé in Harvard
+ * never requests Raleway. Each family ships only the weights its templates set
+ * — see `README.md` for which template uses which.
+ * ------------------------------------------------------------------------ */
+
+/* --- Latin Modern Roman (GUST Font License) — Engineer, Academic, Scholar --- */
+@font-face {
+  font-family: 'Latin Modern Roman';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./lmroman-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Latin Modern Roman';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./lmroman-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Latin Modern Roman';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./lmroman-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Latin Modern Roman';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./lmroman-700i.woff2') format('woff2');
+}
+
+/* --- Latin Modern Roman Caps (GUST Font License) — Engineer's headings.
+ *
+ * Computer Modern's small capitals are a separate font, not an `smcp` feature,
+ * so `font-variant: small-caps` on Latin Modern Roman would be synthesised.
+ * Set this family instead, with `font-variant: normal`: its lowercase ARE the
+ * small capitals. --- */
+@font-face {
+  font-family: 'Latin Modern Roman Caps';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./lmromancaps-400.woff2') format('woff2');
+}
+
+/* --- Latin Modern Mono (GUST Font License) — Hipster's contact lines --- */
+@font-face {
+  font-family: 'Latin Modern Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./lmmono-400.woff2') format('woff2');
+}
+
+/* --- Source Sans 3 (SIL OFL 1.1) — Crimson's body; true `smcp` (upright only) --- */
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('./sourcesans3-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url('./sourcesans3-300i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./sourcesans3-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./sourcesans3-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./sourcesans3-700.woff2') format('woff2');
+}
+
+/* --- Roboto (SIL OFL 1.1) — Crimson's header, Prism --- */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url('./roboto-100.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('./roboto-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url('./roboto-300i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./roboto-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./roboto-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./roboto-700.woff2') format('woff2');
+}
+
+/* --- Raleway (SIL OFL 1.1) — Hipster, Split's contact and entry lines.
+ *
+ * Raleway's default figures are old-style; `font-variant-numeric:
+ * lining-nums` switches them. --- */
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('./raleway-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./raleway-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Raleway';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./raleway-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./raleway-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./raleway-700.woff2') format('woff2');
+}
+
+/* --- Lato's thin weights (SIL OFL 1.1) — Split's name and headings.
+ *
+ * The same family as the catalog's Lato above, so a template reaches them by
+ * weight alone. 100 is Lato's Hairline (upstream `Lato-Thin.ttf`). --- */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url('./lato-100.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('./lato-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url('./lato-300i.woff2') format('woff2');
+}
+
+/* --- Roboto Slab (Apache License 2.0) — Alta's name and headings, bold upright only --- */
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./robotoslab-700.woff2') format('woff2');
+}
+
+/* --- Clear Sans (Apache License 2.0) — Portrait --- */
+@font-face {
+  font-family: 'Clear Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./clearsans-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Clear Sans';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./clearsans-400i.woff2') format('woff2');
+}
+
+/* --- Cabin (SIL OFL 1.1) — Curve's name and headings --- */
+@font-face {
+  font-family: 'Cabin';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./cabin-700.woff2') format('woff2');
+}
+
+/* --- Cochineal (SIL OFL 1.1) — Curve's body; true `smcp`, and old-style
+ * figures by `font-variant-numeric: oldstyle-nums` --- */
+@font-face {
+  font-family: 'Cochineal';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./cochineal-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cochineal';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./cochineal-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cochineal';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./cochineal-700.woff2') format('woff2');
+}
+
+/* --- Inconsolata (SIL OFL 1.1) — Curve's contact row --- */
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./inconsolata-400.woff2') format('woff2');
+}

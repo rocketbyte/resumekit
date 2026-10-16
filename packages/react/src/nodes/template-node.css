@@ -1,0 +1,720 @@
+/*
+ * Editing affordances, shared by every template.
+ *
+ * The one rule this file exists to keep: an editable field occupies the SAME BOX
+ * whether it is being edited or not. Everything here is either zeroing a
+ * browser default (border, padding, background, font) or positioning a control
+ * outside the document's flow. Nothing here decides how the document looks —
+ * that is the template's stylesheet, and only the template's.
+ */
+
+.tpl-text {
+  /* Inherit everything. The template decided the typography; a field renders in
+     it, it does not have opinions of its own. */
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  white-space: pre-wrap;
+}
+
+/*
+ * An empty field says what belongs in it — as a DRAWING, never as text.
+ *
+ * The placeholder was the field's own content when the value was empty, which
+ * meant it printed: an exported PDF carried "Degree" and "YYYY-MM" as real
+ * words, and anything parsing that résumé read them as the candidate's answers.
+ * Drawn in a pseudo-element it cannot be extracted, cannot be selected, and can
+ * be switched off for the two places it is not guidance but noise — the
+ * read-only document, and paper.
+ */
+.tpl-text[data-empty] {
+  color: var(--tpl-paper-muted);
+  font-style: italic;
+}
+
+.tpl-text[data-empty]::before {
+  content: attr(data-placeholder);
+}
+
+/* Nothing here can be edited, so there is nothing to guide. */
+.tpl-editor--static .tpl-text[data-empty]::before {
+  content: none;
+}
+
+.tpl-input {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  /* Not inherited by form controls in the UA stylesheet, so an aligned field
+     would align its static text and not the field that replaces it. */
+  text-align: inherit;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+
+/*
+ * A textarea — which is now only the bullets, where the field is a block that
+ * fills its row and the mirror below gives it its height.
+ */
+textarea.tpl-input {
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  /* A textarea's default box is content-box with a 2px inset. Both would shift
+     the text by a hair the moment the field appears. */
+  box-sizing: border-box;
+  vertical-align: baseline;
+}
+
+/*
+ * An editable SPAN — every field that is a line of the document.
+ *
+ * Inline, so it breaks across lines wherever the static text broke, which is
+ * the property no form control can offer. It inherits `pre-wrap` from
+ * `.tpl-text`, so the wrapping is the same rule as well as the same shape.
+ */
+span.tpl-input {
+  display: inline;
+
+  /*
+   * And the browser's OWN opinions about editable text, reset.
+   *
+   * Every UA stylesheet attaches two line-breaking rules to `contenteditable`
+   * that no other element gets — `overflow-wrap: break-word`, which lets a long
+   * word be split mid-word, and `-webkit-line-break: after-white-space`, which
+   * moves where a line may break relative to its spaces. Both decide where the
+   * text WRAPS, so a paragraph re-flowed the instant it was clicked into and
+   * the document moved under the candidate's cursor. It is the same defect the
+   * form controls had, arriving from a different direction: the box was right,
+   * and the rules for filling it were not.
+   *
+   * `inherit`, not a value of its own — the field wraps however the text around
+   * it wraps, which is the rule this whole file keeps.
+   */
+  overflow-wrap: inherit;
+  word-break: inherit;
+  -webkit-line-break: auto;
+  line-break: auto;
+}
+
+/*
+ * The placeholder, which a span has no attribute for.
+ *
+ * Drawn rather than typed, so it is never part of the value and never lands in
+ * the résumé. Emptiness is an attribute the field sets on itself as it is
+ * typed into, not something read back from the stored value — that arrives half
+ * a second later and the guidance would still be sitting beside the first
+ * letter written over it.
+ */
+span.tpl-input[data-empty]::before {
+  content: attr(data-placeholder);
+  color: var(--tpl-paper-muted);
+  font-style: italic;
+}
+
+/*
+ * The auto-growing field.
+ *
+ * The mirror renders the same string invisibly in the same grid cell, so the
+ * box is exactly the size of its content — with no measurement, no
+ * `scrollHeight` read, and no frame where the size is wrong. A wrapping bullet
+ * stays wrapped while it is edited, which an <input> could never do.
+ */
+.tpl-grow {
+  display: grid;
+}
+
+.tpl-grow::after {
+  content: attr(data-value) ' ';
+  white-space: pre-wrap;
+  visibility: hidden;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-align: inherit;
+}
+
+.tpl-grow > .tpl-input,
+.tpl-grow::after {
+  grid-area: 1 / 1 / 2 / 2;
+}
+
+/*
+ * A field says it is a field with a FILL, never with an edge.
+ *
+ * Everything here used to draw a box: the hovered field got a two-pixel ring,
+ * the bullet list got a ring of its own around all eleven of them, and every
+ * field in the selected entry got a tinted band. Together that was a rectangle
+ * inside a rectangle inside a rectangle, and the one thing a candidate actually
+ * wanted to see — which line the caret is in — was the hardest of the three to
+ * pick out.
+ *
+ * So there is one edge on the page at a time: the region's ring, drawn by
+ * `collection.css`. Fields are distinguished by fill alone.
+ *
+ * Scoped away from `--static`, which is the READ-ONLY document — the saved
+ * résumé view and the export renderer both mount it. Without the exclusion a
+ * résumé nobody could edit still answered the pointer with a text cursor,
+ * promising an action that was not there.
+ */
+.tpl-editor:not(.tpl-editor--static) .tpl-text:hover {
+  background: var(--tpl-wash);
+  /* Rounded on all four, because a hover has no bar to sit flush against. */
+  border-radius: 5px;
+  cursor: text;
+}
+
+/*
+ * The ACTIVE field, and only it.
+ *
+ * An earlier version underlined every field inside the selected entry, on the
+ * argument that selecting a region should say which parts of it can be typed
+ * into. In a role with eleven bullets that painted all eleven, and the answer to
+ * "which one did I just click" stopped being visible at all — the highlight said
+ * something true about the region and nothing about the caret.
+ *
+ * So the highlight follows focus. A bullet list is ONE editor node, so selecting
+ * it turns every bullet into a field at once; `:focus-within` is what
+ * distinguishes the one the caret is in from the ten that merely could be.
+ *
+ * A FILL, and nothing else. Two attempts at an accent bar down the left edge
+ * came off badly for the same reason: a field's box starts exactly where its
+ * text starts, so a bar inside it sits on the first letter, and there is no room
+ * to give it without either moving the text or reaching into the gutter the drag
+ * handle already uses. The fill alone says which line the caret is in, cannot
+ * collide with anything, and needs no exception in any of the four templates.
+ */
+.tpl-editor:not(.tpl-editor--static) .tpl-text:focus-within {
+  background: var(--tpl-tint);
+  border-radius: 5px;
+  transition: background-color 140ms ease;
+}
+
+/* An empty field is guidance, and guidance should look like an invitation. */
+[data-selected] .tpl-text[data-empty] {
+  background: var(--tpl-tint);
+  border-radius: 5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tpl-editor:not(.tpl-editor--static) .tpl-text:focus-within {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * The bullet row.
+ *
+ * Every template draws a bullet as a two-column grid — a marker gutter and the
+ * text — with the marker in `::before`. On hover the GUTTER is what the drag
+ * handle uses: the marker steps aside and the grip takes its place, so the row
+ * does not grow, nothing to the right of it moves, and the affordance appears
+ * exactly where the eye already is.
+ *
+ * `visibility`, not `display`: the marker keeps its box, so the text never
+ * shifts by the width of a bullet as the pointer crosses it.
+ * ------------------------------------------------------------------------ */
+
+.tpl-bullet {
+  position: relative;
+}
+
+/*
+ * And the marker only steps aside when something is taking its place. While the
+ * field is being edited the handle is gone, so hiding the `•` as well would
+ * leave the bullet with no mark at all.
+ *
+ * Faded rather than switched, and on the same curve as the handle: the two are
+ * one object changing form, so the `•` has to leave over the time the grip
+ * takes to arrive. Cutting it instantly left the gutter empty for the length of
+ * the fade, which read as the bullet flickering rather than as a swap.
+ */
+.tpl-editor:not(.tpl-editor--static) .tpl-bullet[data-authored]::before {
+  transition: opacity var(--tpl-reveal-ms) ease;
+}
+
+.tpl-editor:not(.tpl-editor--static)
+  .tpl-bullet[data-authored]:hover:not(:has(.tpl-input:focus))::before {
+  opacity: 0;
+}
+
+.tpl-bullet__grip {
+  position: absolute;
+
+  /*
+   * Pinned by its CENTRE, on both axes.
+   *
+   * Horizontally that centre is the middle of the marker column, whose width
+   * only the template knows — the shared stylesheet reads it, and the fallback
+   * covers a bullet list drawn outside the four, which is a case that exists
+   * only in a test today. Centring the handle's own box on that point rather
+   * than stretching the box across the column is what lets the handle be BIGGER
+   * than the gutter: it grows symmetrically, so the ink stays over the `•` it
+   * stands in for however large it gets, and the hover tint grows with it
+   * instead of clipping at a 10pt column's edge.
+   *
+   * Vertically it is the middle of the whole row, not the first baseline the
+   * marker sits on — which reads as top-aligned the moment a bullet wraps, and
+   * a handle for the whole row belongs against the whole row.
+   */
+  top: 50%;
+  left: calc(var(--tpl-marker, 1em) / 2);
+  transform: translate(-50%, -50%) scale(0.72);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /*
+   * A square target, comfortably larger than the narrowest gutter (Harvard's
+   * 10pt ≈ 13px). It overhangs that column on both sides, which costs nothing:
+   * the handle is out of flow, so it displaces no text, and it is only ever
+   * visible while the pointer is on that row.
+   */
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  color: var(--tpl-accent-ink);
+  cursor: grab;
+  background: none;
+  border: 0;
+  border-radius: 3px;
+
+  /*
+   * Hidden but reachable.
+   *
+   * `opacity` rather than `visibility`, because a `visibility: hidden` button is
+   * out of the tab order — and reaching a bullet's handle by keyboard is how it
+   * is reordered without a pointer. `pointer-events: none` is the other half:
+   * an invisible control that still swallowed clicks would eat every click aimed
+   * at the text underneath it.
+   */
+  /*
+   * Hidden but reachable, and never abruptly.
+   *
+   * The scale is what makes the fade read as the handle ARRIVING in the gutter
+   * rather than as the row changing brightness — 4px of growth is enough to be
+   * felt and too little to be watched. It composes into the same `transform`
+   * that centres the box, because a second transform would replace the first
+   * and drop the handle a half-width off its column.
+   */
+  opacity: 0;
+  transition:
+    opacity var(--tpl-reveal-ms) ease,
+    transform var(--tpl-reveal-ms) cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  pointer-events: none;
+  touch-action: none;
+}
+
+.tpl-bullet__grip svg {
+  /*
+   * A fixed size rather than an `em`: the ink should read the same at every
+   * type scale rather than becoming six large dots on a large résumé and six
+   * invisible ones on a small one.
+   *
+   * `flex: none` because the box it sits in is narrower than it is on the
+   * tightest template, and a flex item's default is to shrink to fit — which
+   * would quietly hand back exactly the size being asked for here.
+   */
+  flex: none;
+  width: 14px;
+  height: 14px;
+  fill: currentcolor;
+}
+
+.tpl-bullet__grip:active {
+  cursor: grabbing;
+}
+
+/*
+ * Revealed by the POINTER, and by focus landing on the controls themselves —
+ * never while the field is being edited.
+ *
+ * Typing is the one moment a candidate is reading their own sentence closely,
+ * and a handle and two buttons appearing beside it are three things competing
+ * with the words. Hover alone was not enough to say that: clicking into a bullet
+ * leaves the pointer sitting on the row it just opened, so the controls stayed
+ * up for exactly the moment they were meant to leave.
+ *
+ * `:not(:has(.tpl-input:focus))` is the distinction the row itself cannot make.
+ * `:focus-within` is true both when the caret is in the text AND when focus is
+ * on one of these controls — and those are opposite cases: one must hide them,
+ * the other is the only reason a keyboard user can reach them at all.
+ *
+ * They come back the moment the pointer moves, and a keyboard user still tabs
+ * straight into them because they were never taken out of the tab order.
+ */
+.tpl-bullet:hover:not(:has(.tpl-input:focus)) > .tpl-bullet__grip,
+.tpl-bullet__grip:focus-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.tpl-bullet:hover:not(:has(.tpl-input:focus)) > .tpl-bullet__tools,
+.tpl-bullet__tools:focus-within {
+  opacity: 1;
+  transform: translate(0, -50%);
+  pointer-events: auto;
+}
+
+.tpl-bullet__grip:hover {
+  background: var(--tpl-tint-hover);
+}
+
+.tpl-bullet__grip:focus-visible {
+  outline: 2px solid var(--tpl-accent-ink);
+  outline-offset: 1px;
+}
+
+/*
+ * Add and remove float INSIDE the row, at its right end.
+ *
+ * They used to sit in the page's right margin, which was the tidier place for
+ * them and the wrong one: the margin is outside the sheet, so on a narrow canvas
+ * — or simply with the page scrolled — the pill was clipped by the edge of the
+ * viewport and the controls could not be reached at all. Anything a candidate
+ * has to be able to click has to be on the paper.
+ *
+ * Absolutely positioned, so it still takes no flow space and revealing it moves
+ * no line. It does overlay the end of the row while the pointer is on it, which
+ * is the trade: an opaque pill with a shadow reads as floating above the text
+ * rather than replacing it, and it is only ever there while that one row is
+ * hovered or focused.
+ */
+.tpl-bullet__tools {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+
+  /* Centred on the whole bullet, matching the handle at the other end of the
+     row — both act on the bullet, so neither belongs to its first line. */
+  transform: translate(4px, -50%);
+
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+
+  /*
+   * One pill holding both, rather than two loose circles.
+   *
+   * Neutral like the region's own bar above it, and for the same reason: these
+   * rest on a résumé, and a pair of coloured discs beside a line of it reads as
+   * something wrong with the line.
+   */
+  background: var(--tpl-chrome);
+  border: 1px solid rgb(var(--tpl-chrome-line) / 0.08);
+  border-radius: 9px;
+  box-shadow:
+    0 1px 2px rgb(var(--tpl-chrome-line) / 0.05),
+    0 4px 12px rgb(var(--tpl-chrome-line) / 0.08);
+
+  /*
+   * Arrives from the edge it lives at, by 4px — the same distance the handle
+   * grows by, so the two ends of the row move by the same amount at the same
+   * time and neither leads the other.
+   */
+  opacity: 0;
+  transition:
+    opacity var(--tpl-reveal-ms) ease,
+    transform var(--tpl-reveal-ms) cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  pointer-events: none;
+}
+
+/*
+ * Quiet at rest, and coloured only by what they do.
+ *
+ * They sit on a résumé somebody is about to send an employer, so nothing here
+ * is coloured until a pointer is on it: adding takes the brand colour, removing
+ * turns red, and neither announces itself before it is aimed at.
+ */
+.tpl-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  color: color-mix(in oklab, var(--tpl-chrome-ink) 70%, transparent);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tpl-tool svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tpl-tool:hover:not(:disabled) {
+  color: var(--tpl-accent-ink);
+  background: var(--tpl-tint-hover);
+  /* A press-able amount, not a bounce. */
+  transform: scale(1.08);
+}
+
+.tpl-tool[data-tone='danger']:hover:not(:disabled) {
+  color: var(--tpl-danger);
+  background: var(--tpl-danger-tint);
+}
+
+.tpl-tool:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.tpl-tool:disabled {
+  color: color-mix(in oklab, var(--tpl-chrome-ink) 30%, transparent);
+  cursor: not-allowed;
+}
+
+.tpl-tool:focus-visible {
+  outline: 2px solid var(--tpl-line-strong);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /*
+   * The controls still appear — they are the only way to reorder a bullet, and
+   * a preference about motion is not a preference about affordances. They just
+   * arrive at once, with the marker swapping out on the same frame.
+   */
+  .tpl-editor:not(.tpl-editor--static) .tpl-bullet[data-authored]::before,
+  .tpl-bullet__grip,
+  .tpl-bullet__tools {
+    transition: none;
+  }
+
+  .tpl-bullet__grip {
+    transform: translate(-50%, -50%);
+  }
+
+  .tpl-bullet__tools {
+    transform: translate(0, -50%);
+  }
+
+  .tpl-tool {
+    transition: none;
+  }
+
+  .tpl-tool:hover:not(:disabled),
+  .tpl-tool:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/*
+ * On paper the document is the only thing on the page. `onbeforeprint` also
+ * clears the selection so no field is mounted when this applies — these rules
+ * are the belt to that braces.
+ */
+@media print {
+  .tpl-bullet__tools,
+  .tpl-bullet__grip,
+  .tpl-tool {
+    display: none !important;
+  }
+
+  /* The marker steps aside only for a pointer; on paper it always stands. */
+  .tpl-bullet::before {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .tpl-text,
+  .tpl-text:hover,
+  .tpl-text:focus-within,
+  .tpl-input,
+  .tpl-bullets,
+  [data-selected] .tpl-text[data-empty] {
+    background: none !important;
+    box-shadow: none !important;
+  }
+
+  /*
+   * And the guidance itself goes. Printing happens from the EDITOR too — the
+   * PDF export is `window.print()` — so hiding it on the read-only document is
+   * only half the rule.
+   */
+  .tpl-text[data-empty]::before,
+  span.tpl-input[data-empty]::before {
+    content: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Candidate-authored sections.
+ *
+ * The section wrapper and heading are the TEMPLATE's own classes — see
+ * `CustomSections.tsx` — so only the entry internals are styled here. Everything
+ * below inherits font, ink and scale from the template root, which is where the
+ * document's style already lives; nothing here states a typeface or a colour.
+ * ------------------------------------------------------------------------ */
+
+.tpl-custom__entry + .tpl-custom__entry {
+  margin-top: 0.5em;
+}
+
+/*
+ * Title and detail on one line, detail pushed to the trailing edge — the shape
+ * every template already uses for "what this was" and "when it was", so an
+ * authored entry reads as a sibling of the written ones rather than as a
+ * different kind of thing.
+ */
+.tpl-custom__entry-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+}
+
+.tpl-custom__title {
+  font-weight: 700;
+}
+
+.tpl-custom__detail {
+  /* `em`, so it tracks the document scale rather than fixing a size. */
+  font-size: 0.92em;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+/*
+ * A linked field.
+ *
+ * Inherits colour and weight from the text it replaces so a link cannot reflow
+ * or recolour the document — the anchor is about where the word points, not
+ * about how it looks. Underlined, because a link nobody can see is a link
+ * nobody clicks, and on paper it is the only cue there is.
+ */
+.tpl-text__link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/*
+ * A date that disagrees with the résumé's chronological order.
+ *
+ * EDITOR CHROME. The attribute is set only where `DateIssuesProvider` is
+ * mounted, which is the editor and nowhere else — the read-only preview and the
+ * render container never see it, so the exported PDF is byte-identical to what
+ * it was. Drawn by CSS from an attribute for the same reason the placeholders
+ * are: a message that were a text node would print into the file and be read by
+ * a parser as the candidate's own words.
+ *
+ * A WARM mark, not a red one. Nothing here is refused and nothing is broken —
+ * the candidate may have a genuine overlap or a deliberate ordering, and the
+ * product is pointing something out, not rejecting a form.
+ */
+.tpl-text[data-issue] {
+  /*
+   * A TINT as well as a rule, and a rule thick enough to see.
+   *
+   * This shipped as a wavy underline at `from-font` thickness and was, at the
+   * ~12.8px a date is set in, a hairline you could only find by zooming — a
+   * marker nobody notices is the same as no marker, and it read as the feature
+   * being broken. "Friendly rather than alarming" is not "invisible".
+   *
+   * The tint is what carries it at a glance; the wave is what says "look at
+   * this" rather than "this is highlighted". Both are warm, and neither is red:
+   * nothing here is refused, and the candidate may have meant it.
+   */
+  background: color-mix(in oklab, var(--tpl-warn) 14%, transparent);
+  border-radius: 3px;
+  /* Drawn wider than the word without taking that width in the layout, so a
+     marked date cannot nudge the line it sits on. */
+  padding: 0.05em 0.22em;
+  margin-inline: -0.22em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--tpl-warn);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.2em;
+}
+
+/*
+ * The message, on hover AND on focus.
+ *
+ * Focus is the half that matters: `title` alone is a pointer affordance, so a
+ * candidate moving through the document by keyboard would see a marked date and
+ * have no way to find out what was noticed about it. `:focus-within` covers the
+ * field once it is selected, which is exactly when they are looking at it.
+ */
+.tpl-text[data-issue]::after {
+  content: attr(title);
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  top: calc(100% + 6px);
+  width: max-content;
+  max-width: 22rem;
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: var(--tpl-chrome-ink);
+  color: var(--tpl-chrome);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-decoration: none;
+  text-align: left;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-out;
+}
+
+/*
+ * Out of the way while the sentence is being written.
+ *
+ * The same guard every hover-revealed control in this file carries: a note that
+ * appeared over the document while the candidate was typing would be chrome
+ * covering the very words they are looking at. The marker itself stays — it is
+ * part of the text's own decoration, not a control — so nothing is hidden, only
+ * the explanation waits.
+ *
+ * Reaching it without a pointer is `aria-description` on the field, which is
+ * read whether or not anything is hovered.
+ */
+.tpl-editor:not(:has(.tpl-input:focus)) .tpl-text[data-issue]:hover::after {
+  opacity: 1;
+}
+
+/* The note is positioned against the field, so the field has to be a containing
+   block — and only when it carries one, so no other field's layout moves. */
+.tpl-text[data-issue] {
+  position: relative;
+}
+
+@media print {
+  /* Belt and braces. The attribute is not set on the print path at all, but a
+     résumé must never carry a note about itself onto paper. */
+  .tpl-text[data-issue] {
+    background: none;
+    padding: 0;
+    margin-inline: 0;
+    text-decoration: none;
+  }
+  .tpl-text[data-issue]::after {
+    content: none;
+  }
+}

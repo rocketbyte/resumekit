@@ -1,0 +1,431 @@
+/*
+ * The Meridian template — the single place its design is decided.
+ *
+ * Same three rules as Harvard and Executive: no node can reach this file, paper
+ * is not a theme, and every size is one multiplier off `--m-scale` so the type
+ * relationships are the design and scaling cannot break them.
+ *
+ * The numbers are MEASURED, not estimated. The supplied reference renders an
+ * 8.5in page at 611px, which is one CSS pixel to one point, so every measurement
+ * taken off it is written here in points unchanged. See `design.md`, decision 6.
+ *
+ * Two inks and paper: `--m-ink` for the band, every rule, every heading and
+ * every word, and `--m-accent` for the contact rule alone. Both survive a
+ * greyscale print, which is what the ink palette in `libs/core` exists to keep
+ * true.
+ */
+
+.tpl-mer {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(8pt * var(--m-scale));
+  /*
+   * What ONE STEP of recorded space is worth here — `document-styling` (#36).
+   *
+   * This template's OWN section gap, so the same stored token is a different
+   * distance in each template — which is what the token is for. It follows
+   * the type scale and the density for the same reason the gap it is measured
+   * against does.
+   */
+  --tpl-space-unit: calc(4pt * var(--m-scale) * var(--m-density));
+  /* This template's own side margin — see `spacing.css`. */
+  --tpl-space-margin: var(--m-margin);
+
+  --m-scale: 1;
+  --m-ink: #383838;
+  /*
+   * The DEFAULT body face, and it must name the supplied one first.
+   *
+   * A résumé whose owner never opened the typeface control has no `font` in its
+   * stored style, so nothing sets this variable inline and this literal is what
+   * draws the document. While it named only system families, the default
+   * document was drawn in whatever the reader's machine had — Helvetica Neue on
+   * macOS, Liberation Sans in the render container — so the screen and the
+   * exported file disagreed for every résumé that had not chosen a typeface,
+   * which is most of them. Same stack as `DOCUMENT_FONTS.helvetica`, so the
+   * default and an explicit "Helvetica" are the same document.
+   */
+  --m-font:
+    'TeX Gyre Heros', 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans',
+    sans-serif;
+
+  /*
+   * The display face is the TEMPLATE's, not the candidate's — the serif
+   * small-capital headings over a sans body are what makes this template this
+   * template, and setting them in Calibri does not produce a differently-fonted
+   * Meridian but a different design. A system stack, from the same family of
+   * choices as `DOCUMENT_FONTS`: nothing to download, nothing that extracts
+   * badly. See `design.md`, decision 4.
+   */
+  --m-display:
+    'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia,
+    'Times New Roman', serif;
+
+  --m-accent: #a84026;
+  /* See Harvard: 1 means the rhythm the template was measured at. */
+  --m-density: 1;
+  --m-muted: #5f5f5f;
+  --m-margin: calc(36pt * var(--m-scale));
+  --m-body: calc(9.5pt * var(--m-scale));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  margin: 0 auto;
+  color: var(--m-ink);
+  font-family: var(--m-font);
+  font-size: var(--m-body);
+  line-height: 1.28;
+}
+
+.tpl-mer *,
+.tpl-mer *::before,
+.tpl-mer *::after {
+  box-sizing: inherit;
+}
+
+.tpl-mer [data-ink] {
+  color: var(--f-ink);
+}
+
+.tpl-mer .is-bold {
+  font-weight: 700;
+}
+
+.tpl-mer .tpl-text.is-left,
+.tpl-mer .tpl-text.is-center,
+.tpl-mer .tpl-text.is-right {
+  display: block;
+}
+
+.tpl-mer .tpl-text.is-left.tpl-grow,
+.tpl-mer .tpl-text.is-center.tpl-grow,
+.tpl-mer .tpl-text.is-right.tpl-grow {
+  display: grid;
+}
+
+.tpl-mer .is-left {
+  text-align: left;
+}
+
+.tpl-mer .is-center {
+  text-align: center;
+}
+
+.tpl-mer .is-right {
+  text-align: right;
+}
+
+/* ── Crown band ─────────────────────────────────────────────────────────── */
+
+/*
+ * 91pt tall and full bleed, measured. White ink on charcoal is unreadable if the
+ * browser declines to print backgrounds — the name simply disappears — so the
+ * colour is forced, and that is stated in the template's ATS notes rather than
+ * left for a candidate to discover on paper.
+ */
+.tpl-mer__crown {
+  padding: calc(19.5pt * var(--m-scale)) var(--m-margin)
+    calc(22.5pt * var(--m-scale));
+  color: #ffffff;
+  text-align: center;
+  background: var(--m-ink);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/*
+ * The monogram between two 54pt rules, 13pt clear of each.
+ *
+ * The rules are drawn by the pseudo-elements of the line that holds the
+ * monogram, so a name that yields no initials leaves no orphaned pair of lines
+ * hanging in the band.
+ */
+.tpl-mer__monogram {
+  display: flex;
+  gap: calc(13pt * var(--m-scale));
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-family: var(--m-display);
+  font-size: calc(9.5pt * var(--m-scale));
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  /* The measured monogram is a shade off white — it recedes behind the name,
+     which is the thing the band exists to carry. */
+  color: #d5d5d5;
+}
+
+.tpl-mer__monogram:empty,
+.tpl-mer__monogram > span:empty {
+  display: none;
+}
+
+.tpl-mer__monogram::before,
+.tpl-mer__monogram::after {
+  flex: none;
+  width: calc(54pt * var(--m-scale));
+  height: 0;
+  content: '';
+  border-top: 0.75pt solid rgb(255 255 255 / 55%);
+}
+
+/* Small capitals rather than uppercase: the reference sets the initial of each
+   word full height and the rest as capitals at cap height, which is what
+   `font-variant` does and what `text-transform` cannot. */
+.tpl-mer__name {
+  margin: calc(17.5pt * var(--m-scale)) 0 0;
+  font-family: var(--m-display);
+  font-size: calc(19pt * var(--m-scale));
+  font-variant: small-caps;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+}
+
+/* ── Contact rule ───────────────────────────────────────────────────────── */
+
+/*
+ * 22pt of terracotta, full bleed, closed by a hairline in the document ink —
+ * both measured off the reference, and the one place in the document that is not
+ * ink on paper.
+ */
+.tpl-mer__contact {
+  padding: calc(5.5pt * var(--m-scale)) var(--m-margin);
+  margin: 0;
+  font-size: calc(8pt * var(--m-scale));
+  font-weight: 700;
+  line-height: 1.35;
+  color: #ffffff;
+  text-align: center;
+  background: var(--m-accent);
+  border-bottom: 0.75pt solid var(--m-ink);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* Drawn, not typed, so a detail the writer did not have cannot leave a stray
+   bullet behind it. */
+.tpl-mer__contact-item + .tpl-mer__contact-item::before {
+  content: '•';
+  margin: 0 calc(9pt * var(--m-scale));
+}
+
+/* ── Body: two columns divided by a hairline ────────────────────────────── */
+
+/*
+ * 344pt of main, a 22pt gutter, then the rail: a 0.75pt border, 21pt of padding
+ * and 153pt of text — 174pt in all, measured.
+ *
+ * The divider is the aside's `border-left` rather than a drawn line, because a
+ * stretched grid item is already exactly as tall as the taller column at any
+ * content length. Nothing measures it and nothing can disagree with it.
+ */
+.tpl-mer__body {
+  display: grid;
+  grid-template-columns: 344fr 174fr;
+  column-gap: calc(22pt * var(--m-scale));
+  padding: calc(31pt * var(--m-scale)) var(--m-margin)
+    calc(30pt * var(--m-scale));
+}
+
+.tpl-mer__main {
+  min-width: 0;
+}
+
+.tpl-mer__aside {
+  min-width: 0;
+  /* Against the page's right edge, so its rails stand in the right margin. */
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+  padding-left: calc(21pt * var(--m-scale));
+  border-left: 0.75pt solid var(--m-ink);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-mer__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-mer__section + .tpl-mer__section {
+  margin-top: calc(
+    20pt * var(--m-scale) * var(--m-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-mer__heading {
+  position: relative;
+  margin: 0 0 calc(8pt * var(--m-scale));
+  font-family: var(--m-display);
+  font-size: calc(13.5pt * var(--m-scale));
+  font-variant: small-caps;
+  font-weight: 400;
+  line-height: 1.18;
+  letter-spacing: 0.03em;
+}
+
+/*
+ * The dot on the divider, beside a rail heading and centred on it.
+ *
+ * A pseudo-element of the heading, so it cannot exist without a heading to mark
+ * and cannot drift from one. Sits 21pt to the left — the aside's own padding —
+ * which puts it on the border regardless of how the columns resolve.
+ */
+.tpl-mer__heading--marked::before {
+  position: absolute;
+  top: 50%;
+  left: calc(-21pt * var(--m-scale));
+  width: calc(5pt * var(--m-scale));
+  height: calc(5pt * var(--m-scale));
+  content: '';
+  background: var(--m-ink);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-mer__prose {
+  margin: 0;
+  text-align: justify;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-mer__entry {
+  margin-top: calc(
+    11pt * var(--m-scale) * var(--m-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+
+  /*
+   * This layout has the least room beside an entry of any of the four: the
+   * main column's right edge is a 22pt gutter with the aside's rule down the
+   * far side of it, and at the smallest scale that is under 25px. The editor's
+   * ring reaches sideways by exactly this much, so it is told how far it may
+   * go — the default would draw its edge on top of the divider.
+   */
+  --tpl-ring-room: 15px;
+}
+
+/* The heading's own margin, restated: the two collapse, so the gap is added
+   to it rather than lost inside it. */
+.tpl-mer__entry:first-of-type {
+  margin-top: calc(8pt * var(--m-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-mer__entry-line,
+.tpl-mer__entry-org,
+.tpl-mer__entry-when {
+  margin: 0;
+}
+
+.tpl-mer__entry-when {
+  color: var(--m-muted);
+}
+
+/* The employer is set apart from the title by its slope, not by a rule or a
+   second colour — the reference's only typographic distinction inside an entry. */
+.tpl-mer__entry-org {
+  font-style: italic;
+  font-weight: 700;
+}
+
+.tpl-mer__dates {
+  font-weight: 400;
+}
+
+/* ── Bullets ────────────────────────────────────────────────────────────── */
+
+.tpl-mer .tpl-bullets {
+  margin: calc(5pt * var(--m-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-mer .tpl-bullet {
+  /*
+   * The marker column, named so the drag handle can sit centred in it.
+   *
+   * `template-node.css` draws the handle for every template and cannot know how
+   * wide this one's gutter is — so the stylesheet that DECIDES the width is the
+   * one that states it. Repeating the value would be two places to disagree,
+   * which is why it is the same expression rather than a rounded copy.
+   */
+  --tpl-marker: calc(12pt * var(--m-scale));
+
+  /* Hanging indent, as in both other templates: a wrapped line aligns with the
+     text above it, not under the marker. */
+  display: grid;
+  grid-template-columns: calc(12pt * var(--m-scale)) 1fr;
+  margin-top: calc(3pt * var(--m-scale));
+  break-inside: avoid;
+}
+
+.tpl-mer .tpl-bullet::before {
+  content: '•';
+  line-height: inherit;
+}
+
+/* The rail's list breathes more than the main column's — measured at a 17pt
+   step against the main column's 12pt line. */
+.tpl-mer__aside .tpl-bullet {
+  margin-top: calc(5pt * var(--m-scale));
+}
+
+.tpl-mer__links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-mer__link {
+  display: grid;
+  grid-template-columns: calc(12pt * var(--m-scale)) 1fr;
+  margin-top: calc(5pt * var(--m-scale));
+  /* A URL has no spaces to break at, and a rail is 153pt wide. */
+  overflow-wrap: anywhere;
+}
+
+.tpl-mer__link::before {
+  content: '•';
+}
+
+@page {
+  size: letter;
+  margin: 0;
+}
+
+@media print {
+  .tpl-mer {
+    width: auto;
+    margin: 0;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-mer {
+  --tpl-described-gap: calc(7pt * var(--m-scale));
+  --tpl-described-lead: calc(1.5pt * var(--m-scale));
+  --tpl-described-title-ink: var(--m-ink);
+  --tpl-described-span: calc(14pt * var(--m-scale));
+  --tpl-language-gap: calc(6pt * var(--m-scale));
+  --tpl-language-lead: calc(4pt * var(--m-scale));
+  --tpl-language-step: calc(4pt * var(--m-scale));
+  --tpl-language-meter-ink: var(--m-ink);
+}
+
+/* One repeated mark, never one per entry: nothing in the résumé says which
+   glyph an achievement deserves. */
+.tpl-mer .tpl-described--marked {
+  --tpl-described-mark: '\25C6';
+  --tpl-described-mark-gap: calc(4pt * var(--m-scale));
+}

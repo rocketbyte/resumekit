@@ -1,0 +1,251 @@
+/*
+ * The Classic template: a plain left-aligned page whose only ornament is the
+ * accent on the line that names the employer.
+ *
+ * Everything else is type and space — no rules, no bands, no panels — which is
+ * what makes it the safest thing in the catalog to send anywhere.
+ */
+
+.tpl-classic {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(3pt * var(--cl-scale));
+  /* A fifth of the gap between two sections, so a drag lands between
+     positions rather than jumping a whole one. */
+  --tpl-space-unit: calc(2.4pt * var(--cl-scale) * var(--cl-density));
+  --tpl-space-margin: var(--cl-margin);
+  /* The bullet marker column, read by `template-node.css`. */
+  --tpl-marker: calc(9pt * var(--cl-scale));
+
+  --cl-scale: 1;
+  --cl-ink: #1f1f1f;
+  --cl-font:
+    'Carlito', -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  /* The accent names the employer, and nothing else on the page carries it. */
+  --cl-accent: #2fa36a;
+  --cl-density: 1;
+  --cl-margin: 0.5in;
+  --cl-muted: #5c5c5c;
+  --cl-quiet: #767676;
+  --cl-heading: #3d3d3d;
+  /* The lead line is the ink deepened toward the accent, as the reference
+     sets the role and the degree. */
+  --cl-lead: color-mix(in srgb, var(--cl-accent) 30%, #102018);
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.45in var(--cl-margin);
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--cl-ink);
+  font-family: var(--cl-font);
+  font-size: calc(8.4pt * var(--cl-scale));
+  line-height: 1.35;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-classic__name {
+  margin: 0;
+  font-size: calc(17pt * var(--cl-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.tpl-classic__headline {
+  margin: calc(2pt * var(--cl-scale)) 0 0;
+  font-size: calc(10pt * var(--cl-scale));
+  color: var(--cl-heading);
+}
+
+.tpl-classic__contact {
+  margin: calc(3pt * var(--cl-scale)) 0 0;
+  font-size: calc(7.6pt * var(--cl-scale));
+  color: var(--cl-accent);
+}
+
+/* Spaced rather than punctuated — the reference sets the details apart with
+   air, so a detail the writer did not have leaves no separator behind. */
+.tpl-classic__contact-item + .tpl-classic__contact-item::before {
+  content: '';
+  display: inline-block;
+  width: calc(10pt * var(--cl-scale));
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-classic__section {
+  margin-top: calc(
+    10pt * var(--cl-scale) * var(--cl-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-classic__heading {
+  margin: 0 0 calc(3pt * var(--cl-scale));
+  font-size: calc(9pt * var(--cl-scale));
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--cl-heading);
+}
+
+.tpl-classic__prose {
+  margin: 0;
+}
+
+/* Skills as the kit's invisible table (`kit/skill-grid.css`), tuned to this
+   template's measure. */
+.tpl-classic {
+  --tpl-skill-grid-label: calc(78pt * var(--cl-scale));
+  --tpl-skill-grid-column: calc(96pt * var(--cl-scale));
+  --tpl-skill-grid-gutter: calc(10pt * var(--cl-scale));
+  --tpl-skill-grid-gap: calc(10pt * var(--cl-scale));
+  --tpl-skill-grid-lead: calc(1.5pt * var(--cl-scale));
+  --tpl-skill-grid-rhythm: calc(3pt * var(--cl-scale));
+  --tpl-skill-grid-label-weight: 700;
+  --tpl-skill-grid-label-ink: var(--cl-heading);
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-classic__entry {
+  margin-top: calc(
+    7pt * var(--cl-scale) * var(--cl-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse, so a recorded gap adds
+   to it rather than being lost inside it. */
+.tpl-classic__entry:first-of-type {
+  margin-top: calc(4pt * var(--cl-scale) + var(--tpl-space-height, 0px));
+}
+
+.tpl-classic__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(12pt * var(--cl-scale));
+  align-items: start;
+}
+
+.tpl-classic__lead,
+.tpl-classic__support,
+.tpl-classic__school,
+.tpl-classic__place,
+.tpl-classic__dates {
+  margin: 0;
+}
+
+.tpl-classic__lead {
+  font-size: calc(10.5pt * var(--cl-scale));
+  line-height: 1.25;
+  color: var(--cl-lead);
+}
+
+.tpl-classic__support {
+  color: var(--cl-accent);
+}
+
+.tpl-classic__school,
+.tpl-classic__support {
+  font-size: calc(9pt * var(--cl-scale));
+}
+
+.tpl-classic__aside {
+  text-align: right;
+  font-size: calc(7.6pt * var(--cl-scale));
+  color: var(--cl-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-classic .tpl-bullets {
+  margin: calc(2.5pt * var(--cl-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * The bullet and its hanging indent, stated here because only this stylesheet
+ * knows how wide its marker column is — `template-node.css` centres the drag
+ * handle on the figure below, and a template that left it out drew whatever
+ * the shared default happened to be.
+ */
+.tpl-classic .tpl-bullet {
+  display: grid;
+  grid-template-columns: calc(9pt * var(--cl-scale)) 1fr;
+  margin-top: calc(1pt * var(--cl-scale));
+}
+
+.tpl-classic .tpl-bullet::before {
+  content: '-';
+  color: var(--cl-quiet);
+}
+
+/* ── The candidate's own sections: two notes to a row ───────────────────── */
+
+/*
+ * A GRID rather than CSS columns. Each note is an editable container, and a
+ * container that spans a column break is fragmented — which leaves it unable
+ * to carry its outline or hold its rail. Grid items never fragment sideways.
+ */
+.tpl-classic__section:has(> .tpl-classic__note) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: calc(22pt * var(--cl-scale));
+}
+
+.tpl-classic__section:has(> .tpl-classic__note) > .tpl-classic__heading {
+  grid-column: 1 / -1;
+}
+
+.tpl-classic__note {
+  margin-top: calc(
+    6pt * var(--cl-scale) * var(--cl-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The right-hand column stands against the page's right edge, so its rails
+   belong in the right margin rather than over the column beside them. */
+.tpl-classic__note:nth-of-type(even) {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+.tpl-classic__note-title,
+.tpl-classic__note-detail {
+  margin: 0;
+}
+
+.tpl-classic__note-title {
+  font-weight: 700;
+  color: var(--cl-accent);
+}
+
+.tpl-classic__note-detail {
+  color: var(--cl-muted);
+}
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-classic {
+  --tpl-described-gap: calc(7pt * var(--cl-scale));
+  --tpl-described-lead: calc(1.5pt * var(--cl-scale));
+  --tpl-described-title-ink: var(--cl-accent);
+  --tpl-described-span: calc(14pt * var(--cl-scale));
+  --tpl-language-gap: calc(6pt * var(--cl-scale));
+  --tpl-language-lead: calc(4pt * var(--cl-scale));
+  --tpl-language-step: calc(4pt * var(--cl-scale));
+  --tpl-language-meter-ink: var(--cl-accent);
+}
+
+/* The reference sets these 2 to a row. */
+.tpl-classic .tpl-described--grid {
+  --tpl-described-columns: 2;
+}

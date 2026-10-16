@@ -1,0 +1,159 @@
+/*
+ * Structural spacing: the gap between two parts of the document, as a control.
+ *
+ * Three rules govern everything here.
+ *
+ * The space is the element's own MARGIN, and nothing is rendered to hold it.
+ * Padding would have been the same distance and a different thing — a role's
+ * box would grow and its selection outline with it — and a wrapper element
+ * would have been worse still: present in the editor, absent from the preview,
+ * and an only-child parent that broke the `:first-of-type` and `+` rules the
+ * templates space their entries with.
+ *
+ * The control lives OUTSIDE the paper, in the container's rail (`rail.css`),
+ * which appears when the container is pointed at, focused or selected. A
+ * résumé with furniture drawn between its parts reads as a form; the rail sits
+ * on the canvas, and the gap itself is shown only while the control is used.
+ *
+ * It is CHROME, and the space it records is document: the rail never prints,
+ * the margin always does.
+ */
+
+/*
+ * How far past the paper's edge a container's rail reaches, and therefore how
+ * much room the flow reserves beside itself (see `rail.css`). Declared only in
+ * the editor: a document being read draws no rail, and `paged.css` defaults
+ * this to zero so that surface is laid out exactly as it was.
+ */
+.tpl-editor:not(.tpl-editor--static) {
+  --tpl-space-bleed: 56px;
+}
+
+/* ── The space: the element's own margin, and no element of its own ──────── */
+
+/*
+ * A gap is a MARGIN on the résumé's own element, contributed through a custom
+ * property that the template's existing `margin-top` rule adds in. Nothing is
+ * rendered to hold it.
+ *
+ * A wrapper was the obvious way to hold a gap and its control together, and it
+ * was wrong twice. It is a real element, present in the editor and absent from
+ * the preview, so the same document measured differently in the two. And it
+ * made every entry an only child, which silently broke `:first-of-type` in
+ * Harvard and the `+` rule in Cobalt: the editor drew 4pt above every role
+ * where the preview drew 7. A control must not change what the document is.
+ *
+ * Margin and not padding, for the reason padding was rejected before it: margin
+ * sits outside the border box, so an entry's selection outline is the same box
+ * whether or not there is space above it, and the space reads as document
+ * between two entries rather than as part of the one below.
+ */
+/*
+ * Hosting a CONTROL. Editor only, and the reason the handle can be positioned
+ * at all: `position: relative` with no offsets moves nothing, so an element
+ * that merely offers a gap is drawn exactly as the preview draws it.
+ */
+[data-gap] {
+  position: relative;
+}
+
+/*
+ * The gap belongs to the element that recorded it, and to NOTHING inside it.
+ *
+ * This is the whole reason the property is registered. A custom property
+ * inherits by default, and both `.tpl-harvard__section` and
+ * `.tpl-harvard__entry` add `var(--tpl-space-height)` into their own
+ * `margin-top` — so a section carrying a recorded gap handed the same figure
+ * down to every entry inside it, and each one added it again. Spacing Experience
+ * away from the section above it also pushed its roles apart from each other,
+ * by the same amount, for free.
+ *
+ * `inherits: false` makes an element that has not declared it compute the
+ * initial value instead of its parent's. Every consumer then reads only the gap
+ * it was given.
+ *
+ * Registered rather than reset on a marker attribute, because the marker is not
+ * always there: `useSpaceSlot` emits `data-gap` only where the document is
+ * adjustable, so in the preview and the export an unspaced entry carries no
+ * attribute at all and a reset keyed on one would have missed exactly the two
+ * surfaces where the extra space became a printed PDF.
+ *
+ * `<length>` is what the calc below resolves to at computed-value time — steps
+ * (a unitless number) times the template's unit (a length). A browser without
+ * `@property` ignores this block and inherits as before, which is the old
+ * behaviour rather than a broken one.
+ */
+@property --tpl-space-height {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+/*
+ * CARRYING space. True of the document, so identically true in the editor, the
+ * preview and the export — which is what stops the three from laying the same
+ * résumé out differently.
+ */
+[data-spaced] {
+  /*
+   * The recorded space as one length. The template's own margin rule adds this
+   * in — `calc(7pt * … + var(--tpl-space-height, 0px))` — so a gap is the
+   * template's own rhythm plus what the candidate asked for, and the rule that
+   * decides the natural spacing stays the only rule that decides it.
+   */
+  --tpl-space-height: calc(
+    var(--tpl-space-steps, 0) * var(--tpl-space-unit, 8px)
+  );
+
+  /*
+   * And the gap must not be able to swallow a page break.
+   *
+   * The paginator pushes a block onto the next sheet by giving it a top margin,
+   * and the block it pushes is very often the first child of a section — a
+   * heading. A first child's top margin COLLAPSES with its parent's, and
+   * collapsing takes the larger of the two, so a section carrying a recorded
+   * gap simply absorbed the push: dragging the gap wider did nothing at all
+   * until it exceeded the push, and then everything moved at once. That is what
+   * a candidate saw as the space refusing to grow once Education crossed onto
+   * the second page.
+   *
+   * `flow-root` makes this element a formatting context of its own, which is
+   * the one thing that stops a child's margin escaping into it. It changes
+   * nothing else here: these sections carry no floats, and their own margins
+   * still collapse with their siblings' exactly as before.
+   */
+  display: flow-root;
+  /*
+   * The gap EASES rather than jumps.
+   *
+   * A step is a fifth of the template's own rhythm, which is a few pixels — and
+   * a few pixels arriving instantly reads as the page flinching rather than as
+   * the document opening up.
+   *
+   * Only the margin, and only here: the paginator coalesces every measurement
+   * into one per task, so the frames this animates through cost one measuring
+   * pass between them rather than one each.
+   */
+  transition: margin-top 140ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* A drag follows the hand: the margin must not ease behind it. */
+[data-spaced]:has(> .tpl-rail .tpl-rail__space[data-dragging]) {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-spaced] {
+    transition: none;
+  }
+}
+
+/*
+ * On paper the space is there and the control is not.
+ *
+ * That split is the whole reason the value is stored on the element and the
+ * handle is a separate, absolutely-positioned child: `[data-spaced]`'s padding
+ * is document, and prints; everything above is chrome, and does not. Printing
+ * happens from the EDITOR too — the PDF export is `window.print()` — so hiding
+ * this on the read-only document would be only half the rule.
+ */
