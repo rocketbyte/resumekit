@@ -7,7 +7,7 @@ import {
   type ResumeSectionId,
   type ResumeSectionSpacing,
   type SectionSpaceId,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { useDocumentFormats } from '../presentation-context.js';
 import { RailProvider } from '../rail/rail-store.js';
 

@@ -1,9 +1,9 @@
 /*
- * GENERATED from alta.template.yaml by @cvgs/resume-templates' template compiler.
+ * GENERATED from alta.template.yaml by @resumekit/react's template compiler.
  * Do not edit: change the description and run the package's
  * `generate-templates` script. `check-templates` fails when they disagree.
  */
-import type { ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@resumekit/schema';
 import { useDocumentStyle } from '../../presentation-context.js';
 import { useAuthoring } from '../../collections/authoring-context.js';
 import { EditableText } from '../../nodes/EditableText.js';

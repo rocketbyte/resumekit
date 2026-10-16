@@ -1,4 +1,4 @@
-import type { ResumeObject, TemplateId } from '@cvgs/core';
+import type { ResumeObject, TemplateId } from '@resumekit/schema';
 
 export interface StaticOptions {
   /** The document's language, e.g. `es`; the template's default otherwise. */

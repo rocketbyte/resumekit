@@ -1,4 +1,4 @@
-import type { SkillGroup } from '@cvgs/core';
+import type { SkillGroup } from '@resumekit/schema';
 import { useEditorText } from '../i18n/index.js';
 import { EditableBulletList } from '../nodes/EditableBulletList.js';
 

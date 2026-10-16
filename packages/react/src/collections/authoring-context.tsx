@@ -6,8 +6,8 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
-import { documentShapeKey } from '@cvgs/core';
-import type { ResumeEdits, ResumeObject } from '@cvgs/core';
+import { documentShapeKey } from '@resumekit/schema';
+import type { ResumeEdits, ResumeObject } from '@resumekit/schema';
 import { EntrySelectionProvider } from './selection-context.js';
 import { RailProvider } from '../rail/rail-store.js';
 import { DocumentOverlayProvider } from './overlay-context.js';

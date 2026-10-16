@@ -1,5 +1,9 @@
 import { useMemo } from 'react';
-import { COLLECTIONS, isSectionEdit, type CustomEntry } from '@cvgs/core';
+import {
+  COLLECTIONS,
+  isSectionEdit,
+  type CustomEntry,
+} from '@resumekit/schema';
 import { useAuthoring } from './authoring-context.js';
 import {
   movedTo,

@@ -7,7 +7,7 @@ import {
   RESUME_SECTIONS,
   type ResumeObject,
   type TemplateId,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { TEMPLATE_RENDERERS } from '../registry.js';
 import { DocumentPresentationProvider } from '../presentation-context.js';
 import { FieldRegistryProvider } from '../fields/field-registry.js';

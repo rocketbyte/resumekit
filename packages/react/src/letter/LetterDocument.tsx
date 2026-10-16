@@ -1,9 +1,9 @@
-import type { CoverLetter } from '@cvgs/core';
+import type { Letter } from '@resumekit/schema';
 import { useDocumentText } from '../i18n/index.js';
 import './letter.css';
 
 export interface LetterDocumentProps {
-  letter: CoverLetter;
+  letter: Letter;
   /** The date line, already written — see `letterDate`. */
   date: string;
 }

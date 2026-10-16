@@ -22,7 +22,6 @@ import {
   withoutUnfilledAdditions,
   type ResumeEdits,
 } from './template.js';
-import { renderText } from './resume-text.js';
 
 const base: ResumeObject = ResumeObjectSchema.parse({
   name: 'Ada Lovelace',
@@ -356,31 +355,6 @@ describe('a writer-produced entry is hidden, never deleted', () => {
     applyPresentation(base, [{ kind: 'hide', section: 'experience', base: 0 }]);
     expect(base.experience).toHaveLength(2);
     expect(applyPresentation(base, []).experience).toHaveLength(2);
-  });
-});
-
-describe('a placeholder is an absence', () => {
-  it('omits an unfilled entry from the text export and reports it', () => {
-    const withDraft = applyPresentation(
-      base,
-      appended('add-1', COLLECTIONS.experience.mint()),
-    );
-    const { text, omitted } = renderText(withDraft);
-    for (const guidance of Object.values(PLACEHOLDERS)) {
-      expect(text).not.toContain(guidance);
-    }
-    expect(omitted).toContain('1 unfilled experience entry');
-  });
-
-  it('keeps an entry the moment one field is filled', () => {
-    const edits = presentationEdits(
-      base,
-      { 'experience.2.company': 'Real Employer Ltd' },
-      appended('add-1', COLLECTIONS.experience.mint()),
-    );
-    expect(renderText(applyPresentation(base, edits)).text).toContain(
-      'Real Employer Ltd',
-    );
   });
 });
 

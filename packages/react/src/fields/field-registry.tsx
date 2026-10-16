@@ -10,7 +10,7 @@ import {
   type MutableRefObject,
   type ReactNode,
 } from 'react';
-import type { EditValue } from '@cvgs/core';
+import type { EditValue } from '@resumekit/schema';
 
 /**
  * The editor's own field model, keyed by the résumé's own paths.

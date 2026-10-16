@@ -5,7 +5,7 @@ import {
   type DocumentStyle,
   type FieldFormat,
   type ResumeFormats,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 
 /**
  * How the document is presented, delivered by context rather than by props.

@@ -23,7 +23,7 @@ const q = (s: string) => JSON.stringify(s);
 export function generatedHeader(id: string): string {
   return (
     `/*\n` +
-    ` * GENERATED from ${id}.template.yaml by @cvgs/resume-templates' template compiler.\n` +
+    ` * GENERATED from ${id}.template.yaml by @resumekit/react's template compiler.\n` +
     ` * Do not edit: change the description and run the package's\n` +
     ` * \`generate-templates\` script. \`check-templates\` fails when they disagree.\n` +
     ` */\n`
@@ -165,7 +165,7 @@ function emitEntries(d: TemplateDescription): string {
   const imports = [
     `import type { ReactNode } from 'react';`,
     `import type { ItemRootProps } from '../../collections/CollectionItems.js';`,
-    `import { ${types.map((t) => `type ${t}`).join(', ')} } from '@cvgs/core';`,
+    `import { ${types.map((t) => `type ${t}`).join(', ')} } from '@resumekit/schema';`,
     uses.editableText &&
       `import { EditableText } from '../../nodes/EditableText.js';`,
     uses.bulletList &&
@@ -656,7 +656,7 @@ function emitDocument(d: TemplateDescription): string {
     uses('experience', 'education', 'skills') || linkFields;
   const imports = [
     styled && `import type { CSSProperties } from 'react';`,
-    `import type { ResumeObject } from '@cvgs/core';`,
+    `import type { ResumeObject } from '@resumekit/schema';`,
     `import { useDocumentStyle } from '../../presentation-context.js';`,
     `import { useAuthoring } from '../../collections/authoring-context.js';`,
     `import { EditableText } from '../../nodes/EditableText.js';`,

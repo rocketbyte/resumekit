@@ -10,7 +10,7 @@ import {
   applyPresentation,
   type ResumeEdits,
   type ResumeObject,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { FieldRegistryProvider } from '../../fields/field-registry.js';
 import { TEMPLATE_RENDERERS } from '../../registry.js';
 import { DocumentPresentationProvider } from '../../presentation-context.js';

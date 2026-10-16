@@ -11,7 +11,7 @@
  *
  * Two inks and paper: `--m-ink` for the band, every rule, every heading and
  * every word, and `--m-accent` for the contact rule alone. Both survive a
- * greyscale print, which is what the ink palette in `libs/core` exists to keep
+ * greyscale print, which is what the ink palette in `@resumekit/schema` exists to keep
  * true.
  */
 

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { SkillGroup } from '@cvgs/core';
+import type { SkillGroup } from '@resumekit/schema';
 import type { ItemRootProps } from '../collections/CollectionItems.js';
 import { useAuthoring } from '../collections/authoring-context.js';
 import { useEditorText } from '../i18n/index.js';

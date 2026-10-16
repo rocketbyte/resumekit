@@ -1,4 +1,4 @@
-import type { ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@resumekit/schema';
 
 /**
  * A résumé that populates every one of the nine sections, so the gallery shows

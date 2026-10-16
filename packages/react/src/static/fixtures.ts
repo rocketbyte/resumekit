@@ -1,4 +1,4 @@
-import type { ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@resumekit/schema';
 
 /** Resumes that between them reach every branch a template draws. */
 export const FULL = {

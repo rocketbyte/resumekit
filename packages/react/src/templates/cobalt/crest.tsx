@@ -1,4 +1,4 @@
-import type { ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@resumekit/schema';
 import { monogram } from '../../kit/monogram.js';
 
 /* Drawn, not CSS: a clip-path would clip the stroke. */

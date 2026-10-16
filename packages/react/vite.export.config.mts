@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defaultClientConditions, defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 /**
@@ -6,8 +6,8 @@ import react from '@vitejs/plugin-react';
  * browser.
  *
  * Separate from `vite.config.mts` because it builds something with different
- * rules. The library is consumed as source by `apps/web`, which brings its own
- * React and its own CSS pipeline. This artifact is loaded by a browser that has
+ * rules. The library is consumed by an application's bundler, which brings its
+ * own React and its own CSS pipeline. This artifact is loaded by a browser that has
  * nothing — no module resolution, no network, no fonts — so everything it needs
  * has to already be inside it.
  *
@@ -27,7 +27,8 @@ import react from '@vitejs/plugin-react';
  */
 export default defineConfig(() => ({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/libs/resume-templates-export',
+  cacheDir: '../../node_modules/.vite/react-export',
+  resolve: { conditions: ['@resumekit/source', ...defaultClientConditions] },
   plugins: [react()],
   /*
    * The bundle runs in a bare browser tab with no bundler shims and no Node.
@@ -44,7 +45,7 @@ export default defineConfig(() => ({
     'process.env': '{}',
   },
   build: {
-    outDir: 'dist-export',
+    outDir: 'dist/export-bundle',
     emptyOutDir: true,
     sourcemap: false,
     cssCodeSplit: false,
@@ -57,8 +58,8 @@ export default defineConfig(() => ({
     assetsInlineLimit: 512 * 1024,
     lib: {
       entry: 'src/export/entry.tsx',
-      name: 'CvgsExport',
-      formats: ['iife'],
+      name: 'ResumekitExport',
+      formats: ['iife' as const],
       fileName: () => 'bundle.js',
       cssFileName: 'bundle',
     },

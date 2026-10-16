@@ -7,11 +7,10 @@ import {
   TOP_LEVEL_COLLECTIONS,
   applyPresentation,
   asResumeObject,
-  blankTailoredResume,
   type ResumeEdits,
   type ResumeObject,
   type TemplateId,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { TEMPLATE_RENDERERS } from '../registry.js';
 import { DocumentPresentationProvider } from '../presentation-context.js';
 import { FieldRegistryProvider } from '../fields/field-registry.js';
@@ -32,10 +31,18 @@ import { DocumentAuthoringProvider } from '../collections/authoring-context.js';
  */
 const TEMPLATE_IDS = Object.keys(TEMPLATE_RENDERERS) as TemplateId[];
 
-/* The résumé the writer would have produced, widened — `asResumeObject` takes
-   the résumé itself, not the tailoring result that carries it. */
+/* The emptiest resume a writer can produce, widened by `asResumeObject`. */
 const blank = () =>
-  asResumeObject(blankTailoredResume('Ada Lovelace').resume_object);
+  asResumeObject({
+    name: 'Ada Lovelace',
+    contact: {},
+    links: [],
+    summary: '',
+    skills: [],
+    experience: [],
+    education: [],
+    certifications: [],
+  });
 
 function draw(id: TemplateId, authoring: boolean, resume = blank()) {
   const { Document } = TEMPLATE_RENDERERS[id];

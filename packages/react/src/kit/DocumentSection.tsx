@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { ResumeSectionId } from '@cvgs/core';
+import type { ResumeSectionId } from '@resumekit/schema';
 import { useSpaceSlot } from '../spacing/useSpaceSlot.js';
 import { EditableText } from '../nodes/EditableText.js';
 import { Heading } from './Heading.js';

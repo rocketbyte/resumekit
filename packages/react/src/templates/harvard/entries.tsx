@@ -1,5 +1,5 @@
 /*
- * GENERATED from harvard.template.yaml by @cvgs/resume-templates' template compiler.
+ * GENERATED from harvard.template.yaml by @resumekit/react's template compiler.
  * Do not edit: change the description and run the package's
  * `generate-templates` script. `check-templates` fails when they disagree.
  */
@@ -10,7 +10,7 @@ import {
   type Education,
   type Experience,
   type SkillGroup,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { EditableInlineList } from '../../nodes/EditableInlineList.js';

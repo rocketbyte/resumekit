@@ -2,7 +2,7 @@ import {
   DEFAULT_TEMPLATE_ID,
   type ResumePresentation,
   type ResumeObject,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { TEMPLATE_RENDERERS } from './registry.js';
 import { presentedResume } from './presented.js';
 import { PagedSheet } from './PagedSheet.js';

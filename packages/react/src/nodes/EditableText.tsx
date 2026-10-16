@@ -1,4 +1,4 @@
-import { isSafeLinkTarget } from '@cvgs/core';
+import { isSafeLinkTarget } from '@resumekit/schema';
 import { useField } from '../fields/field-registry.js';
 import { formatClass, formatInk, inkAttr } from './formatting.js';
 import { useFieldFormat } from '../presentation-context.js';
@@ -213,7 +213,7 @@ export function EditableText({
          * library and no second rendering.
          *
          * `rel` is set because the exported document is opened in readers this
-         * product does not control. The target is validated in `libs/core`, so
+         * product does not control. The target is validated in `@resumekit/schema`, so
          * a `javascript:` URL never reaches this element.
          */}
         {target && picture ? (

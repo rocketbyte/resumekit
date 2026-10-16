@@ -1,4 +1,4 @@
-import { LANGUAGE_LEVELS, type Language } from '@cvgs/core';
+import { LANGUAGE_LEVELS, type Language } from '@resumekit/schema';
 import { DocumentSection } from './DocumentSection.js';
 import type { HeadingLead } from './textShapes.js';
 import { Collection } from '../collections/Collection.js';

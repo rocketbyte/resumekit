@@ -1,4 +1,4 @@
-import { COLLECTIONS, type AppendableSection } from '@cvgs/core';
+import { COLLECTIONS, type AppendableSection } from '@resumekit/schema';
 import { useSectionCollection } from './useSectionCollection.js';
 import { CollectionItems, type EntryRenderProps } from './CollectionItems.js';
 import { useEditorText } from '../i18n/index.js';

@@ -4,7 +4,7 @@ import {
   SPACE_MAX_STEPS,
   SPACE_QUANTUM,
   spaceAtStep,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { useAutosave } from '../autosave-context.js';
 import { useSpace, type SpaceTarget } from '../spacing/spacing-context.js';
 import { useRailPin } from './rail-store.js';

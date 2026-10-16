@@ -1,18 +1,18 @@
 /**
- * `@cvgs/resume-templates` — the document, and only the document.
+ * `@resumekit/react` — the document, and only the document.
  *
- * The résumé's templates, the nodes their text is edited through, the page
+ * The resume's templates, the nodes their text is edited through, the page
  * geometry and the paginator live here so that **every surface that draws a
- * résumé draws the same one**: the editor in `apps/web`, and the server-side
- * renderer that produces the PDF. Fidelity between screen and file is not a
- * test that runs after the fact — it is the absence of a second definition.
+ * resume draws the same one**: an editor, and the renderer that produces the
+ * PDF. Fidelity between screen and file is not a test that runs after the fact
+ * — it is the absence of a second definition.
  *
  * What is NOT here is application: the control rail, the download menu, the
  * overlay serializer, the route, the miniatures. Those are how a person works
  * on a document, not what a document is.
  *
- * The library depends on `@cvgs/core` for the catalog and the schemas, on React
- * and Craft.js to render, and on nothing else. It reaches no server SDK, no HTTP
+ * The library depends on `@resumekit/schema` for the catalog and the schemas,
+ * on React to render, and on nothing else. It reaches no server SDK, no HTTP
  * client, and no application code.
  */
 

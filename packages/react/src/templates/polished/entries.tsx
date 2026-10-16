@@ -1,11 +1,15 @@
 /*
- * GENERATED from polished.template.yaml by @cvgs/resume-templates' template compiler.
+ * GENERATED from polished.template.yaml by @resumekit/react's template compiler.
  * Do not edit: change the description and run the package's
  * `generate-templates` script. `check-templates` fails when they disagree.
  */
 import type { ReactNode } from 'react';
 import type { ItemRootProps } from '../../collections/CollectionItems.js';
-import { type CustomEntry, type Education, type Experience } from '@cvgs/core';
+import {
+  type CustomEntry,
+  type Education,
+  type Experience,
+} from '@resumekit/schema';
 import { EditableText } from '../../nodes/EditableText.js';
 import { EditableBulletList } from '../../nodes/EditableBulletList.js';
 import { useEditorText } from '../../i18n/index.js';

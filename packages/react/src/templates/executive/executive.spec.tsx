@@ -2,7 +2,11 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { render, screen } from '@testing-library/react';
-import { TEMPLATES, type DocumentStyle, type ResumeObject } from '@cvgs/core';
+import {
+  TEMPLATES,
+  type DocumentStyle,
+  type ResumeObject,
+} from '@resumekit/schema';
 import { documentStyle } from '../../kit/documentStyle.js';
 import { TEMPLATE_RENDERERS } from '../../registry.js';
 import { FieldRegistryProvider } from '../../fields/field-registry.js';

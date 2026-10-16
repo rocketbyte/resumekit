@@ -4,7 +4,7 @@ import {
   DOCUMENT_FONTS,
   INK_COLORS,
   type DocumentStyle,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 
 /**
  * The candidate's document style as custom properties on a template's root,

@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { INK_COLORS, type FieldAlign, type InkId } from '@cvgs/core';
+import { INK_COLORS, type FieldAlign, type InkId } from '@resumekit/schema';
 
 /**
  * The formatting a node may carry.
@@ -26,7 +26,7 @@ export interface FieldFormatting {
 /**
  * A validated `http`/`https` address.
  *
- * An alias, not a re-declaration: `isSafeLinkTarget` in `libs/core` is the only
+ * An alias, not a re-declaration: `isSafeLinkTarget` in `@resumekit/schema` is the only
  * definition of what makes one valid, and this names the type those values
  * carry so the node's prop surface can be checked against it.
  */

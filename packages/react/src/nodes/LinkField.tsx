@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import type { Link } from '@cvgs/core';
+import type { Link } from '@resumekit/schema';
 import { useEditorText } from '../i18n/index.js';
 import { useAutosave } from '../autosave-context.js';
 import { useFieldRegistry, useFieldValue } from '../fields/field-registry.js';
@@ -195,9 +195,9 @@ export function LinkField({
   const settable = Boolean(draft && (draft.label.trim() || draft.url.trim()));
 
   /*
-   * Close on an outside press or Escape. Written here rather than imported:
-   * `useDismiss` lives in `apps/web/src/ui`, and `scope:templates` may not
-   * depend on the app. Ten lines is the cheaper of the two prices.
+   * Close on an outside press or Escape. Written here rather than imported
+   * from a UI library the document would otherwise not need: ten lines is the
+   * cheaper of the two prices.
    */
   useEffect(() => {
     if (!open) return;

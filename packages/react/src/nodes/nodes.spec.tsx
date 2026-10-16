@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { TEMPLATES, type TemplateId } from '@cvgs/core';
+import { TEMPLATES, type TemplateId } from '@resumekit/schema';
 import { TEMPLATE_RENDERERS } from '../registry.js';
 import { BOUNDED_NODE_PROPS, FORBIDDEN_NODE_PROPS } from './locked.js';
 

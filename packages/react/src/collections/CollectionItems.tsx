@@ -6,7 +6,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
-import { isUnfilled } from '@cvgs/core';
+import { isUnfilled } from '@resumekit/schema';
 import { useAuthoring } from './authoring-context.js';
 import { useSpaceSlot } from '../spacing/useSpaceSlot.js';
 import type { ItemOrigin } from './EntryOverlay.js';

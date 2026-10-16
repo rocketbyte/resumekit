@@ -3,7 +3,7 @@ import { configure } from '@testing-library/react';
 /*
  * How long an async query may keep retrying.
  *
- * SEPARATE from vitest's `testTimeout`, and that is the whole bug. `apps/web`
+ * SEPARATE from vitest's `testTimeout`, and that is the whole bug. An application
  * raised its `testTimeout` to 20s against exactly this flake and wrote the
  * signature down — "green when the suite runs alone, red inside `run-many`,
  * and a DIFFERENT test each time" — but `testTimeout` only bounds the test as a

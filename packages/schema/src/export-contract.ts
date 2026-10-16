@@ -8,7 +8,7 @@
  * and ships the bundle as an opaque asset; it imports no template, no component
  * and no React, so no `scope:api → scope:templates` edge exists.
  */
-import type { CoverLetter } from './cover-letter.js';
+import type { Letter } from './letter.js';
 import type { ResumeObject } from './resume.js';
 import type { ResumePresentation } from './template.js';
 
@@ -42,7 +42,7 @@ export interface ResumeExportPayload {
  * clock.
  */
 export interface LetterExportPayload {
-  letter: CoverLetter;
+  letter: Letter;
   date: string;
 }
 

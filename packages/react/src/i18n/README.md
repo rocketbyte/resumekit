@@ -15,10 +15,7 @@ English job, and the PDF prints what the screen shows. Without a provider, and w
 presentation language, everything is English.
 
 ```tsx
-import {
-  TemplateDocument,
-  TemplateLocaleProvider,
-} from '@cvgs/resume-templates';
+import { TemplateDocument, TemplateLocaleProvider } from '@resumekit/react';
 
 <TemplateLocaleProvider locale="es">
   <TemplateDocument
@@ -47,9 +44,9 @@ A catalog may be partial — every message it lacks is English — so it can shi
   without one sentence per noun. A sentence may use any form, or none.
 - **Lists** ("3 bullets and 1 role") are joined by `Intl.ListFormat` in the active language.
 
-## Kept in step with core
+## Kept in step with the schema
 
 `editor.placeholders`, `editor.sections`, `editor.nouns` and `editor.dateIssues` mirror English text
-that `@cvgs/core` owns, by core's own keys. `catalog.spec.ts` fails when the English catalog and core
+that `@resumekit/schema` owns, by the schema's own keys. `catalog.spec.ts` fails when the English catalog and the schema
 disagree, and when a shipped catalog is missing a key, has an empty message or uses a parameter the
 English message is not given.

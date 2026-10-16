@@ -1,22 +1,22 @@
-import { defineConfig } from 'vite';
+import { defaultClientConditions, defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 export default defineConfig(() => ({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/libs/resume-templates',
+  cacheDir: '../../node_modules/.vite/react',
+  resolve: { conditions: ['@resumekit/source', ...defaultClientConditions] },
   plugins: [react()],
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [],
   // },
   test: {
-    name: 'resume-templates',
+    name: 'react',
     watch: false,
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],
     /*
-     * The same 20s `apps/web` uses, for the same reason: this suite mounts real
-     * templates, and the wall-clock cost of that is a property of the suite
+     * This suite mounts real templates, and the wall-clock cost of that is a property of the suite
      * rather than of one exceptional test. See `test-setup.ts` for the timeout
      * that was actually firing.
      */

@@ -13,7 +13,7 @@ import {
   CustomEntrySchema,
   type ResumeObject,
 } from './resume.js';
-import { LocaleSchema } from './user.js';
+import { LocaleSchema } from './locale.js';
 
 /**
  * Resume templates — the renderers that turn a {@link ResumeObject} into a

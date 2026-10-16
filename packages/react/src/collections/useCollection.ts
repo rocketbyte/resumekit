@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { COLLECTIONS, type CollectionId } from '@cvgs/core';
+import { COLLECTIONS, type CollectionId } from '@resumekit/schema';
 import { useAutosave } from '../autosave-context.js';
 import { useEditorText } from '../i18n/index.js';
 

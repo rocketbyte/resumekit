@@ -1,5 +1,5 @@
 /**
- * `dist-static/templates.css` and `dist-static/templates/<id>.css`: the
+ * `dist/static/templates.css` and `dist/static/templates/<id>.css`: the
  * library's CSS pruned to the rules some fixture page can match, in every
  * template, language and mode, then minified. Fonts are dropped; a static page
  * uses each template's fallback stack.
@@ -19,13 +19,13 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postcss, { type AtRule, type Rule } from 'postcss';
 import { transform } from 'esbuild';
-import { TEMPLATES } from '@cvgs/core';
+import { TEMPLATES, type TemplateId } from '@resumekit/schema';
 import { FIXTURES } from '../src/static/fixtures.js';
 import type { RenderStatic } from '../src/static/api.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'src');
-const OUT = join(ROOT, 'dist-static');
+const OUT = join(ROOT, 'dist/static');
 
 const { renderStatic } = (await import(join(OUT, 'static.mjs'))) as {
   renderStatic: RenderStatic;
@@ -33,7 +33,7 @@ const { renderStatic } = (await import(join(OUT, 'static.mjs'))) as {
 
 const used = new Set<string>();
 const attributes = new Set<string>();
-for (const id of Object.keys(TEMPLATES)) {
+for (const id of Object.keys(TEMPLATES) as TemplateId[]) {
   for (const resume of Object.values(FIXTURES)) {
     for (const language of ['en', 'es']) {
       for (const picture of [false, true]) {

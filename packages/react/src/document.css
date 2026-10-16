@@ -61,8 +61,7 @@
   /*
    * The editing palette, taken from the APP's primary rather than stated here.
    *
-   * `--color-accent` is the one place the brand is defined (`libs/ui-tokens`),
-   * so a rebrand moves the editor's affordances with everything else and no
+   * `--color-accent` is where the host application defines its brand, so a rebrand moves the editor's affordances with everything else and no
    * value in this library has to be found and changed to match. The literals are
    * fallbacks, not defaults: this stylesheet is also loaded by surfaces that
    * carry no token layer — the export renderer among them — and a `var()` that

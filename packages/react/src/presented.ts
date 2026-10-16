@@ -2,7 +2,7 @@ import {
   applyPresentation,
   type ResumeEdits,
   type ResumeObject,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 
 /**
  * The resume as it should be drawn: the writer's output with the candidate's

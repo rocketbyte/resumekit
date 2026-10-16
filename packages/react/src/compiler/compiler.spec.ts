@@ -399,7 +399,7 @@ describe('the emitter', () => {
     for (const source of [...Object.values(emit(d)), nested]) {
       for (const [, path] of source.matchAll(/from '([^']+)'/g)) {
         expect(path).toMatch(
-          /^(react|@cvgs\/core|\.\/[\w.-]+|\.\.\/\.\.\/(nodes|kit|collections|i18n|presentation-context)[\w/.-]*)$/,
+          /^(react|@resumekit\/schema|\.\/[\w.-]+|\.\.\/\.\.\/(nodes|kit|collections|i18n|presentation-context)[\w/.-]*)$/,
         );
       }
     }

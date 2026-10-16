@@ -1,4 +1,4 @@
-import type { ResumeObject } from '@cvgs/core';
+import type { ResumeObject } from '@resumekit/schema';
 import { useEditorText } from '../i18n/index.js';
 
 export type ContactField = keyof ResumeObject['contact'] &

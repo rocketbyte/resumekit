@@ -4,7 +4,7 @@ import {
   DATE_ISSUE_MESSAGE,
   LANGUAGE_LEVELS,
   PLACEHOLDERS,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import en from './locales/en.json';
 import es from './locales/es.json';
 import {

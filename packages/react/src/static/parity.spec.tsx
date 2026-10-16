@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { TemplateId } from '@cvgs/core';
+import type { TemplateId } from '@resumekit/schema';
 import { TEMPLATE_RENDERERS } from '../registry.js';
 import { DocumentPresentationProvider } from '../presentation-context.js';
 import { renderStatic } from './render.js';

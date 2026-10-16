@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import type { ResumeObject, TemplateId } from '@cvgs/core';
+import type { ResumeObject, TemplateId } from '@resumekit/schema';
 import { EditableText } from './nodes/EditableText.js';
 import { EditableBulletList } from './nodes/EditableBulletList.js';
 import { EditableInlineList } from './nodes/EditableInlineList.js';
@@ -39,7 +39,7 @@ import './nodes/template-node.css';
  * Adding a template is one entry here and one document file — everything else
  * (the editor, the overlay, the save path, the print rules) is template-agnostic
  * by construction. `registry.spec.ts` asserts this map and `TEMPLATES` in
- * `@cvgs/core` name exactly the same templates, so a catalog entry with no
+ * `@resumekit/schema` name exactly the same templates, so a catalog entry with no
  * renderer, or a renderer no catalog knows about, fails the suite.
  */
 /**

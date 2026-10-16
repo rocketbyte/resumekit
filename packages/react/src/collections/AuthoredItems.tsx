@@ -1,5 +1,5 @@
 import { isValidElement } from 'react';
-import { COLLECTIONS } from '@cvgs/core';
+import { COLLECTIONS } from '@resumekit/schema';
 import { EntryOverlay } from './EntryOverlay.js';
 import { SortableItems, useDragHandle } from './SortableItems.js';
 import { useEntrySelection } from './selection-context.js';

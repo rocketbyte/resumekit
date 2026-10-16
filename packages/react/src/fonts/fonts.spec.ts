@@ -1,7 +1,7 @@
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DOCUMENT_FONTS } from '@cvgs/core';
+import { DOCUMENT_FONTS } from '@resumekit/schema';
 import { describe, expect, it } from 'vitest';
 
 /**

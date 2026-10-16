@@ -11,7 +11,7 @@ import {
   dateIssuesInDrawnOrder,
   type AppendableSection,
   type DateIssueKind,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { useFieldRegistry } from './field-registry.js';
 import { useDocumentOverlay } from '../collections/overlay-context.js';
 

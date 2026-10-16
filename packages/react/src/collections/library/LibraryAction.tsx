@@ -7,7 +7,7 @@ import {
   libraryCandidates,
   type Experience,
   type LibrarySection,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { useAuthoring } from '../authoring-context.js';
 import type { CollectionHandle } from '../useCollection.js';
 import {

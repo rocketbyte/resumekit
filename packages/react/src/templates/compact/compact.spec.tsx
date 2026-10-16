@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { TEMPLATES, type ResumeObject } from '@cvgs/core';
+import { TEMPLATES, type ResumeObject } from '@resumekit/schema';
 import { TEMPLATE_RENDERERS } from '../../registry.js';
 import { FieldRegistryProvider } from '../../fields/field-registry.js';
 import { DocumentPresentationProvider } from '../../presentation-context.js';

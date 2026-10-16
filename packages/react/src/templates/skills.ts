@@ -1,4 +1,4 @@
-import type { SkillGroup } from '@cvgs/core';
+import type { SkillGroup } from '@resumekit/schema';
 
 /**
  * Which skills group, if any, names the candidate's spoken languages.

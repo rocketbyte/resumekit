@@ -14,7 +14,7 @@ import {
   isReorderEdit,
   type ResumeEdits,
   type ResumeObject,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { TEMPLATE_RENDERERS } from '../registry.js';
 import { DocumentPresentationProvider } from '../presentation-context.js';
 import { DocumentAuthoringProvider } from './authoring-context.js';
@@ -658,7 +658,7 @@ describe('the chrome is chrome', () => {
      * screen-reader user hits, which is why it is asserted on the label rather
      * than on what is drawn.
      */
-    const dir = join(__dirname, '..', '..', '..', 'core', 'src', 'lib');
+    const dir = join(__dirname, '..', '..', '..', 'schema', 'src');
     const table = readFileSync(join(dir, 'collections.ts'), 'utf8');
     for (const id of ['experience', 'education', 'skills']) {
       const entry = table.slice(table.indexOf(`\n  ${id}: {`));

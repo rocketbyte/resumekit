@@ -8,7 +8,7 @@
  */
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { TEMPLATES, type TemplateId } from '@cvgs/core';
+import { TEMPLATES, type TemplateId } from '@resumekit/schema';
 import { TemplateDocument } from '../src/TemplateDocument.js';
 import { TEMPLATE_RENDERERS } from '../src/registry.js';
 import { DocumentAuthoringProvider } from '../src/collections/authoring-context.js';
@@ -83,7 +83,7 @@ function Gallery() {
         ) : (
           <TemplateDocument
             resume={RESUME}
-            presentation={{ template_id: id, edits: [] }}
+            presentation={{ template_id: id, edits: [], updated_at: '' }}
           />
         )}
       </main>

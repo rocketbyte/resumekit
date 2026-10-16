@@ -8,7 +8,7 @@ import {
   type ResumeEdits,
   type ResumeObject,
   type TemplateId,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { TEMPLATE_RENDERERS } from '../registry.js';
 import { DocumentPresentationProvider } from '../presentation-context.js';
 import { FieldRegistryProvider } from '../fields/field-registry.js';
@@ -676,7 +676,7 @@ describe('the link text is a field, not an input', () => {
  * document did not change.
  *
  * Every other collection already had a draft-tolerant schema for exactly this.
- * `collections.spec.ts` in `libs/core` now asserts the rule; this asserts what
+ * `collections.spec.ts` in `@resumekit/schema` now asserts the rule; this asserts what
  * a candidate sees.
  *
  * Drawn through a REAL overlay rather than through résumé data with a link

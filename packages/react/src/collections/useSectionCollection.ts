@@ -10,7 +10,7 @@ import {
   type AppendableSection,
   type ResumeEdits,
   type Slot,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 import { useAuthoring } from './authoring-context.js';
 import { useDocumentOverlay } from './overlay-context.js';
 import {

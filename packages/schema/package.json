@@ -1,0 +1,62 @@
+{
+  "name": "@resumekit/schema",
+  "version": "0.1.0",
+  "description": "Zod schemas for a structured resume, the resumekit template catalog, and the presentation overlay a candidate's edits are recorded in.",
+  "keywords": [
+    "resume",
+    "cv",
+    "schema",
+    "zod",
+    "templates"
+  ],
+  "license": "MIT",
+  "author": "Starlin Gil Cruz",
+  "homepage": "https://github.com/rocketbyte/resumekit/tree/main/packages/schema#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rocketbyte/resumekit.git",
+    "directory": "packages/schema"
+  },
+  "bugs": "https://github.com/rocketbyte/resumekit/issues",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!dist/*.tsbuildinfo"
+  ],
+  "exports": {
+    ".": {
+      "@resumekit/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./package.json": "./package.json"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -b tsconfig.lib.json",
+    "typecheck": "tsc -b tsconfig.spec.json",
+    "test": "vitest run",
+    "check:package": "rm -rf out-tsc/pack && pnpm pack --pack-destination out-tsc/pack >/dev/null && publint --strict --pack pnpm && attw out-tsc/pack/*.tgz --profile esm-only"
+  },
+  "peerDependencies": {
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "zod": "^4.4.3"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

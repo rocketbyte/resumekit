@@ -1,4 +1,4 @@
-import type { DescribedEntry } from '@cvgs/core';
+import type { DescribedEntry } from '@resumekit/schema';
 import { DocumentSection } from './DocumentSection.js';
 import type { HeadingLead } from './textShapes.js';
 import { Collection } from '../collections/Collection.js';

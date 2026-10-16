@@ -6,7 +6,7 @@ import {
   EXPORT_PAYLOAD_GLOBAL,
   EXPORT_STATE_GLOBAL,
   type ResumeObject,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 
 /**
  * The export bundle actually draws the document.
@@ -27,7 +27,7 @@ import {
  * that would otherwise reach production looking like a working export.
  */
 
-const bundlePath = join(__dirname, '../../dist-export/bundle.js');
+const bundlePath = join(__dirname, '../../dist/export-bundle/bundle.js');
 const built = existsSync(bundlePath);
 
 const resume = {

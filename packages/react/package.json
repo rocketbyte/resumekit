@@ -1,138 +1,101 @@
 {
-  "name": "@cvgs/resume-templates",
-  "version": "0.0.1",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "name": "@resumekit/react",
+  "version": "0.1.0",
+  "description": "Editable, paginated resume templates for React: about thirty print-accurate designs, an in-place editing kit, a static renderer and a self-contained export bundle.",
+  "keywords": [
+    "resume",
+    "cv",
+    "react",
+    "templates",
+    "pdf",
+    "editor"
+  ],
+  "license": "MIT",
+  "author": "Starlin Gil Cruz",
+  "homepage": "https://github.com/rocketbyte/resumekit/tree/main/packages/react#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rocketbyte/resumekit.git",
+    "directory": "packages/react"
+  },
+  "bugs": "https://github.com/rocketbyte/resumekit/issues",
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "!src/**/*.spec.ts",
+    "!src/**/*.spec.tsx",
+    "!src/test-setup.ts",
+    "!src/compiler",
+    "!src/export",
+    "!dist/*.tsbuildinfo"
+  ],
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts",
-      "default": "./src/index.ts"
+      "@resumekit/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
-    "./document.css": "./src/document.css",
-    "./fonts.css": "./src/fonts/fonts.css",
+    "./document.css": "./dist/document.css",
+    "./fonts.css": "./dist/fonts/fonts.css",
     "./static": {
-      "types": "./src/static/api.ts",
-      "import": "./dist-static/static.mjs",
-      "default": "./dist-static/static.mjs"
+      "types": "./dist/static/api.d.ts",
+      "default": "./dist/static/static.mjs"
     },
-    "./static.css": "./dist-static/templates.css",
-    "./static/*.css": "./dist-static/templates/*.css",
+    "./static.css": "./dist/static/templates.css",
+    "./static/*.css": "./dist/static/templates/*.css",
+    "./export/*": "./dist/export-bundle/*",
     "./package.json": "./package.json"
   },
-  "nx": {
-    "name": "resume-templates",
-    "tags": [
-      "scope:templates",
-      "type:lib"
-    ],
-    "targets": {
-      "build-export": {
-        "executor": "nx:run-commands",
-        "outputs": [
-          "{projectRoot}/dist-export"
-        ],
-        "cache": true,
-        "options": {
-          "cwd": "{projectRoot}",
-          "commands": [
-            "vite build --config vite.export.config.mts"
-          ]
-        },
-        "dependsOn": [
-          "^build"
-        ]
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
       },
-      "build-static": {
-        "executor": "nx:run-commands",
-        "outputs": [
-          "{projectRoot}/dist-static"
-        ],
-        "cache": true,
-        "options": {
-          "cwd": "{projectRoot}",
-          "parallel": false,
-          "commands": [
-            "vite build --config vite.static.config.mts",
-            "tsx scripts/build-static-css.ts"
-          ]
-        },
-        "dependsOn": [
-          "^build"
-        ]
+      "./document.css": "./dist/document.css",
+      "./fonts.css": "./dist/fonts/fonts.css",
+      "./static": {
+        "types": "./dist/static/api.d.ts",
+        "default": "./dist/static/static.mjs"
       },
-      "gallery": {
-        "executor": "nx:run-commands",
-        "cache": false,
-        "options": {
-          "cwd": "{projectRoot}",
-          "commands": [
-            "vite --config gallery/vite.config.mts"
-          ]
-        }
-      },
-      "generate-templates": {
-        "executor": "nx:run-commands",
-        "cache": false,
-        "options": {
-          "cwd": "{projectRoot}",
-          "commands": [
-            "tsx scripts/generate-templates.ts"
-          ]
-        }
-      },
-      "check-templates": {
-        "executor": "nx:run-commands",
-        "cache": true,
-        "inputs": [
-          "{projectRoot}/src/templates/**/*.template.yaml",
-          "{projectRoot}/src/templates/**/*.tsx",
-          "{projectRoot}/src/compiler/**",
-          "{projectRoot}/scripts/**"
-        ],
-        "options": {
-          "cwd": "{projectRoot}",
-          "commands": [
-            "tsx scripts/generate-templates.ts --check"
-          ]
-        }
-      },
-      "watch-templates": {
-        "executor": "nx:run-commands",
-        "cache": false,
-        "continuous": true,
-        "options": {
-          "cwd": "{projectRoot}",
-          "commands": [
-            "tsx scripts/generate-templates.ts --watch"
-          ]
-        }
-      }
+      "./static.css": "./dist/static/templates.css",
+      "./static/*.css": "./dist/static/templates/*.css",
+      "./export/*": "./dist/export-bundle/*",
+      "./package.json": "./package.json"
     }
   },
-  "private": true,
-  "type": "module",
+  "scripts": {
+    "build": "rm -rf dist && tsc -b tsconfig.lib.json && tsx scripts/copy-assets.ts && vite build --config vite.static.config.mts && tsx --conditions=@resumekit/source scripts/build-static-css.ts && vite build --config vite.export.config.mts",
+    "dev": "tsx scripts/generate-templates.ts --watch",
+    "gallery": "vite --config gallery/vite.config.mts",
+    "typecheck": "tsc -b tsconfig.spec.json",
+    "test": "vitest run",
+    "generate-templates": "tsx scripts/generate-templates.ts",
+    "check-templates": "tsx scripts/generate-templates.ts --check",
+    "check:package": "rm -rf out-tsc/pack && pnpm pack --pack-destination out-tsc/pack >/dev/null && publint --strict --pack pnpm && attw out-tsc/pack/*.tgz --profile esm-only --exclude-entrypoints ./document.css ./fonts.css ./static.css ./static/templates.css ./export/bundle.js ./export/bundle.css"
+  },
   "dependencies": {
-    "@cvgs/core": "workspace:*",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
-    "tslib": "^2.3.0"
+    "@resumekit/schema": "workspace:^"
   },
   "peerDependencies": {
-    "react": "^19.0.0"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "esbuild": "^0.28.2",
-    "postcss": "^8.5.29",
-    "prettier": "^3.9.10",
-    "tsx": "^4.23.15",
-    "yaml": "^2.9.1",
-    "zod": "^4.6.5"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.4.3"
   },
-  "scripts": {
-    "generate-templates": "tsx scripts/generate-templates.ts",
-    "watch-templates": "tsx scripts/generate-templates.ts --watch",
-    "check-templates": "tsx scripts/generate-templates.ts --check"
+  "engines": {
+    "node": ">=20.19"
   }
 }

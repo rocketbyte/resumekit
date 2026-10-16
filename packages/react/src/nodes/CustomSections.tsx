@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from 'react';
-import type { CustomEntry, CustomSection } from '@cvgs/core';
+import type { CustomEntry, CustomSection } from '@resumekit/schema';
 import { useEditorText } from '../i18n/index.js';
 import { EditableText } from './EditableText.js';
 import { Heading } from '../kit/Heading.js';

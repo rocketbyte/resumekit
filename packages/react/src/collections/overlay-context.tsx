@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import type { ResumeEdits, ResumeObject } from '@cvgs/core';
+import type { ResumeEdits, ResumeObject } from '@resumekit/schema';
 
 /**
  * What the document was PROJECTED from: the writer's résumé and the overlay

@@ -37,7 +37,7 @@ import {
   isLetterPayload,
   type ExportPayload,
   type ExportState,
-} from '@cvgs/core';
+} from '@resumekit/schema';
 
 /** How many consecutive identical frames count as "the layout has stopped". */
 const STABLE_FRAMES = 3;
