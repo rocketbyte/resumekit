@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Publishes each package whose version is not on the registry yet, schema first.
+# Publishes each package whose version is not on the registry yet, dependencies first.
 #
 # `pnpm pack` writes the manifest that ships (`publishConfig.exports`, `workspace:^` resolved);
 # `npm publish` uploads it, because npm is the client npm's trusted publishing supports.
 set -euo pipefail
 
 out="$(mktemp -d)"
-for dir in packages/schema packages/react; do
+for dir in packages/schema packages/react packages/static packages/export; do
   name="$(node -p "require('./$dir/package.json').name")"
   version="$(node -p "require('./$dir/package.json').version")"
   if npm view "$name@$version" version >/dev/null 2>&1; then

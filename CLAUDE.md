@@ -1,7 +1,14 @@
 # resumekit
 
-Two packages, released together: `packages/schema` (`@resumekit/schema`, zod only) and
-`packages/react` (`@resumekit/react`). Read `CONTRIBUTING.md` first.
+Four packages, released together at one version: `packages/schema` (`@resumekit/schema`, zod
+only), `packages/react` (`@resumekit/react`, what an application bundles), `packages/static`
+(`@resumekit/static`, build-time HTML) and `packages/export` (`@resumekit/export`, the PDF
+bundle). Read `CONTRIBUTING.md` first.
+
+- **`@resumekit/react` holds only what an application ships.** Server and build-time renderers
+  belong in `static` or `export`, which use the react package's public API only.
+- **Templates load on first use.** Never import a template module from the package entry; add it
+  to the loaders in `registry.ts` and to `all-templates.ts` (both typed by `TemplateId`).
 
 - **Building or changing a template goes through the `template-author` agent**
   (`.claude/agents/template-author.md`), against `docs/template-contract.md`.

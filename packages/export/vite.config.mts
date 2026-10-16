@@ -2,11 +2,11 @@ import { defaultClientConditions, defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 /**
- * The export bundle: the document, built to run standalone in the renderer's
+ * `@resumekit/export`: the document, built to run standalone in the renderer's
  * browser.
  *
- * Separate from `vite.config.mts` because it builds something with different
- * rules. The library is consumed by an application's bundler, which brings its
+ * A package of its own because it builds something with different rules, and
+ * only a server ever needs it. The library is consumed by an application's bundler, which brings its
  * own React and its own CSS pipeline. This artifact is loaded by a browser that has
  * nothing — no module resolution, no network, no fonts — so everything it needs
  * has to already be inside it.
@@ -26,8 +26,8 @@ import react from '@vitejs/plugin-react';
  * produces ever resolves a URL.
  */
 export default defineConfig(() => ({
-  root: __dirname,
-  cacheDir: '../../node_modules/.vite/react-export',
+  root: import.meta.dirname,
+  cacheDir: '../../node_modules/.vite/export',
   resolve: { conditions: ['@resumekit/source', ...defaultClientConditions] },
   plugins: [react()],
   /*
@@ -45,7 +45,7 @@ export default defineConfig(() => ({
     'process.env': '{}',
   },
   build: {
-    outDir: 'dist/export-bundle',
+    outDir: 'dist',
     emptyOutDir: true,
     sourcemap: false,
     cssCodeSplit: false,
@@ -57,7 +57,7 @@ export default defineConfig(() => ({
      */
     assetsInlineLimit: 512 * 1024,
     lib: {
-      entry: 'src/export/entry.tsx',
+      entry: 'src/entry.tsx',
       name: 'ResumekitExport',
       formats: ['iife' as const],
       fileName: () => 'bundle.js',

@@ -1,0 +1,61 @@
+{
+  "name": "@resumekit/static",
+  "version": "0.1.0",
+  "description": "Resumekit's templates rendered to static HTML at build time: a self-contained Node module and the pruned stylesheets the pages need.",
+  "keywords": [
+    "resume",
+    "cv",
+    "static",
+    "ssr",
+    "html",
+    "templates"
+  ],
+  "license": "MIT",
+  "author": "Starlin Gil Cruz",
+  "homepage": "https://github.com/rocketbyte/resumekit/tree/main/packages/static#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rocketbyte/resumekit.git",
+    "directory": "packages/static"
+  },
+  "bugs": "https://github.com/rocketbyte/resumekit/issues",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist",
+    "!dist/*.tsbuildinfo"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/api.d.ts",
+      "default": "./dist/static.mjs"
+    },
+    "./templates.css": "./dist/templates.css",
+    "./templates/*.css": "./dist/templates/*.css",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build && tsc -b tsconfig.lib.json && tsx --conditions=@resumekit/source scripts/build-static-css.ts",
+    "dev": "tsx scripts/dev.ts",
+    "typecheck": "tsc -b tsconfig.spec.json",
+    "test": "vitest run",
+    "check:package": "rm -rf out-tsc/pack && pnpm pack --pack-destination out-tsc/pack >/dev/null && publint --strict --pack pnpm && attw out-tsc/pack/*.tgz --profile esm-only --exclude-entrypoints ./templates.css ./package.json"
+  },
+  "dependencies": {
+    "@resumekit/schema": "workspace:^"
+  },
+  "devDependencies": {
+    "@resumekit/react": "workspace:^",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.4.3"
+  }
+}

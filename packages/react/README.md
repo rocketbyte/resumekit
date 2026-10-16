@@ -1,14 +1,14 @@
 # @resumekit/react
 
-Editable, paginated resume templates for React. Every template is drawn on real page
-geometry (Letter or A4), split across sheets by a paginator, and editable in place.
+Editable, paginated resume templates for React. Every template is drawn on real US Letter page
+geometry, split across sheets by a paginator, and editable in place.
 
 ```sh
 pnpm add @resumekit/react @resumekit/schema react react-dom zod
 ```
 
 Requires React 19 and zod 4. The package is ESM-only and is meant to be consumed through a
-bundler (Vite, Next.js, webpack) that handles CSS imports.
+bundler (Vite, Next.js, webpack) that handles CSS imports and code splitting.
 
 ## Drawing a resume
 
@@ -33,57 +33,53 @@ export function Preview({ resume }) {
 `resume` is a `ResumeObject` from `@resumekit/schema`. `presentation` chooses the template and
 carries the person's edits, typography and spacing; omit it for the default template.
 
+## Templates load on demand
+
+Each template, with its stylesheet, is a separate chunk that loads the first time it is drawn,
+so an application ships only the templates it uses. `TemplateDocument` shows nothing until the
+template has arrived (it holds its own `Suspense` boundary).
+
+- **No wait:** call `preloadTemplate(id)` as soon as the template is known, e.g. a saved resume's
+  template, or the one under the pointer in a chooser.
+- **Rendering `TEMPLATE_RENDERERS[id].Document` yourself:** wrap it in `<Suspense>`, or preload
+  it first.
+- **Everything at once:** server-side rendering, print pipelines and test suites can
+  `import '@resumekit/react/all-templates'`, which makes every template render synchronously.
+  `preloadTemplates()` does the same asynchronously.
+
 ## Testing with Vitest or Jest
 
 The modules import their own stylesheets, which a bundler handles but Node cannot load. Let your
-test runner transform the package:
+test runner transform the package, and load every template up front so documents render
+synchronously:
 
 ```ts
 // vitest.config.ts
 export default defineConfig({
-  test: { server: { deps: { inline: ['@resumekit/react'] } } },
+  test: {
+    server: { deps: { inline: ['@resumekit/react'] } },
+    setupFiles: ['./test-setup.ts'], // containing: import '@resumekit/react/all-templates';
+  },
 });
 ```
 
-With Jest, exempt it from `transformIgnorePatterns` and map `\.css$` to a stub in
+With Jest, exempt the package from `transformIgnorePatterns` and map `\.css$` to a stub in
 `moduleNameMapper`.
 
 ## Entry points
 
-| Import                               | What                                                                              |
-| ------------------------------------ | --------------------------------------------------------------------------------- |
-| `@resumekit/react`                   | Components, editing kit, paginator, locale catalogs                               |
-| `@resumekit/react/document.css`      | The document and editor styles                                                    |
-| `@resumekit/react/fonts.css`         | `@font-face` rules for the bundled typefaces                                      |
-| `@resumekit/react/static`            | `renderStatic(templateId, resume, options)` → HTML string, for Node at build time |
-| `@resumekit/react/static.css`        | Shared CSS for static pages, pruned and minified                                  |
-| `@resumekit/react/static/<id>.css`   | One template's CSS for static pages                                               |
-| `@resumekit/react/export/bundle.js`  | A self-contained IIFE (React and fonts inlined) for headless PDF rendering        |
-| `@resumekit/react/export/bundle.css` | Its stylesheet                                                                    |
+| Import                           | What                                                                        |
+| -------------------------------- | --------------------------------------------------------------------------- |
+| `@resumekit/react`               | Components, editing kit, paginator, locale catalogs, `preloadTemplate(s)`   |
+| `@resumekit/react/all-templates` | Side-effect import: every template loaded now (SSR, print, tests)           |
+| `@resumekit/react/document.css`  | The document and editor styles (each template brings its own when it loads) |
+| `@resumekit/react/fonts.css`     | `@font-face` rules for the bundled typefaces; a face downloads when used    |
 
-### Static rendering
+Rendering outside a React application lives in its own packages:
 
-```ts
-import { renderStatic } from '@resumekit/react/static';
-
-const html = renderStatic('harvard', resume, { language: 'en', picture: true });
-```
-
-`picture: true` draws the page as an image of itself: inert links, headings out of the host
-page's outline, no editor attributes.
-
-### PDF export
-
-The export bundle runs in a headless browser with no network. Build one HTML page that holds:
-
-1. `export/bundle.css` inlined in a `<style>`,
-2. `<div id="cvgs-export-root"></div>`,
-3. a script that sets `window[EXPORT_PAYLOAD_GLOBAL] = { resume, presentation }`,
-4. `export/bundle.js` inlined in a `<script>` after it.
-
-Wait for `window[EXPORT_STATE_GLOBAL]` to become `'ready'` (or `'failed'`), then print.
-`window[EXPORT_PAGES_GLOBAL]` holds the page count. The constants and payload types are exported
-from `@resumekit/schema`.
+- [`@resumekit/static`](../static#readme): read-only pages as static HTML, for Node at build time.
+- [`@resumekit/export`](../export#readme): a self-contained browser bundle for headless PDF
+  rendering.
 
 ## License
 

@@ -2,12 +2,15 @@
 
 Print-accurate, editable resume templates for React, and the schemas they are drawn from.
 
-| Package                                | What it is                                                                                        |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| [`@resumekit/react`](packages/react)   | About thirty templates, the in-place editing kit, a paginator, a static renderer and a PDF bundle |
-| [`@resumekit/schema`](packages/schema) | Zod schemas for a structured resume, the template catalog and the presentation overlay            |
+| Package                                | What it is                                                                               |
+| -------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [`@resumekit/react`](packages/react)   | Templates, the in-place editing kit and the paginator; each template loads on first use  |
+| [`@resumekit/schema`](packages/schema) | Zod schemas for a structured resume, the template catalog and the presentation overlay   |
+| [`@resumekit/static`](packages/static) | The templates rendered to static HTML in Node, with pruned stylesheets (build time)      |
+| [`@resumekit/export`](packages/export) | One self-contained browser bundle for rendering PDFs in a headless browser (server side) |
 
-Both packages are released together at one version.
+All four are released together at one version. An application needs `react` and `schema`;
+`static` and `export` are for build steps and servers.
 
 ```sh
 pnpm add @resumekit/react @resumekit/schema react react-dom zod

@@ -1,0 +1,51 @@
+{
+  "name": "@resumekit/export",
+  "version": "0.1.0",
+  "description": "Resumekit's document as one self-contained browser bundle \u2014 React, every template and the fonts inlined \u2014 for rendering PDFs in a headless browser.",
+  "keywords": [
+    "resume",
+    "cv",
+    "pdf",
+    "export",
+    "headless",
+    "templates"
+  ],
+  "license": "MIT",
+  "author": "Starlin Gil Cruz",
+  "homepage": "https://github.com/rocketbyte/resumekit/tree/main/packages/export#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rocketbyte/resumekit.git",
+    "directory": "packages/export"
+  },
+  "bugs": "https://github.com/rocketbyte/resumekit/issues",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./bundle.js": "./dist/bundle.js",
+    "./bundle.css": "./dist/bundle.css",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "typecheck": "tsc -b tsconfig.spec.json",
+    "test": "vitest run",
+    "check:package": "rm -rf out-tsc/pack && pnpm pack --pack-destination out-tsc/pack >/dev/null && publint --strict --pack pnpm"
+  },
+  "devDependencies": {
+    "@resumekit/react": "workspace:^",
+    "@resumekit/schema": "workspace:^",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.4.3"
+  }
+}

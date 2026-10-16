@@ -1,5 +1,5 @@
 /**
- * `dist/static/templates.css` and `dist/static/templates/<id>.css`: the
+ * `dist/templates.css` and `dist/templates/<id>.css`: the
  * library's CSS pruned to the rules some fixture page can match, in every
  * template, language and mode, then minified. Fonts are dropped; a static page
  * uses each template's fallback stack.
@@ -20,12 +20,13 @@ import { fileURLToPath } from 'node:url';
 import postcss, { type AtRule, type Rule } from 'postcss';
 import { transform } from 'esbuild';
 import { TEMPLATES, type TemplateId } from '@resumekit/schema';
-import { FIXTURES } from '../src/static/fixtures.js';
-import type { RenderStatic } from '../src/static/api.js';
+import { FIXTURES } from '../src/fixtures.js';
+import type { RenderStatic } from '../src/api.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const SRC = join(ROOT, 'src');
-const OUT = join(ROOT, 'dist/static');
+/* The stylesheets are the library's own: pruned here, never copied by hand. */
+const SRC = join(ROOT, '../react/src');
+const OUT = join(ROOT, 'dist');
 
 const { renderStatic } = (await import(join(OUT, 'static.mjs'))) as {
   renderStatic: RenderStatic;

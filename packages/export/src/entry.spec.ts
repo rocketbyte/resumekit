@@ -27,7 +27,7 @@ import {
  * that would otherwise reach production looking like a working export.
  */
 
-const bundlePath = join(__dirname, '../../dist/export-bundle/bundle.js');
+const bundlePath = join(__dirname, '../dist/bundle.js');
 const built = existsSync(bundlePath);
 
 const resume = {
