@@ -22,18 +22,28 @@ missing option belongs in the format (`src/compiler/`), not in one template. The
 Every registered template runs through `templates/conformance.spec.tsx`; the static renderer is
 held to the browser render by `static/parity.spec.tsx`.
 
-## Changesets and versions
+## Commits and versions
 
-Every pull request that changes a package adds a changeset: `pnpm changeset`. Both packages are
-released together at one version (Changesets `fixed` mode).
+Versions are automatic. Pull requests are squash-merged, and the pull request title becomes the
+commit on `main`, so the title must be a [Conventional Commit](https://www.conventionalcommits.org)
+(CI checks it):
 
-Until 1.0, a breaking change bumps the **minor**; anything else is a patch. Breaking means:
+| Title                                                    | Release                                   |
+| -------------------------------------------------------- | ----------------------------------------- |
+| `fix(react): keep the rail inside A4`                    | patch                                     |
+| `feat(schema): a languages collection`                   | minor                                     |
+| `feat!: rename TemplateDocument`                         | breaking: minor below 1.0, major from 1.0 |
+| `docs:`, `chore:`, `ci:`, `test:`, `refactor:`, `build:` | no release                                |
+
+Both packages always share one version. Until 1.0, a breaking change bumps the **minor**.
+Breaking means:
 
 - a schema rejects data the previous version accepted,
 - an export, a template id, or a CSS class a host could style is removed or renamed,
 - a peer dependency range is raised.
 
-A visual change to a template is not breaking, but its changeset names the templates it changes.
+Mark it with `!` after the type, or a `BREAKING CHANGE:` footer in the description. A visual
+change to a template is a `feat` or `fix`, and its title names the template.
 
 ## Working from an application
 
@@ -56,6 +66,8 @@ from the published manifest (`publishConfig.exports`), so installs from npm alwa
 
 ## Releasing
 
-Merging to `main` lets the Changesets action open (or refresh) a "release packages" pull
-request. Merging that publishes both packages from GitHub Actions through npm trusted
-publishing — no npm token exists, and every version carries a provenance attestation.
+Nothing to do by hand. After every merge to `main`, release-please updates one "chore: release"
+pull request with the next version and both changelogs. Merging it tags the release
+(`schema-vX.Y.Z`, `react-vX.Y.Z`), creates the GitHub releases, and publishes both packages from
+GitHub Actions through npm trusted publishing: no npm token exists, and every version carries a
+provenance attestation.

@@ -16,15 +16,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check-templates": "pnpm -F @resumekit/react check-templates",
-    "check:package": "pnpm -r check:package",
-    "changeset": "changeset",
-    "version-packages": "changeset version && pnpm install --lockfile-only",
-    "release": "pnpm build && changeset publish"
+    "check:package": "pnpm -r check:package"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
-    "@changesets/changelog-github": "^0.5.1",
-    "@changesets/cli": "^2.29.7",
     "@eslint/js": "^9.39.5",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "16.3.0",

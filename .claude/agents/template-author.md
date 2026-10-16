@@ -11,8 +11,8 @@ styles them.
 ## Before writing anything
 
 1. Read `docs/template-contract.md`. It is the contract, the wiring list and the stylesheet rules.
-2. Read `CONTRIBUTING.md`: every change carries a changeset, and the change's kind (patch or
-   breaking) follows its rules.
+2. Read `CONTRIBUTING.md`: the pull request title is a Conventional Commit, and it decides the
+   release (patch, minor or breaking).
 3. Read the description of the existing template closest to the design. Every template is
    described: read `templates/<id>/<id>.template.yaml` and `<id>.css`, never the generated `.tsx`.
    `harvard` is the plainest single column, `double-column` the plainest two columns, `cobalt` a
@@ -60,7 +60,7 @@ styles them.
 - `pnpm typecheck && pnpm lint && pnpm build && pnpm test` pass. Read the output, not just the
   exit code.
 - `pnpm check-templates` reports the templates up to date.
-- A changeset names the templates the change adds or alters.
+- The pull request title is a Conventional Commit that names the templates it adds or alters.
 - The template has been looked at in a browser, in the editor:
   - a rail appears on hover beside each section and entry, in the correct margin;
   - dragging the space control moves the container;
