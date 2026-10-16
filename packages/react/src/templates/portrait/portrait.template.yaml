@@ -1,0 +1,120 @@
+# Portrait: Twenty Seconds CV — docs/template-references/portrait.png.
+#
+# A painted sidebar written first (initials, name, contact, summary, skills,
+# languages) beside a body whose headings open with their first three letters
+# in a filled tab. The sidebar is a column of the body row, so its grey is
+# repainted on every sheet the document runs to.
+id: portrait
+component: Portrait
+prefix: tpl-portrait
+styleKey: pt
+headingAccent: 3
+
+layout:
+  - row:
+      - stack:
+          - stack:
+              - avatar
+              - name
+              - headline
+              - contact: [location, phone, email]
+                links: true
+                icons: true
+                tag: div
+                itemTag: p
+            tag: header
+            class: head
+            block: true
+          - summary
+          - { section: skills, groups: grid }
+          - { section: languages, sectionClass: languages }
+        tag: aside
+        class: aside
+      - stack:
+          - experience
+          - education
+          - achievements
+          - courses
+          - { section: certifications, as: bullets, split: true }
+          - { section: passions, title: interests }
+          - custom
+        class: main
+    class: body
+    kit: [tpl-sheet-tall]
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: when
+        children:
+          - { field: start }
+          - { text: ' – ' }
+          - { field: end }
+      - tag: div
+        class: event
+        children:
+          - tag: div
+            class: line
+            children:
+              - { tag: p, class: title, children: [{ field: title }] }
+              - {
+                  tag: p,
+                  class: where,
+                  children: [{ field: location, optional: true }],
+                }
+          - { tag: p, class: org, children: [{ field: company }] }
+          - { bullets: bullets }
+
+  education:
+    name: EducationEntry
+    type: Education
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: when
+        children:
+          - { field: start, optional: true }
+          - { separator: ' – ', between: [start, end] }
+          - { field: end, optional: true }
+      - tag: div
+        class: event
+        children:
+          - tag: div
+            class: line
+            children:
+              - tag: p
+                class: title
+                children:
+                  - { field: degree, optional: true }
+                  - { word: degreeField, between: [degree, field] }
+                  - { field: field, optional: true }
+              - {
+                  tag: p,
+                  class: where,
+                  children: [{ field: location, optional: true }],
+                }
+          - { tag: p, class: org, children: [{ field: school }] }
+
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: event
+        children:
+          - {
+              tag: p,
+              class: title,
+              children: [{ field: title, placeholder: heading }],
+            }
+          - {
+              tag: p,
+              class: org,
+              children: [{ field: detail, optional: true }],
+            }
+          - { bullets: bullets }

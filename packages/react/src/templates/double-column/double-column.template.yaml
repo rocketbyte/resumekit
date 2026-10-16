@@ -1,0 +1,115 @@
+id: double-column
+component: DoubleColumn
+prefix: tpl-dc
+styleKey: dc
+
+layout:
+  - row:
+      - stack:
+          - name
+          - headline
+          - { contact: [phone, email, location], links: true, icons: true }
+        class: identity
+      - avatar
+    tag: header
+    class: head-block
+    block: true
+
+  - row:
+      - stack:
+          - summary
+          - experience
+          - education
+          - languages
+        class: main
+      - stack:
+          - { section: achievements, kit: [tpl-described--marked] }
+          - custom
+          - section: skills
+            groups: bullets
+            wrapper:
+              { tag: div, kit: [tpl-keywords, tpl-keywords--tags], split: true }
+          - courses
+          - {
+              section: certifications,
+              as: bullets,
+              split: true,
+              whenEmpty: hide,
+            }
+          - { section: passions, kit: [tpl-described--marked] }
+        tag: aside
+        class: aside
+    class: body
+
+entries:
+  # The role, the employer under it, then the dates and the place on a line of
+  # their own. A real space joins the last two, so extracted text keeps them
+  # apart where the page sets an icon.
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root: { tag: article, class: entry, block: true }
+    children:
+      - { tag: p, class: role, children: [{ field: title }] }
+      - { tag: p, class: org, children: [{ field: company }] }
+      - tag: p
+        class: meta
+        children:
+          - tag: span
+            class: dates
+            children:
+              - { field: start }
+              - { text: ' - ' }
+              - { field: end }
+          - { separator: ' ', between: [end, location] }
+          - {
+              tag: span,
+              class: where,
+              children: [{ field: location, optional: true }],
+            }
+      - { bullets: bullets }
+
+  education:
+    name: EducationEntry
+    type: Education
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: p
+        class: role
+        children:
+          - { field: degree, optional: true }
+          - { word: degreeField, between: [degree, field] }
+          - { field: field, optional: true }
+      - { tag: p, class: org, children: [{ field: school }] }
+      - tag: p
+        class: meta
+        children:
+          - tag: span
+            class: dates
+            children:
+              - { field: start, optional: true }
+              - { separator: ' - ', between: [start, end] }
+              - { field: end, optional: true }
+          - { separator: ' ', between: [end, location] }
+          - {
+              tag: span,
+              class: where,
+              children: [{ field: location, optional: true }],
+            }
+
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root: { tag: article, class: note, block: true }
+    children:
+      - {
+          tag: p,
+          class: note-title,
+          children: [{ field: title, placeholder: heading }],
+        }
+      - {
+          tag: p,
+          class: note-detail,
+          children: [{ field: detail, optional: true }],
+        }
+      - { bullets: bullets }

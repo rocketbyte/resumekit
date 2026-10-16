@@ -1,0 +1,265 @@
+/*
+ * The paged canvas: inert sheets behind a single continuous flow.
+ *
+ * Lives beside `PagedSheet` and is imported by it, so the component is
+ * self-sufficient — a surface that renders a paged document cannot forget to
+ * bring its own page styling.
+ */
+
+/* ── Paged canvas ───────────────────────────────────────────────────────── */
+
+.tpl-pages {
+  position: relative;
+  width: 8.5in;
+  margin: 0 auto;
+
+  /*
+   * The browser must NOT try to hold this document still. The paginator does.
+   *
+   * Scroll anchoring exists for content that grows above the reader — an image
+   * loading, a banner unfolding — and it compensates by moving the scroll
+   * position under them. Every measuring pass here clears each block's
+   * `margin-top` and writes it back (see `PagedSheet.measure`, which must read
+   * a natural layout before it can plan the page breaks), and the browser reads
+   * that as the whole document collapsing and re-expanding. It then
+   * "compensated" for both halves, and they did not cancel: typing one letter
+   * into a skill dragged the canvas six hundred pixels, and the line being
+   * typed left the screen.
+   *
+   * Nothing is lost by switching it off. Anchoring keeps a reader's place while
+   * something else changes size; here the only thing changing size is the
+   * sentence under their own caret, which the browser keeps in view by itself.
+   */
+  overflow-anchor: none;
+
+  /*
+   * The zoom eases rather than jumps.
+   *
+   * `zoom` takes part in layout, so this is animating a reflow — which is
+   * exactly why `PagedSheet` suspends pagination for the duration and measures
+   * once at the end: mid-transition the page is at neither size, and a plan made
+   * from those frames would be true for none of them.
+   *
+   * Duration from `--zoom-ms`, written by the component from the same constant
+   * that decides how long it waits. Where a browser will not interpolate `zoom`,
+   * this degrades to the jump it does today and nothing else changes.
+   */
+  transition: zoom var(--zoom-ms, 200ms) cubic-bezier(0.22, 1, 0.36, 1);
+  /* Hold the paper open to every sheet the paginator drew. Absolutely
+     positioned sheets contribute no height, so without this a one-line record
+     is a clipped strip rather than a page. */
+  min-height: calc(
+    var(--pages, 1) * (var(--page-h) + var(--page-gap)) - var(--page-gap)
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tpl-pages {
+    transition: none;
+  }
+}
+
+/* Inert decoration behind the flow. No content lives here, so no content can be
+   lost to a repagination. */
+.tpl-pages__sheets {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tpl-sheet {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: var(--page-h);
+  background: #ffffff;
+  box-shadow: var(--elevation-2, 0 2px 12px rgb(0 0 0 / 18%));
+}
+
+.tpl-sheet__number {
+  position: absolute;
+  right: 0;
+  bottom: calc(var(--page-gap) * -1);
+  padding-top: 4px;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-subtle);
+}
+
+.tpl-pages__flow {
+  position: relative;
+  z-index: 1;
+  /*
+   * Room beside the paper for the rails, which stand OUTSIDE it — on either
+   * side, for a template whose right-hand column has its own.
+   *
+   * The padding and the equal negative margin cancel: the content sits exactly
+   * where it did, and the flow's own BOX grows sideways. That is what this
+   * is for — the mask below clips to the box, so a rail out on the canvas would
+   * simply vanish on any résumé long enough to have a page break, which is the
+   * one case nobody would think to check.
+   *
+   * Zero unless something sets it, so the saved-résumé view and the export
+   * renderer — which draw no knobs — are laid out exactly as before.
+   */
+  padding-inline: var(--tpl-space-bleed, 0px);
+  margin-inline: calc(-1 * var(--tpl-space-bleed, 0px));
+}
+
+/*
+   * Nothing is drawn in the gutter, because the gutter is not part of any page.
+   *
+   * The flow is continuous over the gaps between sheets, so anything spanning a
+   * boundary paints across one: a two-column template's dividing rule stitches
+   * the sheets together, and a list too long to move whole spills its items into
+   * the space between them. Neither is a pagination error — the content is on
+   * the sheets the printer will put it on — but both show the reader a page edge
+   * that is not there.
+   *
+   * A mask rather than a strip painted over the top, because the canvas behind
+   * this is a different colour in the editor and in the saved-résumé view, and a
+   * cover that has to match a background is a cover that is wrong somewhere. The
+ * gradient repeats on the same two custom properties the sheets are positioned
+ * with, so the holes cannot drift from the gaps.
+ *
+ * Only on a document that HAS a gap. A mask promotes the whole flow to its own
+ * composited layer, and the flow is what the candidate types into — so a
+ * one-page résumé, which is most of them and the one the product tells people to
+ * aim for, pays nothing for a boundary it does not have.
+ */
+.tpl-pages[data-multipage] .tpl-pages__flow {
+  mask-image: repeating-linear-gradient(
+    to bottom,
+    #000 0 var(--page-h),
+    transparent var(--page-h) calc(var(--page-h) + var(--page-gap))
+  );
+}
+
+/*
+ * The document stops painting its own paper.
+ *
+ * The flow is continuous, so a white background on the template root would run
+ * straight through the gaps and hide the very page boundaries this component
+ * exists to show. The sheets behind it ARE the paper; the document only needs to
+ * keep its margins, which is what positions text inside them.
+ */
+.tpl-pages__flow .tpl-harvard {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* On paper the sheets and their numbers are the browser's job, not ours. */
+@media print {
+  .fmt {
+    display: none !important;
+  }
+
+  .tpl-pages__sheets {
+    display: none !important;
+  }
+
+  .tpl-pages {
+    width: auto;
+    margin: 0;
+  }
+
+  /* On paper there is no gap to hide, and a mask here would cut the document. */
+  .tpl-pages[data-multipage] .tpl-pages__flow {
+    mask-image: none;
+  }
+}
+
+/* ── The zoom control ───────────────────────────────────────────────────── */
+
+/*
+ * Canvas chrome, not document chrome.
+ *
+ * It sits OUTSIDE `.tpl-pages`, so it does not scale with the page it scales —
+ * and it is taken out of the flow by a negative bottom margin, so appearing
+ * costs the canvas no height and the paper does not shift down under it. The
+ * paginator measures only inside `.tpl-pages__flow`, so nothing here can reach
+ * where a page breaks.
+ *
+ * Drawn in the app's own neutral tokens rather than the document's green, since
+ * it acts on the view: it is not one of the affordances that says a part of the
+ * résumé can be edited.
+ */
+.tpl-zoom {
+  position: sticky;
+  top: 8px;
+  z-index: 5;
+
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  width: fit-content;
+  margin: 0 0 -32px auto;
+  padding: 3px;
+
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e2e2e6);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgb(0 0 0 / 12%));
+}
+
+.tpl-zoom__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font:
+    600 14px/1 system-ui,
+    sans-serif;
+  color: var(--color-text, #1a1a1a);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 5px;
+}
+
+.tpl-zoom__btn:hover:not(:disabled) {
+  background: var(--color-surface-subtle, #f2f2f4);
+}
+
+.tpl-zoom__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.tpl-zoom__value {
+  min-width: 44px;
+  padding: 0 4px;
+  font:
+    500 11px/1 system-ui,
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-subtle, #6a6a70);
+  text-align: center;
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.tpl-zoom__value:hover {
+  color: var(--color-text, #1a1a1a);
+}
+
+/*
+ * A view zoom is for looking at the document, never for producing it.
+ *
+ * `PagedSheet` writes `zoom` inline when the editor's canvas has room for it, so
+ * this is the reset that keeps the printed page — and the PDF rendered from the
+ * same stylesheet — at true Letter size regardless of what the reader was
+ * viewing it at.
+ */
+@media print {
+  .tpl-pages {
+    zoom: 1 !important;
+  }
+
+  .tpl-zoom {
+    display: none !important;
+  }
+}

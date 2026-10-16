@@ -1,0 +1,120 @@
+id: harvard
+component: Harvard
+prefix: tpl-harvard
+styleKey: h
+
+classes:
+  section: section
+  heading: section-title
+  described: described
+
+layout:
+  - stack:
+      - name
+      - headline
+      - { contact: [location, email, phone], links: true }
+    tag: header
+    class: head
+    block: true
+
+  - { section: summary, title: professionalSummary, paragraph: summary }
+  - experience
+  - education
+  - achievements
+  - courses
+  - section: skills
+    title: technicalSkills
+    entry: skillGroup
+    wrapper: { tag: ul, class: skills, block: true }
+    gap: false
+  - { section: languages, sectionClass: languages }
+  - { section: passions, title: interests }
+  - { section: certifications, class: inline-list, whenEmpty: hide }
+  - custom
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: entry-head
+        children:
+          - { tag: span, class: org, children: [{ field: company }] }
+          - {
+              tag: span,
+              class: where,
+              children: [{ field: location, optional: true }],
+            }
+          - { tag: span, class: role, children: [{ field: title }] }
+          - tag: span
+            class: dates
+            children:
+              - { field: start }
+              - { text: ' – ' }
+              - { field: end }
+      - { bullets: bullets }
+
+  education:
+    name: EducationEntry
+    type: Education
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: entry-head
+        children:
+          - { tag: span, class: org, children: [{ field: school }] }
+          - {
+              tag: span,
+              class: where,
+              children: [{ field: location, optional: true }],
+            }
+          - tag: span
+            class: role
+            children:
+              - { field: degree, optional: true }
+              - { separator: ', ', between: [degree, field] }
+              - { field: field, optional: true }
+          - tag: span
+            class: dates
+            children:
+              - { field: start, optional: true }
+              - { separator: ' – ', between: [start, end] }
+              - { field: end, optional: true }
+
+  # A real space, not a CSS gap: text extracted from the PDF must not read "Backend:Node.js".
+  skillGroup:
+    name: SkillGroup
+    type: SkillGroup
+    root: { tag: li, class: skill-group }
+    children:
+      - tag: span
+        class: skill-label
+        children:
+          - { field: category }
+          - { text: ':' }
+      - { text: ' ' }
+      - { inlineList: items }
+
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root: { tag: article, class: entry, block: true }
+    children:
+      - tag: div
+        class: entry-head
+        children:
+          - {
+              tag: span,
+              class: org,
+              children: [{ field: title, placeholder: heading }],
+            }
+          - { tag: span, class: dates }
+          - {
+              tag: span,
+              class: role,
+              children: [{ field: detail, optional: true }],
+            }
+          - { tag: span, class: where }
+      - { bullets: bullets }

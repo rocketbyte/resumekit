@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "emitDeclarationOnly": false,
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "lib": ["dom", "dom.iterable", "es2022"],
+    "types": ["react"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.json", "src/**/*.d.ts"],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+    "src/test-setup.ts",
+    "src/compiler/**",
+    "src/export/**",
+    "src/static/render.tsx",
+    "src/static/fixtures.ts"
+  ],
+  "references": [{ "path": "../schema/tsconfig.lib.json" }]
+}

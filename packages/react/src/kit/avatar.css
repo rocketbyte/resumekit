@@ -1,0 +1,42 @@
+/*
+ * The initials a template draws where its reference shows a portrait.
+ *
+ * Every measurement is a template's to set — it is the template that knows how
+ * big the slot is — so this file holds only what is true of all of them: a
+ * circle of foreground ink with the initials centred in it, which prints with
+ * the browser's background graphics switched off.
+ */
+.tpl-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--tpl-avatar-size, 56pt);
+  height: var(--tpl-avatar-size, 56pt);
+  margin: 0;
+  border: 1pt solid currentcolor;
+  border-radius: 50%;
+  font-size: var(--tpl-avatar-text, 18pt);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+/*
+ * An employer's initials, where a design shows its logo. Square-ish rather
+ * than round, so it reads as a mark beside a name rather than as a second
+ * portrait, and sized by the template that draws it.
+ */
+.tpl-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--tpl-chip-size, 16pt);
+  height: var(--tpl-chip-size, 16pt);
+  border: 0.75pt solid currentcolor;
+  border-radius: calc(var(--tpl-chip-size, 16pt) * 0.22);
+  font-size: var(--tpl-chip-text, 7pt);
+  font-weight: 700;
+  line-height: 1;
+}

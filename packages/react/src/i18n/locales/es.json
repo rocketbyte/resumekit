@@ -1,0 +1,337 @@
+{
+  "editor": {
+    "zoom": {
+      "group": "Zoom de la vista",
+      "out": "Alejar",
+      "in": "Acercar",
+      "reset": "Ajustar a la vista",
+      "level": "Zoom al {percent} por ciento: ajustar a la vista"
+    },
+    "entry": {
+      "name": "{section} · {title} {position}",
+      "item": "{one} {position}",
+      "toolbar": "{name}: acciones de edición",
+      "drag": "Arrastra para mover {this}",
+      "moveUp": "Subir {this}",
+      "moveUpLabel": "Subir {one} {position}",
+      "moveDown": "Bajar {this}",
+      "moveDownLabel": "Bajar {one} {position}",
+      "addBelow": "Añadir {a} debajo",
+      "addAfterLabel": "Añadir {a} tras el elemento {position}",
+      "remove": "Quitar {this}",
+      "removeLabel": "Quitar {one} {position}",
+      "hide": "Ocultar {this}: sigue en tu currículum adaptado y se puede recuperar",
+      "hideLabel": "Ocultar {one} {position}",
+      "addFirst": "+ Añadir {one}",
+      "addFirstLabel": "Añadir {a}",
+      "addFirstPlaceholder": "Añade {other}"
+    },
+    "bullets": {
+      "drag": "Arrastra para mover este punto, o pulsa Espacio y usa las flechas",
+      "moveLabel": "Mover el punto {position}",
+      "addBelow": "Añadir un punto debajo",
+      "addAfterLabel": "Añadir un punto después del {position}",
+      "remove": "Quitar este punto",
+      "removeLabel": "Quitar el punto {position}"
+    },
+    "refusal": {
+      "single": "Solo puede haber uno.",
+      "minimumOne": "Hace falta al menos {a}: cambia el texto en vez de borrar.",
+      "minimum": "Hacen falta al menos {count}."
+    },
+    "space": {
+      "handle": "Espacio sobre {name}",
+      "handleTitle": "Arrastra arriba o abajo para cambiar el espacio sobre {name}",
+      "none": "Ninguno",
+      "dragToAdd": "Arrastra para añadir espacio"
+    },
+    "link": {
+      "edit": "Editar {name}",
+      "editThis": "Editar este enlace",
+      "dialog": "Enlace",
+      "text": "Texto",
+      "url": "Enlace",
+      "ok": "Aceptar"
+    },
+    "library": {
+      "action": "Añadir desde tu perfil profesional",
+      "actionLabel": "Añadir desde tu perfil profesional a {this}",
+      "moreHeading": "Más de este puesto",
+      "moreHint": "Puntos de tu perfil que este currículum dejó fuera.",
+      "othersHeading": "Otros puestos que has tenido",
+      "othersHint": "Se añaden debajo de este. Desmarca los puntos que no necesites.",
+      "roleTitle": "Suma más de tu experiencia",
+      "sectionTitle": "Añadir {other} de tu perfil",
+      "roleSubtitle": "{role}: elige lo que encaje con esta oferta. Puedes editar todo después de añadirlo.",
+      "subtitle": "Elige lo que encaje con esta oferta. Puedes editar todo después de añadirlo.",
+      "roleEmpty": "Todo lo que tu perfil profesional tiene de este puesto, y de los demás, ya está en este currículum.",
+      "sectionEmpty": "Ya no queda nada de tu perfil profesional por añadir aquí: todo está en este currículum.",
+      "allSet": "Ya está todo",
+      "close": "Cerrar",
+      "selectAll": "Seleccionar todo",
+      "clear": "Quitar selección",
+      "bulletsOf": "Puntos de {title}",
+      "nothingSelected": "Aún no has seleccionado nada",
+      "selected": {
+        "one": "{count} seleccionado",
+        "other": "{count} seleccionados"
+      },
+      "done": "Listo",
+      "cancel": "Cancelar",
+      "add": "Añadir",
+      "addSelection": "Añadir {items}"
+    },
+    "language": {
+      "level": "Nivel",
+      "choose": "Nivel…"
+    },
+    "customSection": "Sección",
+    "sections": {
+      "summary": "Resumen",
+      "links": "Enlaces",
+      "experience": "Experiencia",
+      "experience_bullets": "Experiencia",
+      "education": "Educación",
+      "skills": "Habilidades",
+      "skill_items": "Habilidades",
+      "certifications": "Certificaciones",
+      "achievements": "Logros",
+      "courses": "Cursos",
+      "passions": "Intereses",
+      "languages": "Idiomas",
+      "custom_sections": "Secciones",
+      "custom_entries": "Sección",
+      "custom_bullets": "Sección"
+    },
+    "nouns": {
+      "summary": {
+        "one": "resumen",
+        "other": "resúmenes",
+        "title": "Resumen",
+        "a": "un resumen",
+        "this": "este resumen",
+        "count": {
+          "one": "{count} resumen",
+          "other": "{count} resúmenes"
+        }
+      },
+      "link": {
+        "one": "enlace",
+        "other": "enlaces",
+        "title": "Enlace",
+        "a": "un enlace",
+        "this": "este enlace",
+        "count": {
+          "one": "{count} enlace",
+          "other": "{count} enlaces"
+        }
+      },
+      "role": {
+        "one": "puesto",
+        "other": "puestos",
+        "title": "Puesto",
+        "a": "un puesto",
+        "this": "este puesto",
+        "count": {
+          "one": "{count} puesto",
+          "other": "{count} puestos"
+        }
+      },
+      "bullet": {
+        "one": "punto",
+        "other": "puntos",
+        "title": "Punto",
+        "a": "un punto",
+        "this": "este punto",
+        "count": {
+          "one": "{count} punto",
+          "other": "{count} puntos"
+        }
+      },
+      "qualification": {
+        "one": "titulación",
+        "other": "titulaciones",
+        "title": "Titulación",
+        "a": "una titulación",
+        "this": "esta titulación",
+        "count": {
+          "one": "{count} titulación",
+          "other": "{count} titulaciones"
+        }
+      },
+      "skills group": {
+        "one": "grupo de habilidades",
+        "other": "grupos de habilidades",
+        "title": "Grupo de habilidades",
+        "a": "un grupo de habilidades",
+        "this": "este grupo de habilidades",
+        "count": {
+          "one": "{count} grupo de habilidades",
+          "other": "{count} grupos de habilidades"
+        }
+      },
+      "skill": {
+        "one": "habilidad",
+        "other": "habilidades",
+        "title": "Habilidad",
+        "a": "una habilidad",
+        "this": "esta habilidad",
+        "count": {
+          "one": "{count} habilidad",
+          "other": "{count} habilidades"
+        }
+      },
+      "certification": {
+        "one": "certificación",
+        "other": "certificaciones",
+        "title": "Certificación",
+        "a": "una certificación",
+        "this": "esta certificación",
+        "count": {
+          "one": "{count} certificación",
+          "other": "{count} certificaciones"
+        }
+      },
+      "achievement": {
+        "one": "logro",
+        "other": "logros",
+        "title": "Logro",
+        "a": "un logro",
+        "this": "este logro",
+        "count": {
+          "one": "{count} logro",
+          "other": "{count} logros"
+        }
+      },
+      "course": {
+        "one": "curso",
+        "other": "cursos",
+        "title": "Curso",
+        "a": "un curso",
+        "this": "este curso",
+        "count": {
+          "one": "{count} curso",
+          "other": "{count} cursos"
+        }
+      },
+      "interest": {
+        "one": "interés",
+        "other": "intereses",
+        "title": "Interés",
+        "a": "un interés",
+        "this": "este interés",
+        "count": {
+          "one": "{count} interés",
+          "other": "{count} intereses"
+        }
+      },
+      "language": {
+        "one": "idioma",
+        "other": "idiomas",
+        "title": "Idioma",
+        "a": "un idioma",
+        "this": "este idioma",
+        "count": {
+          "one": "{count} idioma",
+          "other": "{count} idiomas"
+        }
+      },
+      "section": {
+        "one": "sección",
+        "other": "secciones",
+        "title": "Sección",
+        "a": "una sección",
+        "this": "esta sección",
+        "count": {
+          "one": "{count} sección",
+          "other": "{count} secciones"
+        }
+      },
+      "entry": {
+        "one": "entrada",
+        "other": "entradas",
+        "title": "Entrada",
+        "a": "una entrada",
+        "this": "esta entrada",
+        "count": {
+          "one": "{count} entrada",
+          "other": "{count} entradas"
+        }
+      }
+    },
+    "placeholders": {
+      "location": "Ciudad, país",
+      "email": "tu@ejemplo.com",
+      "phone": "Número de teléfono",
+      "company": "Empresa",
+      "title": "Tu puesto",
+      "start": "AAAA-MM",
+      "end": "AAAA-MM o Actualidad",
+      "school": "Institución",
+      "degree": "Título",
+      "field": "Área de estudio",
+      "category": "Grupo de habilidades, p. ej. Idiomas",
+      "heading": "Título de la sección",
+      "detail": "Organización o periodo",
+      "bullet": "Qué hiciste y qué cambió gracias a ello.",
+      "item": "Palabra clave",
+      "certification": "Nombre de la certificación",
+      "label": "Texto del enlace",
+      "url": "https://",
+      "summary": "Dos o tres líneas: a qué te dedicas, desde cuándo y en qué destacas.",
+      "headline": "El puesto al que postulas.",
+      "items": "Habilidades, separadas por comas",
+      "certifications": "Certificaciones, separadas por comas",
+      "achievement_title": "Qué lograste",
+      "achievement_description": "Una o dos líneas: qué hiciste y qué cambió.",
+      "course_title": "Curso o titulación",
+      "course_description": "Una o dos líneas: qué abarcó y quién lo impartió.",
+      "passion_title": "Un interés",
+      "passion_description": "Una o dos líneas sobre qué te atrae de él.",
+      "language": "p. ej. Inglés"
+    },
+    "dateIssues": {
+      "ends-before-start": "Termina antes de empezar: revisa las fechas.",
+      "out-of-order": "Los reclutadores esperan lo más reciente primero, y esta entrada empieza después que la de arriba."
+    }
+  },
+  "document": {
+    "resume": "Currículum",
+    "letter": "Carta de presentación",
+    "sections": {
+      "summary": "Resumen",
+      "professionalSummary": "Resumen profesional",
+      "experience": "Experiencia",
+      "education": "Educación",
+      "skills": "Habilidades",
+      "technicalSkills": "Habilidades técnicas",
+      "achievements": "Logros",
+      "keyAchievements": "Logros clave",
+      "courses": "Cursos",
+      "certifications": "Certificaciones",
+      "passions": "Pasiones",
+      "interests": "Intereses",
+      "languages": "Idiomas"
+    },
+    "joins": {
+      "degreeField": "en"
+    },
+    "levels": {
+      "native": "Nativo",
+      "fluent": "Fluido",
+      "advanced": "Avanzado",
+      "intermediate": "Intermedio",
+      "beginner": "Básico"
+    },
+    "panels": {
+      "contacts": "Contactos",
+      "personalInformation": "Información personal",
+      "locations": "Ubicaciones",
+      "websites": "Sitios web, portafolios y perfiles",
+      "links": "Enlaces"
+    },
+    "labels": {
+      "title": "Cargo: "
+    }
+  }
+}

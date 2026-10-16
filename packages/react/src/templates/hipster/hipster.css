@@ -1,0 +1,442 @@
+/*
+ * Hipster: Simple Hipster CV (docs/template-references/hipster.png).
+ *
+ * A charcoal band with the name in Raleway, light then bold, over a light job
+ * line. Below it a pale grey sidebar a quarter of the page wide: the initials in
+ * a large circle, then short right-aligned notes, each opened by a small cyan
+ * label. The body sets small-capital headings over a grey rule; the work
+ * history hangs off a dated spine, each role over its organisation in small
+ * capitals and its place beside an orange pin. Two short sections close the
+ * page side by side.
+ *
+ * Measured from the reference (A4 at 200 dpi) and set in proportion on Letter.
+ */
+
+.tpl-hipster {
+  --tpl-heading-gap: calc(7pt * var(--hp-scale) * var(--hp-density));
+  --tpl-space-unit: calc(2pt * var(--hp-scale) * var(--hp-density));
+  --tpl-space-margin: var(--hp-margin);
+  --tpl-marker: calc(8pt * var(--hp-scale));
+  --tpl-avatar-size: calc(99pt * var(--hp-scale));
+  --tpl-avatar-text: calc(34pt * var(--hp-scale));
+
+  --hp-scale: 1;
+  --hp-ink: #222222;
+  --hp-font: Raleway, Lato, 'Helvetica Neue', Arial, sans-serif;
+  --hp-mono: 'Latin Modern Mono', 'Courier New', monospace;
+  --hp-accent: #29b2e2;
+  --hp-density: 1;
+  --hp-margin: 29pt;
+  --hp-band: #3f3f3f;
+  --hp-rail: #e6e6e6;
+  --hp-muted: #5e5e5e;
+  --hp-rule: #5a5a5a;
+  --hp-pin: #e2582c;
+  --hp-chip: #c2c2c2;
+  --hp-date: calc(82pt * var(--hp-scale));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  /* The band and the sidebar reach the paper's edges, so each part carries its
+     own padding. */
+  padding: 0;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--hp-ink);
+  font-family: var(--hp-font);
+  font-size: calc(9.6pt * var(--hp-scale));
+  line-height: 1.17;
+}
+
+/* ── Band ───────────────────────────────────────────────────────────────── */
+
+.tpl-hipster__head {
+  margin: 0;
+  padding: calc(34pt * var(--hp-scale)) var(--hp-margin)
+    calc(26pt * var(--hp-scale));
+  background: var(--hp-band);
+  color: #ffffff;
+  text-align: center;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-hipster__name {
+  margin: 0;
+  font-size: calc(27.5pt * var(--hp-scale));
+  font-weight: 300;
+  line-height: 1.15;
+}
+
+.tpl-hipster__name-last {
+  font-weight: 700;
+}
+
+.tpl-hipster__headline {
+  margin: calc(7pt * var(--hp-scale)) 0 0;
+  color: #f0f0f0;
+  font-size: calc(10.5pt * var(--hp-scale));
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+/* ── Columns ────────────────────────────────────────────────────────────── */
+
+/* The sidebar is a stretched grid item (`tpl-sheet-tall`), so its grey runs the
+   length of every sheet the body reaches. */
+.tpl-hipster__body {
+  display: grid;
+  grid-template-columns: calc(168pt * var(--hp-scale)) minmax(0, 1fr);
+}
+
+.tpl-hipster__aside,
+.tpl-hipster__main {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.tpl-hipster__aside {
+  padding: calc(24pt * var(--hp-scale)) calc(22pt * var(--hp-scale)) 0.5in
+    calc(30pt * var(--hp-scale));
+  background: var(--hp-rail);
+  text-align: right;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-hipster__main {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+
+  padding: calc(14pt * var(--hp-scale)) var(--hp-margin) 0.5in
+    calc(22pt * var(--hp-scale));
+}
+
+.tpl-hipster__avatar {
+  margin: 0 auto;
+  border: 0.75pt solid #333333;
+  background: #cfcfcf;
+  color: #333333;
+  font-weight: 300;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-hipster__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-hipster__section + .tpl-hipster__section,
+.tpl-hipster__section + .tpl-hipster__pair,
+.tpl-hipster__half > .tpl-hipster__section + .tpl-hipster__section {
+  margin-top: calc(
+    20pt * var(--hp-scale) * var(--hp-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-hipster__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: calc(24pt * var(--hp-scale));
+}
+
+.tpl-hipster__half {
+  min-width: 0;
+}
+
+/* Main headings: small capitals over a full-width grey rule. */
+.tpl-hipster__heading {
+  margin: 0 0 var(--tpl-heading-gap);
+  padding-bottom: calc(3pt * var(--hp-scale));
+  border-bottom: 0.6pt solid var(--hp-rule);
+  font-size: calc(15.8pt * var(--hp-scale));
+  font-variant-caps: small-caps;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+}
+
+/* Sidebar headings: a small cyan label, set right. */
+.tpl-hipster__aside {
+  --tpl-heading-gap: calc(4pt * var(--hp-scale));
+}
+
+.tpl-hipster__aside .tpl-hipster__heading {
+  width: fit-content;
+  margin-left: auto;
+  padding: calc(1pt * var(--hp-scale)) calc(4pt * var(--hp-scale));
+  border: 0;
+  background: var(--hp-accent);
+  color: #ffffff;
+  font-size: calc(9.2pt * var(--hp-scale));
+  font-variant-caps: normal;
+  font-weight: 700;
+  letter-spacing: 0;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-hipster__aside .tpl-hipster__section,
+.tpl-hipster__avatar + .tpl-hipster__section {
+  margin-top: calc(
+    16pt * var(--hp-scale) * var(--hp-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-hipster__prose {
+  margin: 0;
+}
+
+.tpl-hipster__prose:has(.is-left, .is-center, .is-right) {
+  text-align: unset;
+}
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.tpl-hipster {
+  --tpl-contact-icon-ink: var(--hp-accent);
+  --tpl-contact-icon-size: calc(13pt * var(--hp-scale));
+  --tpl-contact-icon-gap: calc(5pt * var(--hp-scale));
+  --tpl-contact-icon-shift: 0px;
+}
+
+.tpl-hipster__contact {
+  margin: 0;
+}
+
+.tpl-hipster__contact-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 0;
+  min-height: calc(14pt * var(--hp-scale));
+  font-family: var(--hp-mono);
+  font-size: calc(9pt * var(--hp-scale));
+  overflow-wrap: anywhere;
+}
+
+.tpl-hipster__contact-item + .tpl-hipster__contact-item,
+.tpl-hipster__contact * + .tpl-hipster__contact-item {
+  margin-top: calc(3pt * var(--hp-scale));
+}
+
+.tpl-hipster__contact .tpl-text__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* A cyan disc with the kit's icon cut out of it, the sidebar showing through. */
+.tpl-hipster .tpl-contact-icons .tpl-contact-item::before,
+.tpl-hipster .tpl-contact-icons .tpl-hipster__contact-item::before {
+  flex: none;
+  border-radius: 50%;
+  mask:
+    var(--tpl-contact-icon) center / 60% no-repeat,
+    linear-gradient(#000000 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    var(--tpl-contact-icon) center / 60% no-repeat,
+    linear-gradient(#000000 0 0);
+  -webkit-mask-composite: xor;
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-hipster__entry {
+  display: grid;
+  grid-template-columns: var(--hp-date) minmax(0, 1fr);
+  margin-top: var(--tpl-space-height, 0px);
+  break-inside: avoid;
+}
+
+/*
+ * The gap between entries is padding inside both cells rather than a margin
+ * between them, so the spine runs unbroken from one entry to the next.
+ */
+.tpl-hipster__entry + .tpl-hipster__entry > * {
+  padding-top: calc(14pt * var(--hp-scale) * var(--hp-density));
+}
+
+.tpl-hipster__when {
+  grid-column: 1;
+  margin: 0;
+  padding-right: calc(7pt * var(--hp-scale));
+  font-size: calc(10pt * var(--hp-scale));
+  text-align: right;
+}
+
+.tpl-hipster__when,
+.tpl-hipster__when * {
+  white-space: nowrap;
+}
+
+.tpl-hipster__event {
+  grid-column: 2;
+  min-width: 0;
+  padding-left: calc(7pt * var(--hp-scale));
+}
+
+.tpl-hipster__spine .tpl-hipster__event {
+  border-left: 0.6pt solid var(--hp-rule);
+}
+
+.tpl-hipster__spine .tpl-hipster__entry:last-child .tpl-hipster__event {
+  padding-bottom: calc(10pt * var(--hp-scale));
+}
+
+.tpl-hipster__title,
+.tpl-hipster__meta {
+  margin: 0;
+}
+
+.tpl-hipster__title {
+  font-size: calc(10.4pt * var(--hp-scale));
+  font-weight: 700;
+}
+
+.tpl-hipster__meta {
+  font-size: calc(10pt * var(--hp-scale));
+}
+
+.tpl-hipster__org,
+.tpl-hipster__school {
+  font-variant-caps: small-caps;
+}
+
+/* The place beside a pin: orange for a role, cyan for a school, as drawn. */
+.tpl-hipster__place:not(:empty)::after {
+  content: '';
+  display: inline-block;
+  width: 0.72em;
+  height: 0.95em;
+  margin-left: 0.3em;
+  vertical-align: -0.12em;
+  background: var(--hp-pin);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-hipster__school ~ .tpl-hipster__place:not(:empty)::after {
+  background: var(--hp-accent);
+}
+
+/* Descriptions in the reference's grey, one line apiece. */
+.tpl-hipster .tpl-bullets {
+  margin: calc(2pt * var(--hp-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-hipster .tpl-bullet {
+  display: grid;
+  grid-template-columns: var(--tpl-marker) 1fr;
+  color: var(--hp-muted);
+}
+
+.tpl-hipster .tpl-bullet::before {
+  content: '';
+  width: calc(2.6pt * var(--hp-scale));
+  height: calc(2.6pt * var(--hp-scale));
+  margin-top: 0.48em;
+  border-radius: 50%;
+  background: var(--hp-muted);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* ── Kit sections ───────────────────────────────────────────────────────── */
+
+.tpl-hipster {
+  --tpl-described-gap: calc(8pt * var(--hp-scale) * var(--hp-density));
+  --tpl-described-lead: calc(1pt * var(--hp-scale));
+  --tpl-described-title-weight: 700;
+}
+
+/* Achievements and courses hang where the events do, past the dates. */
+.tpl-hipster__main > .tpl-hipster__section > .tpl-hipster__described,
+.tpl-hipster__main > .tpl-hipster__section > [data-block] {
+  padding-left: calc(var(--hp-date) + 7pt * var(--hp-scale));
+}
+
+.tpl-hipster__main .tpl-described__body {
+  color: var(--hp-muted);
+}
+
+.tpl-hipster__aside .tpl-described__title {
+  font-weight: 600;
+}
+
+/* Skills: each one in a grey box with its name in bold, the category over it. */
+.tpl-hipster {
+  --tpl-skill-tags-rhythm: calc(8pt * var(--hp-scale));
+  --tpl-skill-tags-label-gap: calc(4pt * var(--hp-scale));
+  --tpl-skill-tags-label-weight: 400;
+  --tpl-skill-tags-label-ink: var(--hp-muted);
+}
+
+.tpl-hipster .tpl-skill-tags__label {
+  font-variant-caps: small-caps;
+  font-size: calc(10pt * var(--hp-scale));
+}
+
+.tpl-hipster .tpl-keywords--tags .tpl-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(4pt * var(--hp-scale));
+}
+
+.tpl-hipster .tpl-keywords--tags .tpl-bullets .tpl-bullet {
+  display: block;
+  padding: calc(1pt * var(--hp-scale)) calc(4pt * var(--hp-scale));
+  border: 0;
+  background: var(--hp-chip);
+  color: var(--hp-ink);
+  font-weight: 700;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-hipster .tpl-keywords--tags .tpl-bullets .tpl-bullet::before {
+  content: none;
+}
+
+/* Languages: name, level word, then cyan dots on grey. */
+.tpl-hipster {
+  --tpl-language-name-weight: 700;
+  --tpl-language-level-size: 1em;
+  --tpl-language-lead: calc(2pt * var(--hp-scale));
+}
+
+.tpl-hipster .tpl-language__step {
+  width: calc(4.6pt * var(--hp-scale));
+  height: calc(4.6pt * var(--hp-scale));
+  border: 0;
+  background: #b5b5b5;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.tpl-hipster .tpl-language__step--on {
+  background: var(--hp-accent);
+}
+
+/* ── Print ──────────────────────────────────────────────────────────────── */
+
+@page {
+  size: letter;
+  margin: 0;
+}
+
+@media print {
+  .tpl-hipster {
+    width: auto;
+    margin: 0;
+    box-shadow: none;
+  }
+}

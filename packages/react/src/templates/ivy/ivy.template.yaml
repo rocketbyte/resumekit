@@ -1,0 +1,114 @@
+id: ivy
+component: Ivy
+prefix: tpl-ivy
+styleKey: i
+
+layout:
+  - stack: [name, headline, { contact: [phone, email, location], links: true }]
+    tag: header
+    class: head-block
+    block: true
+  - summary
+  - experience
+  - education
+  - { section: achievements, kit: [tpl-described--marked, tpl-described--grid] }
+  - { section: skills, groups: grid }
+  - { section: courses, sectionClass: courses }
+  - languages
+  - { section: certifications, as: bullets, split: true, whenEmpty: hide }
+  - { section: passions, kit: [tpl-described--marked] }
+  - custom
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: div
+        class: head
+        children:
+          - tag: span
+            class: org
+            children:
+              - field: company
+          - tag: span
+            class: where
+            children:
+              - field: location
+                optional: true
+          - tag: span
+            class: role
+            children:
+              - field: title
+          - tag: span
+            class: dates
+            children:
+              - field: start
+              - text: ' - '
+              - field: end
+      - bullets: bullets
+  education:
+    name: EducationEntry
+    type: Education
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: div
+        class: head
+        children:
+          - tag: span
+            class: org
+            children:
+              - field: school
+          - tag: span
+            class: where
+            children:
+              - field: location
+                optional: true
+          - tag: span
+            class: role
+            children:
+              - field: degree
+                optional: true
+              - separator: ', '
+                between:
+                  - degree
+                  - field
+              - field: field
+                optional: true
+          - tag: span
+            class: dates
+            children:
+              - field: start
+                optional: true
+              - separator: ' - '
+                between:
+                  - start
+                  - end
+              - field: end
+                optional: true
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: p
+        class: role
+        children:
+          - field: title
+            placeholder: heading
+      - tag: p
+        class: detail
+        children:
+          - field: detail
+            optional: true
+      - bullets: bullets

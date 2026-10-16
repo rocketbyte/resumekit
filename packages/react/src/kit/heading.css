@@ -1,0 +1,17 @@
+/* The browser's own heading defaults, at zero specificity: a template's rules win. */
+:where([data-h]) {
+  display: block;
+  font-weight: bold;
+}
+:where([data-h='1']) {
+  margin-block: 0.67em;
+  font-size: 2em;
+}
+:where([data-h='2']) {
+  margin-block: 0.83em;
+  font-size: 1.5em;
+}
+:where([data-h='3']) {
+  margin-block: 1em;
+  font-size: 1.17em;
+}

@@ -1,0 +1,151 @@
+id: contemporary
+component: Contemporary
+prefix: tpl-contemporary
+styleKey: cn
+
+layout:
+  - row:
+      - stack: [name, headline]
+        class: identity
+      - avatar
+    tag: header
+    class: head-block
+    block: true
+  - row:
+      - stack:
+          - stack:
+              - contact: [phone, email, location]
+                links: true
+                tag: div
+                class: contacts
+                itemTag: p
+                block: true
+                icons: true
+            tag: section
+            class: section
+            heading: contacts
+            headingClass: heading--contacts
+            when: contact
+          - { section: summary, headingClass: heading--summary }
+          - {
+              section: achievements,
+              title: keyAchievements,
+              kit: [tpl-described--marked],
+              headingClass: heading--achievements,
+            }
+          - custom
+          - { section: skills, groups: grid }
+          - { section: courses, headingClass: heading--courses }
+          - {
+              section: certifications,
+              as: bullets,
+              split: true,
+              whenEmpty: hide,
+            }
+          - {
+              section: passions,
+              kit: [tpl-described--marked],
+              headingClass: heading--passions,
+            }
+        tag: aside
+        class: aside
+      - stack:
+          - { section: experience, headingClass: heading--experience }
+          - { section: education, headingClass: heading--education }
+          - languages
+        class: main
+    class: body
+
+entries:
+  experience:
+    name: ExperienceEntry
+    type: Experience
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: div
+        class: head
+        children:
+          - tag: span
+            class: org
+            children:
+              - field: company
+          - tag: span
+            class: where
+            children:
+              - field: location
+                optional: true
+          - tag: span
+            class: role
+            children:
+              - field: title
+          - tag: span
+            class: dates
+            children:
+              - field: start
+              - text: ' - '
+              - field: end
+      - bullets: bullets
+  education:
+    name: EducationEntry
+    type: Education
+    root:
+      tag: article
+      class: entry
+      block: true
+    children:
+      - tag: div
+        class: head
+        children:
+          - tag: span
+            class: org
+            children:
+              - field: school
+          - tag: span
+            class: where
+            children:
+              - field: location
+                optional: true
+          - tag: span
+            class: role
+            children:
+              - field: degree
+                optional: true
+              - separator: ', '
+                between:
+                  - degree
+                  - field
+              - field: field
+                optional: true
+          - tag: span
+            class: dates
+            children:
+              - field: start
+                optional: true
+              - separator: ' - '
+                between:
+                  - start
+                  - end
+              - field: end
+                optional: true
+  custom:
+    name: CustomEntry
+    type: CustomEntry
+    root:
+      tag: article
+      class: note
+      block: true
+    children:
+      - tag: p
+        class: note-title
+        children:
+          - field: title
+            placeholder: heading
+      - tag: p
+        class: note-detail
+        children:
+          - field: detail
+            optional: true
+      - bullets: bullets

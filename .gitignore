@@ -1,0 +1,9 @@
+node_modules
+dist
+out-tsc
+coverage
+test-output
+*.tsbuildinfo
+*.tgz
+.DS_Store
+vite.config.*.timestamp*

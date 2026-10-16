@@ -1,0 +1,185 @@
+/*
+ * The document's frame: how big the page is, and what survives printing.
+ *
+ * Ships with `TemplateDocument`, so every surface that mounts a résumé — the
+ * editor, the preview, the server-side renderer — gets the page geometry
+ * without having to know which stylesheets to import. The editor's own chrome
+ * is deliberately not here: this is the document, not the workbench.
+ */
+
+/*
+ * The stylesheets this document is made of.
+ *
+ * MUST stay at the top of the file. `@import` is only valid before any other
+ * rule, so an import placed after the `.tpl-editor` block below is silently
+ * dropped by every CSS parser — which is exactly what happened: the shipped
+ * typefaces reach a browser through this line and nothing else, so while these
+ * sat at the foot of the file the product's own fonts never loaded and every
+ * résumé was drawn in whatever the reader's machine substituted. The other six
+ * are also imported by the components that use them, so only the fonts failed
+ * silently; that is why it went unnoticed.
+ */
+@import './fonts/fonts.css';
+@import './kit/avatar.css';
+@import './kit/panel.css';
+@import './kit/keywords.css';
+@import './kit/skill-grid.css';
+@import './kit/skill-tags.css';
+@import './kit/described.css';
+@import './kit/language.css';
+@import './kit/contact-icons.css';
+@import './paged.css';
+@import './nodes/template-node.css';
+@import './templates/harvard/harvard.css';
+@import './templates/ivy/ivy.css';
+@import './templates/classic/classic.css';
+@import './templates/compact/compact.css';
+@import './templates/timeline/timeline.css';
+@import './templates/modern/modern.css';
+@import './templates/stylish/stylish.css';
+@import './templates/creative/creative.css';
+@import './templates/contemporary/contemporary.css';
+@import './templates/double-column/double-column.css';
+@import './templates/double-column-logos/double-column-logos.css';
+@import './templates/elegant/elegant.css';
+@import './templates/elegant-logos/elegant-logos.css';
+@import './templates/polished/polished.css';
+@import './templates/executive/executive.css';
+@import './templates/meridian/meridian.css';
+@import './templates/cobalt/cobalt.css';
+@import './templates/crimson/crimson.css';
+@import './templates/engineer/engineer.css';
+@import './templates/split/split.css';
+@import './templates/academic/academic.css';
+@import './templates/alta/alta.css';
+@import './templates/prism/prism.css';
+@import './templates/hipster/hipster.css';
+@import './templates/scholar/scholar.css';
+@import './templates/portrait/portrait.css';
+@import './templates/curve/curve.css';
+.tpl-editor {
+  /*
+   * The editing palette, taken from the APP's primary rather than stated here.
+   *
+   * `--color-accent` is where the host application defines its brand, so a rebrand moves the editor's affordances with everything else and no
+   * value in this library has to be found and changed to match. The literals are
+   * fallbacks, not defaults: this stylesheet is also loaded by surfaces that
+   * carry no token layer — the export renderer among them — and a `var()` that
+   * resolves to nothing does not fall back, it drops the whole declaration and
+   * the affordance simply does not draw.
+   *
+   * An earlier version hardcoded a green on the argument that the résumé renders
+   * in paper colours in both themes, so an affordance on it must hold against
+   * white in both. That argument was weaker than it read: the dark override is
+   * `--blue-400`, which is a mid-tone azure and perfectly legible on white.
+   * What it correctly rules out is following a token that goes near-white in
+   * dark mode, which this one does not.
+   */
+  --tpl-accent: var(--color-accent, oklch(0.545 0.195 258));
+  --tpl-accent-ink: var(--color-accent-hover, oklch(0.47 0.175 258));
+  /* What is legible ON the accent, for the rare control that FILLS with it. */
+  --tpl-on-accent: var(--color-on-accent, #ffffff);
+
+  /*
+   * The alphas, mixed once.
+   *
+   * `--color-accent` is an `oklch()` colour, not the channel triplet that
+   * `rgb(… / a)` needs, so every translucent step is a `color-mix`. Naming them
+   * for the JOB rather than the percentage is what stops the next person
+   * inventing a sixth nearly-identical alpha: there is a line, a wash and a
+   * tint, and everything is one of them.
+   */
+  --tpl-line: color-mix(in oklab, var(--tpl-accent) 32%, transparent);
+  --tpl-line-hover: color-mix(in oklab, var(--tpl-accent) 58%, transparent);
+  --tpl-line-strong: color-mix(in oklab, var(--tpl-accent) 72%, transparent);
+  --tpl-wash: color-mix(in oklab, var(--tpl-accent) 5%, transparent);
+  --tpl-tint: color-mix(in oklab, var(--tpl-accent) 12%, transparent);
+  --tpl-tint-hover: color-mix(in oklab, var(--tpl-accent) 18%, transparent);
+  --tpl-lift: color-mix(in oklab, var(--tpl-accent-ink) 10%, transparent);
+  --tpl-lift-soft: color-mix(in oklab, var(--tpl-accent-ink) 6%, transparent);
+
+  /* Neutral chrome: the bars and pills the controls themselves live in. */
+  --tpl-chrome: var(--color-surface, #ffffff);
+  --tpl-chrome-ink: var(--color-text, #373742);
+  --tpl-chrome-line: 0 0 0;
+
+  /*
+   * Placeholder ink, and the one colour here that deliberately does NOT follow
+   * the theme.
+   *
+   * Guidance is drawn on the PAPER, which is white in both themes (#29). The
+   * app's muted-text token goes light in dark mode — correct on a dark surface,
+   * invisible on this one — so this stays fixed. Stated as a token anyway, so
+   * the exception is written down rather than left as a literal somebody later
+   * assumes was an oversight.
+   */
+  --tpl-paper-muted: #9a9a9a;
+
+  /*
+   * Selection on the paper, and the second colour here that deliberately does
+   * NOT follow the theme — for the same reason as the one above it.
+   *
+   * The app's `::selection` pairs its wash with `--color-text`, which is
+   * near-white in dark mode. Correct on a dark surface; on this one it painted
+   * selected résumé text white on a pale wash, so dragging across a paragraph
+   * in dark mode made the words disappear as they were selected. Both halves
+   * are fixed here, because the surface under them is fixed.
+   *
+   * The INK is a literal near-black rather than `inherit`. `inherit` would keep
+   * each run's own colour, which sounds better and is not: `meridian` and
+   * `executive` both draw white text on a dark band, and white on this wash is
+   * the bug this rule exists to fix. A dark ink is legible on the wash whatever
+   * the run was coloured before it.
+   *
+   * The wash is the accent's hue at a fixed lightness — 1.58:1 on white, the
+   * register a native selection sits in, with the ink at 11.0:1 on it. A
+   * rebrand changes the hue here, in the same place `--tpl-paper-muted` is
+   * changed, rather than following a token that is allowed to go light.
+   */
+  --tpl-paper-selection: oklch(0.85 0.08 256);
+  --tpl-paper-selection-ink: #1a1a1a;
+
+  /*
+   * "Worth a look", as distinct from "wrong".
+   *
+   * The mark on a date that disagrees with the résumé's chronological order.
+   * Fixed rather than following `--color-warning`, for the reason
+   * `--tpl-paper-muted` above is fixed: this is drawn on the PAPER, which is
+   * white in both themes, and the app's warning token is a FILL that measures
+   * about 2.2:1 as small text. This is the marketing site's `--m-gap`, 5.56:1
+   * on white — the page's only warm colour, which is why it still reads as the
+   * thing wanting attention without reading as an error.
+   */
+  --tpl-warn: #9a5b09;
+  --tpl-danger: var(--color-danger, #b3261e);
+  --tpl-danger-tint: color-mix(in oklab, var(--tpl-danger) 12%, transparent);
+
+  /*
+   * How long an editing affordance takes to appear under the pointer.
+   *
+   * One number, because every control that appears on hover is answering the
+   * same question — "what can I do to this line?" — and they sit inches apart:
+   * a handle that arrived faster than the buttons at the other end of its own
+   * row would read as two separate things reacting rather than one row waking
+   * up.
+   *
+   * Short on purpose. This fires on every crossing of every bullet, so it has
+   * to be quick enough that a pointer sweeping down the page is not trailed by
+   * a dozen fades, and slow enough that the controls are seen arriving rather
+   * than found already there.
+   */
+  --tpl-reveal-ms: 140ms;
+}
+
+/*
+ * Both forms: the descendant one covers every run inside the document, and the
+ * bare one covers a selection that starts on the root itself. `.tpl-editor`
+ * wraps the résumé on EVERY surface that draws one — `TemplateDocument` for the
+ * preview and the static renderer, `TemplateEditor` for the workbench — so this
+ * is one rule rather than one per screen.
+ */
+.tpl-editor ::selection,
+.tpl-editor::selection {
+  background: var(--tpl-paper-selection);
+  color: var(--tpl-paper-selection-ink);
+}

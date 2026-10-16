@@ -1,0 +1,314 @@
+/*
+ * Prism — Friggeri CV (docs/template-references/prism.png), a Letter page
+ * measured in points from the source PDF. Helvetica Neue is proprietary, so
+ * Roboto stands in for the light body and the thin given names, and Roboto
+ * Condensed bold for Helvetica Neue Condensed Bold's headings and titles.
+ * Colours are the class file's own: gray #4d4d4d for the band and the text,
+ * lightgray #999 for the notes, and the five heading hues.
+ */
+
+.tpl-prism {
+  --tpl-heading-gap: calc(7.5pt * var(--pr-scale));
+  --tpl-space-unit: calc(2pt * var(--pr-scale) * var(--pr-density));
+  --tpl-space-margin: var(--pr-margin);
+  --tpl-marker: 0px;
+
+  --pr-scale: 1;
+  --pr-ink: #4d4d4d;
+  --pr-font: 'Roboto', Arimo, 'Helvetica Neue', Arial, sans-serif;
+  --pr-head-font:
+    'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  --pr-accent: #6ce0f1;
+  --pr-density: 1;
+  --pr-margin: calc(42.5pt * var(--pr-scale));
+  --pr-band: #4d4d4d;
+  --pr-light: #999999;
+  --pr-blue: var(--pr-accent);
+  --pr-red: #fb4485;
+  --pr-orange: #fda333;
+  --pr-green: #c2e15f;
+  --pr-purple: #d3a4f9;
+  --pr-line: calc(12pt * var(--pr-scale));
+
+  box-sizing: border-box;
+  width: 8.5in;
+  margin: 0 auto;
+  background: #ffffff;
+  color: var(--pr-ink);
+  font-family: var(--pr-font);
+  font-size: calc(10pt * var(--pr-scale));
+  font-weight: 300;
+  line-height: var(--pr-line);
+}
+
+.tpl-prism *,
+.tpl-prism *::before,
+.tpl-prism *::after {
+  box-sizing: inherit;
+}
+
+.tpl-prism .tpl-text__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Band ───────────────────────────────────────────────────────────────── */
+
+/* 4cm of charcoal, full bleed, forced to print: white ink on no band is no name. */
+.tpl-prism__head {
+  min-height: calc(113.4pt * var(--pr-scale));
+  padding: calc(31pt * var(--pr-scale)) var(--pr-margin)
+    calc(12pt * var(--pr-scale));
+  background: var(--pr-band);
+  color: #ffffff;
+  text-align: center;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/*
+ * Friggeri runs the two names together. The gap between them is the name's
+ * own space, closed here; spaces among the given names keep their width.
+ */
+.tpl-prism__name {
+  margin: 0;
+  font-family: var(--pr-font);
+  font-size: calc(40pt * var(--pr-scale));
+  font-weight: 100;
+  line-height: calc(44.8pt * var(--pr-scale));
+  text-transform: lowercase;
+  word-spacing: -0.25em;
+}
+
+.tpl-prism__name-first {
+  word-spacing: normal;
+}
+
+.tpl-prism__name-last {
+  font-weight: 400;
+}
+
+.tpl-prism__headline {
+  margin: calc(6pt * var(--pr-scale)) 0 0;
+  color: #c8c8c8;
+  font-size: calc(10.5pt * var(--pr-scale));
+  font-weight: 300;
+  line-height: calc(12pt * var(--pr-scale));
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+
+.tpl-prism__body {
+  display: grid;
+  grid-template-columns: calc(102pt * var(--pr-scale)) minmax(0, 1fr);
+  column-gap: calc(28.3pt * var(--pr-scale));
+  padding: calc(20pt * var(--pr-scale)) var(--pr-margin) 0;
+}
+
+.tpl-prism__aside,
+.tpl-prism__main {
+  min-width: 0;
+}
+
+.tpl-prism__aside {
+  text-align: right;
+}
+
+/* Against the page's right edge, so its rails stand in the right margin. */
+.tpl-prism__main {
+  --tpl-rail-right: auto;
+  --tpl-rail-left: calc(100% + var(--tpl-space-margin) + 12px);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-prism__section {
+  margin-top: var(--tpl-space-height, 0px);
+}
+
+.tpl-prism__section + .tpl-prism__section {
+  margin-top: calc(
+    9pt * var(--pr-scale) * var(--pr-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-prism__heading {
+  margin: 0 0 var(--tpl-heading-gap);
+  font-family: var(--pr-head-font);
+  font-size: calc(17.28pt * var(--pr-scale));
+  font-weight: 700;
+  line-height: calc(20.5pt * var(--pr-scale));
+  text-transform: lowercase;
+  color: var(--pr-ink);
+}
+
+.tpl-prism__hue-blue .tpl-prism__heading-lead {
+  color: var(--pr-blue);
+}
+
+.tpl-prism__hue-red .tpl-prism__heading-lead {
+  color: var(--pr-red);
+}
+
+.tpl-prism__hue-orange .tpl-prism__heading-lead {
+  color: var(--pr-orange);
+}
+
+.tpl-prism__hue-green .tpl-prism__heading-lead {
+  color: var(--pr-green);
+}
+
+.tpl-prism__hue-purple .tpl-prism__heading-lead {
+  color: var(--pr-purple);
+}
+
+/* The label column's headings are smaller and take no colour. */
+.tpl-prism__aside .tpl-prism__heading {
+  margin-bottom: 0;
+  font-size: calc(14.4pt * var(--pr-scale));
+  line-height: calc(17pt * var(--pr-scale));
+}
+
+.tpl-prism__aside {
+  --tpl-heading-gap: 0px;
+}
+
+.tpl-prism__aside .tpl-prism__section + .tpl-prism__section {
+  margin-top: calc(
+    8.5pt * var(--pr-scale) * var(--pr-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-prism__prose,
+.tpl-prism__address,
+.tpl-prism__contact-item {
+  margin: 0;
+}
+
+/* A blank line between the address and the ways to write. */
+.tpl-prism__address + .tpl-prism__contact {
+  margin-top: var(--pr-line);
+}
+
+/* ── Entries ────────────────────────────────────────────────────────────── */
+
+.tpl-prism__entry {
+  display: grid;
+  grid-template-columns: calc(62.1pt * var(--pr-scale)) minmax(0, 1fr);
+  margin-top: calc(
+    3.2pt * var(--pr-scale) * var(--pr-density) + var(--tpl-space-height, 0px)
+  );
+  break-inside: avoid;
+}
+
+/* The heading's own margin, restated: the two collapse. */
+.tpl-prism__heading + * > .tpl-prism__entry:first-child,
+.tpl-prism__heading + .tpl-prism__entry {
+  margin-top: calc(var(--tpl-heading-gap) + var(--tpl-space-height, 0px));
+}
+
+.tpl-prism__when,
+.tpl-prism__lead,
+.tpl-prism__aside-note {
+  margin: 0;
+}
+
+.tpl-prism__when {
+  grid-column: 1;
+  padding-right: calc(4pt * var(--pr-scale));
+}
+
+.tpl-prism__what {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.tpl-prism__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: calc(10pt * var(--pr-scale));
+}
+
+.tpl-prism__lead {
+  font-weight: 300;
+}
+
+.tpl-prism__lead,
+.tpl-prism__degree {
+  font-family: var(--pr-head-font);
+  font-weight: 700;
+}
+
+/* "Ph.D. candidate in Computer Science": only the degree is bold. */
+.tpl-prism__degree ~ * {
+  font-family: var(--pr-font);
+  font-weight: 300;
+}
+
+.tpl-prism__aside-note {
+  margin-left: auto;
+  color: var(--pr-light);
+  font-size: calc(8pt * var(--pr-scale));
+  text-align: right;
+}
+
+.tpl-prism .tpl-bullets {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-prism .tpl-bullet {
+  display: block;
+}
+
+/* Friggeri's descriptions are light italics under the title. */
+.tpl-prism__what .tpl-bullet {
+  font-style: italic;
+}
+
+/* ── Kit sections ───────────────────────────────────────────────────────── */
+
+.tpl-prism {
+  --tpl-skill-grid-label-weight: 700;
+  --tpl-skill-grid-lead: 0px;
+  --tpl-skill-grid-rhythm: calc(4pt * var(--pr-scale));
+  --tpl-described-gap: calc(3.2pt * var(--pr-scale));
+  --tpl-described-lead: 0px;
+  --tpl-language-lead: 0px;
+}
+
+.tpl-prism .tpl-skill-grid__label {
+  font-family: var(--pr-head-font);
+}
+
+.tpl-prism .tpl-described__title {
+  font-family: var(--pr-head-font);
+}
+
+.tpl-prism__main .tpl-described__body {
+  font-style: italic;
+}
+
+/* One language to a line, its level after it in the notes' grey. */
+.tpl-prism__language {
+  display: block;
+  text-align: right;
+}
+
+.tpl-prism__language .tpl-language__name {
+  font-weight: 300;
+}
+
+.tpl-prism__language .tpl-language__level,
+.tpl-prism__language .tpl-language__choice {
+  margin-left: 0.35em;
+  color: var(--pr-light);
+  font-size: calc(8pt * var(--pr-scale));
+}
+
+.tpl-prism__language .tpl-language__meter {
+  display: none;
+}

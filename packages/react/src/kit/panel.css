@@ -1,0 +1,26 @@
+/*
+ * A body whose columns must cover every sheet the document runs to.
+ *
+ * A template with a PAINTED rail has a problem the plain ones do not: the
+ * panel is a column, so it is exactly as tall as the document's content — and
+ * a résumé that spills a few lines onto a second page paints a stub of colour
+ * at the top of it and white underneath. That reads as a broken page rather
+ * than as a design.
+ *
+ * The flow already knows how many sheets it has: `PagedSheet` publishes
+ * `--pages`, `--page-h` and `--page-gap` on the element above, and custom
+ * properties inherit, so the document can size itself to them. The arithmetic
+ * is the same one `paged.css` uses for the stack of sheets behind it, which is
+ * why the two cannot disagree.
+ *
+ * The final pixel is subtracted deliberately: the height this produces feeds
+ * the very measurement that decided `--pages`, and landing exactly on the
+ * boundary is what would tip a document onto one more page, which would make
+ * it taller, which would tip it again.
+ */
+.tpl-sheet-tall {
+  min-height: calc(
+    var(--pages, 1) * (var(--page-h, 11in) + var(--page-gap, 0px)) -
+      var(--page-gap, 0px) - 1px
+  );
+}

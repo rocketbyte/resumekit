@@ -1,0 +1,436 @@
+/*
+ * The Harvard template — the single place its design is decided.
+ *
+ * Three rules govern this file:
+ *
+ * 1. **No node can reach it.** Editable nodes carry a domain path, content, and
+ *    at most a bounded formatting value from the catalog. Every measurement below
+ *    is the template's, and the only way to change how a Harvard resume looks is
+ *    to change this file.
+ *
+ * 2. **Paper is not a theme.** Every colour here is a literal or a document ink,
+ *    never a design token. The app's surfaces are light-default and dark-capable;
+ *    this is not a surface of the app, it is the artifact the app makes, and it
+ *    will be printed on white paper and read in an ATS that has no theme.
+ *
+ * 3. **Size is one multiplier.** Every type size is `calc(<template size> *
+ *    var(--h-scale))`, so the relationships between them — name over heading over
+ *    body — are the design and cannot be broken by scaling. A point-size control
+ *    could set body text larger than the headings above it; a multiplier cannot.
+ *
+ * Geometry is US Letter at real size: 8.5in × 11in with 0.5in margins, so what is
+ * on screen is what comes out of the printer. Geometry does NOT scale — a bigger
+ * typeface fills more of a page, it does not make the page bigger.
+ */
+
+.tpl-harvard {
+  /* The heading's bottom margin, restated for the kit's first entries. */
+  --tpl-heading-gap: calc(4pt * var(--h-scale));
+  /* Overridden per document by the style object; these are the defaults, which
+     is what a resume nobody has styled renders in. */
+  --h-scale: 1;
+  /*
+   * TRUE BLACK, because this is a document rather than a screen.
+   *
+   * It was #111111 — 93% black, the near-black a UI uses to take the harshness
+   * off a large light surface. A résumé is not that surface: it is printed, it
+   * is scanned by an ATS, and it is read beside other résumés that ARE set in
+   * black. Measured against a candidate's own PDF, the difference reads as a
+   * washed-out page rather than as a softer one.
+   *
+   * Safe to state absolutely here: this token colours TEXT and nothing else —
+   * one `color` declaration in this file. `meridian` deliberately keeps its
+   * near-black, because there the same token also FILLS a band, and pure black
+   * behind white text is a redesign of that template rather than a fidelity fix.
+   */
+  --h-ink: #000000;
+  /*
+   * The DEFAULT body face, and it must name the supplied one first.
+   *
+   * A résumé whose owner never opened the typeface control has no `font` in its
+   * stored style, so nothing sets this variable inline and this literal is what
+   * draws the document. While it named only system families, the default
+   * document was drawn in whatever the reader's machine had — Helvetica Neue on
+   * macOS, Liberation Sans in the render container — so the screen and the
+   * exported file disagreed for every résumé that had not chosen a typeface,
+   * which is most of them. Same stack as `DOCUMENT_FONTS.times`, so the
+   * default and an explicit "Times" are the same document — the serif the
+   * Harvard OCS format is set in.
+   */
+  --h-font: Tinos, 'Times New Roman', Times, Georgia, serif;
+
+  /*
+   * The accent, and the rhythm multiplier — `document-styling` (#36).
+   *
+   * `--h-accent` defaults to `currentColor` so an unstyled document renders
+   * byte-identically to what it rendered before the control existed: the rule
+   * takes the heading's own colour, which is what it always did. `--h-density`
+   * defaults to 1 for the same reason.
+   */
+  --h-accent: currentColor;
+  --h-density: 1;
+
+  /*
+   * What ONE STEP of recorded space is worth here — `document-styling` (#36).
+   *
+   * A FIFTH of Harvard's own section gap, so a step is a nudge rather than
+   * another whole gap — the control is a drag, and a drag wants somewhere to
+   * land between two positions. Twenty of them is four section gaps, which is
+   * as much air as a page can spare.
+   *
+   * Measured against this template's rhythm rather than in millimetres, and it
+   * follows the type scale and the density for the same reason the gap it is
+   * measured against does: a document set tighter should not have its
+   * candidate-added air stay put while everything around it closes up.
+   *
+   * A template that set this differently would make the same stored token mean
+   * a different distance, which is exactly what the token is for.
+   */
+  --tpl-space-unit: calc(2pt * var(--h-scale) * var(--h-density));
+  /*
+   * This template's own side margin, so a gap's knob can be placed just OUTSIDE
+   * the paper. `spacing.css` cannot know how wide a page's margin is, and a
+   * fixed number would put the knob inside the text on one template and off the
+   * canvas on another — so each template states its own.
+   */
+  --tpl-space-margin: 0.55in;
+  --h-rule: var(--h-accent);
+  --h-paper: #ffffff;
+  --h-body: calc(10.5pt * var(--h-scale));
+  --h-lead: 1.22;
+
+  box-sizing: border-box;
+  width: 8.5in;
+  padding: 0.5in 0.55in;
+  margin: 0 auto;
+  background: var(--h-paper);
+  color: var(--h-ink);
+  font-family: var(--h-font);
+  font-size: var(--h-body);
+  line-height: var(--h-lead);
+  text-align: left;
+}
+
+.tpl-harvard *,
+.tpl-harvard *::before,
+.tpl-harvard *::after {
+  box-sizing: inherit;
+}
+
+/* A line's own ink, when it has been given one. Inherited by everything in the
+   block, so a coloured heading colours its rule too. */
+.tpl-harvard [data-ink] {
+  color: var(--f-ink);
+}
+
+.tpl-harvard .is-bold {
+  font-weight: 700;
+}
+
+/*
+  * An aligned field becomes a BLOCK. `text-align` has no effect on an inline
+  * box — it aligns a block's inner lines — so a `<span>` carrying `is-center`
+  * would take the class and change nothing at all.
+  */
+.tpl-harvard .tpl-text.is-left,
+.tpl-harvard .tpl-text.is-center,
+.tpl-harvard .tpl-text.is-right {
+  display: block;
+}
+
+.tpl-harvard .tpl-text.is-left.tpl-grow,
+.tpl-harvard .tpl-text.is-center.tpl-grow,
+.tpl-harvard .tpl-text.is-right.tpl-grow {
+  /* The growing variant is a grid; keep that, it is what sizes the field. */
+  display: grid;
+}
+
+.tpl-harvard .is-left {
+  text-align: left;
+}
+
+.tpl-harvard .is-center {
+  text-align: center;
+}
+
+.tpl-harvard .is-right {
+  text-align: right;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.tpl-harvard__head {
+  text-align: center;
+  margin-bottom: calc(12pt * var(--h-scale));
+}
+
+.tpl-harvard__name {
+  margin: 0;
+  font-size: calc(17pt * var(--h-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.tpl-harvard__headline {
+  margin: calc(2pt * var(--h-scale)) 0 0;
+  font-size: calc(11pt * var(--h-scale));
+  font-weight: 400;
+}
+
+.tpl-harvard__contact {
+  margin: calc(3pt * var(--h-scale)) 0 0;
+  font-size: calc(10pt * var(--h-scale));
+}
+
+/* The separator is drawn, not typed, so a missing detail cannot leave a stray
+   bar behind it. */
+.tpl-harvard__contact-item + .tpl-harvard__contact-item::before,
+/*
+ * …including before the control that ADDS the first link, which is a sibling in
+ * this line but not a contact item — it is emitted by the collection, which
+ * cannot know what this template calls the things in its own contact row. So
+ * the rule that owns the separator names it, rather than the collection
+ * learning a Harvard class. Without this the invitation sat flush against the
+ * phone number: "Phone numberAdd links".
+ */
+.tpl-harvard__contact-item + .tpl-collection__add-inline::before {
+  content: '\2022';
+  margin: 0 calc(6pt * var(--h-scale));
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.tpl-harvard__section {
+  /* The template's own rhythm, plus whatever space the candidate asked for
+     above this section. Absent means zero, so an untouched document is
+     unchanged — `spacing.css`. */
+  margin-top: calc(
+    10pt * var(--h-scale) * var(--h-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-harvard__section-title {
+  margin: 0 0 calc(4pt * var(--h-scale));
+  padding-bottom: calc(1.5pt * var(--h-scale));
+  border-bottom: 0.75pt solid var(--h-rule);
+  font-size: calc(11pt * var(--h-scale));
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.tpl-harvard__summary {
+  margin: 0;
+  text-align: justify;
+}
+
+/* A summary the candidate aligned is aligned; justification is only the default. */
+.tpl-harvard__summary:has(.is-left, .is-center, .is-right) {
+  text-align: unset;
+}
+
+/* ── Experience & education entries ─────────────────────────────────────── */
+
+.tpl-harvard__entry {
+  margin-top: calc(
+    7pt * var(--h-scale) * var(--h-density) + var(--tpl-space-height, 0px)
+  );
+  /* Never strand an entry's heading at the foot of a page — the same rule the
+     on-screen paginator applies, so the two agree. */
+  break-inside: avoid;
+}
+
+.tpl-harvard__entry:first-of-type {
+  margin-top: calc(
+    4pt * var(--h-scale) * var(--h-density) + var(--tpl-space-height, 0px)
+  );
+}
+
+.tpl-harvard__entry-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: calc(12pt * var(--h-scale));
+  break-after: avoid;
+}
+
+.tpl-harvard__org {
+  font-weight: 700;
+}
+
+.tpl-harvard__role,
+.tpl-harvard__where,
+.tpl-harvard__dates {
+  font-weight: 400;
+}
+
+/* The OCS format sets the position in italics under the bold employer. */
+.tpl-harvard__role {
+  font-style: italic;
+}
+
+.tpl-harvard__where,
+.tpl-harvard__dates {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── Bullets ────────────────────────────────────────────────────────────── */
+
+.tpl-harvard .tpl-bullets {
+  margin: calc(2pt * var(--h-scale)) 0 0;
+  padding: 0 0 0 calc(12pt * var(--h-scale));
+  list-style: none;
+}
+
+.tpl-harvard .tpl-bullet {
+  /*
+   * The marker column, named so the drag handle can sit centred in it.
+   *
+   * `template-node.css` draws the handle for every template and cannot know how
+   * wide this one's gutter is — so the stylesheet that DECIDES the width is the
+   * one that states it. Repeating the value would be two places to disagree,
+   * which is why it is the same expression rather than a rounded copy.
+   */
+  --tpl-marker: calc(10pt * var(--h-scale));
+
+  /* Hanging indent: a wrapped line aligns with the text above it, not with the
+     marker. Grid does it exactly, where `padding-left` only does it roughly. */
+  display: grid;
+  grid-template-columns: calc(10pt * var(--h-scale)) 1fr;
+  margin-top: calc(1pt * var(--h-scale));
+}
+
+.tpl-harvard .tpl-bullet::before {
+  content: '•';
+  line-height: inherit;
+}
+
+/* ── Skills ─────────────────────────────────────────────────────────────── */
+
+/*
+ * Skills are LINES, not a table, and the difference is the whole of this rule.
+ *
+ * A category and its skills sit on one line — "Backend: Node.js, TypeScript,
+ * …" — and a line too long for the page wraps back to the LEFT MARGIN, level
+ * with the category above it. Ordinary text flow, which is the point: no grid,
+ * no columns, no indent.
+ *
+ * Two shapes were tried here and both were worse. A per-row grid of
+ * `auto 1fr` gave each row a hanging indent measured from its own category, so
+ * eight rows had eight different left edges and the section read as text
+ * indented by hand. One grid over the whole list fixed the alignment by making
+ * it a real two-column table — and bought a column of dead space beside every
+ * short category, and cells, which is exactly the structure that makes a
+ * résumé hard for a parser to read linearly.
+ *
+ * Flowing text has neither problem. It is the densest use of the page, it reads
+ * top to bottom in one pass, and what a parser extracts is the order the words
+ * are written in. The space between the category and its skills is a REAL
+ * space in the markup rather than a gap made of CSS, for the same reason: what
+ * is extracted has to say "Backend: Node.js", not "Backend:Node.js".
+ */
+.tpl-harvard__skills {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tpl-harvard__skill-group {
+  margin-top: calc(1.5pt * var(--h-scale));
+}
+
+.tpl-harvard__skill-group[data-entry] {
+  --tpl-ring-room: 6px;
+  --tpl-ring-y: 1px;
+  --tpl-ring-radius: 6px;
+}
+
+/*
+ * The category never breaks across two lines. It is a name, and half a name at
+ * the end of a line is the one break in this section that would read as an
+ * accident rather than as prose running on.
+ */
+.tpl-harvard__skill-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ── Languages ──────────────────────────────────────────────────────────── */
+
+/*
+ * "English (Fluent)": the OCS format avoids rating marks, so the meter is not
+ * drawn and the level word is the whole of the level.
+ */
+.tpl-harvard__languages .tpl-language {
+  display: block;
+}
+
+.tpl-harvard__languages .tpl-language__name {
+  font-weight: 700;
+}
+
+.tpl-harvard__languages .tpl-language__level,
+.tpl-harvard__languages .tpl-language__choice {
+  font-size: inherit;
+}
+
+.tpl-harvard__languages .tpl-language__level:not(:empty)::before {
+  content: ' (';
+}
+
+.tpl-harvard__languages .tpl-language__level:not(:empty)::after {
+  content: ')';
+}
+
+.tpl-harvard__languages .tpl-language__choice {
+  margin-left: 0.5em;
+}
+
+.tpl-harvard__languages .tpl-language__meter {
+  display: none;
+}
+
+/* ── Certifications ─────────────────────────────────────────────────────── */
+
+.tpl-harvard__inline-list {
+  margin: 0;
+}
+
+/* ── Print ──────────────────────────────────────────────────────────────── */
+
+@page {
+  size: letter;
+  /* The document carries its own margins, so the page adds none — otherwise the
+     0.5in above would compound with the browser's default half-inch. */
+  margin: 0;
+}
+
+@media print {
+  .tpl-harvard {
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+/*
+ * The supporting sections — achievements, courses, passions, languages.
+ *
+ * The SHAPE is `kit/described.css` and `kit/language.css`; this block is only
+ * this template's painting of it, which is the division the contract asks for.
+ * Each value is the one already used by the sections beside them, so the four
+ * arrive looking like they were always here.
+ */
+.tpl-harvard {
+  --tpl-described-gap: calc(7pt * var(--h-scale));
+  --tpl-described-lead: calc(1.5pt * var(--h-scale));
+  --tpl-described-title-ink: var(--h-accent);
+  --tpl-described-span: calc(14pt * var(--h-scale));
+  --tpl-language-lead: calc(1.5pt * var(--h-scale));
+}

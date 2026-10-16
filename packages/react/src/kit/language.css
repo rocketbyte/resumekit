@@ -1,0 +1,104 @@
+/*
+ * A language: its name, its level as a WORD, and a five-step meter.
+ *
+ * The word is the content and the meter is the decoration. That ordering is the
+ * reason the meter is allowed at all — `docs/template-contract.md` refuses a
+ * proficiency meter whose proportions nothing recorded, and this one draws one
+ * step per stored enum value with the word beside it, so the section still
+ * means something to a parser, to a reader, and on a printer that drops
+ * backgrounds.
+ */
+
+/*
+ * Three columns, placed explicitly: the name in a fixed one, so every row's
+ * level word and meter start where the row above's did. The authoring chrome
+ * is absolutely positioned and takes no cell.
+ */
+.tpl-language {
+  display: grid;
+  grid-template-columns:
+    minmax(0, var(--tpl-language-name, 7em))
+    minmax(0, 1fr)
+    auto;
+  align-items: center;
+  column-gap: var(--tpl-language-gap, 6pt);
+}
+
+/* Below the heading's restated margin, as `described.css` explains. */
+.tpl-language {
+  margin-top: calc(var(--tpl-heading-gap, 0px) + var(--tpl-space-height, 0px));
+}
+
+.tpl-language + .tpl-language {
+  margin-top: calc(
+    var(--tpl-language-lead, 4pt) + var(--tpl-space-height, 0px)
+  );
+}
+
+/* The row is the template's body text, like every other line on the page. */
+.tpl-language {
+  font-family: inherit;
+  font-size: var(--tpl-language-size, inherit);
+  line-height: var(--tpl-language-leading, inherit);
+}
+
+.tpl-language__name {
+  grid-column: 1;
+  overflow-wrap: break-word;
+  font-weight: var(--tpl-language-name-weight, 600);
+}
+
+.tpl-language__level,
+.tpl-language__choice {
+  grid-column: 2;
+  justify-self: start;
+}
+
+.tpl-language__level {
+  color: var(--tpl-language-level-ink, currentcolor);
+  font-size: var(--tpl-language-level-size, 0.9em);
+}
+
+/* The meter stands at the far edge, as every reference sets it. */
+.tpl-language__meter {
+  grid-column: 3;
+  display: inline-flex;
+  gap: var(--tpl-language-step-gap, 2pt);
+}
+
+/*
+ * A step is a STROKED circle that is filled when it is on.
+ *
+ * An outline rather than a background, so a page printing no background
+ * graphics still shows five circles and the difference between them. The filled
+ * state uses `background-color` and `print-color-adjust: exact` together, so a
+ * filled step stays filled on paper; if a printer refuses even that, the level
+ * word beside it is unaffected, which is the point of printing the word.
+ */
+.tpl-language__step {
+  width: var(--tpl-language-step, 4pt);
+  height: var(--tpl-language-step, 4pt);
+  border: 0.75pt solid var(--tpl-language-meter-ink, currentcolor);
+  border-radius: 50%;
+}
+
+.tpl-language__step--on {
+  background-color: var(--tpl-language-meter-ink, currentcolor);
+  print-color-adjust: exact;
+}
+
+/*
+ * The level control, which exists only while the document is being edited.
+ *
+ * Sized and coloured like the word it replaces, so choosing a level does not
+ * move the line — the same rule `EditableText` follows when it becomes a field
+ * in the same box.
+ */
+.tpl-language__choice {
+  font: inherit;
+  font-size: var(--tpl-language-level-size, 0.9em);
+  color: inherit;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
