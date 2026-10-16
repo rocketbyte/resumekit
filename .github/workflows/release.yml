@@ -12,14 +12,33 @@ permissions:
   contents: read
 
 jobs:
-  release:
+  # Reads the Conventional Commits merged since the last release and keeps one release pull
+  # request up to date: the next version (fix → patch, feat → minor, breaking → minor while
+  # below 1.0), both packages' versions and changelogs. Merging that pull request tags the
+  # release and creates the GitHub releases.
+  release-please:
     runs-on: ubuntu-latest
-    environment: npm
     permissions:
       contents: write
       pull-requests: write
-      # npm trusted publishing: the registry trusts this workflow's OIDC token,
-      # so no npm token is stored, and provenance is attached to every version.
+    outputs:
+      released: ${{ steps.release.outputs.releases_created }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish:
+    needs: release-please
+    if: needs.release-please.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      # npm trusted publishing: the registry trusts this workflow's OIDC token, so no npm
+      # token is stored, and provenance is attached to every version.
       id-token: write
     steps:
       - uses: actions/checkout@v7
@@ -32,12 +51,5 @@ jobs:
       # Trusted publishing needs npm 11.5.1 or later.
       - run: npm install -g npm@^11.5.1
       - run: pnpm install --frozen-lockfile
-      - name: Open the version PR, or publish once it is merged
-        uses: changesets/action@v1
-        with:
-          version: pnpm version-packages
-          publish: pnpm release
-          title: 'chore: release packages'
-          commit: 'chore: release packages'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: pnpm build
+      - run: scripts/publish.sh
