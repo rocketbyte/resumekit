@@ -10,18 +10,35 @@ export default defineConfig(() => ({
   //  plugins: [],
   // },
   test: {
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'react',
+          include: ['src/**/*.{test,spec}.{ts,tsx}'],
+          exclude: ['src/**/*.lazy.spec.tsx'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'react-lazy',
+          setupFiles: ['./src/test-setup.ts'],
+          include: ['src/**/*.lazy.spec.tsx'],
+        },
+      },
+    ],
     name: 'react',
     watch: false,
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/test-setup.ts'],
+    setupFiles: ['./src/test-setup.eager.ts'],
     /*
      * This suite mounts real templates, and the wall-clock cost of that is a property of the suite
      * rather than of one exceptional test. See `test-setup.ts` for the timeout
      * that was actually firing.
      */
     testTimeout: 20_000,
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
       reportsDirectory: './test-output/vitest/coverage',

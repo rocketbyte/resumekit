@@ -20,6 +20,8 @@
 export {
   TEMPLATE_RENDERERS,
   REGISTERED_NODES,
+  preloadTemplate,
+  preloadTemplates,
   type TemplateRenderer,
   type TemplateDocumentProps,
 } from './registry.js';

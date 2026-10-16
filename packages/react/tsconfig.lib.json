@@ -17,6 +17,7 @@
     "src/**/*.spec.ts",
     "src/**/*.spec.tsx",
     "src/test-setup.ts",
+    "src/test-setup.eager.ts",
     "src/compiler/**",
     "src/export/**",
     "src/static/render.tsx",

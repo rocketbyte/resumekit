@@ -27,6 +27,7 @@
  * already starting a browser, that is not the expensive part.
  */
 import { createRoot } from 'react-dom/client';
+import '../all-templates.js';
 import { TemplateDocument } from '../TemplateDocument.js';
 import { LetterDocument } from '../letter/LetterDocument.js';
 import {

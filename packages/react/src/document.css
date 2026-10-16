@@ -18,6 +18,9 @@
  * résumé was drawn in whatever the reader's machine substituted. The other six
  * are also imported by the components that use them, so only the fonts failed
  * silently; that is why it went unnoticed.
+ *
+ * Each template's own stylesheet is NOT listed here: the template imports it,
+ * so it arrives with the template's code, when that template is first drawn.
  */
 @import './fonts/fonts.css';
 @import './kit/avatar.css';
@@ -30,33 +33,6 @@
 @import './kit/contact-icons.css';
 @import './paged.css';
 @import './nodes/template-node.css';
-@import './templates/harvard/harvard.css';
-@import './templates/ivy/ivy.css';
-@import './templates/classic/classic.css';
-@import './templates/compact/compact.css';
-@import './templates/timeline/timeline.css';
-@import './templates/modern/modern.css';
-@import './templates/stylish/stylish.css';
-@import './templates/creative/creative.css';
-@import './templates/contemporary/contemporary.css';
-@import './templates/double-column/double-column.css';
-@import './templates/double-column-logos/double-column-logos.css';
-@import './templates/elegant/elegant.css';
-@import './templates/elegant-logos/elegant-logos.css';
-@import './templates/polished/polished.css';
-@import './templates/executive/executive.css';
-@import './templates/meridian/meridian.css';
-@import './templates/cobalt/cobalt.css';
-@import './templates/crimson/crimson.css';
-@import './templates/engineer/engineer.css';
-@import './templates/split/split.css';
-@import './templates/academic/academic.css';
-@import './templates/alta/alta.css';
-@import './templates/prism/prism.css';
-@import './templates/hipster/hipster.css';
-@import './templates/scholar/scholar.css';
-@import './templates/portrait/portrait.css';
-@import './templates/curve/curve.css';
 .tpl-editor {
   /*
    * The editing palette, taken from the APP's primary rather than stated here.

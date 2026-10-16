@@ -1,4 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server';
+import '../all-templates.js';
 import { TEMPLATE_RENDERERS } from '../registry.js';
 import { DocumentPresentationProvider } from '../presentation-context.js';
 import { PictureProvider } from '../picture-context.js';
