@@ -33,6 +33,21 @@ export function Preview({ resume }) {
 `resume` is a `ResumeObject` from `@resumekit/schema`. `presentation` chooses the template and
 carries the person's edits, typography and spacing; omit it for the default template.
 
+## Testing with Vitest or Jest
+
+The modules import their own stylesheets, which a bundler handles but Node cannot load. Let your
+test runner transform the package:
+
+```ts
+// vitest.config.ts
+export default defineConfig({
+  test: { server: { deps: { inline: ['@resumekit/react'] } } },
+});
+```
+
+With Jest, exempt it from `transformIgnorePatterns` and map `\.css$` to a stub in
+`moduleNameMapper`.
+
 ## Entry points
 
 | Import                               | What                                                                              |
