@@ -71,3 +71,16 @@ pull request with the next version and both changelogs. Merging it tags the rele
 (`schema-vX.Y.Z`, `react-vX.Y.Z`), creates the GitHub releases, and publishes both packages from
 GitHub Actions through npm trusted publishing: no npm token exists, and every version carries a
 provenance attestation.
+
+### The first release
+
+npm configures trusted publishing only on a package that already exists, so `0.1.0` is published
+once with a short-lived token:
+
+1. On npmjs.com, generate a **granular access token**: read and write on the `@resumekit` scope,
+   "Bypass two-factor authentication" ticked, expiring in a few days.
+2. Save it as the `NPM_TOKEN` secret of this repository's `npm` environment.
+3. Run the **Release** workflow by hand (Actions, Release, Run workflow).
+4. For each package on npmjs.com, add trusted publishing (Settings, Trusted publishing, GitHub
+   Actions: `rocketbyte` / `resumekit` / `release.yml` / environment `npm`).
+5. Delete the `NPM_TOKEN` secret and revoke the token. From then on, releases need no token.

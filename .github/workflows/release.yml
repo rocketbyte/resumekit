@@ -3,6 +3,9 @@ name: Release
 on:
   push:
     branches: [main]
+  # Publishes whatever version is on `main` and not yet on npm. Used once, for the first
+  # release, which has to exist before trusted publishing can be configured for it.
+  workflow_dispatch:
 
 concurrency:
   group: release
@@ -32,7 +35,7 @@ jobs:
 
   publish:
     needs: release-please
-    if: needs.release-please.outputs.released == 'true'
+    if: needs.release-please.outputs.released == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: npm
     permissions:
@@ -53,3 +56,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: scripts/publish.sh
+        env:
+          # Empty once trusted publishing is configured, and then npm authenticates with the
+          # workflow's OIDC token. Only the first release, before a package exists, needs it.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'
