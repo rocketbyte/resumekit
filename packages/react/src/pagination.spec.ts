@@ -336,6 +336,15 @@ describe('fitZoom', () => {
   it('leaves clearance, so fitting exactly is not one pixel from not fitting', () => {
     expect(fitZoom(PAGE_WIDTH, 1.15)).toBe(1);
   });
+
+  it('shrinks to a container narrower than the paper only when allowed to', () => {
+    expect(fitZoom(390, 1.15)).toBe(1);
+    const zoom = fitZoom(390, 1.15, 0.35);
+    expect(zoom).toBeLessThan(1);
+    expect(zoom * PAGE_WIDTH).toBeLessThanOrEqual(390);
+    expect(fitZoom(100, 1.15, 0.35)).toBe(0.35);
+    expect(fitZoom(1200, 1.15, 0.35)).toBe(1.15);
+  });
 });
 
 describe('one press of a zoom control', () => {

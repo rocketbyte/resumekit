@@ -28,7 +28,8 @@ const CLEARANCE = 48;
  * Computed rather than chosen. Asking for 15% and taking it would put the page
  * under a horizontal scrollbar on a narrow window, and a document you have to
  * scroll sideways to read is worse than a small one — so the answer is the
- * lesser of what was asked for and what fits, and it is 1 when nothing fits.
+ * lesser of what was asked for and what fits. When nothing fits it is 1, or
+ * down to `min` where the surface allows a narrow container to shrink it.
  *
  * Rounded DOWN to whole percent, so a resize settles on a value instead of
  * oscillating around a fraction of a pixel.
@@ -37,23 +38,23 @@ const CLEARANCE = 48;
  * wrong: the horizontal scrollbar this exists to prevent is a question about
  * numbers rather than about the DOM.
  */
-export function fitZoom(availableWidth: number, max: number): number {
+export function fitZoom(availableWidth: number, max: number, min = 1): number {
   if (max <= 1) return 1;
   const fits =
     Math.floor(((availableWidth - CLEARANCE) / PAGE_WIDTH) * 100) / 100;
-  // Never below 1: this zooms IN when there is room and otherwise does nothing.
-  // Shrinking to fit would make the résumé's own type scale ambiguous.
-  return Math.min(max, Math.max(1, fits));
+  // Below 1 only when the surface allows it (`min`), for a container narrower
+  // than the paper: the editor's zoom control shows the percentage, so a fitted
+  // page cannot be mistaken for a smaller type scale.
+  return Math.min(max, Math.max(Math.min(1, min), fits));
 }
 
 /**
  * The zoom that lets a READ-ONLY page fit a container narrower than the paper,
  * such as a phone: never above 1, never below `min`, whole percent rounded down.
  *
- * Separate from {@link fitZoom} because the reason that one refuses to shrink —
- * the candidate could not tell a smaller page from a smaller type scale — does
- * not apply to a page nobody is editing, and a page wider than the screen is
- * one nobody can read. No clearance: there are no controls beside the paper.
+ * Separate from {@link fitZoom} because that one never zooms past 1 only to
+ * fit, and leaves clearance for the editing controls beside the paper; a page
+ * nobody is editing has no controls beside it.
  */
 export function shrinkZoom(availableWidth: number, min: number): number {
   const fits = Math.floor((availableWidth / PAGE_WIDTH) * 100) / 100;
@@ -90,7 +91,11 @@ export function useFitZoom(
    * and wanting to see the result, so those measure immediately.
    */
   fitDelayMs = 0,
-  /** Below 1 lets a read-only page shrink to fit; see {@link shrinkZoom}. */
+  /**
+   * Below 1 lets the page shrink to fit a container narrower than the paper:
+   * a read-only page through {@link shrinkZoom}, an editable one through
+   * {@link fitZoom}.
+   */
   min = 1,
 ): number {
   const [zoom, setZoom] = useState(1);
@@ -107,7 +112,7 @@ export function useFitZoom(
       // `clientWidth` already excludes a vertical scrollbar.
       setZoom(
         max > 1
-          ? fitZoom(host.clientWidth, max)
+          ? fitZoom(host.clientWidth, max, min)
           : shrinkZoom(host.clientWidth, min),
       );
     };
@@ -144,12 +149,12 @@ export function useFitZoom(
 /**
  * What the manual control may reach, and by how much at a time.
  *
- * It goes BELOW 1 where the automatic value will not. The automatic one refuses
- * to shrink because a page that quietly got smaller is indistinguishable from a
- * résumé whose type scale was changed; a candidate who pressed the button knows
- * which of the two they did.
+ * It goes below 1 even where the automatic value does not: a surface that
+ * keeps `minZoom` at 1 still lets the candidate zoom out by hand. The floor is
+ * the read-only view's, so an editor that passes it as `minZoom` fits a phone
+ * and its zoom-out button never jumps back up to a higher floor.
  */
-export const ZOOM_MIN = 0.5;
+export const ZOOM_MIN = 0.3;
 export const ZOOM_MAX = 2;
 export const ZOOM_STEP = 0.1;
 
