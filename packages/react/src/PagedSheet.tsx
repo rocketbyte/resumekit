@@ -77,9 +77,9 @@ export interface PagedSheetProps {
    */
   maxZoom?: number;
   /**
-   * The least this may be zoomed to fit a narrow container. `1`, the default,
-   * never shrinks: the editor and the export keep the page its own size. A
-   * read-only view passes less, so a phone shows the whole page.
+   * The least this may be zoomed to fit a container narrower than the paper.
+   * `1`, the default, never shrinks, which the export needs. A read-only view
+   * or an editor passes less, so a phone shows the whole page.
    */
   minZoom?: number;
   /**
